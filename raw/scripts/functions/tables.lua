@@ -442,7 +442,6 @@ function makeClassTable()
      end
     elseif test == '[SPELL' then
      spell = array[2]
-     spells[spell] = spell
      class.Spells[spell] = {}
      spells = class.Spells[spell]
      spells.RequiredLevel = array[3]
