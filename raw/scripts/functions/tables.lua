@@ -485,7 +485,7 @@ function makeEntityTable(entity)
   civid = entity.id
  end
  key = tostring(civid)
- entity = df.global.world.entities.all[civid]
+ entity = civid>-1 and df.historical_entity.find(civid)
 
  local persistTable = require 'persist-table'
  local key = tostring(entity.id)
