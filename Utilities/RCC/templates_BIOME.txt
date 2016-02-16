@@ -1,0 +1,259 @@
+[TEMPLATE:BIOME:ALL]
+	{DESCRIPTION:Can be found everywhere}
+	{TOKENS:ALL}
+        [ALL_MAIN]
+
+[TEMPLATE:BIOME:ALL_LAND]
+	{DESCRIPTION:Can be found on any land}
+	{TOKENS:ALL}
+        [ANY_LAND]
+
+[TEMPLATE:BIOME:DEAD]
+	{DESCRIPTION:Is found in places devoid of life}
+	{TOKENS:DESERT,FREEZING}
+        [ANY_DESERT]
+        [GLACIER]
+
+[TEMPLATE:BIOME:DESERT_ALL]
+	{DESCRIPTION:Can only be found in the desert.}
+    {NAME:ADJ:Desert}
+	{TOKENS:DESERT}
+        [ANY_DESERT]
+
+[TEMPLATE:BIOME:DESERT_BADLAND]
+	{DESCRIPTION:Can only be found in the badlands.}
+    {NAME:ADJ:Badlands}
+	{TOKENS:DESERT}
+        [DESERT_BADLAND]
+
+[TEMPLATE:BIOME:DESERT_ROCK]
+	{DESCRIPTION:Can only be found in the rocky wastes.}
+    {NAME:ADJ:Wasteland}
+	{TOKENS:DESERT}
+        [DESERT_ROCK]
+
+[TEMPLATE:BIOME:DESERT_SAND]
+	{DESCRIPTION:Can only be found in sandy places.}
+    {NAME:ADJ:Desert,ADJ:Sand}
+	{TOKENS:DESERT}
+        [DESERT_SAND]
+
+[TEMPLATE:BIOME:FOREST_ALL]
+	{DESCRIPTION:Is found in all different forests.}
+    {NAME:ADJ:Forest}
+	{TOKENS:FOREST}
+        [ANY_FOREST]
+
+[TEMPLATE:BIOME:FOREST_TEMPERATE]
+	{DESCRIPTION:Is only found in temperate forests.}
+    {NAME:ADJ:Forest}
+	{TOKENS:TEMPERATE}
+        [ANY_TEMPERATE_FOREST]
+
+[TEMPLATE:BIOME:FOREST_TEMPERATE_BROADLEAF]
+	{DESCRIPTION:Is only found in temperate broadleaf forests.}
+    {NAME:ADJ:Forest}
+	{TOKENS:TEMPERATE}
+        [FOREST_TEMPERATE_BROADLEAF]
+
+[TEMPLATE:BIOME:FOREST_TEMPERATE_CONIFER]
+	{DESCRIPTION:Is only found in temperate conifer forests.}
+    {NAME:ADJ:Forest}
+	{TOKENS:TEMPERATE}
+        [FOREST_TEMPERATE_CONIFER]
+
+[TEMPLATE:BIOME:FOREST_TAIGA]
+	{DESCRIPTION:Is only found in taiga.}
+    {NAME:ADJ:Taiga}
+	{TOKENS:FOREST}
+        [FOREST_TAIGA]
+
+[TEMPLATE:BIOME:FOREST_TROPICAL]
+	{DESCRIPTION:Is only found in tropical forests.}
+    {NAME:ADJ:Jungle,ADJ:Tropical}
+	{TOKENS:FOREST,TROPICAL}
+        [ANY_TROPICAL_FOREST]
+
+[TEMPLATE:BIOME:FOREST_TROPICAL_BROADLEAF]
+	{DESCRIPTION:Is only found in tropical broadleaf forests.}
+    {NAME:ADJ:Jungle,ADJ:Tropical}
+	{TOKENS:FOREST,TROPICAL}
+        [FOREST_TROPICAL_DRY_BROADLEAF]
+        [FOREST_TROPICAL_MOIST_BROADLEAF]
+
+[TEMPLATE:BIOME:FOREST_TROPICAL_BROADLEAF]
+	{DESCRIPTION:Is only found in tropical conifer forests.}
+    {NAME:ADJ:Jungle,ADJ:Tropical}
+	{TOKENS:FOREST,TROPICAL}
+        [FOREST_TROPICAL_CONIFER]
+
+[TEMPLATE:BIOME:FREEZING_ALL]
+	{DESCRIPTION:Is only found in freezing biomes.}
+    {NAME:ADJ:Artic}
+	{TOKENS:FREEZING}
+        [GLACIER]
+        [TUNDRA]
+        [OCEAN_ARCTIC]
+        [TAIGA]
+
+[TEMPLATE:BIOME:HARDY]
+	{DESCRIPTION:Is found in hardy places}
+	{TOKENS:MOUNTAIN,FREEZING}
+        [MOUNTAIN]
+        [GLACIER]
+
+[TEMPLATE:BIOME:MOUNTAIN]
+	{DESCRIPTION:Is only found in the mountains.}
+    {NAME:ADJ:Mountain}
+	{TOKENS:MOUNTAIN}
+        [MOUNTAIN]
+
+[TEMPLATE:BIOME:TEMPERATE_ALL]
+	{DESCRIPTION:Can be found in any temperate location.}
+	{TOKENS:TEMPERATE}
+        [ANY_TEMPERATE]
+
+[TEMPLATE:BIOME:TEMPERATE_OPEN]
+	{DESCRIPTION:Can be found in any open temperate location.}
+	{TOKENS:TEMPERATE}
+        [GRASSLAND_TEMPERATE]
+        [SAVANNA_TEMPERATE]
+
+[TEMPLATE:BIOME:TEMPERATE_DENSE]
+	{DESCRIPTION:Can be found in any dense temperate location.}
+	{TOKENS:TEMPERATE}
+        [SHRUBLAND_TEMPERATE]
+        [ANY_TEMPERATE_FOREST]
+
+[TEMPLATE:BIOME:TEMPERATE_WETLAND]
+	{DESCRIPTION:Can be found in any temperate wetland.}
+	{TOKENS:TEMPERATE}
+        [ANY_TEMPERATE_WETLAND]
+
+[TEMPLATE:BIOME:TROPICAL_ALL]
+	{DESCRIPTION:Can be found in any tropical location.}
+    {NAME:ADJ:Tropical}
+	{TOKENS:TROPICAL}
+        [ANY_TROPICAL]
+
+[TEMPLATE:BIOME:TROPICAL_OPEN]
+	{DESCRIPTION:Can be found in any open tropical location.}
+    {NAME:ADJ:Tropical}
+	{TOKENS:TROPICAL}
+        [GRASSLAND_TROPICAL]
+        [SAVANNA_TROPICAL]
+
+[TEMPLATE:BIOME:TROPICAL_DENSE]
+	{DESCRIPTION:Can be found in any dense tropical location}
+    {NAME:ADJ:Tropical}
+	{TOKENS:TROPICAL}
+        [SHRUBLAND_TROPICAL]
+        [ANY_TROPICAL_FOREST]
+
+[TEMPLATE:BIOME:TROPICAL_WETLAND]
+	{DESCRIPTION:Can be found in any tropical wetland.}
+    {NAME:ADJ:Tropical}
+	{TOKENS:TROPICAL}
+        [ANY_TROPICAL_WETLAND]
+
+[TEMPLATE:BIOME:UNDERGROUND1]
+	{DESCRIPTION:Is only found underground.}
+    {NAME:ADJ:Subterranean,PREFIX:Terra}
+	{TOKENS:UNDERGROUND}
+        [SUBTERRANEAN_CHASM]
+
+[TEMPLATE:BIOME:UNDERGROUND2]
+	{DESCRIPTION:Is only found underground.}
+    {NAME:ADJ:Subterranean,PREFIX:Terra}
+	{TOKENS:UNDERGROUND}
+        [SUBTERRANEAN_CHASM]
+
+[TEMPLATE:BIOME:UNDERGROUND3]
+	{DESCRIPTION:Is only found underground.}
+    {NAME:ADJ:Subterranean,PREFIX:Terra}
+	{TOKENS:UNDERGROUND}
+        [SUBTERRANEAN_CHASM]
+
+[TEMPLATE:BIOME:UNDERGROUND_WATER]
+	{DESCRIPTION:Is only found in water underground.}
+    {NAME:ADJ:Subterranean,PREFIX:Terra}
+	{TOKENS:WATER_ONLY,UNDERGROUND}
+        [SUBTERRANEAN_WATER]
+
+[TEMPLATE:BIOME:WATER_ALL]
+	{DESCRIPTION:Can be found in any water.}
+    {NAME:ADJ:Water}
+	{TOKENS:WATER_ONLY}
+        [ANY_OCEAN]
+        [ANY_LAKE]
+        [ANY_RIVER]
+        [ANY_POOL]
+
+[TEMPLATE:BIOME:WATER_OCEAN]
+	{DESCRIPTION:Is only found in oceans.}
+    {NAME:ADJ:Water}
+	{TOKENS:WATER_ONLY}
+        [ANY_OCEAN]
+
+[TEMPLATE:BIOME:WATER_LAKE]
+	{DESCRIPTION:Is only found in lakes.}
+    {NAME:ADJ:Lake,ADJ:Water}
+	{TOKENS:WATER_ONLY}
+        [ANY_LAKE]
+
+[TEMPLATE:BIOME:WATER_RIVER]
+	{DESCRIPTION:Is only found in rivers.}
+    {NAME:ADJ:River,ADJ:Water}
+	{TOKENS:WATER_ONLY}
+        [ANY_RIVER]
+
+[TEMPLATE:BIOME:WATER_POOL]
+	{DESCRIPTION:Is only found in pools.}
+    {NAME:ADJ:Water}
+	{TOKENS:WATER_ONLY}
+        [ANY_POOL]
+
+[TEMPLATE:BIOME:WATER_TEMPERATE]
+	{DESCRIPTION:Can be found in any temperate water.}
+    {NAME:ADJ:Water}
+	{TOKENS:WATER_ONLY}
+        [ANY_TEMPERATE_RIVER]
+        [ANY_TEMPERATE_LAKE]
+        [OCEAN_TEMPERATE]
+        [POOL_TEMPERATE_FRESHWATER]
+        [POOL_TEMPERATE_BRACKISHWATER]
+        [POOL_TEMPERATE_SALTWATER]
+
+[TEMPLATE:BIOME:WATER_TROPICAL]
+	{DESCRIPTION:Can be found in any tropical water.}
+    {NAME:ADJ:Water,ADJ:Tropical}
+	{TOKENS:WATER_ONLY}
+        [ANY_TROPICAL_RIVER]
+        [ANY_TROPICAL_LAKE]
+        [OCEAN_TROPICAL]
+        [POOL_TROPICAL_FRESHWATER]
+        [POOL_TROPICAL_BRACKISHWATER]
+        [POOL_TROPICAL_SALTWATER]
+
+[TEMPLATE:BIOME:WATER_FRESH]
+	{DESCRIPTION:Can be found in any fresh water.}
+    {NAME:ADJ:Fresh Water}
+	{TOKENS:WATER_ONLY}
+        [POOL_TEMPERATE_FRESHWATER]
+        [POOL_TROPICAL_FRESHWATER]
+        [LAKE_TEMPERATE_FRESHWATER]
+        [LAKE_TROPICAL_FRESHWATER]
+        [RIVER_TEMPERATE_FRESHWATER]
+        [RIVER_TROPICAL_FRESHWATER]
+
+[TEMPLATE:BIOME:WATER_SALT]
+	{DESCRIPTION:Can be found in any salt water.}
+    {NAME:ADJ:Salt Water}
+	{TOKENS:WATER_ONLY}
+        [POOL_TEMPERATE_SALTWATER]
+        [POOL_TROPICAL_SALTWATER]
+        [LAKE_TEMPERATE_SALTWATER]
+        [LAKE_TROPICAL_SALTWATER]
+        [RIVER_TEMPERATE_SALTWATER]
+        [RIVER_TROPICAL_SALTWATER]
+        [ANY_OCEAN]

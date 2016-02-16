@@ -1,0 +1,28 @@
+[TEMPLATE:TYPE:MUNDANE]
+	{DESCRIPTION:A common animal found in the wilderness.}
+	{TOKENS:MUNDANE}
+        [NATURAL]
+        [MUNDANE]
+
+[TEMPLATE:TYPE:SAVAGE]
+	{DESCRIPTION:A ferocious animal found only in the most savage of landscapes.}
+	{TOKENS:SAVAGE}
+        [NATURAL]
+        [SAVAGE]
+
+[TEMPLATE:TYPE:CHAOS]
+	{DESCRIPTION:An animal whose home has been corrupted by chaos.}
+	{TOKENS:CHAOS}
+        [NATURAL]
+        [EVIL]
+
+[TEMPLATE:TYPE:PURGED]
+	{DESCRIPTION:A creation left behind by the giants in the purged lands.}
+	{TOKENS:PURGED}
+        [NATURAL]
+        [GOOD]
+
+[TEMPLATE:TYPE:FANCIFUL]
+	{DESCRIPTION:A fanciful animal.}
+	{TOKENS:FANCIFUL}
+        [FANCIFUL]
