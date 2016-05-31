@@ -1,3 +1,5 @@
+--item based functions, version 42.06a
+---------------------------------------------------------------------------------------
 function trackMaterial(itemID,change,dur,alter)
  local persistTable = require 'persist-table'
  local itemTable = persistTable.GlobalTable.roses.ItemTable
@@ -119,6 +121,8 @@ function changeQuality(item,quality,dur,track)
  end
 
  save = item.quality
+ if quality > 5 then quality = 5 end
+ if quality < 0 then quality = 0 end
  item:setQuality(quality)
 
  if tonumber(dur) and tonumber(dur) > 0 then
@@ -156,6 +160,40 @@ function changeSubtype(item,subtype,dur,track)
  if track and found then
   trackSubtype(item.id,subtype,dur,track)
  end
+end
+
+function checkAttack(item,attack)
+ if tonumber(item) then
+  item = df.item.find(tonumber(item))
+ end
+
+ if attack == 'Random' then
+  local rand = dfhack.random.new()
+  local totwght = 0
+  local weights = {}
+  weights[0] = 0
+  local n = 1
+  for _,attacks in pairs(item.subtype.attacks) do
+   totwght = totwght + 1
+   weights[n] = weights[n-1] + 1
+   n = n + 1  
+  end
+  pick = rand:random(totwght)
+  for i = 1,n do
+   if pick >= weights[i-1] and pick < weights[i] then
+    attack = i-1
+    break
+   end
+  end
+ else
+  for i,attacks in pairs(item.subtype.attacks) do
+   if attacks.verb_2nd == attack or attacks.verb_3rd == attack then
+    attack = i
+    break
+   end
+  end
+ end
+ return attack
 end
 
 function create(item,material,options) --from modtools/create-item
@@ -196,7 +234,6 @@ function create(item,material,options) --from modtools/create-item
  end
 
  return item
-
 end
 
 function equip(item, unit, bodyPart, mode) --from modtools/equip-item
@@ -264,11 +301,20 @@ function makeProjectileShot(item,origin,target,options)
   item = df.item.find(tonumber(item))
  end
 
- velocity = options.velocity or 20
- hit_chance = options.accuracy or 50
- max_range = options.range or 10
- min_range = options.minimum or 1
-
+ if options then
+  velocity = options.velocity or 20
+  hit_chance = options.accuracy or 50
+  max_range = options.range or 10
+  min_range = options.minimum or 1
+  firer = df.unit.find(tonumber(options.firer)) or nil
+ else
+  velocity = 20
+  hit_chance = 50
+  max_range = 10
+  min_range = 1
+  firer = nil
+ end
+ 
  proj = dfhack.items.makeProjectile(item)
  proj.origin_pos.x=origin[1]
  proj.origin_pos.y=origin[2]
@@ -297,6 +343,7 @@ function makeProjectileShot(item,origin,target,options)
  proj.fall_delay=0 -- No idea
  proj.hit_rating=hit_chance -- I think this is how likely it is to hit a unit (or to go where it should maybe?)
  proj.unk22 = velocity
+ proj.firer = firer
  proj.speed_x=0
  proj.speed_y=0
  proj.speed_z=0
@@ -306,7 +353,7 @@ end
 function removal(item)
 
  if tonumber(item) then
-  item = df.item.find(item)
+  item = df.item.find(tonumber(item))
  end
 
  dfhack.items.remove(item)

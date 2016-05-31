@@ -1,3 +1,5 @@
+--building based functions, version 42.06a
+---------------------------------------------------------------------------------------
 function addItem(building,item,dur)
  if tonumber(building) then
   building = df.building.find(tonumber(building))
@@ -61,45 +63,17 @@ function findBuilding(search)
  local n = 0
  if primary == 'RANDOM' then
   if secondary == 'NONE' or secondary == 'ALL' then
-   for i,x in pairs(buildingList) do
-    n = n + 1
-    targetList[n] = x
-   end
+   targetList = buildingList
   elseif secondary == 'WORKSHOP' then
-   for i,x in pairs(buildingList) do
-    if df.building_workshopst:is_instance(x) then
-     n = n + 1
-     targetList[n] = x
-    end
-   end
+   targetList = df.global.world.buildings.other.WORKSHOP_ANY
   elseif secondary == 'FURNACE' then
-   for i,x in pairs(buildingList) do
-    if df.building_furnacest:is_instance(x) then
-     n = n + 1
-     targetList[n] = x
-    end
-   end
+   targetList = df.global.world.buildings.other.FURNACE_ANY
   elseif secondary == 'TRADE_DEPOT' then
-   for i,x in pairs(buildingList) do
-    if df.building_tradedepotst:is_instance(x) then
-     n = n + 1
-     targetList[n] = x
-    end
-   end
+   targetList = df.global.world.buildings.other.TRADE_DEPOT
   elseif secondary == 'STOCKPILE' then
-   for i,x in pairs(buildingList) do
-    if df.building_stockpilest:is_instance(x) then
-     n = n + 1
-     targetList[n] = x
-    end
-   end
+   targetList = df.global.world.buildings.other.STOCKPILE
   elseif secondary == 'ZONE' then
-   for i,x in pairs(buildingList) do
-    if df.building_civzonest:is_instance(x) then
-     n = n + 1
-     targetList[n] = x
-    end
-   end
+   targetList = df.global.world.buildings.other.ANY_ZONE
   elseif secondary == 'CUSTOM' then
    for i,x in pairs(buildingList) do
     if df.building_workshopst:is_instance(x) or df.building_furnacest:is_instance(x) then

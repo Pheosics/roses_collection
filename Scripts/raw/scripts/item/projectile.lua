@@ -1,4 +1,4 @@
---special-projectile.lua v1.0
+--item/projectile.lua version 42.06a
 
 local utils = require 'utils'
 
@@ -186,6 +186,6 @@ for n = 1, number, 1 do
   min_range = tonumber(args.minrange) or 1 -- Specify minimum range of projectiles (default 1)
   height = tonumber(args.height) or 0
   dfhack.items.moveToGround(item,{x=tonumber(origin.x),y=tonumber(origin.y),z=tonumber(origin.z+height)})
-  dfhack.script_environment('functions/item').makeProjectileShot(item,{origin.x,origin.y,origin.z+height},{target.x,target.y,target.z},{velocity=velocity,accuracy=hit_chance,range=max_range,minimum=min_range})
+  dfhack.script_environment('functions/item').makeProjectileShot(item,{origin.x,origin.y,origin.z+height},{target.x,target.y,target.z},{velocity=velocity,accuracy=hit_chance,range=max_range,minimum=min_range,firer=args.unitSource})
  end
 end

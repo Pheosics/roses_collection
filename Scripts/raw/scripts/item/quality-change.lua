@@ -1,3 +1,4 @@
+--item/quality-change.lua version 42.06a
 
 local utils = require 'utils'
 
@@ -6,14 +7,7 @@ validArgs = validArgs or utils.invert({
  'unit',
  'item',
  'type',
- 'weapon',
- 'armor',
- 'helm',
- 'shoes',
- 'shield',
- 'gloves',
- 'pants',
- 'ammo',
+ 'equipment',
  'quality',
  'dur',
  'upgrade',
@@ -37,22 +31,16 @@ if args.help then -- Help declaration
      examples:                                           |
       WEAPON:ITEM_WEAPON_PICK                            |
       AMMO:ITEM_AMMO_BOLT                                /
-   -weapon                \
-     change weapons       |
-   -armor                 |
-     change armor         |
-   -helm                  |
-     change helm          |
-   -shoes                 |
-     change shoes         | Must have at least one of these arguments when using -unit
-   -shield                |
-     change shield        |
-   -gloves                |
-     change gloves        |
-   -pants                 |
-     change pants         |
-   -ammo                  |
-     change ammo          /
+   -equipment Type
+     Valid Types:
+      WEAPON
+      ARMOR
+      HELM
+      SHOES
+      SHIELD
+      GLOVES
+      PANTS
+      AMMO
    -upgrade                                 \
      upgrade the quality of the item by 1   |
    -downgrade                               |
@@ -72,15 +60,7 @@ end
 
 if args.unit and tonumber(args.unit) then
  unit = df.unit.find(tonumber(args.unit))
- local types = {}
- if args.weapon then types[1] = 'WEAPON' end
- if args.armor then types[2] = 'ARMOR' end
- if args.helm then types[3] = 'HELM' end
- if args.shoes then types[4] = 'SHOES' end
- if args.shield then types[5] = 'SHIELD' end
- if args.gloves then types[6] = 'GLOVES' end
- if args.pants then types[7] = 'PANTS' end
- if args.ammo then types[8] = 'AMMO' end
+ local types = args.equipment
  items = dfhack.script_environment('functions/unit').checkInventoryType(unit,types)
 elseif args.item and tonumber(args.item) then
  items = {df.item.find(tonumber(args.item))}

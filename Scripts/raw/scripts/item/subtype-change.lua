@@ -1,4 +1,4 @@
---item/subtype-change.lua v1.0
+--item/subtype-change.lua version 42.06a
 
 local utils = require 'utils'
 local split = utils.split_string
@@ -8,14 +8,7 @@ validArgs = validArgs or utils.invert({
  'unit',
  'item',
  'type',
- 'weapon',
- 'armor',
- 'helm',
- 'shoes',
- 'shield',
- 'gloves',
- 'pants',
- 'ammo',
+ 'equipment',
  'subtype',
  'dur',
  'upgrade',
@@ -39,22 +32,16 @@ if args.help then -- Help declaration
      examples:                                           |
       WEAPON:ITEM_WEAPON_PICK                            |
       AMMO:ITEM_AMMO_BOLT                                /
-   -weapon SUBTYPE or ALL \
-     change weapons       |
-   -armor SUBTYPE or ALL  |
-     change armor         |
-   -helm SUBTYPE or ALL   |
-     change helm          |
-   -shoes SUBTYPE or ALL  |
-     change shoes         | Must have at least one of these arguments
-   -shield SUBTYPE or ALL |
-     change shield        |
-   -gloves SUBTYPE or ALL |
-     change gloves        |
-   -pants SUBTYPE or ALL  |
-     change pants         |
-   -ammo SUBTYPE or ALL   |
-     change ammo          /
+   -equipment Type
+     Valid Types:
+      WEAPON
+      ARMOR
+      HELM
+      SHOES
+      SHIELD
+      GLOVES
+      PANTS
+      AMMO
    -upgrade                                              \
      increase the number of the item SUBTYPE by 1        |
      (i.e. ITEM_WEAPON_DAGGER_1 -> ITEM_WEAPON_DAGGER_2) |
@@ -77,15 +64,7 @@ end
 
 if args.unit and tonumber(args.unit) then
  unit = df.unit.find(tonumber(args.unit))
- local types = {}
- if args.weapon then types[1] = 'WEAPON' end
- if args.armor then types[2] = 'ARMOR' end
- if args.helm then types[3] = 'HELM' end
- if args.shoes then types[4] = 'SHOES' end
- if args.shield then types[5] = 'SHIELD' end
- if args.gloves then types[6] = 'GLOVES' end
- if args.pants then types[7] = 'PANTS' end
- if args.ammo then types[8] = 'AMMO' end
+ local types = args.equipment
  items = dfhack.script_environment('functions/unit').checkInventoryType(unit,types)
 elseif args.item and tonumber(args.item) then
  items = {df.item.find(tonumber(args.item))}

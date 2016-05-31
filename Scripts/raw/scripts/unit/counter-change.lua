@@ -1,16 +1,15 @@
---unit/counter-change.lua v2.0
+--unit/counter-change.lua version 42.06a
 
 local utils = require 'utils'
 
 validArgs = validArgs or utils.invert({
  'help',
- 'token',
- 'fixed',
- 'percent',
- 'set',
+ 'counter',
+ 'mode',
+ 'amount',
  'dur',
  'unit',
- 'argument'
+ 'announcement'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -23,7 +22,7 @@ if args.help then -- Help declaration
    -unit id
      REQUIRED
      id of the target unit
-   -token TYPE
+   -counter TYPE
      REQUIRED
      token to be changed
      valid types:
@@ -31,6 +30,7 @@ if args.help then -- Help declaration
       stunned
       winded
       unconscious
+      suffocation
       pain
       nausea
       dizziness
@@ -43,20 +43,20 @@ if args.help then -- Help declaration
       sleepiness
       blood
       infection
-   -fixed #                                  \
-     change token value by fixed amount      |
-   -percent #                                |
-     change token value by percentage amount | Must have one and only one of these arguments
-   -set #                                    |
-     set token value to this value           /
+   -mode Mode Type
+     Valid Types:
+      Fixed
+      Percent
+      Set
+   -amount #
    -dur #
      length of time, in in-game ticks, for the change to last
      0 means the change is permanent
      DEFAULT: 0
   examples:
-   unit/counter-change -unit \\UNIT_ID -fixed 10000 -token stunned -dur 10
-   unit/counter-change -unit \\UNIT_ID -set [ 0 0 0 0 ] -token [ nausea dizziness numbness fever ]
-   unit/counter-change -unit \\UNIT_ID -percent \-100 -token blood
+   unit/counter-change -unit \\UNIT_ID -mode fixed -amount 10000 -token stunned -dur 10
+   unit/counter-change -unit \\UNIT_ID -mode set -amount [ 0 0 0 0 ] -token [ nausea dizziness numbness fever ]
+   unit/counter-change -unit \\UNIT_ID -mode percent -amount \-100 -token blood
  ]])
  return
 end
@@ -68,19 +68,20 @@ else
  return
 end
 
-value = args.fixed or args.percent or args.set
+value = args.amount
 
 dur = tonumber(args.dur) or 0
+if dur < 0 then return end
 if type(value) == 'string' then value = {value} end
-if type(args.token) == 'string' then args.token = {args.token} end
-if #value ~= #args.token then
+if type(args.counter) == 'string' then args.counter = {args.counter} end
+if #value ~= #args.counter then
  print('Mismatch between number of tokens declared and number of changes declared')
  return
 end
 
-for i,counter in ipairs(args.token) do
+for i,counter in ipairs(args.counter) do
  if (counter == 'webbed' or counter == 'stunned' or counter == 'winded' or counter == 'unconscious'
-     or counter == 'pain' or counter == 'nausea' or counter == 'dizziness') then
+     or counter == 'pain' or counter == 'nausea' or counter == 'dizziness' or counter == 'suffocation') then
   location = unit.counters
  elseif (counter == 'paralysis' or counter == 'numbness' or counter == 'fever' or counter == 'exhaustion'
          or counter == 'hunger' or counter == 'thirst' or counter == 'sleepiness' or oounter == 'hunger_timer'
@@ -91,21 +92,17 @@ for i,counter in ipairs(args.token) do
   location = unit.body
  else
   print('Invalid counter token declared')
+  print(counter)
   return
  end
  current = location[counter]
 
- if args.fixed then
-  change = tonumber(value[i])
- elseif args.percent then
-  local percent = (100+tonumber(value[i]))/100
-  change = current*percent - current
- elseif args.set then
-  change = tonumber(value[i]) - current
- else
-  print('No method for change defined')
-  return
- end
+-- if counter == 'pain' or counter == 'nausea' or counter == 'dizziness' or counter == 'paralysis' or counter == 'numbness' or counter == 'fever' then
+--  print('Counter = ', counter)
+--  print('Declared counter is not meant to be changed with this script, see http://www.bay12forums.com/smf/index.php?topic=154798 for information.')
+-- end
+ 
+ change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
  dfhack.script_environment('functions/unit').changeCounter(unit,counter,change,dur)
  if args.announcement then
 --add announcement information

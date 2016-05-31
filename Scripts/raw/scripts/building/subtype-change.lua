@@ -1,3 +1,5 @@
+--building/subtype-change.lua version 42.06a
+
 local utils = require 'utils'
 
 validArgs = validArgs or utils.invert({
@@ -20,22 +22,22 @@ print(
   -help
    print this help message
   -building id
-   specify the building to be removed
+    specify the building to be changed
   -unit id
-   specify the unit to use as location to find the building
+    specify the unit to use as location to find the building
   -item ids
-   table of item ids to be added to the building
+    table of item ids to be added to the building
   -reagent codes
-   table of reagent codes, used in conjunction with -label and -item
+    table of reagent codes, used in conjunction with -label and -item
   -label code
-   specific reagent code of item to be added to building
+    specific reagent code of item to be added to building
   -type TOKEN
-   building to change the other into
+    building to change the other into
   -dur #
-   length of time in in-game ticks for the change to last, any items added will be removed
+    length of time in in-game ticks for the change to last, any items added will be removed
   -examples
-   building/subtype-change -building \\BUILDING_ID -type NEW_BUILDING_ID -item [ \\INPUT_ITEMS ] -dur 1000
-   building/subtpye-change -building \\BUILDING_ID -type NEW_BUILDING_ID -label add -item [ \\INPUT_ITEMS ] -reagent [ \\INPUT_REAGENTS ]
+    building/subtype-change -building \\BUILDING_ID -type NEW_BUILDING_ID -item [ \\INPUT_ITEMS ] -dur 1000
+    building/subtpye-change -building \\BUILDING_ID -type NEW_BUILDING_ID -label add -item [ \\INPUT_ITEMS ] -reagent [ \\INPUT_REAGENTS ]
 ]])
 return
 end
@@ -58,21 +60,22 @@ dur = args.dur or 0
 check = dfhack.script_environment('functions/building').changeSubtype(building,args.type,dur)
 
 if check then
- if args.item and not args.label then
-  for _,item in ipairs(args.item) do
-   dfhack.script_environment('functions/building').addItem(building,item,dur)
-  end
- end
- if args.label then
-  if args.item and args.reagent then
-   for i,code in ipairs(args.reagent) do
-    if code == args.label then
-     dfhack.script_environment('functions/building').addItem(building,args.item[i],dur)
+ if args.item then
+  if args.label then
+   if args.reagent then
+    for i,code in ipairs(args.reagent) do
+     if code == args.label then
+      dfhack.script_environment('functions/building').addItem(building,args.item[i],dur)
+     end
     end
+   else
+    print('When using a label, must provide both items and reagents')
+    return
    end
   else
-   print('When using a label, must provide both items and reagents')
-   return
+   for _,item in ipairs(args.item) do
+    dfhack.script_environment('functions/building').addItem(building,item,dur)
+   end
   end
  end
 end

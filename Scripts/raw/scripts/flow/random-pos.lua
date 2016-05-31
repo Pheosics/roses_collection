@@ -1,4 +1,4 @@
---flow/random-pos.lua v1.0
+--flow/random-pos.lua version 42.06a
 
 local utils = require 'utils'
 

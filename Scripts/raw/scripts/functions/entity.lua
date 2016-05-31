@@ -1,3 +1,5 @@
+--entity based functions, version 42.06a
+---------------------------------------------------------------------------------------
 function changeCreature(entity,stype,mobj,sobj,direction,verbose)
 
  if tonumber(entity) then

@@ -1,17 +1,17 @@
---unit/attribute-change.lua v2.0
+--unit/attribute-change.lua version 42.06a
 
 local utils = require 'utils'
 
 validArgs = validArgs or utils.invert({
  'help',
  'attribute',
- 'fixed',
- 'percent',
- 'set',
+ 'mode',
+ 'amount',
  'dur',
  'unit',
  'announcement',
  'track',
+ 'syndrome',
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -26,12 +26,12 @@ if args.help then -- Help declaration
      id of the target unit
    -attribute ATTRIBUTE_ID
      attribute(s) to be changed
-   -fixed #                                \
-     change attribute by fixed amount      |
-   -percent #                              |
-     change attribute by percentage amount | Must have one and only one of these arguments
-   -set #                                  |
-     set attribute to this value           /
+   -mode
+     Valid Types:
+      Fixed
+      Percent
+      Set
+   -amount #
    -dur #
      length of time, in in-game ticks, for the change to last
      0 means the change is permanent
@@ -53,9 +53,10 @@ else
  return
 end
 
-value = args.fixed or args.percent or args.set
+value = args.amount
 
 dur = tonumber(args.dur) or 0
+if dur < 0 then return end
 if type(value) == 'string' then value = {value} end
 if type(args.attribute) == 'string' then args.attribute = {args.attribute} end
 if #value ~= #args.attribute then
@@ -66,6 +67,11 @@ end
 track = nil
 if args.track then track = 'track' end
 
+if not args.fixed and not args.percent and not args.set then
+ print('No change defined, must include -fixed, -percent, or -set')
+ return
+end
+
 for i,attribute in ipairs(args.attribute) do
  if df.physical_attribute_type[attribute] then
   current = unit.body.physical_attrs[attribute].value
@@ -75,18 +81,8 @@ for i,attribute in ipairs(args.attribute) do
   print('Invalid attribute id')
   return
  end
- if args.fixed then
-  change = tonumber(value[i])
- elseif args.percent then
-  local percent = (100+tonumber(value[i]))/100
-  change = current*percent - current
- elseif args.set then
-  change = tonumber(value[i]) - current
- else
-  print('No method for change defined')
-  return
- end
- dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,track)
+ change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
+ dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,track,args.syndrome)
 end
 if args.announcement then
 --add announcement information

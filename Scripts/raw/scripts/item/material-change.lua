@@ -1,4 +1,4 @@
---item/material-change.lua v1.0
+--item/material-change.lua version 42.06a
 
 local utils = require 'utils'
 
@@ -6,14 +6,7 @@ validArgs = validArgs or utils.invert({
  'help',
  'unit',
  'item',
- 'weapon',
- 'armor',
- 'helm',
- 'shoes',
- 'shield',
- 'gloves',
- 'pants',
- 'ammo',
+ 'equipment',
  'mat',
  'dur',
  'track',
@@ -30,22 +23,16 @@ if args.help then -- Help declaration
      id of the target unit    |
    -item id                   | Must have one and only one of them
      id of the target item    /
-   -weapon          \
-     change weapons |
-   -armor           |
-     change armor   |
-   -helm            |
-     change helm    |
-   -shoes           |
-     change shoes   | Must have at least one of these arguments if using -unit
-   -shield          |
-     change shield  |
-   -gloves          |
-     change gloves  |
-   -pants           |
-     change pants   |
-   -ammo            |
-     change ammo    /
+   -equipment Type
+     Valid Types:
+      WEAPON
+      ARMOR
+      HELM
+      SHOES
+      SHIELD
+      GLOVES
+      PANTS
+      AMMO
    -mat matstring
      specify the material of the item to be changed to
      examples:
@@ -66,15 +53,7 @@ end
 
 if args.unit and tonumber(args.unit) then
  unit = df.unit.find(tonumber(args.unit))
- local types = {}
- if args.weapon then types[1] = 'WEAPON' end
- if args.armor then types[2] = 'ARMOR' end
- if args.helm then types[3] = 'HELM' end
- if args.shoes then types[4] = 'SHOES' end
- if args.shield then types[5] = 'SHIELD' end
- if args.gloves then types[6] = 'GLOVES' end
- if args.pants then types[7] = 'PANTS' end
- if args.ammo then types[8] = 'AMMO' end
+ local types = args.equipment
  items = dfhack.script_environment('functions/unit').checkInventoryType(unit,types)
 else
  if args.item and tonumber(args.item) then

@@ -1,4 +1,4 @@
---unit/propel.lua v2.0
+--unit/propel.lua version 42.06a
 
 local utils = require 'utils'
 
@@ -7,9 +7,7 @@ validArgs = validArgs or utils.invert({
  'unitSource',
  'unitTarget',
  'velocity',
- 'fixed',
- 'random',
- 'relative',
+ 'mode',
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -27,22 +25,21 @@ if args.help then -- Help declaration
      required if using -relative
    -velocity [ # # # ]
      velocity in x,y,z coordinates
-     DEFAULT 1,1,1
-   -fixed                                                                                                    \
-     turns the unit into a projectile and gives the unit the specified velocity                              |
-   -random                                                                                                   |
-     turns the unit into a projectile and gives the unit a random velocity up to +/- the specified velocity  | Must have one and only one of these arguments
-   -relative                                                                                                 |
-     turns the unit into a projectile and gives the unit the specified velocity relative to the -unitSource  /
+     DEFAULT [ 0 0 0 ]
+   -mode Type
+     Valid Types:
+      Fixed
+      Random
+      Relative
  ]])
  return
 end
 
-if args.fixed then
+if args.mode == 'Fixed' or args.mode == 'fixed' then
  propelType = 'fixed'
-elseif args.random then
+elseif args.mode == 'Random' or args.mode == 'random' then
  propelType = 'random'
-elseif args.relative then
+elseif args.mode == 'Relative' or args.mode == 'relative' then
  propelType = 'relative'
 else
  propelType = 'fixed'

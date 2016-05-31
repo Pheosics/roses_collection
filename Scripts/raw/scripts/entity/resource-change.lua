@@ -1,3 +1,5 @@
+--entity/resource-change.lua version 42.06a
+
 local utils = require 'utils'
 local split = utils.split_string
 

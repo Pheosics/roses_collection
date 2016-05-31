@@ -1,4 +1,4 @@
---flow/random-plan.lua v1.0
+--flow/random-plan.lua version 42.06a
 
 local utils = require 'utils'
 

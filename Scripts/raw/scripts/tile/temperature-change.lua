@@ -1,4 +1,4 @@
---temperature-change.lua v1.0
+--tile/temperature-change.lua version 42.06a
 
 local utils = require 'utils'
 
@@ -40,20 +40,20 @@ end
 
 dur = tonumber(args.dur) or 0 -- Check if there is a duration (default 0)
 
+if args.unit and tonumber(args.unit) then
+ pos = df.unit.find(tonumber(args.unit)).pos
+elseif args.location then
+ pos = args.location
+else
+ print('No center decleration, need -unit or -location')
+ return
+end
+ 
 if args.plan then
- if args.unit and tonumber(args.unit) then
-  pos = df.unit.find(tonumber(args.unit)).pos
- elseif args.location then
-  pos = args.location
- else
-  print('No center decleration, need -unit or -location')
-  return
- end
  locations,n = dfhack.script_environment('functions/map').getPositionPlan(file,pos)
  for i,loc in ipairs(locations) do
   dfhack.script_environment('functions/map').changeTemperature(loc,nil,nil,args.temperature,dur)
  end
-end
-if args.location then
- dfhack.script_environment('functions/map').changeTemperature(args.location[1],args.location[2],args.location[3],args.temperature,dur)
+else
+ dfhack.script_environment('functions/map').changeTemperature(pos,nil,nil,args.temperature,dur)
 end

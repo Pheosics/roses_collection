@@ -1,17 +1,17 @@
---unit/trait-change.lua v2.0
+--unit/trait-change.lua version 42.06a
 
 local utils = require 'utils'
 
 validArgs = validArgs or utils.invert({
  'help',
  'trait',
- 'fixed',
- 'percent',
- 'set',
+ 'mode',
+ 'amount',
  'dur',
  'unit',
  'announcement',
  'track',
+ 'syndrome',
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -27,12 +27,12 @@ if args.help then -- Help declaration
    -trait TRAIT_TOKEN
      REQUIRED
      trait to be changed
-   -fixed #                            \
-     change trat by fixed amount       |
-   -percent #                          |
-     change trait by percentage amount | Must have one and only one of these arguments
-   -set #                              |
-     set trait to this value           /
+   -mode Type
+     Valid Types:
+      Fixed
+      Percent
+      Set
+   -amount #
    -dur #
      length of time, in in-game ticks, for the change to last
      0 means the change is permanent
@@ -51,9 +51,9 @@ else
  return
 end
 
-value = args.fixed or args.percent or args.set
-
+value = args.amount
 dur = tonumber(args.dur) or 0
+if dur < 0 then return end
 if type(value) == 'string' then value = {value} end
 if type(args.trait) == 'string' then args.trait = {args.trait} end
 if #value ~= #args.trait then
@@ -66,19 +66,8 @@ if args.track then track = 'track' end
 
 for i,trait in ipairs(args.trait) do
  current = unit.status.current_soul.personality.traits[trait]
-
- if args.fixed then
-  change = tonumber(value[i])
- elseif args.percent then
-  local percent = (100+tonumber(value[i]))/100
-  change = current*percent - current
- elseif args.set then
-  change = tonumber(value[i]) - current
- else
-  print('No method for change declared')
-  return
- end
- dfhack.script_environment('functions/unit').changeTrait(unit,trait,change,dur,track)
+ change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
+ dfhack.script_environment('functions/unit').changeTrait(unit,trait,change,dur,track,args.syndrome)
 end
 if args.announcement then
 --add announcement information
