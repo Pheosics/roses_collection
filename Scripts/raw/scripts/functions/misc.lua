@@ -139,3 +139,27 @@ function getCounter(counter,extra)
  end
  return counterTable
 end
+
+function checkResistance(resistance,temp)
+ local persistTable = require 'persist-table'
+ local utils = require 'utils'
+ local split = utils.split_string
+ 
+ resistances = temp or {}
+ baseTable = persistTable.GlobalTable.roses.BaseTable.CustomResistances
+ for i,x in ipairs(split(resistance,':')) do
+  if baseTable[x] then
+   baseTable = baseTable[x]
+  else
+   return
+  end
+ end
+ if baseTable._children then
+  for _,x in ipairs(baseTable._children) do
+   checkResistance(resistance..':'..x,resistances)
+  end
+ else
+  resistances[resistance] = true
+ end
+ return resistances
+end

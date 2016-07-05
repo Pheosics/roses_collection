@@ -68,18 +68,8 @@ if args.track then track = 'track' end
 for i,skill in ipairs(args.skill) do
  local skills = unit.status.current_soul.skills
  local skillid = df.job_skill[skill]
- local found = false
- for i,x in ipairs(skills) do
-  if x.id == skillid then
-   found = true
-   token = x
-   current = token.rating
-   break
-  end
- end
- if not found then
-  utils.insert_or_update(unit.status.current_soul.skills,{new = true, id = skillid, rating = 0},'id')
-  skills = unit.status.current_soul.skills
+ if skillid then
+  local found = false
   for i,x in ipairs(skills) do
    if x.id == skillid then
     found = true
@@ -88,8 +78,31 @@ for i,skill in ipairs(args.skill) do
     break
    end
   end
+  if not found then
+   utils.insert_or_update(unit.status.current_soul.skills,{new = true, id = skillid, rating = 0},'id')
+   skills = unit.status.current_soul.skills
+   for i,x in ipairs(skills) do
+    if x.id == skillid then
+     found = true
+     token = x
+     current = token.rating
+     break
+    end
+   end
+  end
+ else
+  persistTable = require 'persist-table'
+  if not persistTable.GlobalTable.roses then
+   print('Invalid skill id')
+   return
+  end
+  if persistTable.GlobalTable.roses.BaseTable.CustomSkills[skill] then
+   _,current = dfhack.script_environment('functions/unit').trackSkill(unit,skill,nil,nil,nil,nil,'get')
+  else
+   print('Invalid skill id')
+   return
+  end
  end
-
  change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
  dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,dur,track,args.syndrome)
 end

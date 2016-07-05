@@ -67,19 +67,23 @@ end
 track = nil
 if args.track then track = 'track' end
 
-if not args.fixed and not args.percent and not args.set then
- print('No change defined, must include -fixed, -percent, or -set')
- return
-end
-
 for i,attribute in ipairs(args.attribute) do
  if df.physical_attribute_type[attribute] then
   current = unit.body.physical_attrs[attribute].value
  elseif df.mental_attribute_type[attribute] then
   current = unit.status.current_soul.mental_attrs[attribute].value
  else
-  print('Invalid attribute id')
-  return
+  persistTable = require 'persist-table'
+  if not persistTable.GlobalTable.roses then
+   print('Invalid attribute id')
+   return
+  end
+  if persistTable.GlobalTable.roses.BaseTable.CustomAttributes[attribute] then
+   _,current = dfhack.script_environment('functions/unit').trackAttribute(unit,attribute,nil,nil,nil,nil,'get')
+  else
+   print('Invalid attribute id')
+   return
+  end
  end
  change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
  dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,track,args.syndrome)

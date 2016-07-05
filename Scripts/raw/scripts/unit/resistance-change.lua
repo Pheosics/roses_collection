@@ -65,9 +65,12 @@ track = nil
 if args.track then track = 'track' end
 
 for i,resistance in ipairs(args.resistance) do
- _,current = dfhack.script_environment('functions/unit').trackResistance(unit,resistance,nil,nil,nil,nil,'get',nil,nil)
- change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
- dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,dur,track,args.syndrome)
+ resistances = dfhack.script_environment('functions/misc').checkResistance(resistance)
+ for j,x in ipairs(resistances) do
+  _,current = dfhack.script_environment('functions/unit').trackResistance(unit,x,nil,nil,nil,nil,'get',nil,nil)
+  change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
+  dfhack.script_environment('functions/unit').changeResistance(unit,x,change,dur,track,args.syndrome)
+ end
 end
 if args.announcement then
 --add announcement information

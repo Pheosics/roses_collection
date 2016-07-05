@@ -123,6 +123,7 @@ function trackAttribute(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
   typeTable.Item = tostring(change + typeTable.Item)
  elseif alter == 'get' then -- Get current values, total, base, change, class, item, and syndrome related (note this is in game syndromes, not those tracked above)
   typeTable = Table[kind]
+  local base = tonumber(typeTable.Base)
   local change = tonumber(typeTable.Change)
   local class = tonumber(typeTable.Class)
   local item = tonumber(typeTable.Item)
@@ -132,18 +133,23 @@ function trackAttribute(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
    if unit.curse.attr_change then
     total = (unit.body.physical_attrs[kind].value+unit.curse.attr_change.phys_att_add[kind])*unit.curse.attr_change.phys_att_perc[kind]/100
     syndrome = total - unit.body.physical_attrs[kind].value
+    local base = total - change - class - item - syndrome
    else
     total = unit.body.physical_attrs[kind].value
+    local base = total - change - class - item - syndrome
    end
   elseif df.mental_attribute_type[kind] then
    if unit.curse.attr_change then
     total = (unit.status.current_soul.mental_attrs[kind].value+unit.curse.attr_change.ment_att_add[kind])*unit.curse.attr_change.ment_att_perc[kind]/100
     syndrome = total - unit.status.current_soul.mental_attrs[kind].value
+    local base = total - change - class - item - syndrome
    else
     total = unit.status.current_soul.mental_attrs[kind].value
+    local base = total - change - class - item - syndrome
    end
+  elseif persistTable.GlobalTable.roses.BaseTable.CustomAttributes[kind] then
+   total = base + change + class + item + syndrome
   end
-  local base = total - change - class - item - syndrome
   return total,base,change,class,item,syndrome
  end
 end
@@ -166,10 +172,10 @@ function trackCreate(unit,summoner,dur,alter,syndrome,cb_id)
  if not unitTable[tostring(unit.id)] then
   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
  end
- unitTable[tostring(unit.id)].General.Summoned = {}
- unitTable[tostring(unit.id)].General.Summoned.Creator = tostring(-1)
- unitTable[tostring(unit.id)].General.Summoned.End = tostring(-1)
- unitTable[tostring(unit.id)].General.Summoned.Syndrome = tostring(-1) 
+ if not unitTable[tostring(unit.id)].General.Summoned then
+  dfhack.script_environment('functions/tables').makeUnitTableSummon(unit.id)
+ end
+
  summonedTable = unitTable[tostring(unit.id)].General.Summoned
  
  if alter == 'track' then
@@ -199,7 +205,7 @@ function trackEmotion()
 
 end
 
-function trackResistance(unit,resistance,change,dur,alter,syndrome,cb_id)
+function trackResistance(unit,kind,change,dur,alter,syndrome,cb_id)
  local utils = require 'utils'
  local split = utils.split_string
  persistTable = require 'persist-table'
@@ -217,58 +223,50 @@ function trackResistance(unit,resistance,change,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
  end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
- if not dfhack.script_environment('functions/misc').checkCounter('UnitTable:!UNIT:Resistances:'..resistance,unit.id) then
-  dfhack.script_environment('functions/tables').makeUnitTableResistance(unit,resistance)
- end
  
- typeTable = dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:Resistances:'..resistance,unit.id)
- statusTable = typeTable.StatusEffects
+ resistances = dfhack.script_environment('functions/misc').checkResistance(kind)
+
+ for resistance,_ in pairs(resistances) do
+  if not dfhack.script_environment('functions/misc').checkCounter('UnitTable:!UNIT:Resistances:'..resistance,unit.id) then
+   dfhack.script_environment('functions/tables').makeUnitTableResistance(unit,resistance)
+  end
+ 
+  typeTable = dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:Resistances:'..resistance,unit.id)
+  statusTable = typeTable.StatusEffects
 
  -- Do the actual heavy lifting, split into several subtypes
- if alter == 'track' then -- Track changes to the units attributes for both durational effects and permanent effects
-  if dur > 0 then
-   dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:Resistances:'..resistance..':Change',change,unit.id)
-   local statusNumber = #statusTable._children -- If the change has a duration add a status effect to the StatusEffects table
-   statusTable[tostring(statusNumber+1)] = {}
-   statusTable[tostring(statusNumber+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
-   statusTable[tostring(statusNumber+1)].Change = tostring(change)
-   statusTable[tostring(statusNumber+1)].Linked = 'False'
-   if syndrome then -- If the change has an associated syndrome, link the StatusEffects table and the SyndromeTrack table together
-    statusTable[tostring(statusNumber+1)].Linked = 'True'
-    dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':Number',statusNumber+1,unit.id)
-    dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':CallBack',cb_id,unit.id)
-   end
-  else
-   dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:Resistances:'..resistance..':Base',change,unit.id)
-  end 
- elseif alter == 'end' then -- If the change ends naturally, revert the change
-  typeTable.Change = tostring(typeTable.Change + change)
-  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
-   if statusTable[i] then
-    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
-     if statusTable[i].Linked == 'True' and syndrome then
-      if dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':Number',unit.id) == i then
-       dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances',nil,unit.id)
+  if alter == 'track' then -- Track changes to the units attributes for both durational effects and permanent effects
+   if dur > 0 then
+    dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:Resistances:'..resistance..':Change',change,unit.id)
+    local statusNumber = #statusTable._children -- If the change has a duration add a status effect to the StatusEffects table
+    statusTable[tostring(statusNumber+1)] = {}
+    statusTable[tostring(statusNumber+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
+    statusTable[tostring(statusNumber+1)].Change = tostring(change)
+    statusTable[tostring(statusNumber+1)].Linked = 'False'
+    if syndrome then -- If the change has an associated syndrome, link the StatusEffects table and the SyndromeTrack table together
+     statusTable[tostring(statusNumber+1)].Linked = 'True'
+     dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':Number',statusNumber+1,unit.id)
+     dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':CallBack',cb_id,unit.id)
+    end
+   else
+    dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:Resistances:'..resistance..':Base',change,unit.id)
+   end 
+  elseif alter == 'end' then -- If the change ends naturally, revert the change
+   typeTable.Change = tostring(typeTable.Change + change)
+   for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+    if statusTable[i] then
+     if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+      if statusTable[i].Linked == 'True' and syndrome then
+       if dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':Number',unit.id) == i then
+        dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances',nil,unit.id)
+       end
+       statusTable[i] = nil
+       changeSyndrome(unit.id,syndrome,'erase')
       end
-      statusTable[i] = nil
-      changeSyndrome(unit.id,syndrome,'erase')
      end
     end
    end
-  end
- elseif alter == 'terminate' then
-  local statusNumber = dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':Number',unit.id)
-  local callback = dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':CallBack',unit.id)
-  typeTable.Change = tostring(typeTable.Change - statusTable[statusNumber].Change)
-  dfhack.timeout_active(callback,nil)
-  dfhack.script_environment('persist-delay').environmentDelete(callback)
-  statusTable[statusNumber] = nil
-  dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances',nil,unit.id)
-  changeSyndrome(unit.id,syndrome,'erase')
- elseif alter == 'terminateClass' then -- If the change ends by force, check the syndrome tracker to determine effects
-  local trackTable = unitTable[tostring(unit.id)].SyndromeTrack
-  syndromeNames = checkSyndrome(unit.id,syndrome,'class')
-  for _,syndrome in pairs(syndromeNames) do
+  elseif alter == 'terminate' then
    local statusNumber = dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':Number',unit.id)
    local callback = dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':CallBack',unit.id)
    typeTable.Change = tostring(typeTable.Change - statusTable[statusNumber].Change)
@@ -277,20 +275,33 @@ function trackResistance(unit,resistance,change,dur,alter,syndrome,cb_id)
    statusTable[statusNumber] = nil
    dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances',nil,unit.id)
    changeSyndrome(unit.id,syndrome,'erase')
+  elseif alter == 'terminateClass' then -- If the change ends by force, check the syndrome tracker to determine effects
+   local trackTable = unitTable[tostring(unit.id)].SyndromeTrack
+   syndromeNames = checkSyndrome(unit.id,syndrome,'class')
+   for _,syndrome in pairs(syndromeNames) do
+    local statusNumber = dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':Number',unit.id)
+    local callback = dfhack.script_environment('functions/misc').getCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances:'..resistance..':CallBack',unit.id)
+    typeTable.Change = tostring(typeTable.Change - statusTable[statusNumber].Change)
+    dfhack.timeout_active(callback,nil)
+    dfhack.script_environment('persist-delay').environmentDelete(callback)
+    statusTable[statusNumber] = nil
+    dfhack.script_environment('functions/misc').changeCounter('UnitTable:!UNIT:SyndromeTrack:'..syndrome..':Resistances',nil,unit.id)
+    changeSyndrome(unit.id,syndrome,'erase')
+   end
+  elseif alter == 'class' then -- Track changes associated with a class
+   typeTable.Class = tostring(change + typeTable.Class)
+  elseif alter == 'item' then -- Track changes associated with an item
+   typeTable.Item = tostring(change + typeTable.Item)
+  elseif alter == 'get' then -- Get current values, total, base, change, class, item, and syndrome related (note this is in game syndromes, not those tracked above)
+   base = tonumber(typeTable.Base)
+   change = tonumber(typeTable.Change)
+   class = tonumber(typeTable.Class)
+   item = tonumber(typeTable.Item)
+   total = base+change+class+item
+   syndrome = 0
+   return total,base,change,class,item,syndrome
   end
- elseif alter == 'class' then -- Track changes associated with a class
-  typeTable.Class = tostring(change + typeTable.Class)
- elseif alter == 'item' then -- Track changes associated with an item
-  typeTable.Item = tostring(change + typeTable.Item)
- elseif alter == 'get' then -- Get current values, total, base, change, class, item, and syndrome related (note this is in game syndromes, not those tracked above)
-  base = tonumber(typeTable.Base)
-  change = tonumber(typeTable.Change)
-  class = tonumber(typeTable.Class)
-  item = tonumber(typeTable.Item)
-  total = base+change+class+item
-  syndrome = 0
-  return total,base,change,class,item,syndrome
- end 
+ end  
 end
 
 function trackSide(unit,civ_id,pop_id,inv_id,trn,regx,regy,regp,pet,stype,dur,alter,syndrome,cb_id)
@@ -308,7 +319,10 @@ function trackSide(unit,civ_id,pop_id,inv_id,trn,regx,regy,regp,pet,stype,dur,al
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[tostring(unit.id)] then
   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
- end  
+ end
+ if not unitTable[tostring(unit.id)].General.Side then
+  dfhack.script_environment('functions/tables').makeUnitTableSide(unit.id)
+ end
 
  sideTable = unitTable[tostring(unit.id)].General.Side
  statusTable = sideTable.StatusEffects
@@ -569,8 +583,141 @@ function trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
   local change = tonumber(typeTable.Change)
   local class = tonumber(typeTable.Class)
   local item = tonumber(typeTable.Item)
-  local total = dfhack.units.getNominalSkill(unit,df.job_skill[kind])
+  local total = 0
   local syndrome = 0
+  if df.job_skill[kind] then
+   total = dfhack.units.getNominalSkill(unit,df.job_skill[kind])
+  else
+   total = base+change+class+item
+  end
+  return total,base,change,class,item,syndrome
+ end
+end
+
+function trackStat(unit,kind,change,dur,alter,syndrome,cb_id)
+
+ -- Make sure base/roses-init is loaded
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then
+  return "base/roses-init not loaded"
+ end
+ 
+ -- Make sure we have the unit itself and not just the id.
+ if tonumber(unit) then
+  unit = df.unit.find(tonumber(unit))
+ end
+
+ -- Initialize the UnitTable for the unit id if necessary
+ unitTable = persistTable.GlobalTable.roses.UnitTable
+ if not unitTable[tostring(unit.id)] then
+  dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
+ end
+ if not unitTable[tostring(unit.id)].Stats[kind] then
+  dfhack.script_environment('functions/tables').makeUnitTableStat(unit.id,kind)
+ end
+ 
+ Table = unitTable[tostring(unit.id)].Stats
+ local strname = 'Stat'
+ local func = changeStat
+ typeTable = Table[kind]
+ if not typeTable then return end
+ -- Do the actual heavy lifting, split into several subtypes
+ if alter == 'track' then -- Track changes to the units stats for both durational effects and permanent effects
+  if dur > 0 then 
+   statusTable = typeTable.StatusEffects
+   typeTable.Change = tostring(typeTable.Change + change)
+   local statusNumber = #statusTable._children -- If the change has a duration add a status effect to the StatusEffects table
+   statusTable[tostring(statusNumber+1)] = {}
+   statusTable[tostring(statusNumber+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
+   statusTable[tostring(statusNumber+1)].Change = tostring(change)
+   statusTable[tostring(statusNumber+1)].Linked = 'False'
+   if syndrome then -- If the change has an associated syndrome, link the StatusEffects table and the SyndromeTrack table together
+    trackTable = unitTable[tostring(unit.id)].SyndromeTrack
+    statusTable[tostring(statusNumber+1)].Linked = 'True'
+    if not trackTable[syndrome] then
+     trackTable[syndrome] = {}
+    end
+    if not trackTable[syndrome][strname] then
+     trackTable[syndrome][strname] = {}
+    end
+    if not trackTable[syndrome][strname][kind] then
+     trackTable[syndrome][strname][kind] = {}
+    end
+    trackTable[syndrome][strname][kind].Number = tostring(statusNumber+1)
+    trackTable[syndrome][strname][kind].CallBack = tostring(cb_id)
+   end
+  else
+   typeTable.Base = tostring(value) -- No need for associating syndromes with permanent changes, if requested can add at a later time.
+  end 
+ elseif alter == 'end' then -- If the change ends naturally, revert the change
+  statusTable = typeTable.StatusEffects
+  typeTable.Change = tostring(typeTable.Change - change)
+  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+   if statusTable[i] then
+    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+     if statusTable[i].Linked == 'True' and syndrome then
+      trackTable = unitTable[tostring(unit.id)].SyndromeTrack
+      if trackTable[syndrome][strname][kind].Number == i then trackTable[syndrome][strname] = nil end
+     end
+     statusTable[i] = nil
+     changeSyndrome(unit.id,syndrome,'erase')
+    end
+   end
+  end
+ elseif alter == 'terminate' then
+  trackTable = unitTable[tostring(unit.id)].SyndromeTrack
+  if syndrome then name = syndrome end
+  if trackTable[name] then
+   if trackTable[name][strname] then
+    for _,kindA in pairs(trackTable[name][strname]._children) do
+     typeTable = Table[kindA]
+     statusTable = typeTable.StatusEffects
+     local statusNumber = trackTable[name][strname][kindA].Number
+     local callback = trackTable[name][strname][kindA].CallBack
+     typeTable.Change = tostring(typeTable.Change - statusTable[statusNumber].Change)
+     func(unit.id,kindA,-tonumber(statusTable[statusNumber].Change),0,nil,nil)
+     dfhack.timeout_active(callback,nil)
+     dfhack.script_environment('persist-delay').environmentDelete(callback)
+     statusTable[statusNumber] = nil
+    end
+    trackTable[name][strname] = nil
+    changeSyndrome(unit.id,syndrome,'erase')
+   end
+  end
+ elseif alter == 'terminateClass' then -- If the change ends by force, check the syndrome tracker to determine effects
+  local trackTable = unitTable[tostring(unit.id)].SyndromeTrack
+  syndromeNames = checkSyndrome(unit.id,syndrome,'class')
+  for _,name in pairs(syndromeNames) do
+   if trackTable[name] then
+    if trackTable[name][strname] then
+     for _,kindA in pairs(trackTable[name][strname]._children) do
+      typeTable = Table[kindA]
+      statusTable = typeTable.StatusEffects
+      local statusNumber = trackTable[name][strname][kindA].Number
+      local callback = trackTable[name][strname][kindA].CallBack
+      typeTable.Change = tostring(typeTable.Change - statusTable[statusNumber].Change)
+      func(unit.id,kindA,-tonumber(statusTable[statusNumber].Change),0,nil,nil)
+      dfhack.timeout_active(callback,nil)
+      dfhack.script_environment('persist-delay').environmentDelete(callback)
+      statusTable[statusNumber] = nil
+     end
+     trackTable[name][strname] = nil
+     changeSyndrome(unit.id,syndrome,'erase')
+    end
+   end
+  end
+ elseif alter == 'class' then -- Track changes associated with a class
+  typeTable.Class = tostring(change + typeTable.Class)
+ elseif alter == 'item' then -- Track changes associated with an item
+  typeTable.Item = tostring(change + typeTable.Item)
+ elseif alter == 'get' then -- Get current values, total, base, change, class, item, and syndrome related (note this is in game syndromes, not those tracked above)
+  local base = tonumber(typeTable.Base)
+  local change = tonumber(typeTable.Change)
+  local class = tonumber(typeTable.Class)
+  local item = tonumber(typeTable.Item)
+  local total = 0
+  local syndrome = 0
+  total = base + change + class + item
   return total,base,change,class,item,syndrome
  end
 end
@@ -725,6 +872,9 @@ function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
  unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[tostring(unit.id)] then
   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
+ end
+ if not unitTable[tostring(unit.id)].General.Transform then
+  dfhack.script_environment('functions/tables').makeUnitTableTransform(unit.id)
  end
  
  tTable = unitTable[tostring(unit.id)].General.Transform
@@ -895,8 +1045,26 @@ function changeAttribute(unit,attribute,change,dur,track,syndrome,cb_id)
   if value > unit.status.current_soul.mental_attrs[attribute].max_value then unit.status.current_soul.mental_attrs[attribute].max_value = value + 1 end
   current = unit.status.current_soul.mental_attrs[attribute].value
  else
-  print('Invalid attribute id')
-  return
+  persistTable = require 'persist-table'
+  if not persistTable.GlobalTable.roses then
+   print('Invalid attribute id')
+   return
+  end
+  if persistTable.GlobalTable.roses.BaseTable.CustomAttributes[attribute] then
+   _,current = trackAttribute(unit,attribute,nil,nil,nil,nil,'get')
+   value = math.floor(current + change)
+   if value > int16 then
+    change = int16 - current
+    value = int16
+   end
+   if value < 0 then
+    change = current
+    value = 0
+   end
+  else
+   print('Invalid attribute id')
+   return
+  end
  end
 
  if syndrome and not track == 'end' then
@@ -1245,17 +1413,7 @@ function changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
  local found = false
  local current = 0
 
- for i,x in ipairs(skills) do
-  if x.id == skillid then
-   found = true
-   token = x
-   current = token.rating
-   break
-  end
- end
- if not found then
-  utils.insert_or_update(unit.status.current_soul.skills,{new = true, id = skillid, rating = 0},'id')
-  skills = unit.status.current_soul.skills
+ if skillid then
   for i,x in ipairs(skills) do
    if x.id == skillid then
     found = true
@@ -1264,8 +1422,33 @@ function changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
     break
    end
   end
+  if not found then
+   utils.insert_or_update(unit.status.current_soul.skills,{new = true, id = skillid, rating = 0},'id')
+   skills = unit.status.current_soul.skills
+   for i,x in ipairs(skills) do
+    if x.id == skillid then
+     found = true
+     token = x
+     current = token.rating
+     break
+    end
+   end
+  end
+ else
+  persistTable = require 'persist-table'
+  if not persistTable.GlobalTable.roses then
+   print('Invalid skill id')
+   return
+  end
+  if persistTable.GlobalTable.roses.BaseTable.CustomSkills[skill] then
+   _,current = trackSkill(unit,skill,nil,nil,nil,nil,'get')
+   token = {}
+  else
+   print('Invalid attribute id')
+   return
+  end
  end
-
+  
  value = math.floor(current+change)
  if value > 20 then
   change = 20 - current
@@ -1287,6 +1470,28 @@ function changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
 
  if track then
   trackSkill(unit.id,skill,current,change,value,dur,track,syndrome,cb_id)
+ end
+end
+
+function changeStat(unit,stat,change,dur,track,syndrome,cb_id)
+ -- Add/Subtract given amount from a stat of a unit.
+
+ if tonumber(unit) then
+  unit = df.unit.find(tonumber(unit))
+ end
+
+-- For if Toady ever implements actual in game stats  
+
+ if syndrome and not track == 'end' then
+  changeSyndrome(unit,syndrome,'add')
+ end 
+ 
+ if dur > 0 then
+  cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/unit','changeStat',{unit.id,stat,-change,0,'end',syndrome,nil})
+ end
+
+ if track then
+  trackStat(unit.id,stat,change,dur,track,syndrome,cb_id)
  end
 end
 
