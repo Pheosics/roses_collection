@@ -601,6 +601,64 @@ function spawnLiquid(edges,offset,depth,magma,circle,taper)
  end
 end
 
+function liquidSource(n)
+ local persistTable = require 'persist-table'
+ liquidTable = persistTable.GlobalTable.roses.LiquidTable
+ liquid = liquidTable[n]
+ 
+ if liquid then
+  x = tonumber(liquid.x)
+  y = tonumber(liquid.y)
+  z = tonumber(liquid.z)
+  depth = tonumber(liquid.Depth)
+  magma = liquid.Magma
+  block = dfhack.maps.ensureTileBlock(x,y,z)
+  dsgn = block.designation[x%16][y%16]
+  flow = block.liquid_flow[x%16][y%16]
+  flow.temp_flow_timer = 10
+  flow.unk_1 = 10
+  if dsgn.flow_size < depth then dsgn.flow_size = depth end
+  if magma then dsgn.liquid_type = true end
+  block.flags.update_liquid = true
+  block.flags.update_liquid_twice = true
+ 
+  dfhack.timeout(12,'ticks',
+                 function ()
+                  dfhack.script_environment('functions/map').liquidSource(n)
+                 end
+                )
+ end                
+end
+
+function liquidSink(n)
+ local persistTable = require 'persist-table'
+ liquidTable = persistTable.GlobalTable.roses.LiquidTable
+ liquid = liquidTable[n]
+ 
+ if liquid then
+  x = tonumber(liquid.x)
+  y = tonumber(liquid.y)
+  z = tonumber(liquid.z)
+  depth = tonumber(liquid.Depth)
+  magma = liquid.Magma
+  block = dfhack.maps.ensureTileBlock(x,y,z)
+  dsgn = block.designation[x%16][y%16]
+  flow = block.liquid_flow[x%16][y%16]
+  flow.temp_flow_timer = 10
+  flow.unk_1 = 10
+  if dsgn.flow_size > depth then dsgn.flow_size = depth end
+  if magma then dsgn.liquid_type = true end
+  block.flags.update_liquid = true
+  block.flags.update_liquid_twice = true
+ 
+  dfhack.timeout(12,'ticks',
+                 function ()
+                  dfhack.script_environment('functions/map').liquidSink(n)
+                 end
+                )
+ end            
+end
+
 function findLocation(search)
  local primary = search[1]
  local secondary = search[2] or 'NONE'

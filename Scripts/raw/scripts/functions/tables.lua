@@ -649,7 +649,7 @@ function makeEventTable()
  local n = 1
  for location in ipairs(locations) do
   local path = dir..location
-  print('Looking in '..location)
+--  print('Looking in '..location)
   for _,fname in pairs(dfhack.internal.getDir(path)) do
    if (split(fname,'_')[1] == 'events' or fname == 'events.txt') then
     files[n] = path..fname
@@ -659,10 +659,10 @@ function makeEventTable()
  end
 
  if #files >= 1 then
-  print('Event files found:')
-  printall(files)
+--  print('Event files found:')
+--  printall(files)
  else
-  print('No Event files found')
+--  print('No Event files found')
   return false
  end
 

@@ -10,18 +10,19 @@ validArgs = validArgs or utils.invert({
  'classSystem',
  'civilizationSystem',
  'eventSystem',
- 'persistentDelay',
- 'globalTracking',
  'forceReload'
 })
 local args = utils.processArgs({...}, validArgs)
 
 persistTable.GlobalTable.roses = persistTable.GlobalTable.roses or {}
 persistTable.GlobalTable.roses.UnitTable = persistTable.GlobalTable.roses.UnitTable or {}
+persistTable.GlobalTable.roses.ItemTable = persistTable.GlobalTable.roses.ItemTable or {}
+persistTable.GlobalTable.roses.BuildingTable = persistTable.GlobalTable.roses.BuildingTable or {}
 persistTable.GlobalTable.roses.EntityTable = persistTable.GlobalTable.roses.EntityTable or {}
 persistTable.GlobalTable.roses.CommandDelay = persistTable.GlobalTable.roses.CommandDelay or {}
 persistTable.GlobalTable.roses.EnvironmentDelay = persistTable.GlobalTable.roses.EnvironmentDelay or {}
 persistTable.GlobalTable.roses.CounterTable = persistTable.GlobalTable.roses.CounterTable or {}
+persistTable.GlobalTable.roses.LiquidTable = persistTable.GlobalTable.roses.LiquidTable or {}
 if not persistTable.GlobalTable.roses.GlobalTable then dfhack.script_environment('functions/tables').makeGlobalTable() end
 
 local function civilizationNotAlreadyLoaded()
@@ -113,17 +114,8 @@ if args.all or args.eventSystem then
  end
 end
 
-if args.all or args.persistentDelay then
- print('')
- print('Creating persistent function calls')
- dfhack.run_command('base/persist-delay')
-end
-
-if args.all or args.globalTracking then
- print('')
- print('Loading Global Tracking System')
- dfhack.run_command('base/global-tracking')
-end
-
+dfhack.run_command('base/persist-delay')
+--dfhack.run_command('base/global-tracking')
+dfhack.run_command('base/liquids-update')
 dfhack.run_command('base/on-death')
-dfhack.run_command('base/on-time')
+--dfhack.run_command('base/on-time')
