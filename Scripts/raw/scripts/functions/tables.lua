@@ -645,9 +645,9 @@ function makeEventTable()
  print('Searching for event files')
  local files = {}
  local dir = dfhack.getDFPath()
- local locations = {'/raw/objects/','/raw/systems/Events/','/raw/scripts/files/'}
+ local locations = {'/raw/objects/','/raw/systems/Events/'}
  local n = 1
- for location in ipairs(locations) do
+ for _,location in ipairs(locations) do
   local path = dir..location
 --  print('Looking in '..location)
   for _,fname in pairs(dfhack.internal.getDir(path)) do
@@ -719,13 +719,36 @@ function makeEventTable()
    elseif test == '[DELAY' then
     event.Delay[array[2]] = array[3]
    elseif test == '[REQUIREMENT' then
-    if array[2] == 'COUNTER' then
-     event.Required.Counter = event.Required.Counter or {}
-     event.Required.Counter[array[3]] = array[4]
+    if array[2] == 'COUNTER_MAX' then
+     event.Required.CounterMax = event.Required.CounterMax or {}
+     event.Required.CounterMax[array[3]] = array[4]
+    elseif array[2] == 'COUNTER_MIN' then
+     event.Required.CounterMin = event.Required.CounterMin or {}
+     event.Required.CounterMin[array[3]] = array[4]
     elseif array[2] == 'TIME' then
      event.Required.Time = array[3]
     elseif array[2] == 'POPULATION' then
      event.Required.Population = array[3]
+    elseif array[2] == 'SEASON' then
+     event.Required.Season = array[3]
+    elseif array[2] == 'TREES_CUT' then
+     event.Required.TreeCut = array[3]
+    elseif array[2] == 'FORTRESS_RANK' then
+     event.Required.Rank = array[3]
+    elseif array[2] == 'PROGRESS_RANK' then
+     if array[3] == 'POPULATION' then event.Required.ProgressPopulation = array[4] end
+     if array[3] == 'TRADE' then event.Required.ProgressTrade = array[4] end
+     if array[3] == 'PRODUCTION' then event.Required.ProgressProduction = array[4] end
+    elseif array[2] == 'ARTIFACTS' then
+     event.Required.NumArtifacts = array[3]
+    elseif array[2] == 'TOTAL_DEATHS' then
+     event.Required.TotDeaths = array[3]
+    elseif array[2] == 'TOTAL_INSANITIES' then
+     event.Required.TotInsanities = array[3]
+    elseif array[2] == 'TOTAL_EXECUTIONS' then
+     event.Required.TotExecutions = array[3]
+    elseif array[2] == 'MIGRANT_WAVES' then
+     event.Required.MigrantWaves = array[3]
     elseif array[2] == 'WEALTH' then
      event.Required.Wealth = event.Required.Wealth or {}
      event.Required.Wealth[array[3]] = array[4]
@@ -738,12 +761,20 @@ function makeEventTable()
     elseif array[2] == 'CLASS' then
      event.Required.Class = event.Required.Class or {}
      event.Required.Class[array[3]] = array[4]
-    elseif array[2] == 'KILLS' then
-     event.Required.Kills = event.Required.Kills or {}
-     event.Required.Kills[array[3]] = array[4]
-    elseif array[2] == 'DEATHS' then
-     event.Required.Deaths = event.Required.Deaths or {}
-     event.Required.Deaths[array[3]] = array[4]
+    elseif array[2] == 'ENTITY_KILLS' then
+     event.Required.EntityKills = event.Required.EntityKills or {}
+     event.Required.EntityKills[array[3]] = array[4]
+    elseif array[2] == 'CREATURE_KILLS' then
+     event.Required.CreatureKills = event.Required.CreatureKills or {}
+     event.Required.CreatureKills[array[3]] = event.Required.CreatureKills[array[3]] or {}
+     event.Required.CreatureKills[array[3]][array[4]] = array[5]
+    elseif array[2] == 'ENTITY_DEATHS' then
+     event.Required.EntityDeaths = event.Required.EntityDeaths or {}
+     event.Required.EntityDeaths[array[3]] = array[4]
+    elseif array[2] == 'CREATURE_DEATHS' then
+     event.Required.CreatureDeaths = event.Required.CreatureDeaths or {}
+     event.Required.CreatureDeaths[array[3]] = event.Required.CreatureDeaths[array[3]] or {}
+     event.Required.CreatureDeaths[array[3]][array[4]] = array[5]
     elseif array[2] == 'TRADES' then
      event.Required.Trades = event.Required.Trades or {}
      event.Required.Trades[array[3]] = array[4]
@@ -771,13 +802,36 @@ function makeEventTable()
    elseif test == '[EFFECT_DELAY' then
     effect.Delay[array[2]] = array[3]
    elseif test == '[EFFECT_REQUIREMENT' then
-    if array[2] == 'COUNTER' then
-     effect.Required.Counter = effect.Required.Counter or {}
-     effect.Required.Counter[array[3]] = array[4]
+    if array[2] == 'COUNTER_MAX' then
+     effect.Required.CounterMax = effect.Required.CounterMax or {}
+     effect.Required.CounterMax[array[3]] = array[4]
+    elseif array[2] == 'COUNTER_MIN' then
+     effect.Required.CounterMin = effect.Required.CounterMin or {}
+     effect.Required.CounterMin[array[3]] = array[4]
     elseif array[2] == 'TIME' then
      effect.Required.Time = array[3]
     elseif array[2] == 'POPULATION' then
      effect.Required.Population = array[3]
+    elseif array[2] == 'SEASON' then
+     effect.Required.Season = array[3]
+    elseif array[2] == 'TREES_CUT' then
+     effect.Required.TreeCut = array[3]
+    elseif array[2] == 'FORTRESS_RANK' then
+     effect.Required.Rank = array[3]
+    elseif array[2] == 'PROGRESS_RANK' then
+     if array[3] == 'POPULATION' then effect.Required.ProgressPopulation = array[4] end
+     if array[3] == 'TRADE' then effect.Required.ProgressTrade = array[4] end
+     if array[3] == 'PRODUCTION' then effect.Required.ProgressProduction = array[4] end
+    elseif array[2] == 'ARTIFACTS' then
+     effect.Required.NumArtifacts = array[3]
+    elseif array[2] == 'TOTAL_DEATHS' then
+     effect.Required.TotDeaths = array[3]
+    elseif array[2] == 'TOTAL_INSANITIES' then
+     effect.Required.TotInsanities = array[3]
+    elseif array[2] == 'TOTAL_EXECUTIONS' then
+     effect.Required.TotExecutions = array[3]
+    elseif array[2] == 'MIGRANT_WAVES' then
+     effect.Required.MigrantWaves = array[3]
     elseif array[2] == 'WEALTH' then
      effect.Required.Wealth = effect.Required.Wealth or {}
      effect.Required.Wealth[array[3]] = array[4]
@@ -790,12 +844,20 @@ function makeEventTable()
     elseif array[2] == 'CLASS' then
      effect.Required.Class = effect.Required.Class or {}
      effect.Required.Class[array[3]] = array[4]
-    elseif array[2] == 'KILLS' then
-     effect.Required.Kills = effect.Required.Kills or {}
-     effect.Required.Kills[array[3]] = array[4]
-    elseif array[2] == 'DEATHS' then
-     effect.Required.Deaths = effect.Required.Deaths or {}
-     effect.Required.Deaths[array[3]] = array[4]
+    elseif array[2] == 'ENTITY_KILLS' then
+     effect.Required.EntityKills = effect.Required.EntityKills or {}
+     effect.Required.EntityKills[array[3]] = array[4]
+    elseif array[2] == 'CREATURE_KILLS' then
+     effect.Required.CreatureKills = effect.Required.CreatureKills or {}
+     effect.Required.CreatureKills[array[3]] = effect.Required.CreatureKills[array[3]] or {}
+     effect.Required.CreatureKills[array[3]][array[4]] = array[5]
+    elseif array[2] == 'ENTITY_DEATHS' then
+     effect.Required.EntityDeaths = effect.Required.EntityDeaths or {}
+     effect.Required.EntityDeaths[array[3]] = array[4]
+    elseif array[2] == 'CREATURE_DEATHS' then
+     effect.Required.CreatureDeaths = effect.Required.CreatureDeaths or {}
+     effect.Required.CreatureDeaths[array[3]] = effect.Required.CreatureDeaths[array[3]] or {}
+     effect.Required.CreatureDeaths[array[3]][array[4]] = array[5]
     elseif array[2] == 'TRADES' then
      effect.Required.Trades = effect.Required.Trades or {}
      effect.Required.Trades[array[3]] = array[4]
@@ -854,6 +916,7 @@ function makeEventTable()
   event.Effects = tostring(numberOfEffects)
  end
  end
+ return true
 end
 
 function makeFeatTable()

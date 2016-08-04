@@ -1,4 +1,4 @@
---base/civilizations.lua v1.0
+--base/on-time.lua v1.0
 
 local persistTable = require 'persist-table'
 
@@ -30,7 +30,7 @@ if roses.CivilizationTable and roses.EntityTable then
    elseif method == 'DAILY' then
     daily[id] = 'CIVILZATION'
    else
-    season[id] = id
+    season[id] = 'CIVILIZATION'
    end
   end
  end
@@ -52,7 +52,7 @@ if roses.EventTable then
   elseif method == 'DAILY' then
    daily[id] = 'EVENT'
   else
-   season[id] = id
+   season[id] = 'EVENT'
   end
  end
 end
@@ -62,9 +62,15 @@ for id,Type in pairs(yearly) do
  ticks = 1200*28*3*4-curtick
  if ticks <= 0 then ticks = 1200*28*3*4 end
  if Type == 'CIVILIZATION' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/civilization').checkEntity(id,'YEARLY',true))
- elseif TYPE == 'EVENT' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/event').checkEvent(id,'YEARLY',true))
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/civilization').checkEntity(id,'YEARLY',true)
+                                 end
+                )
+ elseif Type == 'EVENT' then
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/event').checkEvent(id,'YEARLY',true) 
+                                 end
+                )
  end
 end
 
@@ -73,9 +79,15 @@ for id,Type in pairs(season) do
  ticks = 1200*28*3-curtick
  if ticks <= 0 then ticks = 1200*28*3 end
  if Type == 'CIVILIZATION' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/civilization').checkEntity(id,'SEASON',true))
- elseif TYPE == 'EVENT' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/event').checkEvent(id,'SEASON',true))
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/civilization').checkEntity(id,'SEASON',true)
+                                 end
+                )
+ elseif Type == 'EVENT' then
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/event').checkEvent(id,'SEASON',true) 
+                                 end
+                )
  end
 end
 
@@ -84,9 +96,15 @@ for id,Type in pairs(monthly) do
  moy = curtick/(1200*28)
  ticks = math.ceil(moy)*1200*28 - curtick
  if Type == 'CIVILIZATION' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/civilization').checkEntity(id,'MONTHLY',true))
- elseif TYPE == 'EVENT' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/event').checkEvent(id,'MONTHLY',true))
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/civilization').checkEntity(id,'MONTHLY',true)
+                                 end
+                )
+ elseif Type == 'EVENT' then
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/event').checkEvent(id,'MONTHLY',true) 
+                                 end
+                )
  end
 end
 
@@ -95,9 +113,15 @@ for id,Type in pairs(weekly) do
  woy = curtick/(1200*7)
  ticks = math.ceil(woy)*1200*7 - curtick
  if Type == 'CIVILIZATION' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/civilization').checkEntity(id,'WEEKLY',true))
- elseif TYPE == 'EVENT' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/event').checkEvent(id,'WEEKLY',true))
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/civilization').checkEntity(id,'WEEKLY',true)
+                                 end
+                )
+ elseif Type == 'EVENT' then
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/event').checkEvent(id,'WEEKLY',true) 
+                                 end
+                )
  end
 end
 
@@ -106,8 +130,14 @@ for id,Type in pairs(daily) do
  doy = curtick/1200
  ticks = math.ceil(doy)*1200 - curtick
  if Type == 'CIVILIZATION' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/civilization').checkEntity(id,'DAILY',true))
- elseif TYPE == 'EVENT' then
-  dfhack.timeout(ticks+1,'ticks',dfhack.script_environment('functions/event').checkEvent(id,'DAILY',true))
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/civilization').checkEntity(id,'DAILY',true)
+                                 end
+                )
+ elseif Type == 'EVENT' then
+  dfhack.timeout(ticks+1,'ticks',function ()
+                                  dfhack.script_environment('functions/event').checkEvent(id,'DAILY',true) 
+                                 end
+                )
  end
 end

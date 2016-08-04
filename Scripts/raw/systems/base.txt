@@ -1,0 +1,36 @@
+Radius around the killed unit that experience is granted to allies of the killer
+[EXPERIENCE_RADIUS:-1]
+
+Total amount of experience needed to gain a feat point and the increase for each subsequent feat
+[FEAT_GAINS:100:25]
+
+List of custom skills and profession names
+[SKILL:SPELL_CASTING:caster] <- Currently used to determine exhaustion level when casting spells
+[SKILL:EXPLORING:explorer]
+[SKILL:SCOUTING:scout]
+[SKILL:ADVENTURING:adventurer]
+
+List of custom attributes
+[ATTRIBUTE:FAITH]
+[ATTRIBUTE:INTELLIGENCE]
+[ATTRIBUTE:LUCK]
+[ATTRIBUTE:CHARISMA]
+
+List of resistances (since there are currently no in-game resistances, all resistances are custom)
+[RESISTANCE:MAGICAL:ELEMENTAL:FIRE]
+[RESISTANCE:MAGICAL:ELEMENTAL:AIR]
+[RESISTANCE:MAGICAL:ELEMENTAL:EARTH]
+[RESISTANCE:MAGICAL:ELEMENTAL:WATER]
+[RESISTANCE:MAGICAL:ARCANE:FORCE]
+[RESISTANCE:MAGICAL:ARCANE:TIME]
+[RESISTANCE:MAGICAL:ARCANE:SPACE]
+[RESISTANCE:MAGICAL:DIVINE:LIGHT]
+[RESISTANCE:MAGICAL:DIVINE:DARK]
+[RESISTANCE:PHYSICAL:SLASH]
+[RESISTANCE:PHYSICAL:BLUNT]
+[RESISTANCE:PHYSICAL:PIERCE]
+
+List of custom stats
+[STAT:CRITICAL_CHANCE]
+[STAT:CRITICAL_DAMAGE]
+[STAT:CASTING_SPEED] <- Currently used to determine casting speed modifiers

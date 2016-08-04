@@ -495,9 +495,9 @@ function findItem(search)
  if n > 0 then
   targetList = dfhack.script_environment('functions/misc').permute(targetList)
   target = targetList[1]
-  return target
+  return {target}
  else
-  print('No valid item found for event')
-  return nil
+--  print('No valid item found for event')
+  return {}
  end
 end

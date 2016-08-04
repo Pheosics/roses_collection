@@ -680,34 +680,34 @@ function findLocation(search)
   elseif secondary == 'SURFACE' then
    if tertiary == 'ALL' or tertiary == 'NONE' then
     targetList[n] = getPositionRandom()
-    targetList[n] = getPositionSurface(target[n])
+    targetList[n] = getPositionSurface(targetList[n])
    elseif tertiary == 'EDGE' then
     targetList[n] = getPositionEdge()
-    targetList[n] = getPositionSurface(target[n])
+    targetList[n] = getPositionSurface(targetList[n])
    elseif tertiary == 'CENTER' then
     targetList[n] = getPositionCenter(quaternary)
-    targetList[n] = getPositionSurface(target[n])
+    targetList[n] = getPositionSurface(targetList[n])
    end
   elseif secondary == 'UNDERGROUND' then
    if tertiary == 'ALL' or tertiary == 'NONE' then
     targetList[n] = getPositionRandom()
-    targetList[n] = getPositionUnderground(target[n])
+    targetList[n] = getPositionUnderground(targetList[n])
    elseif tertiary == 'CAVERN' then
     targetList[n] = getPositionCavern(quaternary)
    end
   elseif secondary == 'SKY' then
    if tertiary == 'ALL' or tertiary == 'NONE' then
     targetList[n] = getPositionRandom()
-    targetList[n] = getPositionSky(target[n])
+    targetList[n] = getPositionSky(targetList[n])
    elseif tertiary == 'EDGE' then
     targetList[n] = getPositionEdge()
-    targetList[n] = getPositionSky(target[n])
+    targetList[n] = getPositionSky(targetList[n])
    elseif tertiary == 'CENTER' then
     targetList[n] = getPositionCenter(quaternary)
-    targetList[n] = getPositionSky(target[n])
+    targetList[n] = getPositionSky(targetList[n])
    end
   end
  end
  target = targetList[1]
- return target
+ return {target}
 end

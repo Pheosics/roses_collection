@@ -77,6 +77,39 @@ function findBuilding(search)
   elseif secondary == 'CUSTOM' then
    for i,x in pairs(buildingList) do
     if df.building_workshopst:is_instance(x) or df.building_furnacest:is_instance(x) then
+     if x.custom_type >= 0 then
+      if df.global.world.raws.buildings.all[x.custom_type].code == tertiary then
+       n = n+1
+       targetList[n] = x
+      end
+     end
+    end
+   end
+  end
+  if #targetList > 0 then
+   targetList = dfhack.script_environment('functions/misc').permute(targetList)
+   target = targetList[1]
+   return {target}
+  else
+--   print('No valid building found for event')
+   return {}
+  end
+ elseif primary == 'ALL' then 
+  if secondary == 'NONE' or secondary == 'ALL' then
+   targetList = buildingList
+  elseif secondary == 'WORKSHOP' then
+   targetList = df.global.world.buildings.other.WORKSHOP_ANY
+  elseif secondary == 'FURNACE' then
+   targetList = df.global.world.buildings.other.FURNACE_ANY
+  elseif secondary == 'TRADE_DEPOT' then
+   targetList = df.global.world.buildings.other.TRADE_DEPOT
+  elseif secondary == 'STOCKPILE' then
+   targetList = df.global.world.buildings.other.STOCKPILE
+  elseif secondary == 'ZONE' then
+   targetList = df.global.world.buildings.other.ANY_ZONE
+  elseif secondary == 'CUSTOM' then
+   for i,x in pairs(buildingList) do
+    if df.building_workshopst:is_instance(x) or df.building_furnacest:is_instance(x) then
      if ctype >= 0 then
       if df.global.world.raws.buildings.all[ctype].code == tertiary then
        n = n+1
@@ -86,13 +119,12 @@ function findBuilding(search)
     end
    end
   end
- end
- if n > 0 then
-  targetList = dfhack.script_environment('functions/misc').permute(targetList)
-  target = targetList[1]
+  target = {}
+  nn = 1
+  for _,fill in pairs(targetList) do
+   target[nn] = fill
+   nn = nn + 1
+  end
   return target
- else
-  print('No valid building found for event')
-  return nil
  end
 end

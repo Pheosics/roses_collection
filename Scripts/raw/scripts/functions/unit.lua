@@ -2530,9 +2530,8 @@ function findUnit(search)
  if n > 0 then
   targetList = dfhack.script_environment('functions/misc').permute(targetList)
   target = targetList[1]
-  return target
+  return {target}
  else
-  print('No valid unit found for event')
-  return nil
+  return {}
  end
 end
