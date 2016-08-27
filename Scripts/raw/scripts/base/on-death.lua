@@ -34,8 +34,12 @@ events.onUnitDeath.mainFunction=function(target_id)
  target_caste = target.caste
  target_creature_name = df.creature_raw.find(target_race).creature_id
  target_caste_name = df.creature_raw.find(target_race).caste[target_caste].caste_id
- target_civ_name = df.global.world.entities.all[target_civ].entity_raw.code
-
+ if target_civ >= 0 then 
+  target_civ_name = df.global.world.entities.all[target_civ].entity_raw.code
+ else
+  target_civ_name = 'NONE'
+ end
+ 
  killer_id = tonumber(target.relations.last_attacker_id)
  if killer_id >= 0 then
   killer = df.unit.find(killer_id)
@@ -44,7 +48,11 @@ events.onUnitDeath.mainFunction=function(target_id)
   killer_caste = killer.caste
   killer_creature_name = df.creature_raw.find(killer_race).creature_id
   killer_caste_name = df.creature_raw.find(killer_race).caste[killer_caste].caste_id
-  killer_civ_name = df.global.world.entities.all[killer_civ].entity_raw.code
+  if killer_civ >= 0 then
+   killer_civ_name = df.global.world.entities.all[killer_civ].entity_raw.code
+  else
+   killer_civ_name = 'NONE'
+  end
  end
 
 -- GeneralTable Checks
@@ -75,7 +83,7 @@ events.onUnitDeath.mainFunction=function(target_id)
 
 -- EntityTable Checks
  if roses.EntityTable then
-  if killer_id >= 0 and killer.civ >= 0 then
+  if killer_id >= 0 and killer_civ >= 0 then
    if not roses.EntityTable[tostring(killer_civ)] then dfhack.script_environment('functions/tables').makeEntityTable(tostring(killer_civ)) end
    killTable = roses.EntityTable[tostring(killer_civ)].Kills
    killTable.Total = tostring(killTable.Total + 1)
@@ -121,10 +129,10 @@ events.onUnitDeath.mainFunction=function(target_id)
  if roses.UnitTable then
   if killer_id >= 0 then
    if not roses.UnitTable[tostring(killer_id)] then dfhack.script_environment('functions/tables').makeUnitTable(tostring(killer_id)) end
-   roses.UnitTable[tostring(killer_id)].Stats.Kills = tostring(roses.UnitTable[tostring(killer_id)] + 1)
+   roses.UnitTable[tostring(killer_id)].Stats.Kills = tostring(tonumber(roses.UnitTable[tostring(killer_id)].Stats.Kills) + 1)
   end
   if not roses.UnitTable[tostring(target_id)] then dfhack.script_environment('functions/tables').makeUnitTable(tostring(target_id)) end
-  roses.UnitTable[tostring(target_id)].Stats.Deaths = tostring(roses.UnitTable[tostring(target_id)] + 1)
+  roses.UnitTable[tostring(target_id)].Stats.Deaths = tostring(tonumber(roses.UnitTable[tostring(target_id)].Stats.Deaths) + 1)
  end
 
 end

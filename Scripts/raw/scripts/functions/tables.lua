@@ -7,7 +7,7 @@ function makeBaseTable()
  print('Searching for an included base file')
  local files = {}
  local dir = dfhack.getDFPath()
- local locations = {'/raw/objects/','/raw/systems/','/raw/files/','/raw/scripts/'}
+ local locations = {'/raw/objects/','/raw/systems/','/raw/scripts/'}
  local n = 1
  for _,location in ipairs(locations) do
   local path = dir..location
@@ -78,7 +78,6 @@ function makeBaseTable()
 end
 
 function makeCivilizationTable()
-
  function tchelper(first, rest)
   return first:upper()..rest:lower()
  end
@@ -88,27 +87,29 @@ function makeCivilizationTable()
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.CivilizationTable = {}
 
- print('Searching for civilization files')
+-- print('Searching for civilization files')
  local files = {}
  local dir = dfhack.getDFPath()
- local locations = {'/raw/objects/','/raw/systems/Civilizations/','/raw/scripts/files/'}
+ local locations = {'/raw/objects/','/raw/systems/Civilizations/'}
  local n = 1
  for location in ipairs(locations) do
   local path = dir..location
-  print('Looking in '..location)
-  for _,fname in pairs(dfhack.internal.getDir(path)) do
-   if (split(fname,'_')[1] == 'civilizations' or fname == 'civilizations.txt') then
-    files[n] = path..fname
-    n = n + 1
+--  print('Looking in '..location)
+  if dfhack.internal.getDir(path) then
+   for _,fname in pairs(dfhack.internal.getDir(path)) do
+    if (split(fname,'_')[1] == 'civilizations' or fname == 'civilizations.txt') then
+     files[n] = path..fname
+     n = n + 1
+    end
    end
   end
  end
 
  if #files >= 1 then
-  print('Civilization files found:')
-  printall(files)
+--  print('Civilization files found:')
+--  printall(files)
  else
-  print('No Civilization files found')
+--  print('No Civilization files found')
   return false
  end
 
@@ -165,75 +166,163 @@ function makeCivilizationTable()
     level = array[2]
     civilization.Level[level] = {}
     civsLevel = civilization.Level[level]
-    civsLevel.Ethics = {}
-    civsLevel.RemovePosition = {}
-    civsLevel.AddPosition = {}
-    civsLevel.Remove = {}
-    civsLevel.Remove.Creature = {}
-    civsLevel.Remove.Organic = {}
-    civsLevel.Remove.Inorganic = {}
-    civsLevel.Remove.Refuse = {}
-    civsLevel.Remove.Item = {}
-    civsLevel.Remove.Misc = {}
-    civsLevel.Add = {}
-    civsLevel.Add.Creature = {}
-    civsLevel.Add.Organic = {}
-    civsLevel.Add.Inorganic = {}
-    civsLevel.Add.Refuse = {}
-    civsLevel.Add.Item = {}
-    civsLevel.Add.Misc = {}
+    civsLevel.Required = {}
    elseif test == '[LEVEL_NAME' then
     civsLevel.Name = array[2]
+   elseif test == '[LEVEL_REQUIREMENT' then
+    if array[2] == 'COUNTER_MAX' then
+     civsLevel.Required.CounterMax = civsLevel.Required.CounterMax or {}
+     civsLevel.Required.CounterMax[array[3]] = array[4]
+    elseif array[2] == 'COUNTER_MIN' then
+     civsLevel.Required.CounterMin = civsLevel.Required.CounterMin or {}
+     civsLevel.Required.CounterMin[array[3]] = array[4]
+    elseif array[2] == 'COUNTER_EQUAL' then
+     civsLevel.Required.CounterEqual = civsLevel.Required.CounterEqual or {}
+     civsLevel.Required.CounterEqual[array[3]] = array[4]
+    elseif array[2] == 'TIME' then
+     civsLevel.Required.Time = array[3]
+    elseif array[2] == 'POPULATION' then
+     civsLevel.Required.Population = array[3]
+    elseif array[2] == 'SEASON' then
+     civsLevel.Required.Season = array[3]
+    elseif array[2] == 'TREES_CUT' then
+     civsLevel.Required.TreeCut = array[3]
+    elseif array[2] == 'FORTRESS_RANK' then
+     civsLevel.Required.Rank = array[3]
+    elseif array[2] == 'PROGRESS_RANK' then
+     if array[3] == 'POPULATION' then civsLevel.Required.ProgressPopulation = array[4] end
+     if array[3] == 'TRADE' then civsLevel.Required.ProgressTrade = array[4] end
+     if array[3] == 'PRODUCTION' then civsLevel.Required.ProgressProduction = array[4] end
+    elseif array[2] == 'ARTIFACTS' then
+     civsLevel.Required.NumArtifacts = array[3]
+    elseif array[2] == 'TOTAL_DEATHS' then
+     civsLevel.Required.TotDeaths = array[3]
+    elseif array[2] == 'TOTAL_INSANITIES' then
+     civsLevel.Required.TotInsanities = array[3]
+    elseif array[2] == 'TOTAL_EXECUTIONS' then
+     civsLevel.Required.TotExecutions = array[3]
+    elseif array[2] == 'MIGRANT_WAVES' then
+     civsLevel.Required.MigrantWaves = array[3]
+    elseif array[2] == 'WEALTH' then
+     civsLevel.Required.Wealth = civsLevel.Required.Wealth or {}
+     civsLevel.Required.Wealth[array[3]] = array[4]
+    elseif array[2] == 'BUILDING' then
+     civsLevel.Required.Building = civsLevel.Required.Building or {}
+     civsLevel.Required.Building[array[3]] = array[4]
+    elseif array[2] == 'SKILL' then
+     civsLevel.Required.Skill = civsLevel.Required.Skill or {}
+     civsLevel.Required.Skill[array[3]] = array[4]
+    elseif array[2] == 'CLASS' then
+     civsLevel.Required.Class = civsLevel.Required.Class or {}
+     civsLevel.Required.Class[array[3]] = array[4]
+    elseif array[2] == 'ENTITY_KILLS' then
+     civsLevel.Required.EntityKills = civsLevel.Required.EntityKills or {}
+     civsLevel.Required.EntityKills[array[3]] = array[4]
+    elseif array[2] == 'CREATURE_KILLS' then
+     civsLevel.Required.CreatureKills = civsLevel.Required.CreatureKills or {}
+     civsLevel.Required.CreatureKills[array[3]] = civsLevel.Required.CreatureKills[array[3]] or {}
+     civsLevel.Required.CreatureKills[array[3]][array[4]] = array[5]
+    elseif array[2] == 'ENTITY_DEATHS' then
+     civsLevel.Required.EntityDeaths = civsLevel.Required.EntityDeaths or {}
+     civsLevel.Required.EntityDeaths[array[3]] = array[4]
+    elseif array[2] == 'CREATURE_DEATHS' then
+     civsLevel.Required.CreatureDeaths = civsLevel.Required.CreatureDeaths or {}
+     civsLevel.Required.CreatureDeaths[array[3]] = civsLevel.Required.CreatureDeaths[array[3]] or {}
+     civsLevel.Required.CreatureDeaths[array[3]][array[4]] = array[5]
+    elseif array[2] == 'TRADES' then
+     civsLevel.Required.Trades = civsLevel.Required.Trades or {}
+     civsLevel.Required.Trades[array[3]] = array[4]
+    elseif array[2] == 'SIEGES' then
+     civsLevel.Required.Sieges = civsLevel.Required.Sieges or {}
+     civsLevel.Required.Sieges[array[3]] = array[4]
+    elseif array[2] == 'DIPLOMACY' then
+     civsLevel.Required.Diplomacy = civsLevel.Required.Diplomacy or {}
+     civsLevel.Required.Diplomacy[array[3]..':'..array[4]..':'..array[5]..':'..array[6]] = '1'
+    end
    elseif test == '[LEVEL_REMOVE' then
     subType = array[3]:gsub("(%a)([%w_']*)", tchelper)
+    civsLevel.Remove = civsLevel.Remove or {}
     if array[2] == 'CREATURE' then
+     civsLevel.Remove.Creature = civsLevel.Remove.Creature or {}
      civsLevel.Remove.Creature[subType] = civsLevel.Remove.Creature[subType] or {}
      civsLevel.Remove.Creature[subType][array[4]] = array[5]
     elseif array[2] == 'INORGANIC' then
+     civsLevel.Remove.Inorganic = civsLevel.Remove.Inorganic or {}
      civsLevel.Remove.Inorganic[subType] = civsLevel.Remove.Inorganic[subType] or {}
      civsLevel.Remove.Inorganic[subType][array[4]] = array[4]
     elseif array[2] == 'ORGANIC' then
+     civsLevel.Remove.Organic = civsLevel.Remove.Organic or {}
      civsLevel.Remove.Organic[subType] = civsLevel.Remove.Organic[subType] or {}
      civsLevel.Remove.Organic[subType][array[4]] = array[5]
     elseif array[2] == 'REFUSE' then
+     civsLevel.Remove.Refuse = civsLevel.Remove.Refuse or {}
      civsLevel.Remove.Refuse[subType] = civsLevel.Remove.Refuse[subType] or {}
      civsLevel.Remove.Refuse[subType][array[4]] = array[5]
     elseif array[2] == 'ITEM' then
+     civsLevel.Remove.Item = civsLevel.Remove.Item or {}
      civsLevel.Remove.Item[subType] = civsLevel.Remove.Item[subType] or {}
      civsLevel.Remove.Item[subType][array[4]] = array[4]
     elseif array[2] == 'MISC' then
+     civsLevel.Remove.Misc = civsLevel.Remove.Misc or {}
      civsLevel.Remove.Misc[subType] = civsLevel.Remove.Misc[subType] or {}
      civsLevel.Remove.Misc[subType][array[4]] = array[5]
+    elseif array[2] == 'PRODUCT' then
+     civsLevel.Remove.Product = civsLevel.Remove.Product or {}
+     civsLevel.Remove.Product[subType] = civsLevel.Remove.Product[subType] or {}
+     civsLevel.Remove.Product[subType][array[4]] = array[5]
     end
    elseif test == '[LEVEL_ADD' then
     subType = array[3]:gsub("(%a)([%w_']*)", tchelper)
+    civsLevel.Add = civsLevel.Add or {}
     if array[2] == 'CREATURE' then
+     civsLevel.Add.Creature = civsLevel.Add.Creature or {}
      civsLevel.Add.Creature[subType] = civsLevel.Add.Creature[subType] or {}
      civsLevel.Add.Creature[subType][array[4]] = array[5]
     elseif array[2] == 'INORGANIC' then
+     civsLevel.Add.Inorganic = civsLevel.Add.Inorganic or {}
      civsLevel.Add.Inorganic[subType] = civsLevel.Add.Inorganic[subType] or {}
      civsLevel.Add.Inorganic[subType][array[4]] = array[4]
     elseif array[2] == 'ORGANIC' then
+     civsLevel.Add.Organic = civsLevel.Add.Organic or {}
      civsLevel.Add.Organic[subType] = civsLevel.Add.Organic[subType] or {}
      civsLevel.Add.Organic[subType][array[4]] = array[5]
     elseif array[2] == 'REFUSE' then
+     civsLevel.Add.Refuse = civsLevel.Add.Refuse or {}
      civsLevel.Add.Refuse[subType] = civsLevel.Add.Refuse[subType] or {}
      civsLevel.Add.Refuse[subType][array[4]] = array[5]
     elseif array[2] == 'ITEM' then
+     civsLevel.Add.Item = civsLevel.Add.Item or {}
      civsLevel.Add.Item[subType] = civsLevel.Add.Item[subType] or {}
      civsLevel.Add.Item[subType][array[4]] = array[4]
     elseif array[2] == 'MISC' then
+     civsLevel.Add.Misc = civsLevel.Add.Misc or {}
      civsLevel.Add.Misc[subType] = civsLevel.Add.Misc[subType] or {}
      civsLevel.Add.Misc[subType][array[4]] = array[5]
+    elseif array[2] == 'PRODUCT' then
+     civsLevel.Remove.Product = civsLevel.Remove.Product or {}
+     civsLevel.Remove.Product[subType] = civsLevel.Remove.Product[subType] or {}
+     civsLevel.Remove.Product[subType][array[4]] = array[5]
     end
-   elseif testa== '[LEVEL_CHANGE_ETHIC' then
-    civsLevel.Ethics[array[2]:gsub("(%a)([%w_']*)", tchelper)] = array[3]
+   elseif testa== '[LEVEL_CHANGE_ETHICS' then
+    civsLevel.Ethics = civsLevel.Ethics or {}
+    civsLevel.Ethics[array[2]] = array[3]
+   elseif testa== '[LEVEL_CHANGE_VALUES' then
+    civsLevel.Values = civsLevel.Values or {}
+    civsLevel.Values[array[2]] = array[3]
+   elseif testa== '[LEVEL_CHANGE_SKILLS' then
+    civsLevel.Skills = civsLevel.Skills or {}
+    civsLevel.Skills[array[2]] = array[3]
+   elseif testa== '[LEVEL_CHANGE_CLASSES' then
+    civsLevel.Classes = civsLevel.Classes or {}
+    civsLevel.Classes[array[2]] = array[3]
    elseif test == '[LEVEL_CHANGE_METHOD' then
     civsLevel.LevelMethod = array[2]
     civsLevel.LevelPercent = array[3]
    elseif test == '[LEVEL_REMOVE_POSITION' then
+    civsLevel.RemovePosition = civsLevel.RemovePosition or {}
     civsLevel.RemovePosition[array[2]] = array[2]
    elseif test == '[LEVEL_ADD_POSITION' then
+    civsLevel.AddPosition = civsLevel.AddPosition or {}
     position = array[2]
     civsLevel.AddPosition[position] = position
     civilization.Positions[position] = {}
@@ -339,10 +428,12 @@ function makeClassTable(spellCheck)
  for _,location in ipairs(locations) do
   local path = dir..location
 --  print('Looking in '..location)
-  for _,fname in pairs(dfhack.internal.getDir(path)) do
-   if (split(fname,'_')[1] == 'classes' or fname == 'classes.txt') then
-    files[n] = path..fname
-    n = n + 1
+  if dfhack.internal.getDir(path) then
+   for _,fname in pairs(dfhack.internal.getDir(path)) do
+    if (split(fname,'_')[1] == 'classes' or fname == 'classes.txt') then
+     files[n] = path..fname
+     n = n + 1
+    end
    end
   end
  end
@@ -442,7 +533,7 @@ function makeClassTable(spellCheck)
      class.RequiredTrait = class.RequiredTrait or {}
      class.RequiredTrait[array[2]] = array[3]
     elseif test == '[REQUIREMENT_COUNTER' then
-        class.RequiredCounter = class.RequiredCounter or {}
+     class.RequiredCounter = class.RequiredCounter or {}
      class.RequiredCounter[array[2]] = array[3]
     elseif test == '[REQUIREMENT_PHYS' then
      class.RequiredPhysical = class.RequiredPhysical or {}
@@ -576,6 +667,24 @@ function makeClassTable(spellCheck)
  return true
 end
 
+function makeDiplomacyTable()
+ local persistTable = require 'persist-table'
+ persistTable.GlobalTable.roses.DiplomacyTable = persistTable.GlobalTable.roses.DiplomacyTable or {}
+ 
+ for _,civ1 in pairs(persistTable.GlobalTable.roses.EntityTable._children) do
+  persistTable.GlobalTable.roses.DiplomacyTable[civ1] = persistTable.GlobalTable.roses.DiplomacyTable[civ1] or {}
+  for _,civ2 in pairs(persistTable.GlobalTable.roses.EntityTable._children) do
+   if civ1 == civ2 then
+    persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2] = '1000'
+   else
+    persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2] = '0'
+   end
+  end
+ end
+ 
+ return true
+end
+
 function makeEntityTable(entity)
 
  if tonumber(entity) then
@@ -607,6 +716,7 @@ function makeEntityTable(entity)
     entityTable.Civilization.Level = '0'
     entityTable.Civilization.CurrentMethod = civilizations[entity].LevelMethod
     entityTable.Civilization.CurrentPercent = civilizations[entity].LevelPercent
+    entityTable.Civilization.Classes = {}
     if civilizations[entity].Level then
      if civilizations[entity].Level['0'] then
       for _,mtype in pairs(civilizations[entity].Level['0'].Remove._children) do
@@ -626,6 +736,16 @@ function makeEntityTable(entity)
         for _,mobj in pairs(depth2._children) do
          local sobj = depth2[mobj]
          dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,true)
+        end
+       end
+      end
+      if civilizations[entity].Level['0'].Classes then
+       for _,class in pairs(civilizations[entity].Level['0'].Classes._children) do
+        level = tonumber(civilizations[entity].Level['0'].Classes[class])
+        if level > 0 then
+         entityTable.Civilization.Classes[class] = tostring(level)
+        else
+         entityTable.Civilization.Classes[class] = nil
         end
        end
       end
@@ -650,10 +770,12 @@ function makeEventTable()
  for _,location in ipairs(locations) do
   local path = dir..location
 --  print('Looking in '..location)
-  for _,fname in pairs(dfhack.internal.getDir(path)) do
-   if (split(fname,'_')[1] == 'events' or fname == 'events.txt') then
-    files[n] = path..fname
-    n = n + 1
+  if dfhack.internal.getDir(path) then
+   for _,fname in pairs(dfhack.internal.getDir(path)) do
+    if (split(fname,'_')[1] == 'events' or fname == 'events.txt') then
+     files[n] = path..fname
+     n = n + 1
+    end
    end
   end
  end
@@ -725,6 +847,9 @@ function makeEventTable()
     elseif array[2] == 'COUNTER_MIN' then
      event.Required.CounterMin = event.Required.CounterMin or {}
      event.Required.CounterMin[array[3]] = array[4]
+    elseif array[2] == 'COUNTER_EQUAL' then
+     event.Required.CounterEqual = event.Required.CounterEqual or {}
+     event.Required.CounterEqual[array[3]] = array[4]
     elseif array[2] == 'TIME' then
      event.Required.Time = array[3]
     elseif array[2] == 'POPULATION' then
@@ -781,6 +906,9 @@ function makeEventTable()
     elseif array[2] == 'SIEGES' then
      event.Required.Sieges = event.Required.Sieges or {}
      event.Required.Sieges[array[3]] = array[4]
+    elseif array[2] == 'DIPLOMACY' then
+     event.Required.Diplomacy = event.Required.Diplomacy or {}
+     event.Required.Diplomacy[array[3]..':'..array[4]..':'..array[5]..':'..array[6]] = '1'
     end
    elseif test == '[EFFECT' then
     number = array[2]
@@ -808,6 +936,9 @@ function makeEventTable()
     elseif array[2] == 'COUNTER_MIN' then
      effect.Required.CounterMin = effect.Required.CounterMin or {}
      effect.Required.CounterMin[array[3]] = array[4]
+    elseif array[2] == 'COUNTER_EQUAL' then
+     effect.Required.CounterEqual = effect.Required.CounterEqual or {}
+     effect.Required.CounterEqual[array[3]] = array[4]
     elseif array[2] == 'TIME' then
      effect.Required.Time = array[3]
     elseif array[2] == 'POPULATION' then
@@ -864,6 +995,9 @@ function makeEventTable()
     elseif array[2] == 'SIEGES' then
      effect.Required.Sieges = effect.Required.Sieges or {}
      effect.Required.Sieges[array[3]] = array[4]
+    elseif array[2] == 'DIPLOMACY' then
+     effect.Required.Diplomacy = effect.Required.Diplomacy or {}
+     effect.Required.Diplomacy[array[3]..':'..array[4]..':'..array[5]..':'..array[6]] = '1'
     end
    elseif test == '[EFFECT_UNIT' then
     effect.Unit = {}
@@ -933,10 +1067,12 @@ function makeFeatTable()
  for _,location in ipairs(locations) do
   local path = dir..location
 --  print('Looking in '..location)
-  for _,fname in pairs(dfhack.internal.getDir(path)) do
-   if (split(fname,'_')[1] == 'feats' or fname == 'feats.txt') then
-    files[n] = path..fname
-    n = n + 1
+  if dfhack.internal.getDir(path) then
+   for _,fname in pairs(dfhack.internal.getDir(path)) do
+    if (split(fname,'_')[1] == 'feats' or fname == 'feats.txt') then
+     files[n] = path..fname
+     n = n + 1
+    end
    end
   end
  end
@@ -1073,10 +1209,12 @@ function makeSpellTable()
  for _,location in ipairs(locations) do
   local path = dir..location
 --  print('Looking in '..location)
-  for _,fname in pairs(dfhack.internal.getDir(path)) do
-   if (split(fname,'_')[1] == 'spells' or fname == 'spells.txt') then
-    files[n] = path..fname
-    n = n + 1
+  if dfhack.internal.getDir(path) then
+   for _,fname in pairs(dfhack.internal.getDir(path)) do
+    if (split(fname,'_')[1] == 'spells' or fname == 'spells.txt') then
+     files[n] = path..fname
+     n = n + 1
+    end
    end
   end
  end
@@ -1209,7 +1347,7 @@ function makeUnitTable(unit)
  unitTable.Stats = {}
  unitTable.Stats.Kills = '0'
  unitTable.Stats.Deaths = '0'
-
+ 
  unitTable.Classes = {}
  if persistTable.GlobalTable.roses.ClassTable then
   unitTable.Classes.Current = {}
@@ -1224,8 +1362,6 @@ function makeUnitTable(unit)
  end
 
  unitTable.Feats = {}
-
- unitTable.Stats = {}
 end
 
 function makeUnitTableAttribute(unit,attribute) --Changes needed for the Enhanced System

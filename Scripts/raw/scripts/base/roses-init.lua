@@ -28,6 +28,9 @@ if not persistTable.GlobalTable.roses.GlobalTable then dfhack.script_environment
 local function civilizationNotAlreadyLoaded()
  return (not persistTable.GlobalTable.roses.CivilizationTable) or #persistTable.GlobalTable.roses.CivilizationTable._children < 1
 end
+local function diplomacyNotAlreadyLoaded()
+ return (not persistTable.GlobalTable.roses.DiplomacyTable) or #persistTable.GlobalTable.roses.DiplomacyTable._children < 1
+end
 local function classNotAlreadyLoaded()
  return (not persistTable.GlobalTable.roses.ClassTable) or #persistTable.GlobalTable.roses.ClassTable._children < 1
 end
@@ -91,14 +94,36 @@ if args.all or args.classSystem then
 end
 
 if args.all or args.civilizationSystem then
- systemCheck = false
- if civilizationNotAlreadyLoaded() or args.forceReload then
-  systemCheck = dfhack.script_environment('functions/tables').makeCivilizationTable()
- elseif not civilizationNotAlreadyLoaded() then
-  systemCheck = true
+ if type(args.civilizationSystem) == 'string' then args.civilizationSystem = {args.civilizationSystem} end
+ diplomacyCheck = false
+ civilizationCheck = false
+ for _,check in pairs(args.classSystem) do
+  if check == 'Diplomacy' then   
+   if diplomacyNotAlreadyLoaded() then
+    diplomacyCheck = dfhack.script_environment('functions/tables').makeDiplomacyTable()
+   elseif not featNotAlreadyLoaded() then
+    diplomacyCheck = true
+   end
+  end
  end
- if systemCheck then
+
+ if civilizationNotAlreadyLoaded() or args.forceReload then
+  civilizationCheck = dfhack.script_environment('functions/tables').makeCivilizationTable()
+ elseif not classNotAlreadyLoaded() then
+  civilizationCheck = true
+ end
+
+ if civilizationCheck then
   print('Civilization System successfully loaded')
+  print('Number of Civilizations: '..tostring(#persistTable.GlobalTable.roses.CivilizationTable._children))
+  if diplomacyCheck then
+   print('Diplomacy SubSystem loaded')
+   print('Number of Diplomatic Entities: '..tostring(#persistTable.GlobalTable.roses.DiplomacyTable._children))
+  else
+   print('Diplomacy SubSystem not loaded')
+  end
+ else
+  print('Civilization System not loaded')
  end
 end
 
@@ -111,6 +136,7 @@ if args.all or args.eventSystem then
  end
  if systemCheck then
   print('Event System successfully loaded')
+  print('Number of Events: '..tostring(#persistTable.GlobalTable.roses.EventTable._children))
  end
 end
 

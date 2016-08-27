@@ -1,5 +1,7 @@
 function checkRequirements(event,effect,verbose)
  local persistTable = require 'persist-table'
+ local utils = require 'utils'
+ local split = utils.split_string
  event = persistTable.GlobalTable.roses.EventTable[event]
  if not event then
   return false
@@ -151,6 +153,17 @@ function checkRequirements(event,effect,verbose)
    a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
    if a1 and a2 then
     if a2 < a1 then
+     return false
+    end
+   end
+  end
+ end
+ if check.CounterEqual then
+  for _,counter in pairs(check.CounterEqual._children) do
+   a1 = tonumber(check.CounterEqual[counter])
+   a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
+   if a1 and a2 then
+    if not a2 == a1 then
      return false
     end
    end
@@ -311,6 +324,25 @@ function checkRequirements(event,effect,verbose)
   end
  end
 
+-- Check for diplomacy
+ if check.Diplomacy and persistTable.GlobalTable.roses.DiplomacyTable then
+  for _,dip_string in pairs(check.Diplomacy._children) do
+   dip_array = split(dip_string,':')
+   civ1,civ2,relation,number = dip_array[1],dip_array[2],dip_array[3],dip_array[4]
+   if civ1 and civ2 and relation and number then
+    score = tonumber(persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2])
+    if relation == 'GREATER' then
+     if score < tonumber(number) then
+      return false
+     end
+    elseif relation == 'LESS' then
+     if score > tonumber(number) then
+      return false
+     end
+    end
+   end
+  end
+ end
  return true
 end
 
@@ -329,6 +361,26 @@ function triggerEvent(event,effect,verbose)
  if not effectTable then
   if verbose then print('No such effect for given event: '..event..' - '..effect) end
   return
+ end
+ 
+ delay = 0
+ delayTable = eventTable.Delay
+ if delayTable then
+  if delayTable['STATIC'] then
+   delay = tonumber(delayTable['STATIC'])
+  elseif delayTable['RANDOM'] then
+   local rand = dfhack.random.new()
+   delay = rand:random(tonumber(delayTable['RANDOM']))+1
+  end
+ end
+ delayTable = effectTable.Delay
+ if delayTable then
+  if delayTable['STATIC'] then
+   delay = delay + tonumber(delayTable['STATIC'])
+  elseif delayTable['RANDOM'] then
+   local rand = dfhack.random.new()
+   delay = delay + rand:random(tonumber(delayTable['RANDOM']))+1
+  end
  end
  
  units,buildings,locations,items = {},{},{},{}
@@ -362,10 +414,10 @@ function triggerEvent(event,effect,verbose)
  for _,nscript in pairs(effectTable.Script._children) do
   for _,filler in ipairs(fill) do
    script = effectTable.Script[nscript]
-   if filler[1] then script = script:gsub('\\EFFECT_UNIT',tostring(filler[1].id)) end
-   if filler[2] then script = script:gsub('\\EFFECT_BUILDING',tostring(filler[2].id)) end
-   if filler[3] then script = script:gsub('\\EFFECT_LOCATION',"[ "..tostring(filler[3].x).." "..tostring(filler[3].y).." "..tostring(filler[3].z).." ]") end
-   if filler[4] then script = script:gsub('\\EFFECT_ITEM',tostring(filler[4].id)) end
+   if filler[1] then script = script:gsub('EFFECT_UNIT',tostring(filler[1].id)) end
+   if filler[2] then script = script:gsub('EFFECT_BUILDING',tostring(filler[2].id)) end
+   if filler[3] then script = script:gsub('EFFECT_LOCATION',"[ "..tostring(filler[3].x).." "..tostring(filler[3].y).." "..tostring(filler[3].z).." ]") end
+   if filler[4] then script = script:gsub('EFFECT_ITEM',tostring(filler[4].id)) end
    for _,argnum in pairs(effectTable.Argument._children) do
     argument = effectTable.Argument[argnum]
     if argument.Variable and not argument.Equation then 
@@ -410,7 +462,11 @@ function triggerEvent(event,effect,verbose)
     end
     script = script:gsub('\\ARG_'..tostring(argnum),tostring(switch))
    end
-   dfhack.run_command(script)
+   if delay > 0 then
+    dfhack.script_environment('persist-delay').commandDelay(delay,script)
+   else
+    dfhack.run_command(script)
+   end
   end
  end
 end
