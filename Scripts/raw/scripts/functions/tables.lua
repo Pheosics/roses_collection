@@ -1044,7 +1044,10 @@ function makeEventTable()
     argument.Variable = array[2]
    elseif test == '[EFFECT_SCRIPT' then
     effect.Scripts = tostring(effect.Scripts + 1)
-    effect.Script[effect.Scripts] = array[2]
+    script = data[j]:gsub("%s+","")
+    script = table.concat({select(2,table.unpack(split(script,':')))},':')
+    script = string.sub(script,1,-2)
+    effect.Script[effect.Scripts] = script
    end
   end
   event.Effects = tostring(numberOfEffects)
@@ -1147,7 +1150,10 @@ function makeFeatTable()
     elseif test == '[COST' then
      feat.Cost = array[2]
     elseif test == '[EFFECT' then
-     feat.Effect[num] = array[2]
+     script = data[j]:gsub("%s+","")
+     script = table.concat({select(2,table.unpack(split(script,':')))},':')
+     script = string.sub(script,1,-2)
+     feat.Effect[num] = script
      num = num + 1
     end
    end
@@ -1289,7 +1295,10 @@ function makeSpellTable()
     elseif test == '[ANNOUNCEMENT' then
      spell.Announcement = array[2]
     elseif test == '[SCRIPT' then
-     spell.Script[scriptNum] = array[2]
+     script = data[j]:gsub("%s+","")
+     script = table.concat({select(2,table.unpack(split(script,':')))},':')
+     script = string.sub(script,1,-2)
+     spell.Script[scriptNum] = script
      scriptNum = scriptNum + 1
     elseif test == '[EXP_GAIN' then
      spell.ExperienceGain = array[2]
