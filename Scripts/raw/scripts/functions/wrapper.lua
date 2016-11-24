@@ -1,12 +1,12 @@
-function checkLocation(center,radius)
+function checkLocation(center,radius,verbose)
  if radius then
-  rx = tonumber(radius.x) or tonumber(radius[1]) or -1
-  ry = tonumber(radius.y) or tonumber(radius[2]) or -1
-  rz = tonumber(radius.z) or tonumber(radius[3]) or -1
+  rx = tonumber(radius.x) or tonumber(radius[1]) or 0
+  ry = tonumber(radius.y) or tonumber(radius[2]) or 0
+  rz = tonumber(radius.z) or tonumber(radius[3]) or 0
  else
-  rx = -1
-  ry = -1
-  rz = -1
+  rx = 0
+  ry = 0
+  rz = 0
  end
  local targetList = {}
  local selected = {}
@@ -33,53 +33,53 @@ function checkLocation(center,radius)
  return targetList,n
 end
 
-function checkTarget(source,targetList,target)
+function checkTarget(source,targetList,target,verbose)
  if not target then target = 'all' end
  n = 0
  list = {}
  
  for i,unit in pairs(targetList) do
-  if target == 'enemy' then
+  if target == 'enemy' or target == 'Enemy' then
    if unit.invasion_id > 0 then
     n = n + 1
     list[n] = unit
    end
-  elseif target == 'friendly' then
+  elseif target == 'friendly' or target == 'Friendly' then
    if unit.invasion_id == -1 and unit.civ_id ~= -1 then
     n = n + 1
     list[n] = unit
    end
-  elseif target == 'civ' then
+  elseif target == 'civ' or target == 'Civ' then
    if source.civ_id == unit.civ_id then
     n = n + 1
     list[n] = unit
    end
-  elseif target == 'race' then
+  elseif target == 'race' or target == 'Race' then
    if source.race == unit.race then
     n = n + 1
     list[n] = unit
    end
-  elseif target == 'caste' then
+  elseif target == 'caste' or target == 'Caste' then
    if source.race == unit.race and source.caste == unit.caste then
     n = n + 1
     list[n] = unit
    end
-  elseif target == 'gender' then
+  elseif target == 'gender' or target == 'Gender' then
    if source.sex == unit.sex then
     n = n + 1
     list[n] = unit
    end
-  elseif target == 'wild' then
+  elseif target == 'wild' or target == 'Wild' then
    if unit.training_level == 9 and unit.civ_id == -1 then
     n = n + 1
     list[n] = unit
    end
-  elseif target == 'domestic' then
+  elseif target == 'domestic' or target == 'Domestic' then
    if unit.training_level == 7 and unit.civ_id == source.civ_id then
     n = n + 1
     list[n] = unit
    end
-  elseif target == 'all' then
+  else
    n = #targetList
    list = targetList
    break
@@ -88,7 +88,7 @@ function checkTarget(source,targetList,target)
  return list,n
 end
 
-function checkAge(source,target,argument,relation)
+function checkAge(source,target,argument,relation,verbose)
  local selected = true
  sage = dfhack.units.getAge(source)
  tage = dfhack.units.getAge(target)
@@ -107,7 +107,7 @@ function checkAge(source,target,argument,relation)
  return selected
 end
 
-function checkAttribute(source,target,argument,relation)
+function checkAttribute(source,target,argument,relation,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  
@@ -131,7 +131,7 @@ function checkAttribute(source,target,argument,relation)
  return true
 end
 
-function checkClass(source,target,argument,relation)
+function checkClass(source,target,argument,relation,verbose)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
   selected = dfhack.script_environment('functions/unit').checkClass(target,x)
@@ -149,7 +149,7 @@ function checkClass(source,target,argument,relation)
  end
 end
 
-function checkCreature(source,target,argument,relation)
+function checkCreature(source,target,argument,relation,verbose)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
   selected = dfhack.script_environment('functions/unit').checkCreatureRace(target,x)
@@ -167,7 +167,7 @@ function checkCreature(source,target,argument,relation)
  end
 end
 
-function checkEntity(source,target,argument,relation)
+function checkEntity(source,target,argument,relation,verbose)
 -- sentity = df.global.world.entities[source.civ_id].entity_raw.code
  if target.civ_id < 0 then return false end
  tentity = df.global.world.entities[target.civ_id].entity_raw.code
@@ -189,7 +189,7 @@ function checkEntity(source,target,argument,relation)
  end
 end
 
-function checkNoble(source,target,argument,relation)
+function checkNoble(source,target,argument,relation,verbose)
 -- snoble = dfhack.units.getNoblePositions(source)
  tnoble = dfhack.units.getNoblePositions(target)
  
@@ -221,7 +221,7 @@ function checkNoble(source,target,argument,relation)
  end
 end
 
-function checkProfession(source,target,argument,relation)
+function checkProfession(source,target,argument,relation,verbose)
 -- sprof = source.profession
  tprof = target.profession
  
@@ -243,7 +243,7 @@ function checkProfession(source,target,argument,relation)
  end
 end
 
-function checkSkill(source,target,argument,relation)
+function checkSkill(source,target,argument,relation,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  
@@ -267,7 +267,7 @@ function checkSkill(source,target,argument,relation)
  return true
 end
 
-function checkSpeed(source,target,argument,relation)
+function checkSpeed(source,target,argument,relation,verbose)
  sspeed = dfhack.units.computeMovementSpeed(source)
  tspeed = dfhack.units.computeMovementSpeed(target)
  
@@ -285,7 +285,7 @@ function checkSpeed(source,target,argument,relation)
  return true
 end
 
-function checkSyndrome(source,target,argument,relation)
+function checkSyndrome(source,target,argument,relation,verbose)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
   selected = dfhack.script_environment('functions/unit').checkCreatureSyndrome(target,x)
@@ -303,7 +303,7 @@ function checkSyndrome(source,target,argument,relation)
  end
 end
 
-function checkToken(source,target,argument,relation)
+function checkToken(source,target,argument,relation,verbose)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
   selected = dfhack.script_environment('functions/unit').checkCreatureToken(target,x)
@@ -321,7 +321,7 @@ function checkToken(source,target,argument,relation)
  end
 end
 
-function checkTrait(source,target,argument,relation)
+function checkTrait(source,target,argument,relation,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  
@@ -345,7 +345,7 @@ function checkTrait(source,target,argument,relation)
  return true
 end
 
-function getValue(equation,target,source,center,targetList,selected)
+function getValue(equation,target,source,center,targetList,selected,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  
@@ -383,118 +383,118 @@ end
 function isSelected(source,unit,args)
  local selected = true
 
- if args.maxattribute and selected then
-  selected = checkAttribute(source,unit,args.maxattribute,'max')
+ if args.maxAttribute and selected then
+  selected = checkAttribute(source,unit,args.maxAttribute,'max',args.verbose)
  end
- if args.minattribute and selected then
-  selected = checkAttribute(source,unit,args.minattribute,'min')
+ if args.minAttribute and selected then
+  selected = checkAttribute(source,unit,args.minAttribute,'min',args.verbose)
  end
- if args.gtattribute and selected then
-  selected = checkAttribute(source,unit,args.gtattribute,'greater')
+ if args.gtAttribute and selected then
+  selected = checkAttribute(source,unit,args.gtAttribute,'greater',args.verbose)
  end
- if args.ltattribute and selected then
-  selected = checkAttribute(source,unit,args.ltattribute,'less')
- end
- 
- if args.maxskill and selected then
-  selected = checkSkill(source,unit,args.maxskill,'max')
- end
- if args.minskill and selected then
-  selected = checkSkill(source,unit,args.minskill,'min')
- end
- if args.gtskill and selected then
-  selected = checkSkill(source,unit,args.gtskill,'greater')
- end
- if args.ltskill and selected then
-  selected = checkSkill(source,unit,args.ltskill,'less')
+ if args.ltAttribute and selected then
+  selected = checkAttribute(source,unit,args.ltAttribute,'less',args.verbose)
  end
  
- if args.maxtrait and selected then
-  selected = checkTrait(source,unit,args.maxtrait,'max')
+ if args.maxSkill and selected then
+  selected = checkSkill(source,unit,args.maxSkill,'max',args.verbose)
+ end
+ if args.minSkill and selected then
+  selected = checkSkill(source,unit,args.minSkill,'min',args.verbose)
+ end
+ if args.gtSkill and selected then
+  selected = checkSkill(source,unit,args.gtSkill,'greater',args.verbose)
+ end
+ if args.ltSkill and selected then
+  selected = checkSkill(source,unit,args.ltSkill,'less',args.verbose)
+ end
+ 
+ if args.maxTrait and selected then
+  selected = checkTrait(source,unit,args.maxTrait,'max',args.verbose)
  end
  if args.mintrait and selected then
-  selected = checkTrait(source,unit,args.mintrait,'min')
+  selected = checkTrait(source,unit,args.minTrait,'min',args.verbose)
  end
- if args.gttrait and selected then
-  selected = checkTrait(source,unit,args.maxtrait,'greater')
+ if args.gtTrait and selected then
+  selected = checkTrait(source,unit,args.gtTrait,'greater',args.verbose)
  end
- if args.lttrait and selected then
-  selected = checkTrait(source,unit,args.mintrait,'less')
- end
- 
- if args.maxage and selected then
-  selected = checkAge(source,unit,args.maxage,'max')
- end
- if args.minage and selected then
-  selected = checkAge(source,unit,args.minage,'min')
- end
- if args.gtage and selected then
-  selected = checkAge(source,unit,args.gtage,'greater')
- end
- if args.ltage and selected then
-  selected = checkAge(source,unit,args.ltage,'less')
+ if args.ltTrait and selected then
+  selected = checkTrait(source,unit,args.ltTrait,'less',args.verbose)
  end
  
- if args.maxspeed and selected then
-  selected = checkSpeed(source,unit,args.maxspeed,'max')
+ if args.maxAge and selected then
+  selected = checkAge(source,unit,args.maxAge,'max',args.verbose)
  end
- if args.minspeed and selected then
-  selected = checkSpeed(source,unit,args.minspeed,'min')
+ if args.minAge and selected then
+  selected = checkAge(source,unit,args.minAge,'min',args.verbose)
  end
- if args.gtspeed and selected then
-  selected = checkSpeed(source,unit,args.gtspeed,'greater')
+ if args.gtAge and selected then
+  selected = checkAge(source,unit,args.gtAge,'greater',args.verbose)
  end
- if args.ltspeed and selected then
-  selected = checkSpeed(source,unit,args.ltspeed,'less')
+ if args.ltAge and selected then
+  selected = checkAge(source,unit,args.ltAge,'less',args.verbose)
  end
  
- if args.rclass and selected then
-  selected = checkClass(source,unit,args.rclass,'required')
+ if args.maxSpeed and selected then
+  selected = checkSpeed(source,unit,args.maxSpeed,'max',args.verbose)
+ end
+ if args.minSpeed and selected then
+  selected = checkSpeed(source,unit,args.minSpeed,'min',args.verbose)
+ end
+ if args.gtSpeed and selected then
+  selected = checkSpeed(source,unit,args.gtSpeed,'greater',args.verbose)
+ end
+ if args.ltSpeed and selected then
+  selected = checkSpeed(source,unit,args.ltSpeed,'less',args.verbose)
+ end
+ 
+ if args.requiredClass and selected then
+  selected = checkClass(source,unit,args.requiredClass,'required',args.verbose)
  end 
- if args.iclass and selected then
-  selected = checkClass(source,unit,args.iclass,'immune')
+ if args.immuneClass and selected then
+  selected = checkClass(source,unit,args.immuneClass,'immune',args.verbose)
  end 
  
- if args.rcreature and selected then
-  selected = checkCreature(source,unit,args.rcreature,'required')
+ if args.requiredCreature and selected then
+  selected = checkCreature(source,unit,args.requiredCreature,'required',args.verbose)
  end 
- if args.icreature and selected then
-  selected = checkCreature(source,unit,args.icreature,'immune')
+ if args.immuneCreature and selected then
+  selected = checkCreature(source,unit,args.immuneCreature,'immune',args.verbose)
  end
  
- if args.rsyndrome and selected then
-  selected = checkSyndrome(source,unit,args.rsyndrome,'required')
+ if args.requiredSyndrome and selected then
+  selected = checkSyndrome(source,unit,args.requiredSyndrome,'required',args.verbose)
  end 
- if args.isyndrome and selected then
-  selected = checkSyndrome(source,unit,args.isyndrome,'immune')
+ if args.immuneSyndrome and selected then
+  selected = checkSyndrome(source,unit,args.immuneSyndrome,'immune',args.verbose)
  end
 
- if args.rtoken and selected then
-  selected = checkToken(source,unit,args.rtoken,'required')
+ if args.requiredToken and selected then
+  selected = checkToken(source,unit,args.requiredToken,'required',args.verbose)
  end 
- if args.itoken and selected then
-  selected = checkToken(source,unit,args.itoken,'immune')
+ if args.immuneToken and selected then
+  selected = checkToken(source,unit,args.immuneToken,'immune',args.verbose)
  end
  
- if args.rnoble and selected then
-  selected = checkNoble(source,unit,args.rnoble,'required')
+ if args.requiredNoble and selected then
+  selected = checkNoble(source,unit,args.requiredNoble,'required',args.verbose)
  end 
  if args.inoble and selected then
-  selected = checkNoble(source,unit,args.inoble,'immune')
+  selected = checkNoble(source,unit,args.inoble,'immune',args.verbose)
  end
  
- if args.rprofession and selected then
-  selected = checkProfession(source,unit,args.rprofession,'required')
+ if args.requiredProfesion and selected then
+  selected = checkProfession(source,unit,args.requiredProfesion,'required',args.verbose)
  end 
- if args.iprofession and selected then
-  selected = checkProfession(source,unit,args.iprofession,'immune')
+ if args.immuneProfession and selected then
+  selected = checkProfession(source,unit,args.immuneProfession,'immune',args.verbose)
  end
  
- if args.rentity and selected then
-  selected = checkEntity(source,unit,args.rentity,'required')
+ if args.requiredEntity and selected then
+  selected = checkEntity(source,unit,args.requiredEntity,'required',args.verbose)
  end 
- if args.ientity and selected then
-  selected = checkEntity(source,unit,args.ientity,'immune')
+ if args.immuneEntity and selected then
+  selected = checkEntity(source,unit,args.immuneEntity,'immune',args.verbose)
  end
 
  return selected
