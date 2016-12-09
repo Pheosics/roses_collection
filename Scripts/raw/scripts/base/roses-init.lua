@@ -23,6 +23,7 @@ persistTable.GlobalTable.roses.CommandDelay = persistTable.GlobalTable.roses.Com
 persistTable.GlobalTable.roses.EnvironmentDelay = persistTable.GlobalTable.roses.EnvironmentDelay or {}
 persistTable.GlobalTable.roses.CounterTable = persistTable.GlobalTable.roses.CounterTable or {}
 persistTable.GlobalTable.roses.LiquidTable = persistTable.GlobalTable.roses.LiquidTable or {}
+persistTable.GlobalTable.roses.FlowTable = persistTable.GlobalTable.roses.FlowTable or {}
 if not persistTable.GlobalTable.roses.GlobalTable then dfhack.script_environment('functions/tables').makeGlobalTable() end
 
 local function civilizationNotAlreadyLoaded()
@@ -143,5 +144,6 @@ end
 dfhack.run_command('base/persist-delay')
 --dfhack.run_command('base/global-tracking')
 dfhack.run_command('base/liquids-update')
+dfhack.run_command('base/flows-update')
 dfhack.run_command('base/on-death')
 dfhack.run_command('base/on-time')

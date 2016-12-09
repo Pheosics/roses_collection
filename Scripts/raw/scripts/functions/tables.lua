@@ -1518,3 +1518,7 @@ function makeUnitTableSummon(unit)
  unitTable.General.Summoned.End = tostring(-1)
  unitTable.General.Summoned.Syndrome = tostring(-1)
 end
+
+function makeWrapperTable()
+
+end

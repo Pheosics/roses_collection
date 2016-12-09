@@ -601,6 +601,223 @@ function spawnLiquid(edges,offset,depth,magma,circle,taper)
  end
 end
 
+function getFlow(pos)
+ flowtypes = {
+              MIASMA,
+              MIST,
+              MIST2,
+              DUST,
+              LAVAMIST,
+              SMOKE,
+              DRAGONFIRE,
+              FIREBREATH,
+              WEB,
+              UNDIRECTEDGAS,
+              UNDIRECTEDVAPOR,
+              OCEANWAVE,
+              SEAFOAM
+             }
+
+ block = dfhack.maps.ensureTileBlock(pos)
+ flows = block.flows
+ flowID = -1
+ for i,flow in pairs(flows) do
+  if flow.pos.x == pos.x and flow.pos.y == pos.y and flow.pos.z == pos.z then
+   flowID = i
+   break
+  end
+ end
+ 
+ if flowID == -1 then
+  return false, false
+ else
+  return flows[flowID], flowtypes[flows[flowID]['type']]
+ end
+end
+
+function getTree(pos,array)
+ if not array then array = df.global.world.plants.all end
+ for i,tree in pairs(array) do
+  if tree.tree_info ~= nil then
+   local x1 = tree.pos.x - math.floor(tree.tree_info.dim_x / 2)
+   local x2 = tree.pos.x + math.floor(tree.tree_info.dim_x / 2)
+   local y1 = tree.pos.y - math.floor(tree.tree_info.dim_y / 2)
+   local y2 = tree.pos.y + math.floor(tree.tree_info.dim_y / 2)
+   local z1 = tree.pos.z
+   local z2 = tree.pos.z + tree.tree_info.body_height
+   if ((pos.x >= x1 and pos.x <= x2) and (pos.y >= y1 and pos.y <= y2) and (pos.z >= z1 and pos.z <= z2)) then
+    body = tree.tree_info.body[pos.z - tree.pos.z]:_displace((pos.y - y1) * tree.tree_info.dim_x + (pos.x - x1))
+    if not body.blocked then
+     if body.trunk or body.thick_branches_1 or body.thick_branches_2 or body.thick_branches_3 or body.thick_branches_4 or body.branches or body.twigs then
+      return i,tree
+     end
+    end
+   end
+  end
+ end
+ return nil
+end
+
+function getShrub(pos,array)
+ if not array then array = df.global.world.plants.all end
+ for i,shrub in pairs(array) do
+  if not shrub.tree_info then
+   if pos.x == shrub.pos.x and pos.y == shrub.pos.y and pos.z == shrub.pos.z then
+    return i,shrub
+   end
+  end
+ end
+end
+
+function removeTree(pos)
+ --erase from plants.all (but first get the tree positions)
+ nAll,tree = getTree(pos,df.global.world.plants.all)
+ positions = getTreePositions(tree)
+ base = tree.pos.z
+ --erase from plants.tree_dry
+ nDry = getTree(pos,df.global.world.plants.tree_dry)
+ --erase from plants.tree_wet
+ nWet = getTree(pos,df.global.world.plants.tree_wet)
+ --erase from map_block_columns
+ x_column = math.floor(pos.x/16)
+ y_column = math.floor(pos.y/16)
+ --need to get 1st of 9 map block columns for plant information
+ map_block_column = df.global.world.map.column_index[x_column-x_column%3][y_column-y_column%3]
+ nBlock = getTree(pos,map_block_column.plants)
+ print(nAll,nDry,nWet,nBlock)
+ if nAll then df.global.world.plants.all:erase(nAll) end
+ if nDry then df.global.world.plants.tree_dry:erase(nDry) end
+ if nWet then df.global.world.plants.tree_wet:erase(nWet) end
+ if nBlock then map_block_column.plants:erase(nBlock) end
+ 
+ --Now change tiletypes for tree positions
+ for _,position in ipairs(positions) do
+  block = dfhack.maps.ensureTileBlock(position)
+  if position.z == base then
+   block.tiletype[position.x%16][position.y%16] = 350
+  else
+   block.tiletype[position.x%16][position.y%16] = df.tiletype['OpenSpace']
+  end
+  block.designation[position.x%16][position.y%16].outside = true
+ end
+end
+
+function removeShrub(pos)
+ --erase from plants.all
+ n = getShrub(pos,df.global.world.plants.all)
+ if n then df.global.world.plants.all:erase(n) end
+ --erase from plants.shrub_dry
+ n = getShrub(pos,df.global.world.plants.shrub_dry)
+ if n then df.global.world.plants.shrub_dry:erase(n) end
+ --erase from plants.tree_wet
+ n = getShrub(pos,df.global.world.plants.shrub_wet)
+ if n then df.global.world.plants.shrub_wet:erase(n) end
+ --erase from map_block_columns
+ x_column = math.floor(pos.x/16)
+ y_column = math.floor(pos.y/16)
+ --need to get 1st of 9 map block columns for plant information
+ map_block_column = df.global.world.map.column_index[x_column-x_column%3][y_column-y_column%3]
+ n = getTree(pos,map_block_column.plants)
+ if n then map_block_column:erase(n) end
+end
+
+function getTreeMaterial(pos)
+ _,tree = getTree(pos)
+ material = dfhack.matinfo.decode(419, tree.material)
+ 
+ return material
+end
+
+function getShrubMaterial(pos)
+ _,shrub = getShrub(pos)
+ material = dfhack.matinfo.decode(419, shrub.material)
+ 
+ return material
+end
+
+function getGrassMaterial(pos)
+ events = dfhack.maps.ensureTileBlock(pos).block_events
+ for _,event in ipairs(events) do
+  if df.block_square_event_grassst:is_instance(event) then
+   if event.amount[pos.x%16][pos.y%16] > 0 then
+    return dfhack.matinfo.decode(419,event.plant_index)
+   end
+  end
+ end
+end
+
+function getTreePositions(tree)
+ n = 0
+ nTrunk = 0
+ nTwigs = 0
+ nBranches = 0
+ nTBranches = 0
+ positions = {}
+ positionsTrunk = {}
+ positionsTwigs = {}
+ positionsBranches = {}
+ positionsTBranches = {}
+ local x1 = tree.pos.x - math.floor(tree.tree_info.dim_x / 2)
+ local x2 = tree.pos.x + math.floor(tree.tree_info.dim_x / 2)
+ local y1 = tree.pos.y - math.floor(tree.tree_info.dim_y / 2)
+ local y2 = tree.pos.y + math.floor(tree.tree_info.dim_y / 2)
+ local z1 = tree.pos.z
+ local z2 = tree.pos.z + math.floor(tree.tree_info.body_height / 2)
+ for x = x1,x2 do
+  for y = y1,y2 do
+   for z = z1,z2 do
+    pos = {x=x,y=y,z=z}
+    body = tree.tree_info.body[pos.z-z1]:_displace((pos.y - y1) * tree.tree_info.dim_x + (pos.x - x1))
+    if body.trunk then
+     n = n + 1
+     positions[n] = pos
+     nTrunk = nTrunk + 1
+     positionsTrunk[nTrunk] = pos
+    elseif body.twigs then
+     n = n + 1
+     positions[n] = pos
+     nTwigs = nTwigs + 1
+     positionsTwigs[nTwigs] = pos
+    elseif body.branches then
+     n = n + 1
+     positions[n] = pos
+     nBranches = nBranches + 1
+     positionsBranches[nBranches] = pos
+    elseif body.thick_branches_1 or body.thick_branches_2 or body.thick_branches_3 or body.thick_branches_4 then
+     n = n + 1
+     positions[n] = pos
+     nTBranches = nTBranches + 1
+     positionsTBranches[nTBranches] = pos
+    end
+   end
+  end
+ end
+ return positions,positionsTrunk,positionsTBranches,positionsBranches,positionsTwigs
+end
+
+function flowSource(n)
+ local persistTable = require 'persist-table'
+ flowTable = persistTable.GlobalTable.roses.FlowTable
+ flow = flowTable[n]
+ 
+ if flow then
+  x = tonumber(flow.x)
+  y = tonumber(flow.y)
+  z = tonumber(flow.z)
+  density = tonumber(flow.Density)
+  inorganic = tonumber(flow.Inorganic)
+  flowType = tonumber(flow.FlowType)
+  check = tonumber(flow.Check)
+  dfhack.maps.spawnFlow({x,y,z},flowType,0,inorganic,density)
+ 
+  dfhack.timeout(check,'ticks',
+                 function ()
+                  dfhack.script_environment('functions/map').flowSource(n)
+                 end
+                )
+ end                
+end
+
 function liquidSource(n)
  local persistTable = require 'persist-table'
  liquidTable = persistTable.GlobalTable.roses.LiquidTable
@@ -612,6 +829,7 @@ function liquidSource(n)
   z = tonumber(liquid.z)
   depth = tonumber(liquid.Depth)
   magma = liquid.Magma
+  check = tonumber(liquid.Check)
   block = dfhack.maps.ensureTileBlock(x,y,z)
   dsgn = block.designation[x%16][y%16]
   flow = block.liquid_flow[x%16][y%16]
@@ -622,7 +840,7 @@ function liquidSource(n)
   block.flags.update_liquid = true
   block.flags.update_liquid_twice = true
  
-  dfhack.timeout(12,'ticks',
+  dfhack.timeout(check,'ticks',
                  function ()
                   dfhack.script_environment('functions/map').liquidSource(n)
                  end
@@ -641,6 +859,7 @@ function liquidSink(n)
   z = tonumber(liquid.z)
   depth = tonumber(liquid.Depth)
   magma = liquid.Magma
+  check = tonumber(liquid.Check)
   block = dfhack.maps.ensureTileBlock(x,y,z)
   dsgn = block.designation[x%16][y%16]
   flow = block.liquid_flow[x%16][y%16]
@@ -651,7 +870,7 @@ function liquidSink(n)
   block.flags.update_liquid = true
   block.flags.update_liquid_twice = true
  
-  dfhack.timeout(12,'ticks',
+  dfhack.timeout(check,'ticks',
                  function ()
                   dfhack.script_environment('functions/map').liquidSink(n)
                  end
