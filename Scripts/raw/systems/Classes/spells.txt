@@ -1,3 +1,39 @@
+[SPELL:EXAMPLE_SPELL]
+ --The basics for each spell, none of these tokens are required, but you should at least use NAME
+ [NAME:example]
+ [DESCRIPTION:This is an example spell that includes all of the available and required tokens]
+ [ANNOUNCEMENT:The spell system shuts off announcements made from INTERACTIONs, to add an announcement place it here]
+ 
+ --These tokens are used for checking resistances and other high level functions, most users will not have a use for them.
+ --In order to function properly they will need to be declared in base.txt, the ones shown below are just for example.
+ [TYPE:MAGICAL] -- Top level grouping (i.e. MAGICAL vs PHYSICAL)
+ [SPHERE:ELEMENTAL] -- Next level down (i.e. ELEMENTAL vs ARCANE)
+ [SCHOOL:FIRE] -- Next level down (i.e. FIRE vs ICE)
+ [DISCIPLINE:CONJURATION] -- Next level down (i.e. CONJURATION vs EVOCATION)
+ [SUBDISCIPLINE:MISSILE] -- Bottom level (i.e. MISSILE vs HARM)
+ --(Note: For resistance calculation you will add the resistance from SPHERE and SCHOOL together and DISCIPLINE and SUBDISCIPLINE together. Then combine the TYPE, SPHERE+SCHOOL, and DISCIPLINE+SUBDISCIPLINE multiplicatively)
+ 
+ --These tokens affect the actual casting of the spell
+ [EXP_GAIN:2] --Adds experience to the casting units class (from the Class System)
+ [CAST_TIME:4] --Number of in-game ticks between when the unit begins the cast and when it completes. The unit is unable to perform any other actions during this time
+ [EXHAUSTION:100] --Amount of exhaustion to add to the unit for each cast of the spell
+ 
+ --These tokens are used for determining values to place in the spell
+ [RESISTABLE] --The spell can be resisted, note that this will use the Type, Sphere, etc... for checking
+ [PENETRATE:50] --Percent of a unit's resistances to ignore, note that a unit can have >100% resistance
+ [HIT_MODIFIER:10] --Amount to change the hit chance for spells that require it
+ [HIT_MODIFIER_PERC:50] --Percentage to change the hit chance for spells that require it
+ [SOURCE_PRIMARY_ATTRIBUTES:MEMORY:FOCUS] --Attribute(s) to use for determining primary spell modifiers from source
+ [SOURCE_SECONDARY_ATTRIBUTES:ENDURANCE] --Attribute(s) to use for determining secondary spell modifiers from source
+ [TARGET_PRIMARY_ATTRIBUTES:WILLPOWER] --Attribute(s) to use for determining primary spell modifiers from target
+ [TARGET_SECONDARY_ATTRIBUTES:WEIGHT] --Attribute(s) to use for determining secondary spell modifiers from target 
+ --(Note: There are several "special" attributes such as WEIGHT and AGE. A complete list can be found in README_ClassSystem)
+ --(Note2: Custom attributes will work here, for information on custom attributes see README_ClassSystem)
+ 
+ --The actual heavy lifting of the spell. You can include multiple script tokens or put multiple script calls in a single script token
+ [SCRIPT:XXX]
+ [SCRIPT:XXX]
+ 
 [SPELL:RALLY]
  [NAME:rallying cry]
  [DESCRIPTION:A strong shout that stops the user and nearby allies from fleeing]
@@ -70,6 +106,7 @@
  [ANNOUNCEMENT:SOURCE_NAME throws a concealed dagger at TARGET_NAME]
  [EXP_GAIN:1]
  [SCRIPT:item/projectile -unitSource SPELL_SOURCE -unitTarget SPELL_TARGET -item WEAPON:ITEM_WEAPON_DAGGER_LARGE -mat INORGANIC:IRON -maxrange 10 -minrange 0 -velocity 100 -hitchance 75 ]
+
 
 [SPELL:EVADE]
  [NAME:evade]
