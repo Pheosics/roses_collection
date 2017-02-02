@@ -1,4 +1,35 @@
-function makeTable(table,dirLocation,filename,tokenCheck)
+--[[ List of Functions
+getData(table,dirLocation,filename,tokenCheck) -- Used for getting data from text files and splitting into chunks
+makeTable(array,pos,fill) -- A shortcut function for making a table out of an array
+
+makeBaseTable() -- Base information used in all systems
+makeWrapperTemplateTable() -- Wrapper Templates
+makeCivilzationTable() -- Civilzation System
+makeClassTable(spellcheck) -- Class System
+makeFeatTable() -- Class System | Feat SubSystem
+makeSpellTable() -- Class System | Spell SubSystem
+makeEnhancedBuildingTable() -- Enhanced System
+makeEnhancedCreatureTable() -- Enhanced System
+makeEnhancedItemTable() -- Enhanced System
+makeEventTable() -- Event System
+
+makeDiplomacyTable() -- Civilization System | Diplomacy SubSystem
+makeEntityTable(entity) -- Make a persistent table for the declared entity
+makeGlobalTable() -- Make a global persistent table used in all systems
+makeItemTable(item) -- Make a persistent table for the declared item
+makeUnitTable(unit) -- Make a persistent table for the declared unit
+makeUnitTableSecondary(unit,secondary) -- Add a secondary (attribute/skill/etc) table for the declared unit
+makeUnitTableClass(unit,class) -- Add a class table for the declared unit
+makeUnitTableSpell(unit,spell) -- Add a spell table for the declared unit
+makeUnitTableSide(unit) -- Add a table tracking allegiance information for the declared unit
+makeUnitTableSummon(unit) -- Add a table tracking summoning information for the declared unit
+makeUnitTableTransform(unit) -- Add a table tracking transformation information for the declared unit
+]]
+
+---------------------------------------------------------------------------------------------
+-------- Functions that are shared between multiple other functions in this file ------------
+---------------------------------------------------------------------------------------------
+function getData(table,dirLocation,filename,tokenCheck)
  --print('Searching for an '..table..' file')
  local files = {}
  local dir = dfhack.getDFPath()
@@ -42,7 +73,7 @@ function makeTable(table,dirLocation,filename,tokenCheck)
   dataInfo[file] = {}
   local count = 1
   for i,line in ipairs(data[file]) do
-   if split(line,':')[1] == '[BUILDING' then
+   if split(line,':')[1] == tokenCheck then
     dataInfo[file][count] = {split(split(line,':')[2],']')[1],i,0}
     count = count + 1
    end
@@ -52,7 +83,7 @@ function makeTable(table,dirLocation,filename,tokenCheck)
  return data, dataInfo, files
 end
 
-function makeTableTable(array,pos,fill)
+function makeTable(array,pos,fill)
  local temp = {}
  local temptable = {select(pos,table.unpack(array))}
  local strint = '1'
@@ -71,6 +102,9 @@ function makeTableTable(array,pos,fill)
  return temp
 end
  
+---------------------------------------------------------------------------------------------
+-------- Functions for making persistent tables from text files (used in Systems) -----------
+---------------------------------------------------------------------------------------------
 function makeBaseTable()
  local utils = require 'utils'
  local split = utils.split_string
@@ -152,28 +186,30 @@ function makeBaseTable()
  end
 end
 
-function makeEnhancedBuildingTable()
+function makeWrapperTemplateTable()
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.EnhancedBuildingTable = {}
- buildings = persistTable.GlobalTable.roses.EnhancedBuildingTable
+ persistTable.GlobalTable.roses.WrapperTemplateTable = {}
+ templates = persistTable.GlobalTable.roses.WrapperTemplateTable
  
- dataFiles,dataInfoFiles,files = makeTable('Enhanced Building','/raw/systems/Enhanced','Ebuildings','[BUILDING')
+ dataFiles,dataInfoFiles,files = getData('Wrapper Template','/raw/systems/','templates','[TEMPLATE')
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
  for i,x in ipairs(dataInfo) do
-  buildingToken = x[1]
+  templateToken = x[1]
   startLine = x[2]+1
   if i ==#dataInfo then
    endLine = #data
   else
    endLine = dataInfo[i+1][2]-1
   end
-  buildings[buildingToken] = {}
-  building = buildings[buildingToken]
+  templates[templateToken] = {}
+  template = templates[templateToken]
+  template.Level = {}
+  template.Positions = {}
   for j = startLine,endLine,1 do
    test = data[j]:gsub("%s+","")
    test = split(test,':')[1]
@@ -182,184 +218,15 @@ function makeEnhancedBuildingTable()
     array[k] = split(array[k],']')[1]
    end
    if test == '[NAME' then
-    building.Name = array[2]
-   elseif test == '[DESCRIPTION' then
-    building.Description = array[2]
-   elseif test == '[MULTI_STORY' then
-    building.MultiStory = array[2]
-   elseif test == '[TREE_BUILDING' then
-    building.TreeBuilding = array[2]
-   elseif test == '[BASEMENT' then
-    building.Basement = array[2]
-   elseif test == '[ROOF' then
-    building.Roof = array[2]
-   elseif test == '[WALLS' then
-    building.Walls = array[2]
-   elseif test == '[STAIRS' then
-    building.Stairs = array[2]
-   elseif test == '[UPGRADE' then
-    building.Upgrade = array[2]
-   elseif test == '[SPELL' then
-    spell = array[2]
-    building.Spells = building.Spells or {}
-    building.Spells[spell] = {}
-    building.Spells[spell].Frequency = array[3]
-   elseif test == '[REQUIRED_WATER' then
-    building.RequiredWater = array[2]
-   elseif test == '[REQUIRED_MAGMA' then
-    building.RequiredMagma = array[2]
-   elseif test == '[MAX_AMOUNT' then
-    building.MaxAmount = array[2]
-   elseif test == '[OUTSIDE_ONLY]' then
-    building.OutsideOnly = 'true'
-   elseif test == '[INSIDE_ONLY]' then
-    building.InsideOnly = 'true'
-   elseif test == '[REQUIRED_BUILDING' then
-    building.RequiredBuildings = building.RequiredBuildings or {}
-    building.RequiredBuildings[array[2]] = array[3]
-   elseif test == '[FORBIDDEN_BUILDING' then
-    building.ForbiddenBuildings = building.ForbiddenBuildings or {}
-    building.ForbiddenBuildings[array[2]] = array[3]
-   end
-  end
- end
-end
- 
-function makeEnhancedCreatureTable()
- local utils = require 'utils'
- local split = utils.split_string
- local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.EnhancedCreatureTable = {}
- creatures = persistTable.GlobalTable.roses.EnhancedCreatureTable
-  
- dataFiles,dataInfoFiles,files = makeTable('Enhanced Creature','/raw/systems/Enhanced','Ecreatures','[CREATURE')
- if not dataFiles then return false end
- for _,file in ipairs(files) do
-   dataInfo = dataInfoFiles[file]
-   data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
-  creatureToken = x[1]
-  startLine = x[2]+1
-  if i ==#dataInfo then
-   endLine = #data
-  else
-   endLine = dataInfo[i+1][2]-1
-  end
-  creatures[creatureToken] = {}
-  creature = creatures[creatureToken]
-  for j = startLine,endLine,1 do
-   test = data[j]:gsub("%s+","")
-   test = split(test,':')[1]
-   array = split(data[j],':')
-   for k = 1, #array, 1 do
-    array[k] = split(array[k],']')[1]
-   end
-   if test == '[NAME' then
-    creature.Name = array[2]
-   elseif test == '[DESCRIPTION' then
-    creature.Description = array[2]
-   elseif test == '[BODY_SIZE' then
-    creature.Size = {}
-    creature.Size.Baby = array[2]
-    creature.Size.Child = array[3]
-    creature.Size.Adult = array[4]
-    creature.Size.Max = array[5]
-    creature.Size.Variance = array[6]
-   elseif test == '[ATTRIBUTE' then
-    creature.Attributes = creature.Attributes or {}
-    creature.Attributes[array[2]] = {}
-    creature.Attributes[array[2]]['1'] = array[3]
-    creature.Attributes[array[2]]['2'] = array[4]
-    creature.Attributes[array[2]]['3'] = array[5]
-    creature.Attributes[array[2]]['4'] = array[6]
-    creature.Attributes[array[2]]['5'] = array[7]
-    creature.Attributes[array[2]]['6'] = array[8]
-   elseif test == '[SKILL' then
-    creature.Skills = creature.Skills or {}
-    creature.Skills[array[2]] = {}
-    creature.Skills[array[2]].Min = array[3]
-    creature.Skills[array[2]].Max = array[4]
-   elseif test == '[STAT' then
-    creature.Stats = creature.Stats or {}
-    creature.Stats[array[2]] = {}
-    creature.Stats[array[2]].Min = array[3]
-    creature.Stats[array[2]].Max = array[4]
-   elseif test == '[RESISTANCE' then
-    creature.Resistances = creature.Resistances or {}
-    creature.Resistances[array[2]] = array[3]
-   elseif test == '[CLASS' then
-    creature.Classes = creature.Classes or {}
-    creature.Classes[array[2]] = {}
-    creature.Classes[array[2]].Level = array[3]
-    creature.Classes[array[2]].Interactions = array[4]
-   elseif test =='[INTERACTION' then
-    creature.Interactions = creature.Interactions or {}
-    creature.Interactions[array[2]] = {}
-    creature.Interactions[array[2]].Probability = array[3]
+    template.Name = array[2]
+   elseif test == '[INPUT' then
+    template.Input = array[2]
    end
   end
  end
 end
 
-function makeEnhancedItemTable()
- local utils = require 'utils'
- local split = utils.split_string
- local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.EnhancedItemTable = {}
- items = persistTable.GlobalTable.roses.EnhancedItemTable
-   
- dataFiles,dataInfoFiles,files = makeTable('Enhanced Item','/raw/systems/Enhanced','Eitems','[ITEM')
- if not dataFiles then return false end
- for _,file in ipairs(files) do
-  dataInfo = dataInfoFiles[file]
-  data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
-  itemToken = x[1]
-  startLine = x[2]+1
-  if i ==#dataInfo then
-   endLine = #data
-  else
-   endLine = dataInfo[i+1][2]-1
-  end
-  items[itemToken] = {}
-  item = items[itemToken]
-  for j = startLine,endLine,1 do
-   test = data[j]:gsub("%s+","")
-   test = split(test,':')[1]
-   array = split(data[j],':')
-   for k = 1, #array, 1 do
-    array[k] = split(array[k],']')[1]
-   end
-   if test == '[NAME' then
-    item.Name = array[2]
-   elseif test == '[DESCRIPTION' then
-    item.Description = array[2]
-   elseif test == '[ATTRIBUTE_CHANGE' then
-    item.Attributes = item.Attributes or {}
-    item.Attributes[array[2]] = array[3]
-   elseif test == '[SKILL_CHANGE' then
-    item.Skills = item.Skills or {}
-    item.Skills[array[2]] = array[3]
-   elseif test == '[TRAIT_CHANGE' then
-    item.Traits = item.Traits or {}
-    item.Traits[array[2]] = array[3]
-   elseif test == '[STAT_CHANGE' then
-    item.Stats = item.Stats or {}
-    item.Stats[stat] = array[3]
-   elseif test == '[RESISTANCE_CHANGE' then
-    item.Resistances = item.Resistances or {}
-    item.Resistances[array[2]] = array[3]
-   elseif test == '[INTERACTION_ADD' then
-    item.Interactions = item.Interactions or {}
-    item.Interactions[#item.Interactions+1] = array[2]
-   elseif test == '[SYNDROME_ADD' then
-    item.Syndromes = item.Syndromes or {}
-    item.Syndromes[#item.Syndromes+1] = array[2]      
-   end
-  end
- end
-end
-
+-- Start Civilization System Functions
 function makeCivilizationTable()
  function tchelper(first, rest)
   return first:upper()..rest:lower()
@@ -371,7 +238,7 @@ function makeCivilizationTable()
  persistTable.GlobalTable.roses.CivilizationTable = {}
  civilizations = persistTable.GlobalTable.roses.CivilizationTable
  
- dataFiles,dataInfoFiles,files = makeTable('Civilization','/raw/systems/Civilizations','civilizations','[CIVILIZATION')
+ dataFiles,dataInfoFiles,files = getData('Civilization','/raw/systems/Civilizations','civilizations','[CIVILIZATION')
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -653,7 +520,9 @@ function makeCivilizationTable()
 
  return true
 end
-
+-- End Civilization System Functions
+   
+-- Start Class System Functions
 function makeClassTable(spellCheck)
  local utils = require 'utils'
  local split = utils.split_string
@@ -665,7 +534,7 @@ function makeClassTable(spellCheck)
   persistTable.GlobalTable.roses.SpellTable = {}
  end
  
- dataFiles,dataInfoFiles,files = makeTable('Class','/raw/systems/Classes','classes','[CLASS')
+ dataFiles,dataInfoFiles,files = getData('Class','/raw/systems/Classes','classes','[CLASS')
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -741,35 +610,35 @@ function makeClassTable(spellCheck)
      class.LevelBonus = class.LevelBonus or {}
      if array[2] == 'PHYSICAL' or array[2] == 'MENTAL' or array[2] == 'ATTRIBUTE' then
       class.LevelBonus.Attribute = class.LevelBonus.Attribute or {}
-      class.LevelBonus.Attribute[array[3]] = makeTableTable(array,4,class.Levels)
+      class.LevelBonus.Attribute[array[3]] = makeTable(array,4,class.Levels)
      elseif array[2] == 'SKILL' then
       class.LevelBonus.Skill = class.LevelBonus.Skill or {}
-      class.LevelBonus.Skill[array[3]] = makeTableTable(array,4,class.Levels)
+      class.LevelBonus.Skill[array[3]] = makeTable(array,4,class.Levels)
      elseif array[2] == 'RESISTANCE' then
       class.LevelBonus.Resistance = class.LevelBonus.Resistance or {}
-      class.LevelBonus.Resistance[array[3]] = makeTableTable(array,4,class.Levels)
+      class.LevelBonus.Resistance[array[3]] = makeTable(array,4,class.Levels)
      elseif array[2] == 'STAT' then
       class.LevelBonus.Stat = class.LevelBonus.Stat or {}
-      class.LevelBonus.Stat[array[3]] = makeTableTable(array,4,class.Levels)
+      class.LevelBonus.Stat[array[3]] = makeTable(array,4,class.Levels)
      elseif array[2] == 'TRAIT' then
       class.LevelBonus.Trait = class.LevelBonus.Trait or {}
-      class.LevelBonus.Trait[array[3]] = makeTableTable(array,4,class.Levels)
+      class.LevelBonus.Trait[array[3]] = makeTable(array,4,class.Levels)
      end
     elseif test == '[BONUS_PHYS' or test == '[BONUS_MENT' or test == '[BONUS_ATTRIBUTE' then
      class.BonusAttribute = class.BonusAttribute or {}
-     class.BonusAttribute[array[2]] = makeTableTable(array,3,class.Levels)
+     class.BonusAttribute[array[2]] = makeTable(array,3,class.Levels)
     elseif test == '[BONUS_TRAIT' then
      class.BonusTrait = class.BonusTrait or {}
-     class.BonusTrait[array[2]] = makeTableTable(array,3,class.Levels)
+     class.BonusTrait[array[2]] = makeTable(array,3,class.Levels)
     elseif test == '[BONUS_SKILL' then
      class.BonusSkill = class.BonusSkill or {}
-     class.BonusSkill[array[2]] = makeTableTable(array,3,class.Levels)
+     class.BonusSkill[array[2]] = makeTable(array,3,class.Levels)
     elseif test == '[BONUS_STAT' then
      class.BonusStat = class.BonusStat or {}
-     class.BonusStat[array[2]] = makeTableTable(array,3,class.Levels)
+     class.BonusStat[array[2]] = makeTable(array,3,class.Levels)
     elseif test == '[BONUS_RESISTANCE' then
      class.BonusResistance = class.BonusResistance or {}
-     class.BonusResistance[array[2]] = makeTableTable(array,3,class.Levels)
+     class.BonusResistance[array[2]] = makeTable(array,3,class.Levels)
     elseif test == '[SPELL' then
      spell = array[2]
      if not spellCheck then
@@ -811,94 +680,385 @@ function makeClassTable(spellCheck)
  return true
 end
 
-function makeDiplomacyTable()
+function makeSpellTable()
+ local utils = require 'utils'
+ local split = utils.split_string
  local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.DiplomacyTable = persistTable.GlobalTable.roses.DiplomacyTable or {}
- 
- for _,civ1 in pairs(persistTable.GlobalTable.roses.EntityTable._children) do
-  persistTable.GlobalTable.roses.DiplomacyTable[civ1] = persistTable.GlobalTable.roses.DiplomacyTable[civ1] or {}
-  for _,civ2 in pairs(persistTable.GlobalTable.roses.EntityTable._children) do
-   if civ1 == civ2 then
-    persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2] = '1000'
+ persistTable.GlobalTable.roses.SpellTable = {}
+ spells = persistTable.GlobalTable.roses.SpellTable
+
+ dataFiles,dataInfoFiles,files = getData('Spell','/raw/systems/Classes','spells','[SPELL')
+ if not dataFiles then return false end
+ for _,file in ipairs(files) do
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+ for i,x in ipairs(dataInfo) do
+   spellToken = x[1]
+   startLine = x[2]+1
+   if i ==#dataInfo then
+    endLine = #data
    else
-    persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2] = '0'
+    endLine = dataInfo[i+1][2]-1
    end
-  end
- end
- 
- return true
-end
-
-function makeEntityTable(entity)
- if tonumber(entity) then
-  civid = tonumber(entity)
- else
-  civid = entity.id
- end
- key = tostring(civid)
- entity = df.global.world.entities.all[civid]
-
- local persistTable = require 'persist-table'
- local key = tostring(entity.id)
- local entity = entity.entity_raw.code
- local civilizations = persistTable.GlobalTable.roses.CivilizationTable
- local entityTable = persistTable.GlobalTable.roses.EntityTable
- if entityTable[key] then
-  return
- else
-  entityTable[key] = {}
-  entityTable = entityTable[key]
-  entityTable.Kills = {}
-  entityTable.Deaths = {}
-  entityTable.Trades = '0'
-  entityTable.Sieges = '0'
-  if civilizations then
-   if civilizations[entity] then
-    entityTable.Civilization = {}
-    entityTable.Civilization.Name = entity
-    entityTable.Civilization.Level = '0'
-    entityTable.Civilization.CurrentMethod = civilizations[entity].LevelMethod
-    entityTable.Civilization.CurrentPercent = civilizations[entity].LevelPercent
-    entityTable.Civilization.Classes = {}
-    if civilizations[entity].Level then
-     if civilizations[entity].Level['0'] then
-      for _,mtype in pairs(civilizations[entity].Level['0'].Remove._children) do
-       local depth1 = civilizations[entity].Level['0'].Remove[mtype]
-       for _,stype in pairs(depth1._children) do
-        local depth2 = depth1[stype]
-        for _,mobj in pairs(depth2._children) do
-         local sobj = depth2[mobj]
-         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,true)
-        end
-       end
-      end
-      for _,mtype in pairs(civilizations[entity].Level['0'].Add._children) do
-       local depth1 = civilizations[entity].Level['0'].Add[mtype]
-       for _,stype in pairs(depth1._children) do
-        local depth2 = depth1[stype]
-        for _,mobj in pairs(depth2._children) do
-         local sobj = depth2[mobj]
-         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,true)
-        end
-       end
-      end
-      if civilizations[entity].Level['0'].Classes then
-       for _,class in pairs(civilizations[entity].Level['0'].Classes._children) do
-        level = tonumber(civilizations[entity].Level['0'].Classes[class])
-        if level > 0 then
-         entityTable.Civilization.Classes[class] = tostring(level)
-        else
-         entityTable.Civilization.Classes[class] = nil
-        end
-       end
-      end
-     end
+   spells[spellToken] = {}
+   spell = spells[spellToken]
+   spell.Cost = '0'
+   spell.Script = {}
+   scriptNum = 0
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],']')[1]
+    end
+    if test == '[NAME' then
+     spell.Name = array[2]
+    elseif test == '[DESCRIPTION' then
+     spell.Description = array[2]
+    elseif test == '[TYPE' then
+     spell.Type = array[2]
+    elseif test == '[SPHERE' then
+     spell.Sphere = array[2]
+    elseif test == '[SCHOOL' then
+     spell.School = array[2]
+    elseif test == '[DISCIPLINE' then
+     spell.Discipline = array[2]
+    elseif test == '[SUBDISCIPLINE' then
+     spell.SubDiscipline = array[2]
+    elseif test == '[LEVEL' then
+     spell.Level = array[2]
+    elseif test == '[EFFECT' then
+     spell.Effect = array[2]
+    elseif test == '[ANNOUNCEMENT' then
+     spell.Announcement = array[2]
+    elseif test == '[RESISTABLE' then
+     spell.Resistable = array[2]
+    elseif test == '[PENETRATE' then
+     spell.Penetration = array[2]
+    elseif test == '[HIT_MODIFIER' then
+     spell.HitModifier = array[2]
+    elseif test == '[HIT_MODIFIER_PERC' then
+     spell.HitModifierPerc = array[2]
+    elseif test == '[SOURCE_PRIMARY_ATTRIBUTES' then
+     spell.SourcePrimaryAttribute = makeTable(array,2)
+    elseif test == '[SOURCE_SECONDARY_ATTRIBUTES' then
+     spell.SourceSecondaryAttribute = makeTable(array,2)
+    elseif test == '[TARGET_PRIMARY_ATTRIBUTES' then
+     spell.TargetPrimaryAttribute = makeTable(array,2)
+    elseif test == '[TARGET_SECONDARY_ATTRIBUTES' then
+     spell.TargetSecondaryAttribute = makeTable(array,2)
+    elseif test == '[SCRIPT' then
+     script = data[j]:gsub("%s+","")
+     script = table.concat({select(2,table.unpack(split(script,':')))},':')
+     script = string.sub(script,1,-2)
+     spell.Script[scriptNum] = script
+     scriptNum = scriptNum + 1
+    elseif test == '[EXP_GAIN' then
+     spell.ExperienceGain = array[2]
+    elseif test == '[SKILL_GAIN' then
+     spell.SkillGain = spell.SkillGain or {}
+     spell.SkillGain[array[2]] = array[3]
+    elseif test == '[UPGRADE' then
+     spell.Upgrade = array[2]
+    elseif test == '[COST' then
+     spell.Cost = array[2]
+    elseif test == '[CAST_TIME' then
+     spell.CastTime = array[2]
+    elseif test == '[EXHAUSTION' then
+     spell.CastExhaustion = array[2]
+    elseif test == '[REQUIREMENT_PHYS' or test == '[REQUIREMENT_MENT' or test == '[REQUIREMENT_ATTRIBUTE' then
+     spell.RequiredAttribute = spell.RequiredAttribute or {}
+     spell.RequiredAttribute[array[2]] = array[3]
+    elseif test == '[FORBIDDEN_CLASS' then
+     spell.ForbiddenClass = spell.ForbiddenClass or {}
+     spell.ForbiddenClass[array[2]] = array[3]
+    elseif test == '[FORBIDDEN_SPELL' then
+     spell.ForbiddenSpell = spell.ForbiddenSpell or {}
+     spell.ForbiddenSpell[array[2]] = array[3]
     end
    end
   end
  end
+ return true
+end
+   
+function makeFeatTable()
+ local utils = require 'utils'
+ local split = utils.split_string
+ local persistTable = require 'persist-table'
+ persistTable.GlobalTable.roses.FeatTable = {}
+ feats = persistTable.GlobalTable.roses.FeatTable
+
+ dataFiles,dataInfoFiles,files = getData('Feat','/raw/systems/Classes','feats','[FEAT')
+ if not dataFiles then return false end
+ for _,file in ipairs(files) do
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+ for i,x in ipairs(dataInfo) do
+   featToken = x[1]
+   startLine = x[2]+1
+   if i ==#dataInfo then
+    endLine = #data
+   else
+    endLine = dataInfo[i+1][2]-1
+   end
+   feats[featToken] = {}
+   feat = feats[featToken]
+   feat.Cost = '1'
+   feat.Effect = {}
+   num = 0
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],']')[1]
+    end
+    if test == '[NAME' then
+     feat.Name = array[2]
+    elseif test == '[DESCRIPTION' then
+     feat.Description = array[2]
+    elseif test == '[REQUIRED_CLASS' then
+     feat.RequiredClass = feat.RequiredClass or {}
+     feat.RequiredClass[array[2]] = array[3]
+    elseif test == '[FORBIDDEN_CLASS' then
+     feat.ForbiddenClass = feat.ForbiddenClass or {}
+     feat.ForbiddenClass[array[2]] = array[3]
+    elseif test == '[REQUIRED_FEAT' then
+     feat.RequiredFeat = feat.RequiredFeat or {}
+     feat.RequiredFeat[array[2]] = array[2]
+    elseif test == '[FORBIDDEN_FEAT' then
+     feat.ForbiddenFeat = feat.ForbiddenFeat or {}
+     feat.ForbiddenFeat[array[2]] = array[2]
+    elseif test == '[COST' then
+     feat.Cost = array[2]
+    elseif test == '[EFFECT' then
+     script = data[j]:gsub("%s+","")
+     script = table.concat({select(2,table.unpack(split(script,':')))},':')
+     script = string.sub(script,1,-2)
+     feat.Effect[num] = script
+     num = num + 1
+    end
+   end
+   feat.Effects = tostring(num)
+  end
+ end
+ return true
+end
+-- End Class System Functions
+   
+-- Start Enhanced System Functions
+function makeEnhancedBuildingTable()
+ local utils = require 'utils'
+ local split = utils.split_string
+ local persistTable = require 'persist-table'
+ persistTable.GlobalTable.roses.EnhancedBuildingTable = {}
+ buildings = persistTable.GlobalTable.roses.EnhancedBuildingTable
+ 
+ dataFiles,dataInfoFiles,files = getData('Enhanced Building','/raw/systems/Enhanced','Ebuildings','[BUILDING')
+ if not dataFiles then return false end
+ for _,file in ipairs(files) do
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+ for i,x in ipairs(dataInfo) do
+  buildingToken = x[1]
+  startLine = x[2]+1
+  if i ==#dataInfo then
+   endLine = #data
+  else
+   endLine = dataInfo[i+1][2]-1
+  end
+  buildings[buildingToken] = {}
+  building = buildings[buildingToken]
+  for j = startLine,endLine,1 do
+   test = data[j]:gsub("%s+","")
+   test = split(test,':')[1]
+   array = split(data[j],':')
+   for k = 1, #array, 1 do
+    array[k] = split(array[k],']')[1]
+   end
+   if test == '[NAME' then
+    building.Name = array[2]
+   elseif test == '[DESCRIPTION' then
+    building.Description = array[2]
+   elseif test == '[MULTI_STORY' then
+    building.MultiStory = array[2]
+   elseif test == '[TREE_BUILDING' then
+    building.TreeBuilding = array[2]
+   elseif test == '[BASEMENT' then
+    building.Basement = array[2]
+   elseif test == '[ROOF' then
+    building.Roof = array[2]
+   elseif test == '[WALLS' then
+    building.Walls = array[2]
+   elseif test == '[STAIRS' then
+    building.Stairs = array[2]
+   elseif test == '[UPGRADE' then
+    building.Upgrade = array[2]
+   elseif test == '[SPELL' then
+    spell = array[2]
+    building.Spells = building.Spells or {}
+    building.Spells[spell] = {}
+    building.Spells[spell].Frequency = array[3]
+   elseif test == '[REQUIRED_WATER' then
+    building.RequiredWater = array[2]
+   elseif test == '[REQUIRED_MAGMA' then
+    building.RequiredMagma = array[2]
+   elseif test == '[MAX_AMOUNT' then
+    building.MaxAmount = array[2]
+   elseif test == '[OUTSIDE_ONLY]' then
+    building.OutsideOnly = 'true'
+   elseif test == '[INSIDE_ONLY]' then
+    building.InsideOnly = 'true'
+   elseif test == '[REQUIRED_BUILDING' then
+    building.RequiredBuildings = building.RequiredBuildings or {}
+    building.RequiredBuildings[array[2]] = array[3]
+   elseif test == '[FORBIDDEN_BUILDING' then
+    building.ForbiddenBuildings = building.ForbiddenBuildings or {}
+    building.ForbiddenBuildings[array[2]] = array[3]
+   end
+  end
+ end
+end
+ 
+function makeEnhancedCreatureTable()
+ local utils = require 'utils'
+ local split = utils.split_string
+ local persistTable = require 'persist-table'
+ persistTable.GlobalTable.roses.EnhancedCreatureTable = {}
+ creatures = persistTable.GlobalTable.roses.EnhancedCreatureTable
+  
+ dataFiles,dataInfoFiles,files = getData('Enhanced Creature','/raw/systems/Enhanced','Ecreatures','[CREATURE')
+ if not dataFiles then return false end
+ for _,file in ipairs(files) do
+   dataInfo = dataInfoFiles[file]
+   data = dataFiles[file]
+ for i,x in ipairs(dataInfo) do
+  creatureToken = x[1]
+  startLine = x[2]+1
+  if i ==#dataInfo then
+   endLine = #data
+  else
+   endLine = dataInfo[i+1][2]-1
+  end
+  creatures[creatureToken] = {}
+  creature = creatures[creatureToken]
+  for j = startLine,endLine,1 do
+   test = data[j]:gsub("%s+","")
+   test = split(test,':')[1]
+   array = split(data[j],':')
+   for k = 1, #array, 1 do
+    array[k] = split(array[k],']')[1]
+   end
+   if test == '[NAME' then
+    creature.Name = array[2]
+   elseif test == '[DESCRIPTION' then
+    creature.Description = array[2]
+   elseif test == '[BODY_SIZE' then
+    creature.Size = {}
+    creature.Size.Baby = array[2]
+    creature.Size.Child = array[3]
+    creature.Size.Adult = array[4]
+    creature.Size.Max = array[5]
+    creature.Size.Variance = array[6]
+   elseif test == '[ATTRIBUTE' then
+    creature.Attributes = creature.Attributes or {}
+    creature.Attributes[array[2]] = {}
+    creature.Attributes[array[2]]['1'] = array[3]
+    creature.Attributes[array[2]]['2'] = array[4]
+    creature.Attributes[array[2]]['3'] = array[5]
+    creature.Attributes[array[2]]['4'] = array[6]
+    creature.Attributes[array[2]]['5'] = array[7]
+    creature.Attributes[array[2]]['6'] = array[8]
+   elseif test == '[SKILL' then
+    creature.Skills = creature.Skills or {}
+    creature.Skills[array[2]] = {}
+    creature.Skills[array[2]].Min = array[3]
+    creature.Skills[array[2]].Max = array[4]
+   elseif test == '[STAT' then
+    creature.Stats = creature.Stats or {}
+    creature.Stats[array[2]] = {}
+    creature.Stats[array[2]].Min = array[3]
+    creature.Stats[array[2]].Max = array[4]
+   elseif test == '[RESISTANCE' then
+    creature.Resistances = creature.Resistances or {}
+    creature.Resistances[array[2]] = array[3]
+   elseif test == '[CLASS' then
+    creature.Classes = creature.Classes or {}
+    creature.Classes[array[2]] = {}
+    creature.Classes[array[2]].Level = array[3]
+    creature.Classes[array[2]].Interactions = array[4]
+   elseif test =='[INTERACTION' then
+    creature.Interactions = creature.Interactions or {}
+    creature.Interactions[array[2]] = {}
+    creature.Interactions[array[2]].Probability = array[3]
+   end
+  end
+ end
 end
 
+function makeEnhancedItemTable()
+ local utils = require 'utils'
+ local split = utils.split_string
+ local persistTable = require 'persist-table'
+ persistTable.GlobalTable.roses.EnhancedItemTable = {}
+ items = persistTable.GlobalTable.roses.EnhancedItemTable
+   
+ dataFiles,dataInfoFiles,files = getData('Enhanced Item','/raw/systems/Enhanced','Eitems','[ITEM')
+ if not dataFiles then return false end
+ for _,file in ipairs(files) do
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+ for i,x in ipairs(dataInfo) do
+  itemToken = x[1]
+  startLine = x[2]+1
+  if i ==#dataInfo then
+   endLine = #data
+  else
+   endLine = dataInfo[i+1][2]-1
+  end
+  items[itemToken] = {}
+  item = items[itemToken]
+  for j = startLine,endLine,1 do
+   test = data[j]:gsub("%s+","")
+   test = split(test,':')[1]
+   array = split(data[j],':')
+   for k = 1, #array, 1 do
+    array[k] = split(array[k],']')[1]
+   end
+   if test == '[NAME' then
+    item.Name = array[2]
+   elseif test == '[DESCRIPTION' then
+    item.Description = array[2]
+   elseif test == '[ATTRIBUTE_CHANGE' then
+    item.Attributes = item.Attributes or {}
+    item.Attributes[array[2]] = array[3]
+   elseif test == '[SKILL_CHANGE' then
+    item.Skills = item.Skills or {}
+    item.Skills[array[2]] = array[3]
+   elseif test == '[TRAIT_CHANGE' then
+    item.Traits = item.Traits or {}
+    item.Traits[array[2]] = array[3]
+   elseif test == '[STAT_CHANGE' then
+    item.Stats = item.Stats or {}
+    item.Stats[stat] = array[3]
+   elseif test == '[RESISTANCE_CHANGE' then
+    item.Resistances = item.Resistances or {}
+    item.Resistances[array[2]] = array[3]
+   elseif test == '[INTERACTION_ADD' then
+    item.Interactions = item.Interactions or {}
+    item.Interactions[#item.Interactions+1] = array[2]
+   elseif test == '[SYNDROME_ADD' then
+    item.Syndromes = item.Syndromes or {}
+    item.Syndromes[#item.Syndromes+1] = array[2]      
+   end
+  end
+ end
+end   
+-- End Enhanced System Functions
+
+-- Start Event System Functions
 function makeEventTable()
  local utils = require 'utils'
  local split = utils.split_string
@@ -906,7 +1066,7 @@ function makeEventTable()
  persistTable.GlobalTable.roses.EventTable = {}
  events = persistTable.GlobalTable.roses.EventTable
     
- dataFiles,dataInfoFiles,files = makeTable('Event','/raw/systems/Events','events','[EVENT')
+ dataFiles,dataInfoFiles,files = getData('Event','/raw/systems/Events','events','[EVENT')
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -1155,69 +1315,94 @@ function makeEventTable()
  end
  return true
 end
-
-function makeFeatTable()
- local utils = require 'utils'
- local split = utils.split_string
+--End Event System Functions
+   
+---------------------------------------------------------------------------------------------
+-------- Functions for making persistent tables for tracking in-game information ------------
+---------------------------------------------------------------------------------------------
+function makeDiplomacyTable()
  local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.FeatTable = {}
- feats = persistTable.GlobalTable.roses.FeatTable
-
- dataFiles,dataInfoFiles,files = makeTable('Feat','/raw/systems/Classes','feats','[FEAT')
- if not dataFiles then return false end
- for _,file in ipairs(files) do
-  dataInfo = dataInfoFiles[file]
-  data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
-   featToken = x[1]
-   startLine = x[2]+1
-   if i ==#dataInfo then
-    endLine = #data
+ persistTable.GlobalTable.roses.DiplomacyTable = persistTable.GlobalTable.roses.DiplomacyTable or {}
+ for _,civ1 in pairs(persistTable.GlobalTable.roses.EntityTable._children) do
+  persistTable.GlobalTable.roses.DiplomacyTable[civ1] = persistTable.GlobalTable.roses.DiplomacyTable[civ1] or {}
+  for _,civ2 in pairs(persistTable.GlobalTable.roses.EntityTable._children) do
+   if civ1 == civ2 then
+    persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2] = '1000'
    else
-    endLine = dataInfo[i+1][2]-1
+    persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2] = '0'
    end
-   feats[featToken] = {}
-   feat = feats[featToken]
-   feat.Cost = '1'
-   feat.Effect = {}
-   num = 0
-   for j = startLine,endLine,1 do
-    test = data[j]:gsub("%s+","")
-    test = split(test,':')[1]
-    array = split(data[j],':')
-    for k = 1, #array, 1 do
-     array[k] = split(array[k],']')[1]
-    end
-    if test == '[NAME' then
-     feat.Name = array[2]
-    elseif test == '[DESCRIPTION' then
-     feat.Description = array[2]
-    elseif test == '[REQUIRED_CLASS' then
-     feat.RequiredClass = feat.RequiredClass or {}
-     feat.RequiredClass[array[2]] = array[3]
-    elseif test == '[FORBIDDEN_CLASS' then
-     feat.ForbiddenClass = feat.ForbiddenClass or {}
-     feat.ForbiddenClass[array[2]] = array[3]
-    elseif test == '[REQUIRED_FEAT' then
-     feat.RequiredFeat = feat.RequiredFeat or {}
-     feat.RequiredFeat[array[2]] = array[2]
-    elseif test == '[FORBIDDEN_FEAT' then
-     feat.ForbiddenFeat = feat.ForbiddenFeat or {}
-     feat.ForbiddenFeat[array[2]] = array[2]
-    elseif test == '[COST' then
-     feat.Cost = array[2]
-    elseif test == '[EFFECT' then
-     script = data[j]:gsub("%s+","")
-     script = table.concat({select(2,table.unpack(split(script,':')))},':')
-     script = string.sub(script,1,-2)
-     feat.Effect[num] = script
-     num = num + 1
-    end
-   end
-   feat.Effects = tostring(num)
   end
  end
  return true
+end
+
+function makeEntityTable(entity)
+ if tonumber(entity) then
+  civid = tonumber(entity)
+ else
+  civid = entity.id
+ end
+ key = tostring(civid)
+ entity = df.global.world.entities.all[civid]
+ local persistTable = require 'persist-table'
+ local key = tostring(entity.id)
+ local entity = entity.entity_raw.code
+ local civilizations = persistTable.GlobalTable.roses.CivilizationTable
+ local entityTable = persistTable.GlobalTable.roses.EntityTable
+ if entityTable[key] then
+  return
+ else
+  entityTable[key] = {}
+  entityTable = entityTable[key]
+  entityTable.Kills = {}
+  entityTable.Deaths = {}
+  entityTable.Trades = '0'
+  entityTable.Sieges = '0'
+  if civilizations then
+   if civilizations[entity] then
+    entityTable.Civilization = {}
+    entityTable.Civilization.Name = entity
+    entityTable.Civilization.Level = '0'
+    entityTable.Civilization.CurrentMethod = civilizations[entity].LevelMethod
+    entityTable.Civilization.CurrentPercent = civilizations[entity].LevelPercent
+    entityTable.Civilization.Classes = {}
+    if civilizations[entity].Level then
+     if civilizations[entity].Level['0'] then
+      for _,mtype in pairs(civilizations[entity].Level['0'].Remove._children) do
+       local depth1 = civilizations[entity].Level['0'].Remove[mtype]
+       for _,stype in pairs(depth1._children) do
+        local depth2 = depth1[stype]
+        for _,mobj in pairs(depth2._children) do
+         local sobj = depth2[mobj]
+         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,true)
+        end
+       end
+      end
+      for _,mtype in pairs(civilizations[entity].Level['0'].Add._children) do
+       local depth1 = civilizations[entity].Level['0'].Add[mtype]
+       for _,stype in pairs(depth1._children) do
+        local depth2 = depth1[stype]
+        for _,mobj in pairs(depth2._children) do
+         local sobj = depth2[mobj]
+         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,true)
+        end
+       end
+      end
+      if civilizations[entity].Level['0'].Classes then
+       for _,class in pairs(civilizations[entity].Level['0'].Classes._children) do
+        level = tonumber(civilizations[entity].Level['0'].Classes[class])
+        if level > 0 then
+         entityTable.Civilization.Classes[class] = tostring(level)
+        else
+         entityTable.Civilization.Classes[class] = nil
+        end
+       end
+      end
+     end
+    end
+   end
+  end
+ end
 end
 
 function makeGlobalTable()
@@ -1234,7 +1419,6 @@ function makeItemTable(item)
   item = df.item.find(tonumber(item))
  end
  itemID = item.id
-
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.ItemTable[tostring(itemID)] = {}
  itemTable = persistTable.GlobalTable.roses.ItemTable[tostring(itemID)]
@@ -1256,109 +1440,6 @@ function makeItemTable(item)
 
  itemTable.Stats = {}
  itemTable.Stats.Kills = '0'
-end
-
-function makeSpellTable()
- local utils = require 'utils'
- local split = utils.split_string
- local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.SpellTable = {}
- spells = persistTable.GlobalTable.roses.SpellTable
-
- dataFiles,dataInfoFiles,files = makeTable('Spell','/raw/systems/Classes','spells','[SPELL')
- if not dataFiles then return false end
- for _,file in ipairs(files) do
-  dataInfo = dataInfoFiles[file]
-  data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
-   spellToken = x[1]
-   startLine = x[2]+1
-   if i ==#dataInfo then
-    endLine = #data
-   else
-    endLine = dataInfo[i+1][2]-1
-   end
-   spells[spellToken] = {}
-   spell = spells[spellToken]
-   spell.Cost = '0'
-   spell.Script = {}
-   scriptNum = 0
-   for j = startLine,endLine,1 do
-    test = data[j]:gsub("%s+","")
-    test = split(test,':')[1]
-    array = split(data[j],':')
-    for k = 1, #array, 1 do
-     array[k] = split(array[k],']')[1]
-    end
-    if test == '[NAME' then
-     spell.Name = array[2]
-    elseif test == '[DESCRIPTION' then
-     spell.Description = array[2]
-    elseif test == '[TYPE' then
-     spell.Type = array[2]
-    elseif test == '[SPHERE' then
-     spell.Sphere = array[2]
-    elseif test == '[SCHOOL' then
-     spell.School = array[2]
-    elseif test == '[DISCIPLINE' then
-     spell.Discipline = array[2]
-    elseif test == '[SUBDISCIPLINE' then
-     spell.SubDiscipline = array[2]
-    elseif test == '[LEVEL' then
-     spell.Level = array[2]
-    elseif test == '[EFFECT' then
-     spell.Effect = array[2]
-    elseif test == '[ANNOUNCEMENT' then
-     spell.Announcement = array[2]
-    elseif test == '[RESISTABLE' then
-     spell.Resistable = array[2]
-    elseif test == '[PENETRATE' then
-     spell.Penetration = array[2]
-    elseif test == '[HIT_MODIFIER' then
-     spell.HitModifier = array[2]
-    elseif test == '[HIT_MODIFIER_PERC' then
-     spell.HitModifierPerc = array[2]
-    elseif test == '[SOURCE_PRIMARY_ATTRIBUTES' then
-     spell.SourcePrimaryAttribute = makeTableTable(array,2)
-    elseif test == '[SOURCE_SECONDARY_ATTRIBUTES' then
-     spell.SourceSecondaryAttribute = makeTableTable(array,2)
-    elseif test == '[TARGET_PRIMARY_ATTRIBUTES' then
-     spell.TargetPrimaryAttribute = makeTableTable(array,2)
-    elseif test == '[TARGET_SECONDARY_ATTRIBUTES' then
-     spell.TargetSecondaryAttribute = makeTableTable(array,2)
-    elseif test == '[SCRIPT' then
-     script = data[j]:gsub("%s+","")
-     script = table.concat({select(2,table.unpack(split(script,':')))},':')
-     script = string.sub(script,1,-2)
-     spell.Script[scriptNum] = script
-     scriptNum = scriptNum + 1
-    elseif test == '[EXP_GAIN' then
-     spell.ExperienceGain = array[2]
-    elseif test == '[SKILL_GAIN' then
-     spell.SkillGain = spell.SkillGain or {}
-     spell.SkillGain[array[2]] = array[3]
-    elseif test == '[UPGRADE' then
-     spell.Upgrade = array[2]
-    elseif test == '[COST' then
-     spell.Cost = array[2]
-    elseif test == '[CAST_TIME' then
-     spell.CastTime = array[2]
-    elseif test == '[EXHAUSTION' then
-     spell.CastExhaustion = array[2]
-    elseif test == '[REQUIREMENT_PHYS' or test == '[REQUIREMENT_MENT' or test == '[REQUIREMENT_ATTRIBUTE' then
-     spell.RequiredAttribute = spell.RequiredAttribute or {}
-     spell.RequiredAttribute[array[2]] = array[3]
-    elseif test == '[FORBIDDEN_CLASS' then
-     spell.ForbiddenClass = spell.ForbiddenClass or {}
-     spell.ForbiddenClass[array[2]] = array[3]
-    elseif test == '[FORBIDDEN_SPELL' then
-     spell.ForbiddenSpell = spell.ForbiddenSpell or {}
-     spell.ForbiddenSpell[array[2]] = array[3]
-    end
-   end
-  end
- end
- return true
 end
 
 function makeUnitTable(unit)
@@ -1465,8 +1546,4 @@ function makeUnitTableSummon(unit)
  unitTable.General.Summoned.Creator = tostring(-1)
  unitTable.General.Summoned.End = tostring(-1)
  unitTable.General.Summoned.Syndrome = tostring(-1)
-end
-
-function makeWrapperTable()
-
 end
