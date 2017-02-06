@@ -1,15 +1,22 @@
 --entity based functions, version 42.06a
+--[[
+ changeCreature(entity,stype,mobj,sobj,direction,verbose) - Changes the creatures available to the entity
+ changeInorganic(entity,stype,mobj,sobj,direction,verbose) - Changes the inorganics available to the entity
+ changeItem(entity,stype,mobj,sobj,direction,verbose) - Changes the items available to the entity
+ changeMisc(entity,stype,mobj,sobj,direction,verbose) - Changes the misc objects available to the entity
+ changeOrganic(entity,stype,mobj,sobj,direction,verbose) - Changes the organic materials available to the entity
+ changeRefuse(entity,stype,mobj,sobj,direction,verbose) - Changes the refuse objects available to the entity
+ changeProduct(entity,stype,mobj,sobj,direction,verbose) - Changes the end products available to the entity
+ changeSkill(entity,stype,mobj,sobj,direction,verbose) - Changes the permitted skills for the entity
+ changeEthic(entity,stype,mobj,sobj,direction,verbose) - Changes the entities ethics (unsure if this has any effect after world generation)
+ changeValue(entity,stype,mobj,sobj,direction,verbose) - Changes the entities values (unsure if this has any effect after world generattion)
+ changeResource(entity,mtype,stype,mobj,sobj,direction,verbose) - Wrapper for all of the above functions
+ NOTE: For a complete list of acceptable values for mtype, stype, mobj, and sobj see the Entity ReadMe
+]]
 ---------------------------------------------------------------------------------------
-function changeCreature(entity,stype,mobj,sobj,direction,verbose)
-
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+function changeCreature(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
-
  creature = {}
  check = false
  if string.upper(mobj) == 'ALL' then
@@ -87,8 +94,7 @@ function changeCreature(entity,stype,mobj,sobj,direction,verbose)
  else
   if verbose then print('Not a valid type') end
  end
-
- if direction == -1 then
+ if direction == -1 or direction == 'Remove' then
   local int = 1
   removing = {}
   for i,x in pairs(races) do
@@ -104,7 +110,7 @@ function changeCreature(entity,stype,mobj,sobj,direction,verbose)
    races:erase(removing[i])
    castes:erase(removing[i])
   end
- elseif direction == 1 then
+ elseif direction == 1 or direction == 'Add' then
   for i,x in pairs(creature) do
    for j,y in pairs(x) do
     races:insert('#',i)
@@ -113,21 +119,13 @@ function changeCreature(entity,stype,mobj,sobj,direction,verbose)
    end
   end
  end
-
 end
 
-function changeInorganic(entity,stype,mobj,sobj,direction,verbose)
+function changeInorganic(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
  mobj = string.upper(mobj)
-
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
-
  if stype == 'ALL' then
   if verbose then print('-type INORGANIC:ALL IS NOT CURRENTLY SUPPORTED') end
   return
@@ -145,12 +143,12 @@ function changeInorganic(entity,stype,mobj,sobj,direction,verbose)
   return
  end
  if mobj == 'ALL' then
-  if direction == -1 then
+  if direction == -1 or direction == 'Remove' then
    for i=#inorganic-1,0,-1 do
     inorganic:erase(i)
     if verbose then print('Removing inorganic TYPE:SUBTYPE'..stype..':'..i) end
    end
-  elseif direction == 1 then
+  elseif direction == 1 or direction == 'Add' then
    for i,x in pairs(df.global.world.raws.inorganics) do
     if x.material.flags[check] then
      inorganic:insert('#',dfhack.matinfo.find(x.id).index)
@@ -161,7 +159,7 @@ function changeInorganic(entity,stype,mobj,sobj,direction,verbose)
  else
   mat_id = dfhack.matinfo.find(mobj).index
 --  if dfhack.matinfo.decode(0,mat_id).material.flags[check] then
-   if direction == -1 then
+   if direction == -1 or direction == 'Remove' then
     for i=#inorganic-1,0,-1 do
      if inorganic[i] == mat_id then
       inorganic:erase(i)
@@ -169,7 +167,7 @@ function changeInorganic(entity,stype,mobj,sobj,direction,verbose)
       break
      end
     end
-   elseif direction == 1 then
+   elseif direction == 1 or direction == 'Add' then
     inorganic:insert('#',mat_id)
     if verbose then print('Adding inorganic TYPE:SUBTYPE'..stype..':'..mat_id) end
    end
@@ -179,18 +177,11 @@ function changeInorganic(entity,stype,mobj,sobj,direction,verbose)
  end
 end
 
-function changeItem(entity,stype,mobj,sobj,direction,verbose)
+function changeItem(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
  mobj = string.upper(mobj)
-
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
-
  if stype == 'ALL' then
   if verbose then print('-type ITEM:ALL IS NOT CURRENTLY SUPPORTED') end
   return
@@ -247,12 +238,12 @@ function changeItem(entity,stype,mobj,sobj,direction,verbose)
  end
 -- Add or remove item
  if mobj == 'ALL' then
-  if direction == -1 then
+  if direction == -1 or direction == 'Remove' then
    for i=#items-1,0,-1 do
     items:erase(i)
     if verbose then print('Removing item TYPE:SUBTYPE '..stype..':'..i) end
    end
-  elseif direction == 1 then
+  elseif direction == 1 or direction == 'Add' then
    for i=0,dfhack.items.getSubtypeCount(ind)-1 do
     local item_subtype = dfhack.items.getSubtypeDef(ind,i).subtype
     items:insert('#',item_subtype)
@@ -267,34 +258,26 @@ function changeItem(entity,stype,mobj,sobj,direction,verbose)
     break
    end
   end
-  if direction == -1 then
+  if direction == -1 or direction =='Remove' then
    for i=#items-1,0,-1 do
     if item_subtype == items[i] then
      items:erase(i)
      if verbose then print('Removing item TYPE:SUBTYPE '..stype..':'..item_subtype) end
     end
    end
-  elseif direction == 1 then
+  elseif direction == 1 or direction =='Add' then
    items:insert('#',item_subtype)
    if verbose then print('Adding item TYPE:SUBTYPE '..stype..':'..item_subtype) end
   end
  end
-
 end
 
-function changeMisc(entity,stype,mobj,sobj,direction,verbose)
+function changeMisc(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
  mobj = string.upper(mobj)
  sobj = string.upper(sobj)
-
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
-
  if stype == 'ALL' then
   if verbose then print('-type MISC:ALL IS NOT CURRENTLY SUPPORTED') end
   return
@@ -326,14 +309,14 @@ function changeMisc(entity,stype,mobj,sobj,direction,verbose)
   return
  end
  if mobj == 'ALL' then
-  if direction == -1 then
+  if direction == -1 or direction == 'Remove' then
    for i=#misc.mat_type-1,0,-1 do
     misc.mat_type:erase(i)
    end
    for i=#misc.mat_index-1,0,-1 do
     misc.mat_index:erase(i)
    end
-  elseif direction == 1 then
+  elseif direction == 1 or direction == 'Add' then
    if verbose then print('ALL:ALL IS NOT CURRENTLY SUPPORTED') end
    return
   end
@@ -341,7 +324,7 @@ function changeMisc(entity,stype,mobj,sobj,direction,verbose)
   mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
   mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
 --  if dfhack.matinfo.decode(mat_type,mat_index).material.flags[check] then
-   if direction == -1 then
+   if direction == -1 or direction == 'Remove' then
     for i=#refuse.mat_type-1,0,-1 do
      if misc.mat_type[i] == mat_type then
       if misc.mat_index[i] == mat_index then
@@ -351,7 +334,7 @@ function changeMisc(entity,stype,mobj,sobj,direction,verbose)
       end
      end
     end
-   elseif direction == 1 then
+   elseif direction == 1 or direction == 'Add' then
     misc.mat_type:insert('#',mat_type)
     misc.mat_index:insert('#',mat_index)
     if verbose then print('Adding misc '..stype..' TYPE:SUBTYPE '..mat_type..':'..mat_index) end
@@ -362,17 +345,10 @@ function changeMisc(entity,stype,mobj,sobj,direction,verbose)
  end
 end
 
-function changeNoble(entity,position,direction,verbose)
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
-  civid = entity.id
- end
+function changeNoble(civ,position,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  positions = civ.positions
-
- if direction == -1 then
+ if direction == -1 or direction == 'Remove' then
   for i,x in pairs(positions.own) do
    if position == x.code then
     positions.own:erase(i)
@@ -388,7 +364,7 @@ function changeNoble(entity,position,direction,verbose)
     positions.conquered_site:erase(i)
    end
   end
- elseif direction == 1 then
+ elseif direction == 1 or direction == 'Add' then
   local persistTable = require 'persist-table'
   entity = civ.entity_raw.code
   civilizationTable = persistTable.GlobalTable.roses.CivilizationTable[entity]
@@ -707,19 +683,12 @@ function changeNoble(entity,position,direction,verbose)
   end
 end
 
-function changeOrganic(entity,stype,mobj,sobj,direction,verbose)
+function changeOrganic(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
  mobj = string.upper(mobj)
  sobj = string.upper(sobj)
-
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
-
  if stype == 'ALL' then
   if verbose then print('-type ORGANIC:ALL IS NOT CURRENTLY SUPPORTED') end
   return
@@ -749,14 +718,14 @@ function changeOrganic(entity,stype,mobj,sobj,direction,verbose)
   return
  end
  if mobj == 'ALL' then
-  if direction == -1 then
+  if direction == -1 or direction == 'Remove' then
    for i=#organic.mat_type-1,0,-1 do
     organic.mat_type:erase(i)
    end
    for i=#organic.mat_index-1,0,-1 do
     organic.mat_index:erase(i)
    end
-  elseif direction == 1 then
+  elseif direction == 1 or direction == 'Add' then
    for i,x in pairs(df.global.world.raws.creatures.all) do
     for j,y in pairs(x.material) do
      if y.flags[check] then
@@ -770,7 +739,7 @@ function changeOrganic(entity,stype,mobj,sobj,direction,verbose)
   mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
   mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
 --  if dfhack.matinfo.decode(mat_type,mat_index).material.flags[check] then
-   if direction == -1 then
+   if direction == -1 or direction == 'Remove' then
     for i=#organic.mat_type-1,0,-1 do
      if organic.mat_type[i] == mat_type then
       if organic.mat_index[i] == mat_index then
@@ -780,7 +749,7 @@ function changeOrganic(entity,stype,mobj,sobj,direction,verbose)
       end
      end
     end
-   elseif direction == 1 then
+   elseif direction == 1 or direction == 'Add' then
     organic.mat_type:insert('#',mat_type)
     organic.mat_index:insert('#',mat_index)
     if verbose then print('Adding organic '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
@@ -791,19 +760,12 @@ function changeOrganic(entity,stype,mobj,sobj,direction,verbose)
  end
 end
 
-function changeProduct(entity,stype,mobj,sobj,direction,verbose)
+function changeProduct(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
  mobj = string.upper(mobj)
  sobj = string.upper(sobj)
-
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
- 
  if stype == 'ALL' then
   if verbose then print('-type PRODUCT:ALL IS NOT CURRENTLY SUPPORTED') end
   return
@@ -837,16 +799,15 @@ function changeProduct(entity,stype,mobj,sobj,direction,verbose)
   if verbose then print('Not a valid type') end
   return
  end
- 
  if mobj == 'ALL' then
-  if direction == -1 then
+  if direction == -1 or direction == 'Remove' then
    for i=#product.mat_type-1,0,-1 do
     product.mat_type:erase(i)
    end
    for i=#product.mat_index-1,0,-1 do
     product.mat_index:erase(i)
    end
-  elseif direction == 1 then
+  elseif direction == 1 or direction == 'Add' then
    if verbose then print('ALL:ALL IS NOT CURRENTLY SUPPORTED') end
    return
   end
@@ -854,7 +815,7 @@ function changeProduct(entity,stype,mobj,sobj,direction,verbose)
   mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
   mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
 --  if dfhack.matinfo.decode(mat_type,mat_index).material.flags[check] then
-   if direction == -1 then
+   if direction == -1 or direction == 'Remove' then
     for i=#product.mat_type-1,0,-1 do
      if product.mat_type[i] == mat_type then
       if product.mat_index[i] == mat_index then
@@ -864,7 +825,7 @@ function changeProduct(entity,stype,mobj,sobj,direction,verbose)
       end
      end
     end
-   elseif direction == 1 then
+   elseif direction == 1 or direction == 'Add' then
     product.mat_type:insert('#',mat_type)
     product.mat_index:insert('#',mat_index)
     if verbose then print('Adding product '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
@@ -875,19 +836,12 @@ function changeProduct(entity,stype,mobj,sobj,direction,verbose)
  end
 end
 
-function changeRefuse(entity,stype,mobj,sobj,direction,verbose)
+function changeRefuse(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
  mobj = string.upper(mobj)
  sobj = string.upper(sobj)
-
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
-
  if stype == 'ALL' then
   if verbose then print('-type REFUSE:ALL IS NOT CURRENTLY SUPPORTED') end
   return
@@ -911,14 +865,14 @@ function changeRefuse(entity,stype,mobj,sobj,direction,verbose)
   return
  end
  if mobj == 'ALL' then
-  if direction == -1 then
+  if direction == -1 or direction == 'Remove' then
    for i=#refuse.mat_type-1,0,-1 do
     refuse.mat_type:erase(i)
    end
    for i=#refuse.mat_index-1,0,-1 do
     refuse.mat_index:erase(i)
    end
-  elseif direction == 1 then
+  elseif direction == 1 or direction == 'Add' then
    for i,x in pairs(df.global.world.raws.creatures.all) do
     for j,y in pairs(x.material) do
      if y.flags[check] then
@@ -932,7 +886,7 @@ function changeRefuse(entity,stype,mobj,sobj,direction,verbose)
   mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
   mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
 --  if dfhack.matinfo.decode(mat_type,mat_index).material.flags[check] then
-   if direction == -1 then
+   if direction == -1 or direction == 'Remove' then
     for i=#refuse.mat_type-1,0,-1 do
      if refuse.mat_type[i] == mat_type then
       if refuse.mat_index[i] == mat_index then
@@ -942,7 +896,7 @@ function changeRefuse(entity,stype,mobj,sobj,direction,verbose)
       end
      end
     end
-   elseif direction == 1 then
+   elseif direction == 1 or direction == 'Add' then
     refuse.mat_type:insert('#',mat_type)
     refuse.mat_index:insert('#',mat_index)
     if verbose then print('Adding refuse '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
@@ -953,22 +907,16 @@ function changeRefuse(entity,stype,mobj,sobj,direction,verbose)
  end
 end
 
-function changeSkill(entity,stype,mobj,sobj,direction,verbose)
+function changeSkill(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
- 
  if stype == 'ALL' then
-  if direction == -1 then
+  if direction == -1 or direction == 'Remove' then
    for skill,_ in pairs(resources.permitted_skill) do
     resources.permitted_skill[skill] = false
    end
-  elseif direction == 1 then
+  elseif direction == 1 or direction == 'Add' then
    for skill,_ in pairs(resources.permitted_skill) do
     resources.permitted_skill[skill] = true
    end
@@ -987,18 +935,11 @@ function changeSkill(entity,stype,mobj,sobj,direction,verbose)
  end
 end
 
-function changeEthic(entity,stype,mobj,sobj,direction,verbose)
+function changeEthic(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
  mobj = tonumber(mobj)
- 
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
- 
  if stype == 'ALL' then
   for ethic,_ in pairs(resources.ethic) do
    resources.ethic[ethic] = mobj
@@ -1013,18 +954,11 @@ function changeEthic(entity,stype,mobj,sobj,direction,verbose)
  end
 end
 
-function changeValue(entity,stype,mobj,sobj,direction,verbose)
+function changeValue(civ,stype,mobj,sobj,direction,verbose)
  stype = string.upper(stype)
  mobj = tonumber(mobj)
- 
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
- end
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
- 
  if stype == 'ALL' then
   for value,_ in pairs(resources.values) do
    resources.values[value] = mobj
