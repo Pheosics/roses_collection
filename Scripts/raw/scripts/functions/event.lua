@@ -1,3 +1,11 @@
+-- Functions for the Event System
+--[[
+ checkRequirements(event,effect,verbose) - Checks if the requirements for a specific event/effect combo have been reached
+ triggerEvent(event,effect,verbose) - Triggers an event/effect combo
+ checkEvent(event,method,verbose) - Checks an event and all of it's effects to see if they should be triggered
+ queueCheck(event,method,verbose) - Sets up the callback to check the event again after a certain time
+]]
+------------------------------------------------------------------------
 function checkRequirements(event,effect,verbose)
  local persistTable = require 'persist-table'
  local utils = require 'utils'
@@ -15,14 +23,12 @@ function checkRequirements(event,effect,verbose)
   chance = tonumber(event.Effect[tostring(effect)].Chance)
  end
  if not check then return false end
-
 -- Check for chance occurance
  local rand = dfhack.random.new()
  local rnum = rand:random(100)
  if rnum > chance then
   return false
  end
-
 -- Check for amount of time passed
  if check.Time then
   local x = tonumber(check.Time)
@@ -30,7 +36,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end
  end
-
 -- Check for fortress wealth
  if check.Wealth then
   for _,wtype in pairs(check.Wealth._children) do
@@ -42,7 +47,6 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
-
 -- Check for fortress population
  if check.Population then
   local x = tonumber(check.Population)
@@ -50,7 +54,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end
  end
-
 -- Check for season
  season = {SPRING=0,SUMMER=1,FALL=2,WINTER=3}
  if check.Season then
@@ -58,7 +61,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end
  end
- 
 -- Check for trees cut
  if check.TreeCut then
   local x = check.TreeCut
@@ -66,7 +68,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end
  end
-
 -- Check for fortress rank
  if check.Rank then
   local x = tonumber(check.Rank)
@@ -74,7 +75,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end
  end
- 
 -- Check for progress
  if check.ProgressPopulation then
   local x = tonumber(check.ProgressPopulation)
@@ -94,7 +94,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end 
  end
-
 -- Check for artifacts
  if check.NumArtifacts then
   local x = tonumber(check.NumArtifacts)
@@ -102,7 +101,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end 
  end
- 
 -- Check for total deaths
  if check.TotDeaths then
   local x = tonumber(check.TotDeaths)
@@ -110,7 +108,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end 
  end
- 
 -- Check for insanities
  if check.TotInsanities then
   local x = tonumber(check.TotInsanities)
@@ -118,7 +115,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end 
  end
- 
 -- Check for executions
  if check.TotExecutions then
   local x = tonumber(check.TotExecutions)
@@ -126,7 +122,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end 
  end 
- 
 -- Check for migrant waves
  if check.MigrantWaves then
   local x = tonumber(check.MigrantWaves)
@@ -134,7 +129,6 @@ function checkRequirements(event,effect,verbose)
    return false
   end 
  end
- 
 -- Check for counter
  if check.CounterMax then
   for _,counter in pairs(check.CounterMax._children) do
@@ -169,7 +163,6 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
- 
 -- Check for item
  if check.Item then
   for _,itype in pairs(check.Item._children) do
@@ -185,7 +178,6 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
- 
 -- Check for building
  if check.Building then
   for _,building in pairs(check.Building._children) do
@@ -206,9 +198,7 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
- 
 -- Check for skill
-
  if check.Skill then
   for _,skill in pairs(check.Skill._children) do
    level = tonumber(check.Skill[skill])
@@ -219,7 +209,6 @@ function checkRequirements(event,effect,verbose)
    end
   end 
  end
- 
 -- Check for class
  if check.Class and persistTable.GlobalTable.roses.ClassTable then
   for _,classname in pairs(check.Class._children) do
@@ -239,7 +228,6 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
- 
 -- Check for kills
  if check.CreatureKills and persistTable.GlobalTable.roses.GlobalTable then
   for _,creature in pairs(check.CreatureKills._children) do
@@ -269,7 +257,6 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
- 
 -- Check for deaths
  if check.CreatureDeaths and persistTable.GlobalTable.roses.GlobalTable then
   for _,creature in pairs(check.CreatureDeaths._children) do
@@ -299,7 +286,6 @@ function checkRequirements(event,effect,verbose)
    end
   end 
  end
- 
 -- Check for sieges
  if check.Sieges and persistTable.GlobalTable.roses.GlobalTable then
   for _,civ in pairs(check.Sieges._children) do
@@ -311,7 +297,6 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
- 
 -- Check for trades
  if check.Trades and persistTable.GlobalTable.roses.GlobalTable then
   for _,civ in pairs(check.Trades._children) do
@@ -323,7 +308,6 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
-
 -- Check for diplomacy
  if check.Diplomacy and persistTable.GlobalTable.roses.DiplomacyTable then
   for _,dip_string in pairs(check.Diplomacy._children) do
@@ -352,7 +336,6 @@ function triggerEvent(event,effect,verbose)
  local split = utils.split_string
  eventTable = persistTable.GlobalTable.roses.EventTable[event]
  effect = tostring(effect)
- 
  if not eventTable then
   if verbose then print('No such event to trigger: '..event) end
   return
@@ -362,7 +345,6 @@ function triggerEvent(event,effect,verbose)
   if verbose then print('No such effect for given event: '..event..' - '..effect) end
   return
  end
- 
  delay = 0
  delayTable = eventTable.Delay
  if delayTable then
@@ -382,7 +364,6 @@ function triggerEvent(event,effect,verbose)
    delay = delay + rand:random(tonumber(delayTable['RANDOM']))+1
   end
  end
- 
  units,buildings,locations,items = {},{},{},{}
  if effectTable.Unit then units = dfhack.script_environment('functions/unit').findUnit(effectTable.Unit) end
  if effectTable.Building then buildings = dfhack.script_environment('functions/building').findBuilding(effectTable.Building) end
@@ -410,7 +391,6 @@ function triggerEvent(event,effect,verbose)
    end
   end
  end
-
  for _,nscript in pairs(effectTable.Script._children) do
   for _,filler in ipairs(fill) do
    script = effectTable.Script[nscript]
@@ -475,8 +455,7 @@ function checkEvent(event,method,verbose)
  local persistTable = require 'persist-table'
  local eventTable = persistTable.GlobalTable.roses.EventTable[event]
  local triggered = {}
-
- print(checkRequirements(event,0,verbose))
+ if verbose then print(checkRequirements(event,0,verbose)) end
  if checkRequirements(event,0,verbose) then
   triggered[0] = true
   for _,i in pairs(eventTable.Effect._children) do
@@ -490,7 +469,6 @@ function checkEvent(event,method,verbose)
    end
   end
  end
-
  queueCheck(event,method,verbose)
 end
 
