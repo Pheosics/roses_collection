@@ -1,40 +1,28 @@
 --building based functions, version 42.06a
+--[[
+ addItem(building,item,dur) - Move the item into the building as if it were used in construction. Will return item if builidng is removed
+ removeItem(building,item,dur) - Remove the item from the building, will be placed at the work location
+ changeSubtype(building,subtype,dur) - Change the subtype of the building, effectively changing the building. Note that you should only change between buildings of the same size. Returns true if successful, false if unsuccessful
+ findBuilding(search) - Find a building on the map from the declared search parameters. See the find functions ReadMe for more information regarding search strings.
+]]
 ---------------------------------------------------------------------------------------
 function addItem(building,item,dur)
- if tonumber(building) then
-  building = df.building.find(tonumber(building))
- end
- if tonumber(item) then
-  item = df.item.find(tonumber(item))
- end
-
+ if tonumber(building) then building = df.building.find(tonumber(building)) end
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
  dfhack.items.moveToBuilding(item,building,2)
  item.flags.in_building = true
-
- if dur > 0 then
-  dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/building','removeItem',{building.id,item.id,0})
- end
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/building','removeItem',{building.id,item.id,0}) end
 end
 
 function removeItem(building,item,dur)
- if tonumber(building) then
-  building = df.building.find(tonumber(building))
- end
- if tonumber(item) then
-  item = df.item.find(tonumber(item))
- end
-
+ if tonumber(building) then building = df.building.find(tonumber(building)) end
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
  item.flags.in_building = false
- if dur > 0 then
-  dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/building','addItem',{building.id,item.id,0})
- end
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/building','addItem',{building.id,item.id,0}) end
 end
 
 function changeSubtype(building,subtype,dur)
- if tonumber(building) then
-  building = df.building.find(tonumber(building))
- end
-
+ if tonumber(building) then building = df.building.find(tonumber(building)) end
  save = df.global.world.raws.buildings.all[building.custom_type].code
  for _,x in ipairs(df.global.world.raws.buildings.all) do
   if x.code == subtype then ctype = x.id end
@@ -44,11 +32,7 @@ function changeSubtype(building,subtype,dur)
   return false
  end
  building.custom_type=ctype
-
- if dur > 0 then
-  dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/building','changeSubtype',{building.id,save,0})
- end
-
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/building','changeSubtype',{building.id,save,0}) end
  return true
 end
 
