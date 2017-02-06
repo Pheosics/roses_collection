@@ -1,12 +1,14 @@
+-- Functions to be used with the Civilization System, v42.06a
+--[[
+ changeLevel(entity,amount,verbose) - Changes the level of the entity
+ changeStanding(civ1,civ2,amount,verbose) - Changes the diplomacy standing of the two entities
+ checkEntity(id,method,verbose) - Checks if the entity has leveled up
+ checkRequirements(entityID,verbose) - Called by checkEntity, returns true if the entity meets the conditions for leveling up
+ queueCheck(id,method,verbose) - Sets up the next time check to see if an entity has leveled up
+]]
 function changeLevel(entity,amount,verbose)
- if tonumber(entity) then
-  civid = tonumber(entity)
-  civ = df.global.world.entities.all[civid]
- else
-  civ = entity
-  civid = entity.id
- end
- key = tostring(civid)
+ if tonumber(entity) then civ = df.global.world.entities.all[civid] end
+ key = tostring(civ.id)
 
  local persistTable = require 'persist-table'
  entityTable = persistTable.GlobalTable.roses.EntityTable
@@ -100,7 +102,6 @@ end
 function changeStanding(civ1,civ2,amount,verbose)
  local persistTable = require 'persist-table'
  diplomacyTable = persistTable.GlobalTable.roses.DiplomacyTable
- 
  if diplomacyTable then
   if diplomacyTable[civ1] then
    if diplomacyTable[civ1][civ2] then
@@ -114,37 +115,12 @@ end
 function checkEntity(id,method,verbose)
  local persistTable = require 'persist-table'
  civilizationTable = persistTable.GlobalTable.roses.EntityTable[id].Civilization
-
- leveled = false
-
- -- check for non-time based checks
- if method ~= civilizationTable.CurrentMethod then
-  entityTable = persistTable.GlobalTable.roses.EntityTable[id]
-  method = civilizationTable.CurrentMethod
-  chance = tonumber(civilizationTable.CurrentPercent)
-  if method == 'KILLS' then
-   number = tonumber(entityTable.Kills.Total)
-  elseif method == 'DEATHS' then
-   number = tonumber(entityTable.Deaths.Total)
-  elseif method == 'SIEGES' then
-   number = tonumber(entityTable.Sieges.Total)
-  elseif method == 'TRADES' then
-   number = tonumber(entityTable.Trades.Total)
-  end
-  if number >= chance then leveled = true end
- else
-  chance = civilizationTable.CurrentPercent
-  local rand = dfhack.random.new()
-  rnum = rand:random(100)+1
-  if rnum <= chance then leveled = true end
- end
-
+ leveled = checkRequirements(id,verbose)
  if leveled then
   changeLevel(id,1,verbose)
   if verbose then print('Civilization leveled up') end
   method = civilizationTable.CurrentMethod
  end
-
  queueCheck(id,method,verbose)
 end
 
@@ -152,7 +128,6 @@ function checkRequirements(entityID,verbose)
  local persistTable = require 'persist-table'
  local utils = require 'utils'
  local split = utils.split_string
- 
  entity = persistTable.GlobalTable.roses.EntityTable[entityID]
  if not entity then return false end
  if entity.Civilization then
@@ -175,7 +150,6 @@ function checkRequirements(entityID,verbose)
  if rnum > chance then
   return false
  end
-
 -- Check for amount of time passed
  if check.Time then
   local x = tonumber(check.Time)
@@ -183,7 +157,6 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
-
 -- Check for fortress wealth
  if check.Wealth then
   for _,wtype in pairs(check.Wealth._children) do
@@ -195,7 +168,6 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
-
 -- Check for fortress population
  if check.Population then
   local population = 0
@@ -208,7 +180,6 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
-
 -- Check for season
  season = {SPRING=0,SUMMER=1,FALL=2,WINTER=3}
  if check.Season then
@@ -216,7 +187,6 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
- 
 -- Check for trees cut
  if check.TreeCut then
   local x = check.TreeCut
@@ -224,7 +194,6 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
-
 -- Check for fortress rank
  if check.Rank then
   local x = tonumber(check.Rank)
@@ -232,7 +201,6 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
- 
 -- Check for progress
  if check.ProgressPopulation then
   local x = tonumber(check.ProgressPopulation)
@@ -252,7 +220,6 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
-
 -- Check for artifacts
  if check.NumArtifacts then
   local x = tonumber(check.NumArtifacts)
@@ -260,7 +227,6 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
- 
 -- Check for total deaths
  if check.TotDeaths then
   local x = tonumber(check.TotDeaths)
@@ -268,7 +234,6 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
- 
 -- Check for insanities
  if check.TotInsanities then
   local x = tonumber(check.TotInsanities)
@@ -276,7 +241,6 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
- 
 -- Check for executions
  if check.TotExecutions then
   local x = tonumber(check.TotExecutions)
@@ -284,7 +248,6 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end 
- 
 -- Check for migrant waves
  if check.MigrantWaves then
   local x = tonumber(check.MigrantWaves)
@@ -292,7 +255,6 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
- 
 -- Check for counter
  if check.CounterMax then
   for _,counter in pairs(check.CounterMax._children) do
@@ -327,7 +289,6 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
- 
 -- Check for item
  if check.Item then
   for _,itype in pairs(check.Item._children) do
@@ -343,7 +304,6 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
- 
 -- Check for building
  if check.Building then
   for _,building in pairs(check.Building._children) do
@@ -364,9 +324,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
- 
 -- Check for skill
-
  if check.Skill then
   for _,skill in pairs(check.Skill._children) do
    level = tonumber(check.Skill[skill])
@@ -377,7 +335,6 @@ function checkRequirements(entityID,verbose)
    end
   end 
  end
- 
 -- Check for class
  if check.Class and persistTable.GlobalTable.roses.ClassTable then
   for _,classname in pairs(check.Class._children) do
@@ -397,7 +354,6 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
- 
 -- Check for kills
  if check.CreatureKills and persistTable.GlobalTable.roses.GlobalTable then
   for _,creature in pairs(check.CreatureKills._children) do
@@ -427,7 +383,6 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
- 
 -- Check for deaths
  if check.CreatureDeaths and persistTable.GlobalTable.roses.GlobalTable then
   for _,creature in pairs(check.CreatureDeaths._children) do
@@ -457,7 +412,6 @@ function checkRequirements(entityID,verbose)
    end
   end 
  end
- 
 -- Check for sieges
  if check.Sieges and persistTable.GlobalTable.roses.GlobalTable then
   for _,civ in pairs(check.Sieges._children) do
@@ -469,7 +423,6 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
- 
 -- Check for trades
  if check.Trades and persistTable.GlobalTable.roses.GlobalTable then
   for _,civ in pairs(check.Trades._children) do
@@ -481,7 +434,6 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
-
 -- Check for diplomacy
  if check.Diplomacy and persistTable.GlobalTable.roses.DiplomacyTable then
   for _,dip_string in pairs(check.Diplomacy._children) do
