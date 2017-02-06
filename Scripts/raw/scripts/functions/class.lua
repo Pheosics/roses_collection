@@ -1,10 +1,19 @@
+--Functions for use in the Class System, v42.06a
+--[[
+ addExperience(unit,amount,verbose) - Adds a given amount of experience to a units class, then checks for leveling up
+ changeClass(unit,change,verbose) - Change the class of the unit, returns true if successful
+ changeLevel(unit,amount,verbose) - Change the level of the class of the unit (up or down)
+ changeName(unit,name,direction,verbose) - Change the name of the unit through syndromes (this is how the unit's class name is displayed)
+ changeSpell(unit,spell,direction,verbose) - Change the spells (interactions) available to the unit
+ checkRequirementsClass(unit,class,verbose) - Check if the unit meets the requirements for the class, returns true if yes, false if no
+ checkRequirementsSpell(unit,spell,verbose) - Check if the unit meets the requirements for the spell, returns true if yes, false if no
+ addFeat(unit,feat,verbose) - Adds a feat to the unit
+ checkRequirementsFeat(unit,feat,verbose) - Checks if the unit meets the requirements for the feet, returns true if yes, false if no
+]]
 -- CLASS FUNCTIONS
 function addExperience(unit,amount,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local unitID = unit.id
-
  local persistTable = require 'persist-table'
  local utils = require 'utils'
  local split = utils.split_string
@@ -46,11 +55,8 @@ function addExperience(unit,amount,verbose)
 end
 
 function changeClass(unit,change,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
-
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then
@@ -180,11 +186,8 @@ function changeClass(unit,change,verbose)
 end
 
 function changeLevel(unit,amount,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
-
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then
@@ -200,7 +203,6 @@ function changeLevel(unit,amount,verbose)
  local level = tonumber(unitTable.Classes[name].Level)
  local class = persistTable.GlobalTable.roses.ClassTable[name]
  local maxLevel = false
-
  if amount > 0 then
   if level + amount >= tonumber(class.Levels) then
    unitTable.Classes[name].Level = class.Levels
@@ -219,7 +221,6 @@ function changeLevel(unit,amount,verbose)
    newLevel = level + amount
   end
  end
-
  --Add/Subtract temporary level bonuses
  if class.BonusAttribute then
   for _,attr in pairs(class.BonusAttribute._children) do
@@ -284,7 +285,6 @@ function changeLevel(unit,amount,verbose)
    end
   end
  end
- 
  --Learn/Unlearn Skills
  for _,spell in pairs(class.Spells._children) do
   local spellTable = class.Spells[spell]
@@ -296,7 +296,6 @@ function changeLevel(unit,amount,verbose)
    changeSpell(unit,spell,'unlearn',verbose)
   end
  end
-
  if maxLevel then
   if verbose then print('Maximum level for class '..name..' reached!') end
   if class.AutoUpgrade then
@@ -306,11 +305,8 @@ function changeLevel(unit,amount,verbose)
  end
 end
 
-function changeName(unit,name,direction)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
-
+function changeName(unit,name,direction,verbose)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local synUtils = require 'syndrome-util'
  if direction == 'add' then
   dfhack.script_environment('functions/unit').changeSyndrome(unit,name,'add',0)
@@ -322,10 +318,7 @@ function changeName(unit,name,direction)
 end
 
 function changeSpell(unit,spell,direction,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
-
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
@@ -377,18 +370,14 @@ function changeSpell(unit,spell,direction,verbose)
 end
 
 function checkRequirementsClass(unit,class,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
-
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then
   dfhack.script_environment('functions/tables').makeUnitTable(unit)
  end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
-
  local unitClasses = unitTable.Classes
  local unitCounters = unitTable.Counters
  local currentClass = unitClasses.Current
@@ -479,19 +468,14 @@ function checkRequirementsClass(unit,class,verbose)
 end
 
 function checkRequirementsSpell(unit,spell,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
-
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then
   dfhack.script_environment('functions/tables').makeUnitTable(unit)
  end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
-
-
  local unitClasses = unitTable.Classes
  local unitCounters = unitTable.Counters
  local currentClass = unitClasses.Current
@@ -507,7 +491,6 @@ function checkRequirementsSpell(unit,spell,verbose)
   if verbose then print('No valid spell to check for requirements') end
   return false
  end
-
  local found = false
  local upgrade = false
  local classSpellTable = classTable.Spells[spell]
@@ -577,11 +560,8 @@ end
 -- FEAT FUNCTIONS
 
 function addFeat(unit,feat,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
- 
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then
@@ -589,10 +569,9 @@ function addFeat(unit,feat,verbose)
  end
  featTable = persistTable.GlobalTable.roses.FeatTable[feat]
  if not featTable then
-  print('Not a valid feat')
+  if verbose then print('Not a valid feat') end
   return
  end
- 
  test = checkRequirementsFeat(unit,feat,verbose)
  if test then
   unitTable[key].Feats[feat] = feat
@@ -607,11 +586,8 @@ function addFeat(unit,feat,verbose)
 end
 
 function checkRequirementsFeat(unit,feat,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
- 
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then
@@ -622,7 +598,6 @@ function checkRequirementsFeat(unit,feat,verbose)
   if verbose then print('Not a valid feat') end
   return
  end
- 
  local unitClasses = unitTable[key].Classes
  local currentClass = unitClasses.Current
  local currentClassName = currentClass.Name
@@ -631,7 +606,6 @@ function checkRequirementsFeat(unit,feat,verbose)
   if verbose then print('Not enough feat points to learn feat') end
   return false
  end
-
  if featTable.ForbiddenClass then
   for _,class in pairs(featTable.ForbiddenClass._children) do
    level = featTable.ForbiddenClass[class]
@@ -654,7 +628,6 @@ function checkRequirementsFeat(unit,feat,verbose)
    end
   end
  end
- 
  check = true
  if featTable.RequiredFeat then
   for _,requiredFeat in pairs(featTable.RequiredFeat._children) do
@@ -667,7 +640,6 @@ function checkRequirementsFeat(unit,feat,verbose)
   if verbose then print('Unit does not have the required feat') end
   return false
  end
-
  if featTable.RequiredClass then
   for _,class in pairs(featTable.RequiredClass._children) do
    level = featTable.RequiredClass[class]
@@ -685,6 +657,5 @@ function checkRequirementsFeat(unit,feat,verbose)
   if verbose then print('Unit does not have the required class') end
   return false
  end
- 
  return true
 end
