@@ -1,10 +1,46 @@
+-- Functions used in the wrapper script, v42.06a
+--[[
+ checkPosition(source,targetList,target,verbose) - Base check for location based checks, compares the relative positions between the source and target (e.g. ABOVE, BELOW, etc...), returns a table of target locations
+ checkTree(source,pos,argument,relation,verbose) - Various checks for whether there is a tree at the specified position, returns true/false
+ checkPlant(source,pos,argument,relation,verbose) - Various checks for whether there is a plant at the specified position, returns true/false
+ checkGrass(source,pos,argument,relation,verbose) - Various checks for whether there is grass at the specified position, returns true/false
+ checkInorganic(source,pos,argument,relation,verbose) - Various checks for whether there is an inorganic at the specified position, returns true/false
+ checkLiquid(source,pos,argument,relation,verbose) - Various checks for whether there is liquid at the specified position, returns true/false
+ isSelectedLocation(source,pos,args) - The wrapper function for location based checks, calls all the various checks (not the base)
+
+ checkTarget(source,targetList,target,verbose) - Base check for unit based checks, compares the relative relationship between the source and target (e.g. ENEMY, PET, etc...), returns a table of target units
+ checkUnitLocation(source,radius,verbose) - Checks if the unit is within a specified distance of the source unit
+ checkAttribute(source,unit,args.maxAttribute,relation,args.verbose) - Various checks for a units attributes, returns true/false
+ checkSkill(source,unit,args.maxSkill,relation,args.verbose) - Various checks for a units skill, returns true/false
+ checkTrait(source,unit,args.maxTrait,relation,args.verbose) - Various checks for a units trait, returns true/false
+ checkAge(source,unit,args.maxAge,relation,args.verbose) - Various checks for a units age, returns true/false
+ checkSpeed(source,unit,args.gtSpeed,relation,args.verbose) - Various checks for a units speed, returns true/false
+ checkClass(source,unit,args.requiredClass,relation,args.verbose) - Various checks for a units SYN_CLASS and CREATURE_CLASS, returns true/false
+ checkCreature(source,unit,args.requiredCreature,relation,args.verbose) - Various checks for a units race and caste, returns true/false
+ checkSyndrome(source,unit,args.requiredSyndrome,relation,args.verbose) - Various checks for a units syndromes, returns true/false
+ checkToken(source,unit,args.requiredToken,relation,args.verbose) - Various checks for a units tokens, returns true/false
+ checkNoble(source,unit,args.requiredNoble,relation,args.verbose) - Various checks for a units noble position, returns true/false
+ checkProfession(source,unit,args.requiredProfesion,relation,args.verbose) - Various checks for a units profession, returns true/false
+ checkEntity(source,unit,args.requiredEntity,relation,args.verbose) - Various checks for a units entity, returns true/false
+ checkPathing(source,unit,args.requiredPathing,relation,args.verbose) - Various checks for a units pathing, returns true/false
+ isSelectedUnit(source,target,args) - The wrapper function for unit based checks, calls all the various checks (not the base)
+ 
+ checkItem(source,targetList,target,verbose) - Base check for item based checks, compares the items to various targets (e.g. ARTIFACT, PROJECTILE, etc...), returns a table of target items
+ checkItemLocation(center,radius,verbose) - Checks if the item is within a specified distance of the center location
+ checkItemType(source,pos,args.requiredItem,relation,args.verbose) - Various checks for an items type, returns true/false
+ checkMaterial(source,pos,args.requiredMaterial,relation,args.verbose) - Various checks for an items material, returns true/false
+ checkCorpse(source,pos,args.requiredCorpse,relation,args.verbose) - Various checks for if an item is a corpse, returns true/false
+ isSelectedItem(source,item,args) - The wrapper function for item based checks, calls all the various checks (not the base)
+
+ getValue(equation,target,source,center,targetList,selected,verbose) - Get the value of an equation, this function is old and will be replaced by functions/misc.fillEquation
+]]
+---------------------------------------------------------------------------------------------
 -- position based checks and conditions
 ---- get list of positions meeting major criteria of -checkLocation
 function checkPosition(source,targetList,target,verbose) -- checks list of positions for major condition
  if not target then target = 'all' end
  n = 0
  list = {}
- 
  target = string.upper(target)
  for i,pos in pairs(targetList) do
   block = dfhack.maps.ensureTileBlock(pos)
@@ -50,6 +86,7 @@ function checkPosition(source,targetList,target,verbose) -- checks list of posit
  end
  return list,n
 end
+
 ---- check individual positions for targeting criteria
 function checkTree(source,pos,argument,relation,verbose) -- checks for a tree at target position
  tiletype = dfhack.maps.getTileType(pos)
@@ -61,7 +98,6 @@ function checkTree(source,pos,argument,relation,verbose) -- checks for a tree at
    return true
   end
  end
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   arg = string.upper(arg)
@@ -82,13 +118,13 @@ function checkTree(source,pos,argument,relation,verbose) -- checks for a tree at
    end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
   return true
  end
 end
+
 function checkPlant(source,pos,argument,relation,verbose) -- checks for a plant at target position
  tiletype = dfhack.maps.getTileType(pos)
  type_mat = df.tiletype_material[df.tiletype.attrs[tiletype].material]
@@ -99,7 +135,6 @@ function checkPlant(source,pos,argument,relation,verbose) -- checks for a plant 
    return true
   end
  end
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   arg = string.upper(arg)
@@ -120,13 +155,13 @@ function checkPlant(source,pos,argument,relation,verbose) -- checks for a plant 
    end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
   return true
  end
 end
+
 function checkGrass(source,pos,argument,relation,verbose) -- checks for grass at target position
  tiletype = dfhack.maps.getTileType(pos)
  type_mat = df.tiletype_material[df.tiletype.attrs[tiletype].material]
@@ -137,7 +172,6 @@ function checkGrass(source,pos,argument,relation,verbose) -- checks for grass at
    return true
   end
  end
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   arg = string.upper(arg)
@@ -158,15 +192,14 @@ function checkGrass(source,pos,argument,relation,verbose) -- checks for grass at
    end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
   return true
  end
 end
-function checkInorganic(source,pos,argument,relation,verbose) -- not done
 
+function checkInorganic(source,pos,argument,relation,verbose) -- not done
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
@@ -182,7 +215,6 @@ function checkFlow(source,pos,argument,relation,verbose) -- checks for flow at g
    return true
   end
  end
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   arg = string.upper(arg)
@@ -202,18 +234,17 @@ function checkFlow(source,pos,argument,relation,verbose) -- checks for flow at g
    end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
   return true
  end
 end
+
 function checkLiquid(source,pos,argument,relation,verbose) -- checks for liquid at given position
  liquidtype = string.upper(argument)
  block = dfhack.maps.ensureTileBlock(pos)
  designation = block.designation[pos.x%16][pos.y%16]
- 
  if liquidtype == 'ANY' then
   if designation.flow_size > 0 then
    if relation == 'required' then
@@ -239,13 +270,13 @@ function checkLiquid(source,pos,argument,relation,verbose) -- checks for liquid 
    end
   end 
  end
-
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
   return true
  end
 end
+
 ---- base call for all position targeting checks
 function isSelectedLocation(source,pos,args)
  local selected = true
@@ -309,7 +340,6 @@ function checkUnitLocation(center,radius,verbose) -- checks for units within rad
  end
  local targetList = {}
  local selected = {}
- 
  n = 1
  unitList = df.global.world.units.active
  if rx < 0 and ry < 0 and rz < 0 then
@@ -331,11 +361,11 @@ function checkUnitLocation(center,radius,verbose) -- checks for units within rad
  end
  return targetList,n
 end
+
 function checkTarget(source,targetList,target,verbose) -- checks list of units for major condition
  if not target then target = 'all' end
  n = 0
  list = {}
- 
  target == string.upper(target)
  for i,unit in pairs(targetList) do
   if target == 'ENEMY' then
@@ -386,12 +416,12 @@ function checkTarget(source,targetList,target,verbose) -- checks list of units f
  end
  return list,n
 end
+
 ---- check individual units for targeting criteria
 function checkAge(source,target,argument,relation,verbose) -- checks age of target unit
  local selected = true
  sage = dfhack.units.getAge(source)
  tage = dfhack.units.getAge(target)
-
  value = tonumber(argument)
  if relation == 'max' then
   if tage > value then return false end
@@ -402,13 +432,12 @@ function checkAge(source,target,argument,relation,verbose) -- checks age of targ
  elseif relation == 'less' then
   if sage/tage < value then return false end
  end
- 
  return selected
 end
+
 function checkAttribute(source,target,argument,relation,verbose) -- checks attributes of target unit
  local utils = require 'utils'
  local split = utils.split_string
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in pairs(argument) do
   attribute = split(x,':')[1]
@@ -425,9 +454,9 @@ function checkAttribute(source,target,argument,relation,verbose) -- checks attri
    if sattribute/tattribute < value then return false end
   end
  end
- 
  return true
 end
+
 function checkClass(source,target,argument,relation,verbose) -- checks classes (creature and sndrome) of target unit
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
@@ -438,13 +467,13 @@ function checkClass(source,target,argument,relation,verbose) -- checks classes (
    if selected then return false end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'immune' then
   return true
  end
 end
+
 function checkCreature(source,target,argument,relation,verbose) -- checks creature and caste of target unit
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
@@ -455,18 +484,17 @@ function checkCreature(source,target,argument,relation,verbose) -- checks creatu
    if selected then return false end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'immune' then
   return true
  end
 end
+
 function checkEntity(source,target,argument,relation,verbose) -- checks entity of target unit
 -- sentity = df.global.world.entities[source.civ_id].entity_raw.code
  if target.civ_id < 0 then return false end
  tentity = df.global.world.entities[target.civ_id].entity_raw.code
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
   selected = x == tentity
@@ -476,17 +504,16 @@ function checkEntity(source,target,argument,relation,verbose) -- checks entity o
    if selected then return false end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'immune' then
   return true
  end
 end
+
 function checkNoble(source,target,argument,relation,verbose) -- checks noble positions of target unit
 -- snoble = dfhack.units.getNoblePositions(source)
  tnoble = dfhack.units.getNoblePositions(target)
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in pairs(argument) do
   if tnoble then
@@ -507,16 +534,15 @@ function checkNoble(source,target,argument,relation,verbose) -- checks noble pos
    end   
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'immune' then
   return true
  end
 end
+
 function checkPathing(source,target,argument,relation,verbose) -- checks pathing of target unit
  tgoal = target.path.goal
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
   n = df.unit_path_goal[x]
@@ -527,17 +553,16 @@ function checkPathing(source,target,argument,relation,verbose) -- checks pathing
    if selected then return false end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'immune' then
   return true
  end
 end
+
 function checkProfession(source,target,argument,relation,verbose) -- checks profession of target unit
 -- sprof = source.profession
  tprof = target.profession
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
   n = df.profession[x]
@@ -548,17 +573,16 @@ function checkProfession(source,target,argument,relation,verbose) -- checks prof
    if selected then return false end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'immune' then
   return true
  end
 end
+
 function checkSkill(source,target,argument,relation,verbose) -- checks skills of target unit
  local utils = require 'utils'
  local split = utils.split_string
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in pairs(argument) do
   skill = split(x,':')[1]
@@ -575,13 +599,12 @@ function checkSkill(source,target,argument,relation,verbose) -- checks skills of
    if sskill/tskill < value then return false end
   end
  end
- 
  return true
 end
+
 function checkSpeed(source,target,argument,relation,verbose) -- checks speed of target unit (using dfhack.units.computeMovementSpeed())
  sspeed = dfhack.units.computeMovementSpeed(source)
  tspeed = dfhack.units.computeMovementSpeed(target)
- 
  value = tonumber(argument)
  if relation == 'max' then
   if tspeed > value then return false end
@@ -592,9 +615,9 @@ function checkSpeed(source,target,argument,relation,verbose) -- checks speed of 
  elseif relation == 'less' then
   if sspeed/tspeed < value then return false end
  end
- 
  return true
 end
+
 function checkSyndrome(source,target,argument,relation,verbose) -- checks syndromes (names) of target unit
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
@@ -605,13 +628,13 @@ function checkSyndrome(source,target,argument,relation,verbose) -- checks syndro
    if selected then return false end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'immune' then
   return true
  end
 end
+
 function checkToken(source,target,argument,relation,verbose) -- checks tokens of target unit (e.g. MEGABEAST, FLIER, etc...)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
@@ -622,17 +645,16 @@ function checkToken(source,target,argument,relation,verbose) -- checks tokens of
    if selected then return false end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'immune' then
   return true
  end
 end
+
 function checkTrait(source,target,argument,relation,verbose) -- checks traits of target unit
  local utils = require 'utils'
  local split = utils.split_string
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in pairs(argument) do
   trait = split(x,':')[1]
@@ -649,9 +671,9 @@ function checkTrait(source,target,argument,relation,verbose) -- checks traits of
    if strait/ttrait < value then return false end
   end
  end
- 
  return true
 end
+
 ---- base call for all unit targeting checks
 function isSelectedUnit(source,unit,args)
  local selected = true
@@ -780,8 +802,7 @@ function isSelectedUnit(source,unit,args)
  return selected
 end
 
--- item based checks and conditions
-----
+-- item based checks and conditions ----
 function checkItemLocation(center,radius,verbose) -- checks for units within radius of center
  if radius then
   rx = tonumber(radius.x) or tonumber(radius[1]) or 0
@@ -794,7 +815,6 @@ function checkItemLocation(center,radius,verbose) -- checks for units within rad
  end
  local targetList = {}
  local selected = {}
- 
  n = 0
  itemList = df.global.world.items.all
  if rx < 0 and ry < 0 and rz < 0 then
@@ -817,11 +837,11 @@ function checkItemLocation(center,radius,verbose) -- checks for units within rad
  end
  return targetList,n
 end
+
 function checkItem(source,targetList,target,verbose) -- check list of items for major condition
  if not target then target = 'all' end
  n = 0
  list = {}
- 
  target == string.upper(target)
  for i,item in pairs(targetList) do
   if target == 'INVENTORY' then
@@ -857,11 +877,10 @@ function checkItem(source,targetList,target,verbose) -- check list of items for 
  end
  return list,n
 end
-----
+
 function checkItemType(source,item,argument,relation,verbose)
  local utils = require 'utils'
  local split = utils.split_string
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
@@ -884,17 +903,16 @@ function checkItemType(source,item,argument,relation,verbose)
    end
   end
  end
-  
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
   return true
  end
 end
+
 function checkMaterial(source,item,argument,relation,verbose)
  local utils = require 'utils'
  local split = utils.split_string
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
@@ -917,14 +935,13 @@ function checkMaterial(source,item,argument,relation,verbose)
    end
   end
  end
-  
-
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
   return true
  end
 end
+
 function checkCorpse(source,item,argument,relation,verbose)
  local utils = require 'utils'
  local split = utils.split_string
@@ -935,7 +952,6 @@ function checkCorpse(source,item,argument,relation,verbose)
    return true
   end
  end
- 
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
@@ -958,14 +974,14 @@ function checkCorpse(source,item,argument,relation,verbose)
    end
   end
  end
- 
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
   return true
  end
 end
-----
+
+
 function isSelectedItem(source,item,args)
  local selected = true
  
