@@ -1,67 +1,63 @@
-function calculateResistance(unit,spell)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+-- Functions for the Spell SubSystem in the Class System, vN/A
+-- NOTE: These scripts still need substantial work, and have not been tested yet (hence the N/A)
+--[[
+ calculateResistance(unit,spell,verbose) -- Calculates the resistances and penetration for a given spell/target combo
+ Spell(source,target,spell,verbose) -- Sets up the spell, calculates various needed parameters, then calls castSpell to run the actual script
+ castSpell(source,target,spell,verbose) -- Runs the scripts associated with the spell, replacing certain key strings with the appropriate numbers
+]]
+------------------------------------------------------------------------
+function calculateResistance(unit,spell,verbose)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  unitID = tostring(unit.id)
  local persistTable = require 'persist-table'
-  
  local spellTable = persistTable.GlobalTable.roses.SpellTable
  if not spellTable[spell] then
-  print('Not a valid spell')
-  return
+  if verbose then print('Not a valid spell') end
+  return 0
  end
  spellTable = spellTable[spell]
- if not spellTable.Resistable then return 0 end
-  
+ if not spellTable.Resistable then return 0 end 
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[unitID] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unit)
- end
+ if not unitTable[unitID] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  unitTable = unitTable[unitID]
- if spellTable.Type then typeResistance = unitTable.Resistances[spellTable.Type] or 0 end
- if spellTable.Sphere then sphereResistance = unitTable.Resistances[spellTable.Sphere] or 0 end
- if spellTable.School then schoolResistance = unitTable.Resistances[spellTable.School] or 0 end
- if spellTable.Discipline then disciplineResistance = unitTable.Resistances[spellTable.Discipline] or 0 end
- if spellTable.SubDiscipline then subdisciplineResistance = unitTable.Resistances[spellTable.SubDiscipline] or 0 end
+ local getResistance = dfhack.script_environment('functions/unit').getUnit
+ if spellTable.Type then typeResistance = getResistance(unit,'Resistances',spellTable.Type) end
+ if spellTable.Sphere then sphereResistance = getResistance(unit,'Resistances',spellTable.Sphere) end
+ if spellTable.School then schoolResistance = getResistance(unit,'Resistances',spellTable.School) end
+ if spellTable.Discipline then disciplineResistance = getResistance(unit,'Resistances',spellTable.Discipline) end
+ if spellTable.SubDiscipline then subdisciplineResistance = getResistance(unit,'Resistances',spellTable.SubDiscipline) end
  resistance = typeResistance + (sphereResistance+schoolResistance)/2 + (disciplineResistance+subdisciplineResistance)/2
  if spellTable.Penetrate then penetration = tonumber(spellTable.Penetrate) else penetrate = 0 end
- 
  return resistance-penetrate
 end
 
-function Spell(source,target,spell)
- if tonumber(source) then
-  source = df.unit.find(tonumber(source))
+function Spell(source,target,spell,verbose)
+ local persistTable = require 'persist-table'
+ local spellTable = persistTable.GlobalTable.roses.SpellTable
+ if not spellTable[spell] then
+  if verbose then print('Not a valid spell') end
+  return
  end
- if source then
-  sourceID = tostring(source.id)
+ spellTable = spellTable[spell]
+ 
+ if tonumber(source) then source = df.unit.find(tonumber(source)) end
+ if source then 
+  sourceID = tostring(source.id) 
  else
   print('No valid source declared')
   return
  end
- if tonumber(target) then
-  target = df.unit.find(tonumber(target))
- end
+ if tonumber(target) then target = df.unit.find(tonumber(target)) end
  if target then
   targetID = tostring(target.id)
  else
   targetID = nil
  end
- local persistTable = require 'persist-table'
  
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[sourceID] then
-  dfhack.script_environment('functions/tables').makeUnitTable(source)
- end
+ if not unitTable[sourceID] then dfhack.script_environment('functions/tables').makeUnitTable(source) end
  unitTable = unitTable[sourceID]
  
- local spellTable = persistTable.GlobalTable.roses.SpellTable
- if not spellTable[spell] then
-  print('Not a valid spell')
-  return
- end
- spellTable = spellTable[spell]
-
 ---- check for casting speed buffs/debuffs
 -- if not unitTable.Stats.CastingSpeed then dfhack.script_environment('functions/tables').makeUnitTableStat(source,'CastingSpeed') end
 -- speedTable = unitTable.Stats.CastingSpeed
@@ -111,31 +107,27 @@ function Spell(source,target,spell)
  end
 end
 
-function castSpell(source,target,spell)
- if tonumber(source) then
-  source = df.unit.find(tonumber(source))
+function castSpell(source,target,spell,verbose)
+ local persistTable = require 'persist-table'
+ local spellTable = persistTable.GlobalTable.roses.SpellTable
+ if not spellTable[spell] then
+  if verbose then print('Not a valid spell') end
+  return
  end
+ spellTable = spellTable[spell]
+ 
+ if tonumber(source) then source = df.unit.find(tonumber(source)) end
  if source then
   sourceID = tostring(source.id)
  else
   sourceID = "\\-1"
  end
- if tonumber(target) then
-  target = df.unit.find(tonumber(target))
- end
+ if tonumber(target) then target = df.unit.find(tonumber(target)) end
  if target then
   targetID = tostring(target.id)
  else
   targetID = "\\-1"
  end
- 
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
- if not spellTable[spell] then
-  print('Not a valid spell')
-  return
- end
- spellTable = spellTable[spell]
  
  for _,i in pairs(spellTable.Script._children) do
   script = spellTable.Script[i]
