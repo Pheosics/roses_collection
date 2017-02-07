@@ -1,4 +1,36 @@
 --map based functions, version 42.06a
+--[[
+ changeInorganic(x,y,z,inorganic,dur) - Changes the inorganic of the specified position
+ changeTemperature(x,y,z,temperature,dur) - Changes the temperature of the specified position (doesn't really work well since the game constantly reupdates temperatures)
+ checkBounds(pos) - Checks if a position is within the map bounds, returns the closest position to the input that is within the bounds
+ getEdgesPosition(pos,radius) - Get all the x,y,z positions along the edge of a pos + radius
+ getFillPosition(pos,radius) - Get all the x,y,z positions within a pos + radius
+ getPositionPlan(file,target,origin) - Get the x,y,z positions from an external text file
+ getPositionCenter(radius) - Get a random position with a center radius of the center of the map
+ getPositionEdge() - Get a random position along the edge of the map
+ getPositionRandom() - Get a random position on the map
+ getPositionCavern(number) - Get a random position in a specified cavern layer
+ getPositionSurface(pos) - Return the surface z position given an x and y
+ getPositionSky(pos) - Return a random z position in the sky given an x and y
+ getPositionUnderground(pos) - Return a random z position underground given an x and y
+ getPositionLocationRandom(pos,radius) - Get a random position within a certain radius of the given x,y,z
+ getPositionUnitRandom(unit,radius) - Get a random position within a certain radius of the given unit
+ spawnFlow(edges,offset,flowType,inorganic,density,static) - Spawn a flow using a number of variables
+ spawnLiquid(edges,offset,depth,magma,circle,taper) - Spawn a liquid using a number of variables
+ getFlow(pos) - Get any flows at the given position
+ getTree(pos,array) - Get any tree (or a tree in a specific array) at a given position
+ getShrub(pos,array) - Get any shrub (or a shrub in a specific array) at a given position
+ removeTree(pos) - Remove the tree at the given position
+ removeShrub(pos) - Remove the shrub at the given position
+ getTreeMaterial(pos) - Get the material of the tree at the given position
+ getShrubMaterial(pos) - Get the material of the shrub at the given position
+ getGrassMaterial(pos) - Get the material of the grass at the given position
+ getTreePositions(tree) - Get all x,y,z positions of a given tree
+ flowSource(n) - Create a flow source (continually creates the flow)
+ liquidSource(n) - Create a liquid source (continually creates liquid)
+ liquidSink(n) - Create a liquid sink (continually removes liquid)
+ findLocation(search) - Find a location on the map from the declared search parameters. See the find functions ReadMe for more information regarding search strings.
+]]
 ---------------------------------------------------------------------------------------
 function changeInorganic(x,y,z,inorganic,dur)
  pos = {}
@@ -11,7 +43,6 @@ function changeInorganic(x,y,z,inorganic,dur)
   pos.y = y
   pos.z = z
  end
-
  local block=dfhack.maps.ensureTileBlock(pos)
  local current_inorganic = 'clear'
  if inorganic == 'clear' then
@@ -33,10 +64,7 @@ function changeInorganic(x,y,z,inorganic,dur)
   block.block_events:insert("#",ev)
   dfhack.maps.setTileAssignment(ev.tile_bitmask,pos.x%16,pos.y%16,true)
  end
-
- if dur > 0 then
-  dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeInorganic',{pos.x,pos.y,pos.z,current_inorganic,0})
- end
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeInorganic',{pos.x,pos.y,pos.z,current_inorganic,0}) end
 end
 
 function changeTemperature(x,y,z,temperature,dur)
@@ -50,19 +78,14 @@ function changeTemperature(x,y,z,temperature,dur)
   pos.y = y
   pos.z = z
  end
-
  local block = dfhack.maps.ensureTileBlock(pos)
  local current_temperature = block.temperature_2[pos.x%16][pos.y%16]
-
  block.temperature_1[pos.x%16][pos.y%16] = temperature
 -- if dur > 0 then
   block.temperature_2[pos.x%16][pos.y%16] = temperature
   block.flags.update_temperature = false
 -- end
-
- if dur > 0 then
-  dfhack.script_environment('persistDelay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0})
- end
+ if dur > 0 then dfhack.script_environment('persistDelay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) end
 end
 
 function checkBounds(pos)
@@ -73,12 +96,10 @@ function checkBounds(pos)
  if pos.y > mapy-1 then pos.y = mapy-1 end
  if pos.z < 1 then pos.z = 1 end
  if pos.z > mapz-1 then pos.z = mapz-1 end
-
  return pos
 end
 
 function getEdgesPosition(pos,radius)
-
  local edges = {}
  local rx = radius.x or radius[1] or 0
  local ry = radius.y or radius[2] or 0
@@ -86,7 +107,6 @@ function getEdgesPosition(pos,radius)
  local xpos = pos.x or pos[1]
  local ypos = pos.y or pos[2]
  local zpos = pos.z or pos[3]
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
  edges.xmin = xpos - rx
  edges.xmax = xpos + rx
@@ -100,12 +120,10 @@ function getEdgesPosition(pos,radius)
  if edges.xmax > mapx then edges.xmax = mapx-1 end
  if edges.ymax > mapy then edges.ymax = mapy-1 end
  if edges.zmax > mapz then edges.zmax = mapz-1 end
-
  return edges
 end
 
 function getFillPosition(pos,radius)
-
  local positions = {}
  local rx = radius.x or radius[1] or 0
  local ry = radius.y or radius[2] or 0
@@ -113,7 +131,6 @@ function getFillPosition(pos,radius)
  local xpos = pos.x or pos[1]
  local ypos = pos.y or pos[2]
  local zpos = pos.z or pos[3]
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
  n = 0
  for k = 0,rz,1 do
@@ -130,24 +147,19 @@ function getFillPosition(pos,radius)
    end
   end
  end
-
  return positions,n
 end
 
 function getPositionPlan(file,target,origin)
-
  local xtar = target.x or target[1]
  local ytar = target.y or target[2]
  local ztar = target.z or target[3]
-
  local utils = require 'utils'
  local split = utils.split_string
-
  local iofile = io.open(file,"r")
  local data = iofile:read("*all")
  iofile:close()
  local splitData = split(data,',')
-
  local x = {}
  local y = {}
  local t = {}
@@ -161,7 +173,6 @@ function getPositionPlan(file,target,origin)
  local yC = -1
  local n = 0
  local locations = {}
-
  for i,v in ipairs(splitData) do
   if split(v,'\n')[1] ~= v then
    xi = 1
@@ -189,7 +200,6 @@ function getPositionPlan(file,target,origin)
   x[i] = xi
   y[i] = yi
  end
-  
  if origin then
   xorg = origin.x or origin[1]
   yorg = origin.y or origin[2]
@@ -295,37 +305,30 @@ function getPositionPlan(file,target,origin)
    end
   end
  end
-
  return locations,n
 end
 
 function getPositionCenter(radius)
  local pos = {}
  local rand = dfhack.random.new()
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
-
  if tonumber(radius) then
   radius = tonumber(radius)
  else
   radius = 0
  end
-
  x = math.floor(mapx/2)
  y = math.floor(mapy/2)
  pos.x = rand:random(radius) + (rand:random(2)-1)*x
  pos.y = rand:random(radius) + (rand:random(2)-1)*y
  pos.z = rand:random(mapz)
-
  return pos
 end
 
 function getPositionEdge()
  local pos = {}
  local rand = dfhack.random.new()
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
-
  roll = rand:random(2)
  if roll == 1 then
   pos.x = 2
@@ -339,25 +342,20 @@ function getPositionEdge()
   pos.y = mapy-1
  end
  pos.z = rand:random(mapy)
-
  return pos
 end
 
 function getPositionRandom()
  local pos = {}
  local rand = dfhack.random.new()
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
-
  pos.x = rand:random(mapx)
  pos.y = rand:random(mapy)
  pos.z = rand:random(mapz)
-
  return pos
 end
 
 function getPositionCavern(number)
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
     for i = 1,mapx,1 do
      for j = 1,mapy,1 do
@@ -382,26 +380,21 @@ function getPositionCavern(number)
       end
      end
     end
-
  pos = dfhack.script_environment('functions/misc').permute(targetList)
  return pos[1]
 end
 
 function getPositionSurface(location)
  local pos = {}
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
-
  pos.x = location.x or location[1]
  pos.y = location.y or location[2]
  pos.z = mapz - 1
-
  local j = 0
  while dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z-j).designation[pos.x%16][pos.y%16].outside do
   j = j + 1
  end
  pos.z = pos.z - j
-
  pos = checkBounds(pos)
  return pos
 end
@@ -409,19 +402,15 @@ end
 function getPositionSky(location)
  local pos = {}
  local rand = dfhack.random.new()
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
-
  pos.x = location.x or location[1]
  pos.y = location.y or location[2]
  pos.z = mapz - 1
-
  local j = 0
  while dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z-j).designation[pos.x%16][pos.y%16].outside do
   j = j + 1
  end
  pos.z = rand:random(mapz-j)+j
-
  pos = checkBounds(pos)
  return pos
 end
@@ -429,19 +418,15 @@ end
 function getPositionUnderground(location)
  local pos = {}
  local rand = dfhack.random.new()
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
-
  pos.x = location.x or location[1]
  pos.y = location.y or location[2]
  pos.z = mapz - 1
-
  local j = 0
  while dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z-j).designation[pos.x%16][pos.y%16].outside do
   j = j + 1
  end
  pos.z = rand:random(j-1)
-
  pos = checkBounds(pos)
  return pos
 end
@@ -450,10 +435,8 @@ function getPositionLocationRandom(location,radius)
  lx = location.x or location[1]
  ly = location.y or location[2]
  lz = location.z or location[3]
-
  local pos = {}
  local rand = dfhack.random.new()
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
  local rx = radius.x or radius[1] or 0
  local ry = radius.y or radius[2] or 0
@@ -464,23 +447,17 @@ function getPositionLocationRandom(location,radius)
  local xmax = lx + rx
  local ymax = ly + ry
  local zmax = lz + rz
-
  pos.x = rand:random(xmax-xmin) + xmin
  pos.y = rand:random(ymax-ymin) + ymin
  pos.z = rand:random(zmax-zmin) + zmin
-
  pos = checkBounds(pos)
  return pos
 end
 
 function getPositionUnitRandom(unit,radius)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
-
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local pos = {}
  local rand = dfhack.random.new()
-
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
  local rx = radius.x or radius[1] or 0
  local ry = radius.y or radius[2] or 0
@@ -491,11 +468,9 @@ function getPositionUnitRandom(unit,radius)
  local xmax = unit.pos.x + rx
  local ymax = unit.pos.y + ry
  local zmax = unit.pos.z + rz
-
  pos.x = rand:random(xmax-xmin) + xmin
  pos.y = rand:random(ymax-ymin) + ymin
  pos.z = rand:random(zmax-zmin) + zmin
-
  pos = checkBounds(pos)
  return pos
 end
@@ -519,7 +494,6 @@ function spawnFlow(edges,offset,flowType,inorganic,density,static)
   ymax = edges.y + oy or edges[2] + oy
   zmax = edges.z + oz or edges[3] + oz
  end
- 
  for x = xmin, xmax, 1 do
   for y = ymin, ymax, 1 do
    for z = zmin, zmax, 1 do
@@ -553,7 +527,6 @@ function spawnLiquid(edges,offset,depth,magma,circle,taper)
   ymax = edges.y + oy or edges[2] + oy
   zmax = edges.z + oz or edges[3] + oz
  end
-
  for x = xmin, xmax, 1 do
   for y = ymin, ymax, 1 do
    for z = zmin, zmax, 1 do
@@ -627,7 +600,6 @@ function getFlow(pos)
    break
   end
  end
- 
  if flowID == -1 then
   return false, false
  else
@@ -724,14 +696,12 @@ end
 function getTreeMaterial(pos)
  _,tree = getTree(pos)
  material = dfhack.matinfo.decode(419, tree.material)
- 
  return material
 end
 
 function getShrubMaterial(pos)
  _,shrub = getShrub(pos)
  material = dfhack.matinfo.decode(419, shrub.material)
- 
  return material
 end
 
@@ -799,7 +769,6 @@ function flowSource(n)
  local persistTable = require 'persist-table'
  flowTable = persistTable.GlobalTable.roses.FlowTable
  flow = flowTable[n]
- 
  if flow then
   x = tonumber(flow.x)
   y = tonumber(flow.y)
@@ -809,7 +778,6 @@ function flowSource(n)
   flowType = tonumber(flow.FlowType)
   check = tonumber(flow.Check)
   dfhack.maps.spawnFlow({x,y,z},flowType,0,inorganic,density)
- 
   dfhack.timeout(check,'ticks',
                  function ()
                   dfhack.script_environment('functions/map').flowSource(n)
@@ -822,7 +790,6 @@ function liquidSource(n)
  local persistTable = require 'persist-table'
  liquidTable = persistTable.GlobalTable.roses.LiquidTable
  liquid = liquidTable[n]
- 
  if liquid then
   x = tonumber(liquid.x)
   y = tonumber(liquid.y)
@@ -839,7 +806,6 @@ function liquidSource(n)
   if magma then dsgn.liquid_type = true end
   block.flags.update_liquid = true
   block.flags.update_liquid_twice = true
- 
   dfhack.timeout(check,'ticks',
                  function ()
                   dfhack.script_environment('functions/map').liquidSource(n)
@@ -852,7 +818,6 @@ function liquidSink(n)
  local persistTable = require 'persist-table'
  liquidTable = persistTable.GlobalTable.roses.LiquidTable
  liquid = liquidTable[n]
- 
  if liquid then
   x = tonumber(liquid.x)
   y = tonumber(liquid.y)
@@ -869,7 +834,6 @@ function liquidSink(n)
   if magma then dsgn.liquid_type = true end
   block.flags.update_liquid = true
   block.flags.update_liquid_twice = true
- 
   dfhack.timeout(check,'ticks',
                  function ()
                   dfhack.script_environment('functions/map').liquidSink(n)
