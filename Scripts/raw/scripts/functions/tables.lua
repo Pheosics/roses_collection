@@ -136,6 +136,12 @@ function makeBaseTable()
  base.CustomSkills = {}
  base.CustomResistances = {}
  base.CustomStats = {}
+ base.Types = {}
+ base.Spheres = {}
+ base.Schools = {}
+ base.Disciplines = {}
+ base.SubDisciplines = {}
+ base.Equations = {}
  if #files < 1 then
   print('No Base file found, assuming defaults')
  else
@@ -163,23 +169,35 @@ function makeBaseTable()
     elseif test == '[FEAT_GAINS' then
      base.FeatGains = array[2]..':'..array[3]
     elseif test == '[SKILL' then
-     base.CustomSkills[array[2]] = array[3]
+     base.CustomSkills[#base.CustomSkills+1] = array[3]
     elseif test == '[ATTRIBUTE' then
-     base.CustomAttributes[array[2]] = array[2]
+     base.CustomAttributes[#base.CustomAttributes+1] = array[2]
     elseif test == '[RESISTANCE' then
-     resistanceTable = base.CustomResistances
-     for j,x in pairs(array) do
-      if j == 1 then
-       a = 1
-      elseif j == #array then
-       resistanceTable[array[j]] = array[j]
-      else
-       resistanceTable[array[j]] = resistanceTable[array[j]] or {}
-       resistanceTable = resistanceTable[array[j]]
-      end
-     end
+     base.CustomResistances[#base.CustomResistances+1] = array[2]
     elseif test == '[STAT' then
-     base.CustomStats[array[2]] = array[2]
+     base.CustomStats[#base.CustomStats+1] = array[2]
+    elseif test == '[TYPE' then
+     for arg = 2,#array,1 do
+      base.Types[#base.Types+1] = array[arg]
+     end
+    elseif test == '[SPHERE' then
+     for arg = 2,#array,1 do
+      base.Spheres[#base.Spheres+1] = array[arg]
+     end
+    elseif test == '[SCHOOL' then
+     for arg = 2,#array,1 do
+      base.Schools[#base.Schools+1] = array[arg]
+     end
+    elseif test == '[DISCIPLINE' then
+     for arg = 2,#array,1 do
+      base.Disciplines[#base.Disciplines+1] = array[arg]
+     end
+    elseif test == '[SUBDISCIPLINE' then
+     for arg = 2,#array,1 do
+      base.SubDisciplines[#base.SubDisciplines+1] = array[arg]
+     end
+    elseif test == '[EQUATION' then
+     base.Equations[array[2]] = array[3]
     end
    end
   end
@@ -732,8 +750,10 @@ function makeSpellTable()
      spell.Effect = array[2]
     elseif test == '[ANNOUNCEMENT' then
      spell.Announcement = array[2]
-    elseif test == '[RESISTABLE' then
-     spell.Resistable = array[2]
+    elseif test == '[RESISTABLE]' then
+     spell.Resistable = 'true'
+    elseif test == '[CAN_CRIT]' then
+     spell.CanCrit = 'true'
     elseif test == '[PENETRATE' then
      spell.Penetration = array[2]
     elseif test == '[HIT_MODIFIER' then
