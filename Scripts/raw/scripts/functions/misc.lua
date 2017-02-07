@@ -1,4 +1,11 @@
-
+-- Miscellanious functions, v42.06a
+--[[
+ getChange(current,value,mode) - Get the amount changed from the current depending on value and mode, returns a number
+ permute(tahle) - Takes a table and randomly permutes it, returns the permuted table
+ changeCounter(counter,amount,extra) - Change the counter by a certain amount, returns the ending value of the counter
+ checkCounter(counter,extra) - Checks if a counter exists, returns true/false
+ getCounter(counter,extra) - Get the value of a certain counter, returns a number
+]]
 function getChange(current,value,mode)
  local change = 0
  if mode == 'Fixed' or mode == 'fixed' then
@@ -40,9 +47,8 @@ function changeCounter(counter,amount,extra)
  if not roses then return end
  local utils = require 'utils'
  local split = utils.split_string
- counterTable = persistTable.GlobalTable.roses
+ counterTable = persistTable.GlobalTable.roses.CounterTable
  counters = split(counter,':')
-
  for i,x in pairs(counters) do
   if i == #counters then
    endc = x
@@ -68,7 +74,6 @@ function changeCounter(counter,amount,extra)
    counterTable = counterTable[x]
   end
  end
-
  if tonumber(amount) then
   if not counterTable[endc] then
    counterTable[endc] = '0'
@@ -82,7 +87,6 @@ function changeCounter(counter,amount,extra)
  else
   counterTable[endc] = amount
  end
-
  return counterTable[endc]
 end
 
@@ -90,13 +94,10 @@ function checkCounter(counter,extra)
  local persistTable = require 'persist-table'
  local roses = persistTable.GlobalTable.roses
  if not roses then return end
-
  local utils = require 'utils'
  local split = utils.split_string
-
- counterTable = persistTable.GlobalTable.roses
+ counterTable = persistTable.GlobalTable.roses.CounterTable
  counters = split(counter,':')
- 
  for i,x in pairs(counters) do
   if (x == '!UNIT' or x == '!BUILDING' or x == '!ITEM') then
    if not counterTable[tostring(extra)] then
@@ -109,7 +110,6 @@ function checkCounter(counter,extra)
    counterTable = counterTable[x]
   end
  end
-
  return true
 end
 
@@ -117,13 +117,10 @@ function getCounter(counter,extra)
  local persistTable = require 'persist-table'
  local roses = persistTable.GlobalTable.roses
  if not roses then return end
-
  local utils = require 'utils'
  local split = utils.split_string
-
- counterTable = persistTable.GlobalTable.roses
+ counterTable = persistTable.GlobalTable.roses.CounterTable
  counters = split(counter,':')
-
  for i,x in pairs(counters) do
   if (x == '!UNIT' or x == '!BUILDING' or x == '!ITEM') then
    if not counterTable[tostring(extra)] then
@@ -138,28 +135,4 @@ function getCounter(counter,extra)
   end
  end
  return counterTable
-end
-
-function checkResistance(resistance,temp)
- local persistTable = require 'persist-table'
- local utils = require 'utils'
- local split = utils.split_string
- 
- resistances = temp or {}
- baseTable = persistTable.GlobalTable.roses.BaseTable.CustomResistances
- for i,x in ipairs(split(resistance,':')) do
-  if baseTable[x] then
-   baseTable = baseTable[x]
-  else
-   return
-  end
- end
- if baseTable._children then
-  for _,x in ipairs(baseTable._children) do
-   checkResistance(resistance..':'..x,resistances)
-  end
- else
-  resistances[resistance] = true
- end
- return resistances
 end
