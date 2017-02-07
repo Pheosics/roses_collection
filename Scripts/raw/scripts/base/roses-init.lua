@@ -22,6 +22,9 @@ persistTable.GlobalTable.roses.EntityTable = persistTable.GlobalTable.roses.Enti
 persistTable.GlobalTable.roses.CommandDelay = persistTable.GlobalTable.roses.CommandDelay or {}
 persistTable.GlobalTable.roses.EnvironmentDelay = persistTable.GlobalTable.roses.EnvironmentDelay or {}
 persistTable.GlobalTable.roses.CounterTable = persistTable.GlobalTable.roses.CounterTable or {}
+persistTable.GlobalTable.roses.CounterTable.Unit = persistTable.GlobalTable.roses.CounterTable.Unit or {}
+persistTable.GlobalTable.roses.CounterTable.Building = persistTable.GlobalTable.roses.CounterTable.Building or {}
+persistTable.GlobalTable.roses.CounterTable.Item = persistTable.GlobalTable.roses.CounterTable.Item or {}
 persistTable.GlobalTable.roses.LiquidTable = persistTable.GlobalTable.roses.LiquidTable or {}
 persistTable.GlobalTable.roses.FlowTable = persistTable.GlobalTable.roses.FlowTable or {}
 if not persistTable.GlobalTable.roses.GlobalTable then dfhack.script_environment('functions/tables').makeGlobalTable() end
