@@ -1448,11 +1448,9 @@ end
 ---------------------------------------------------------------------------------------
 ------------------- Get something from a unit for desired things ----------------------
 ---------------------------------------------------------------------------------------
-function getUnit(unit,strType,strKind
+function getUnit(unit,strType,strKind)
  -- Make sure we have the unit itself and not just the id.
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local base = 0
  local change = 0
  local class = 0
