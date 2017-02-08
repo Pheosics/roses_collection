@@ -15,19 +15,6 @@ List of custom attributes
 [ATTRIBUTE:LUCK]
 [ATTRIBUTE:CHARISMA]
 
-List of resistances (since there are currently no in-game resistances, all resistances are custom)
-[RESISTANCE:MAGICAL]
-[RESISTANCE:PHYSICAL]
-[RESISTANCE:ELEMENTAL]
-[RESISTANCE:FIRE]
-
-List of custom stats
-[STAT:CRITICAL_CHANCE] <- Used to calculate critical chance for spells and abilities that can crit
-[STAT:CRITICAL_BONUS] <- Used to calculate critical bonus for spells and abilities that can crit
-[STAT:CASTING_SPEED] <- Currently used to determine casting speed modifiers
-[STAT:CASTING_PENETRATION] <- Currently used to determine resistance penetration
-[STAT:HIT_CHANCE] <- Currently used to determine hit percentages
-
 List of spell types, spheres, schools, disciplines, and subdisciplines
 [TYPE:MAGICAL:PHYSICAL]
 Types are the only built in things, everything else is customizable. The following are the entries in my mod
@@ -38,8 +25,27 @@ Types are the only built in things, everything else is customizable. The followi
 [SCHOOL:ANIMAL:PLANT:GROUND:SPIRIT]
 [SCHOOL:PERCEPTION:EMOTION:THOUGHT:MIND]
 [DISCIPLINE:CONJURATION:EVOCATION:RESTORATION:TRANSMUTATION]
+[SUBDISCIPLINE:CURSE:DEBUFF:HARM:BUFF]
 
-List of equations
+List of resistances (since there are currently no in-game resistances, all resistances are custom)
+[RESISTANCE:MEGABEAST]
+[RESISTANCE:FALLING]
+#NOTE: The game will automatically generate a resistance for each TYPE, SPHERE, SCHOOL, DISCIPLINE, and SUBDISCIPLINE
+
+List of custom stats
+[STAT:CRITICAL_CHANCE] <- Used to calculate critical chance for spells and abilities that can crit
+[STAT:CRITICAL_BONUS] <- Used to calculate critical bonus for spells and abilities that can crit
+[STAT:CASTING_SPEED] <- Currently used to determine casting speed modifiers
+[STAT:CASTING_PENETRATION] <- Currently used to determine resistance penetration
+[STAT:HIT_CHANCE] <- Currently used to determine hit percentages
+#NOTE: The game will automatically make several different stat combinations for each TYPE, SPHERE, SCHOOL, DISCIPLINE,
+       and SUBDICIPLINE. These stats are;       #_CRITICAL_CHANCE
+                                                #_CRITICAL_BONUS
+                                                #_CASTING_SPEED
+                                                #_CASTING_PENETRATION
+                                                #_HIT_CHANCE
+
+List of customizable equations
 [EQUATION:EXHAUSTION_MODIFIER:(100-4*SKILL.SPELL_CASTING)/100]
 [EQUATION:CASTING_SPEED_PERC:100-STAT.CASTING_SPEED-2.5*SKILL.SPELL_CASTING]
 [EQUATION:PHYSICAL_CRIT_CHANCE:STAT.CRITICAL_CHANCE+ATTRIBUTE.AGILITY/100]
@@ -49,3 +55,7 @@ List of equations
    STAT.SPEED = The movement speed of the unit
    ATTRIBUTE.WEIGHT = Calculates the weight of the unit (not including inventory)
    ATTRIBUTE.FULL_WEIGHT = Calculates the weight of the unit (including inventory)
+
+Built in equations
+#RESISTANCE_CALCULATION - Found in functions/spell.calculateResistance
+#PENETRATION_CACLULATION - Found in functions/spell.calculatePenetration
