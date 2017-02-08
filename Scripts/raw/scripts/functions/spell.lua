@@ -1,7 +1,9 @@
 -- Functions for the Spell SubSystem in the Class System, vN/A
 -- NOTE: These scripts still need substantial work, and have not been tested yet (hence the N/A)
 --[[
- calculateResistance(unit,spell,verbose) -- Calculates the resistances and penetration for a given spell/target combo
+ calculateResistance(target,spell,verbose) -- Calculates the resistances for a given spell/target combo
+ calculatePenetration(source,spell,verbose) -- Calculates the penetration for a given spell/source combo
+ calculateHitChance(source,spell,verbose) -- Calculates the hit chance for a given spell/source combo
  Spell(source,target,spell,verbose) -- Sets up the spell, calculates various needed parameters, then calls castSpell to run the actual script
  castSpell(source,target,spell,verbose) -- Runs the scripts associated with the spell, replacing certain key strings with the appropriate numbers
 ]]
@@ -27,14 +29,19 @@ function calculateResistance(target,spell,verbose)
  if spellTable.Discipline then disciplineResistance = getResistance(unit,'Resistances',spellTable.Discipline) end
  if spellTable.SubDiscipline then subdisciplineResistance = getResistance(unit,'Resistances',spellTable.SubDiscipline) end
  resistanceTable = {typeResistance,sphereResistance,schoolResistance,disciplineResistance,subdisciplineResistance}
+ for _,x in pairs(spellTable.Resistable._children) do
+  table.insert(resistanceTable,spellTable.Resistable[x])
+ end
 -- Should resistance just take the largest one?
 -- resistance = table.sort(resistanceTable)[#resistanceTable]
 -- Or should it be multiplicative?
- for _,val in pairs(resistanceTable) do
-  resistance = resistance + val*(100-resistance)/100
- end
+-- for _,val in pairs(resistanceTable) do
+--  resistance = resistance + val*(100-resistance)/100
+-- end
 -- Or should it just all add together?
--- resistance = typeResistance+sphereResistance+schoolResistance+disciplineResistance+subdisciplineResistance
+ for _,val in pairs(resistanceTable) do
+  resistance = resistance + val
+ end
  return resistance
 end
 
@@ -53,28 +60,35 @@ function calculatePenetration(source,spell,verbose)
  spellTable = spellTable[spell]
  local spellPenetrate = spellTable.Penetrate or 0
  local getPenetrate = dfhack.script_environment('functions/unit').getUnit
- if spellTable.Type then typePenetrate = getPenetrate(unit,'Stats',spellTable.Type..'_CASTING_PENETRATION') end
- if spellTable.Sphere then spherePenetrate = getPenetrate(unit,'Stats',spellTable.Sphere..'_CASTING_PENETRATION') end
- if spellTable.School then schoolPenetrate = getPenetrate(unit,'Stats',spellTable.School..'_CASTING_PENETRATION') end
- if spellTable.Discipline then disciplinePenetrate = getPenetrate(unit,'Stats',spellTable.Discipline..'_CASTING_PENETRATION') end
- if spellTable.SubDiscipline then subdisciplinePenetrate = getPenetrate(unit,'Stats',spellTable.SubDiscipline..'_CASTING_PENETRATION') end
- penetrateTable = {typePenetrate,spherePenetrate,schoolPenetrate,disciplinePenetrate,subdisciplinePenetrate}
+ local basePenetrate = getPenetrate(unit,'Stats','SKILL_PENETRATION')
+ if spellTable.Type then typePenetrate = getPenetrate(unit,'Stats',spellTable.Type..'_SKILL_PENETRATION') end
+ if spellTable.Sphere then spherePenetrate = getPenetrate(unit,'Stats',spellTable.Sphere..'_SKILL_PENETRATION') end
+ if spellTable.School then schoolPenetrate = getPenetrate(unit,'Stats',spellTable.School..'_SKILL_PENETRATION') end
+ if spellTable.Discipline then disciplinePenetrate = getPenetrate(unit,'Stats',spellTable.Discipline..'_SKILL_PENETRATION') end
+ if spellTable.SubDiscipline then subdisciplinePenetrate = getPenetrate(unit,'Stats',spellTable.SubDiscipline..'_SKILL_PENETRATION') end
+ penetrateTable = {spellPenetrate,basePenetrate,typePenetrate,spherePenetrate,schoolPenetrate,disciplinePenetrate,subdisciplinePenetrate}
+ if spellTable.Resistable then
+  for _,x in pairs(spellTable.Resistable._children) do
+   table.insert(penetrateTable,getPenetrate(unit,'Stats',spellTable.Resistable[x]..'_SKILL_PENETRATION'))
+  end
+ end
 -- Should penetration just take the largest one?
 -- penetrate = table.sort(penetrateTable)[#penetrateTable]
 -- Or should it be multiplicative?
- for _,val in pairs(penetrateTable) do
-  penetrate = penetrate + val*(100-penetrate)/100
- end
+-- for _,val in pairs(penetrateTable) do
+--  penetrate = penetrate + val*(100-penetrate)/100
+-- end
 -- Or should it just all add together?
--- penetrate = typePenetrate+spherePenetrate+schoolPenetrate+disciplinePenetrate+subdisciplinePenetrate
+ for _,val in pairs(penetrateTable) do
+  penetrate = penetrate + val
+ end
  return penetrate
 end
 
-function calculateHitChance(source,target,spell,verbose)
+function calculateHitChance(source,spell,verbose)
  local hitchance = 100
- if not source or not target then return hitchance end
+ if not source then return hitchance end
  if tonumber(source) then source = df.unit.find(tonumber(source)) end
- if tonumber(target) then target = df.unit.find(tonumber(target)) end
  local persistTable = require 'persist-table'
  local spellTable = persistTable.GlobalTable.roses.SpellTable
  if not spellTable[spell] then
@@ -82,6 +96,36 @@ function calculateHitChance(source,target,spell,verbose)
   return hitchance
  end
  spellTable = spellTable[spell]
+ if spellTable.Type then
+  hitchance = dfhack.script_environment('functions/misc').fillEquation(source,spell,spellTable.Type..'_HIT_CHANCE')
+ else
+  hitchance = dfhack.script_environment('functions/misc').fillEquation(source,spell,'MAGICAL_HIT_CHANCE')
+ end
+ --[[
+ spellTable = spellTable[spell]
+ local spellHitBonus = spellTable.HitChance or 0
+ local spellHitPerc = spellTable.HitChancePerc or 100
+ local getHit = dfhack.script_environment('functions/unit').getUnit
+ local baseHit = getPenetrate(unit,'Stats','HIT_CHANCE')
+ local hitTable = {baseHit,spellHitBonus}
+ if spellTable.Type then table.insert(hitTable,getHit(unit,'Stats',spellTable.Type..'_HIT_CHANCE')) end
+ if spellTable.Sphere then table.insert(hitTable,getHit(unit,'Stats',spellTable.Sphere..'_HIT_CHANCE') end
+ if spellTable.School then table.insert(hitTable,getHit(unit,'Stats',spellTable.School..'_HIT_CHANCE') end
+ if spellTable.Discipline then table.insert(hitTable,getHit(unit,'Stats',spellTable.Discipline..'_HIT_CHANCE') end
+ if spellTable.SubDiscipline then table.insert(hitTable,getHit(unit,'Stats',spellTable.SubDiscipline..'_HIT_CHANCE') end
+-- Should penetration just take the largest one?
+-- hitchance = table.sort(hitTable)[#hitTable]
+-- Or should it be multiplicative?
+-- for _,val in pairs(hitTable) do
+-- hitchance = hitchance + val*(100-hitchance)/100
+-- end
+-- Or should it just all add together?
+ for _,val in pairs(hitTable) do
+  hitchance = hitchance + val
+ end
+ hitchance = hitchance*(spellHitPerc/100)
+ ]]
+ return hitchance
 end
 
 function Spell(source,target,spell,verbose)
@@ -92,7 +136,6 @@ function Spell(source,target,spell,verbose)
   return
  end
  spellTable = spellTable[spell]
- 
  if source then 
   if tonumber(source) then source = df.unit.find(tonumber(source)) end
   sourceID = tostring(source.id)
@@ -105,22 +148,20 @@ function Spell(source,target,spell,verbose)
  else
   targetID = nil
  end
- 
  if sourceID then
   local unitTable = persistTable.GlobalTable.roses.UnitTable
   if not unitTable[sourceID] then dfhack.script_environment('functions/tables').makeUnitTable(source) end
   unitTable = unitTable[sourceID]
-  speedPerc = dfhack.script_environment('functions/misc').fillEquation(source,nil,'CASTING_SPEED_PERC')
-  exaustion = dfhack.script_environment('functions/misc').fillEquation(source,nil,'CASTING_EXHAUSTION_MODIFIER')
-  if spellTable.Type and spellTable.CanCrit then
-   critChance = dfhack.script_environment('functions/misc').fillEquation(source,nil,spellTable.Type..'_CRIT_CHANCE')
-  elseif spellTable.CanCrit
-   critChance = dfhack.script_environment('functions/misc').fillEquation(source,nil,'MAGICAL_CRIT_CHANCE')
+  if spellTable.Type then
+   speedPerc = dfhack.script_environment('functions/misc').fillEquation(source,spell,spellTable.Type..'_SPEED_PERC')
+   exaustion = dfhack.script_environment('functions/misc').fillEquation(source,spell,spellTable.Type..'_EXHAUSTION_MODIFIER')
   else
-   critChange = 0
+   speedPerc = dfhack.script_environment('functions/misc').fillEquation(source,spell,'MAGICAL_SPEED_PERC')
+   exaustion = dfhack.script_environment('functions/misc').fillEquation(source,spell,'MAGICAL_EXHAUSTION_MODIFIER')
   end
  else
   speedPerc = 100
+  exhaustion = 0
  end
  -- process spell -> Set delay (if necessary) -> Cast Spell -> Gain Experience -> Gain Skill -> Add Exhaustion
  if spellTable.CastTime and speedPerc > 0 then
@@ -149,17 +190,6 @@ function castSpell(source,target,spell,verbose)
   return
  end
  spellTable = spellTable[spell]
- 
- if spellTable.AutoCalculateResistance then
-  resistance = computeResistance(target,spell,verbose)
-  penetration = computePenetration(source,spell,verbose)
-  resMod = 1 - (resistance-penetration)/100
-  if resMod > 1 then resMod = 1 end
-  if resMod < 0 then resMod = 0 end
- else
-  resMod = 1
- end
- 
  if source then
   if tonumber(source) then source = df.unit.find(tonumber(source)) end
   sourceID = tostring(source.id)
@@ -172,7 +202,6 @@ function castSpell(source,target,spell,verbose)
  else
   targetID = "\\-1"
  end
-
  for _,i in pairs(spellTable.Script._children) do
   script = spellTable.Script[i]
   script = script:gsub('SPELL_TARGET',targetID)
@@ -181,8 +210,6 @@ function castSpell(source,target,spell,verbose)
   script = script:gsub('SPELL_SOURCE',sourceID)
   script = script:gsub('\\SOURCE_ID',sourceID)
   script = script:gsub('\\ATTACKER_ID',sourceID)
-  script = script:gsub('SPELL_RES_MOD',resMod)
-  script = script:gsub('SPELL_RESISTANCE',resMod)
   dfhack.run_command(script)
  end
 end
