@@ -43,12 +43,8 @@ function addExperience(unit,amount,verbose)
   if currentClassLevel < tonumber(classTable[currentClassName].Levels) then
    classExpLevel = tonumber(classTable[currentClassName].Experience[tostring(currentClassLevel+1)])
    if tonumber(unitClasses[currentClassName].Experience) >= classExpLevel then
-    if verbose then
-     print('LEVEL UP! '..currentClassName..' LEVEL '..tostring(currentClassLevel+1))
-     changeLevel(unitID,1,true)
-    else
-     changeLevel(unitID,1,false)
-    end
+    if verbose then print('LEVEL UP! '..currentClassName..' LEVEL '..tostring(currentClassLevel+1)) end
+    changeLevel(unitID,1,verbose)
    end
   end
  end
@@ -70,16 +66,16 @@ function changeClass(unit,change,verbose)
  local currentClass = unitTable.Classes.Current
  local nextClass = unitTable.Classes[change]
  if not nextClass then
-  print('No such class to change into')
+  if verbose then print('No such class to change into: '..change) end
   return false
  end
  if not checkRequirementsClass(unit,change,verbose) then
-  print('Does not meet class requirements')
+  if verbose then print('Does not meet class requirements') end
   return false
  end
  local classes = persistTable.GlobalTable.roses.ClassTable
  if currentClass.Name == change then
-  print('Already this class')
+  if verbose then print('Already this class: '..change) end
   return false
  end
  local storeName = 'NONE'
@@ -506,10 +502,10 @@ function checkRequirementsSpell(unit,spell,verbose)
     local check = unitClasses[class]
     local level = spellTable.ForbiddenClass[class]
     if tonumber(check.Level) >= tonumber(level) and tonumber(level) ~= 0 then
-     if verbose then print('Already a member of a forbidden class. '..class) end
+     if verbose then print('Already a member of a forbidden class: '..class) end
      return false
     elseif tonumber(level) == 0 and tonumber(check.Experience) > 0 then
-     if verbose then print('Already a member of a forbidden class. '..class) end
+     if verbose then print('Already a member of a forbidden class: '..class) end
      return false
     end
    end
@@ -523,7 +519,7 @@ function checkRequirementsSpell(unit,spell,verbose)
      if syn.syn_name == x then
       oldsyndrome = synUtils.findUnitSyndrome(unit,syn.id)
       if oldsyndrome then
-       if verbose then print('Knows a forbidden spell. '..x) end
+       if verbose then print('Knows a forbidden spell: '..x) end
        return false
       end
      end
@@ -569,7 +565,7 @@ function addFeat(unit,feat,verbose)
  end
  featTable = persistTable.GlobalTable.roses.FeatTable[feat]
  if not featTable then
-  if verbose then print('Not a valid feat') end
+  if verbose then print('Not a valid feat: '..feat) end
   return
  end
  test = checkRequirementsFeat(unit,feat,verbose)
@@ -595,7 +591,7 @@ function checkRequirementsFeat(unit,feat,verbose)
  end
  featTable = persistTable.GlobalTable.roses.FeatTable[feat]
  if not featTable then
-  if verbose then print('Not a valid feat') end
+  if verbose then print('Not a valid feat: '..feat) end
   return
  end
  local unitClasses = unitTable[key].Classes
