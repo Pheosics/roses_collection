@@ -15,27 +15,26 @@ function addExperience(unit,amount,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local unitID = unit.id
  local persistTable = require 'persist-table'
+ local classTable = persistTable.GlobalTable.roses.ClassTable
+ if not classTable then return end
  local utils = require 'utils'
  local split = utils.split_string
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[tostring(unitID)] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unitID)
- end
+ if not unitTable[tostring(unitID)] then dfhack.script_environment('functions/tables').makeUnitTable(unitID) end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unitID)]
  local unitClasses = unitTable.Classes
  local currentClass = unitClasses.Current
- local classTable = persistTable.GlobalTable.roses.ClassTable
- currentClass.TotalExp = tostring(tonumber(currentClass.TotalExp)+amount)
- numFeats = tonumber(currentClass.FeatPoints)
- for _,feat in pairs(unitTable.Feats._children) do
-  numFeats = numFeats + tonumber(persistTable.GlobalTable.roses.FeatTable[feat].Cost)
- end
- featGains = split(persistTable.GlobalTable.roses.BaseTable.FeatGains,':')
- A = tonumber(featGains[2])/2
- C = tonumber(featGains[1])
- B = A+C
- if (tonumber(currentClass.TotalExp)+amount) >  A*numFeats*numFeats + B*numFeats + C then currentClass.FeatPoints = tostring(currentClass.FeatPoints+1) end
  if currentClass.Name ~= 'NONE' then
+  currentClass.TotalExp = tostring(tonumber(currentClass.TotalExp)+amount)
+  numFeats = tonumber(currentClass.FeatPoints)
+  for _,feat in pairs(unitTable.Feats._children) do
+   numFeats = numFeats + tonumber(persistTable.GlobalTable.roses.FeatTable[feat].Cost)
+  end
+  featGains = split(persistTable.GlobalTable.roses.BaseTable.FeatGains,':')
+  A = tonumber(featGains[2])/2
+  C = tonumber(featGains[1])
+  B = A+C
+  if (tonumber(currentClass.TotalExp)+amount) >  A*numFeats*numFeats + B*numFeats + C then currentClass.FeatPoints = tostring(currentClass.FeatPoints+1) end
   local currentClassName = currentClass.Name
   unitClasses[currentClassName].Experience = tostring(unitClasses[currentClassName].Experience + amount)
   unitClasses[currentClassName].SkillExp = tostring(unitClasses[currentClassName].SkillExp + amount)
@@ -55,12 +54,8 @@ function changeClass(unit,change,verbose)
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[key] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unit)
- end
- if not unitTable[key].Classes[change] then
-  dfhack.script_environment('functions/tables').makeUnitTableClass(unit,change)
- end
+ if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
+ if not unitTable[key].Classes[change] then dfhack.script_environment('functions/tables').makeUnitTableClass(unit,change) end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
 -- Change the units class
  local currentClass = unitTable.Classes.Current
@@ -73,12 +68,12 @@ function changeClass(unit,change,verbose)
   if verbose then print('Does not meet class requirements') end
   return false
  end
- local classes = persistTable.GlobalTable.roses.ClassTable
- if currentClass.Name == change then
+ if currentClass.Name == nextClass.Name then
   if verbose then print('Already this class: '..change) end
   return false
  end
  local storeName = 'NONE'
+ local classes = persistTable.GlobalTable.roses.ClassTable
  if currentClass.Name ~= 'NONE' then
   local storeClass = unitTable.Classes[currentClass.Name]
   storeName = currentClass.Name
@@ -186,9 +181,7 @@ function changeLevel(unit,amount,verbose)
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[key] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unit)
- end
+ if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
  local currentClass = unitTable.Classes.Current
  if currentClass.Name == 'NONE' then
@@ -318,13 +311,9 @@ function changeSpell(unit,spell,direction,verbose)
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[key] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unit)
- end
+ if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
- if not unitTable.Spells[spell] then
-  dfhack.script_environment('functions/tables').makeUnitTableSpell(unit,spell)
- end
+ if not unitTable.Spells[spell] then dfhack.script_environment('functions/tables').makeUnitTableSpell(unit,spell) end
  if direction == 'add' then
   test, upgrade = checkRequirementsSpell(unit,spell,verbose)
   if test then
@@ -370,9 +359,7 @@ function checkRequirementsClass(unit,class,verbose)
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[key] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unit)
- end
+ if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
  local unitClasses = unitTable.Classes
  local unitCounters = unitTable.Counters
@@ -468,9 +455,7 @@ function checkRequirementsSpell(unit,spell,verbose)
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[key] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unit)
- end
+ if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
  local unitClasses = unitTable.Classes
  local unitCounters = unitTable.Counters
@@ -559,11 +544,10 @@ function addFeat(unit,feat,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses.FeatTable then return end
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[key] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unit)
- end
- featTable = persistTable.GlobalTable.roses.FeatTable[feat]
+ if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
+ local featTable = persistTable.GlobalTable.roses.FeatTable[feat]
  if not featTable then
   if verbose then print('Not a valid feat: '..feat) end
   return
@@ -585,14 +569,13 @@ function checkRequirementsFeat(unit,feat,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses.FeatTable then return false end
  local unitTable = persistTable.GlobalTable.roses.UnitTable
- if not unitTable[key] then
-  dfhack.script_environment('functions/tables').makeUnitTable(unit)
- end
+ if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  featTable = persistTable.GlobalTable.roses.FeatTable[feat]
  if not featTable then
   if verbose then print('Not a valid feat: '..feat) end
-  return
+  return false
  end
  local unitClasses = unitTable[key].Classes
  local currentClass = unitClasses.Current
