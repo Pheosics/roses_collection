@@ -1,13 +1,108 @@
 -- Functions for the Spell SubSystem in the Class System, vN/A
 -- NOTE: These scripts still need substantial work, and have not been tested yet (hence the N/A)
 --[[
+ calculateAttribute(unit,spell,base,check,verbose)
+ calculateSkill(unit,spell,base,verbose)
+ calculateStat(unit,spell,base,verbose)
  calculateResistance(target,spell,verbose) -- Calculates the resistances for a given spell/target combo
- calculatePenetration(source,spell,verbose) -- Calculates the penetration for a given spell/source combo
- calculateHitChance(source,spell,verbose) -- Calculates the hit chance for a given spell/source combo
  Spell(source,target,spell,verbose) -- Sets up the spell, calculates various needed parameters, then calls castSpell to run the actual script
  castSpell(source,target,spell,verbose) -- Runs the scripts associated with the spell, replacing certain key strings with the appropriate numbers
 ]]
 ------------------------------------------------------------------------
+function calculateAttribute(unit,spell,base,check,verbose)
+ local attribute = 0
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return attribute end
+ local persistTable = require 'persist-table'
+ local spellTable = persistTable.GlobalTable.roses.SpellTable
+ if not spellTable[spell] then
+  if verbose then print('Not a valid spell: '..spell) end
+  return attribute
+ end
+ spellTable = spellTable[spell]
+ if base == 'PRIMARY' then
+  if check == 'SOURCE' then
+   table = spellTable.SourcePrimaryAttribute
+  elseif check == 'TARGET' then
+   table = spellTable.TargetPrimaryAttribute
+  end
+ elseif base == 'SECONDARY' then
+  if check == 'SOURCE' then
+   table = spellTable.SourceSecondaryAttribute
+  elseif check == 'TARGET' then
+   table = spellTable.TargetSecondaryAttribute
+  end
+ end
+ if table then
+  for _,n in pairs(table._children) do
+   attCheck = table[n]
+   attribute = attribute + dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',attCheck,verbose)
+  end
+  attribute = attribute/(#table._children) 
+ end
+ return attribute
+end
+
+function calculateSkill(unit,spell,base,verbose)
+ local skill = 0
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return skill end
+ local persistTable = require 'persist-table'
+ local spellTable = persistTable.GlobalTable.roses.SpellTable
+ if not spellTable[spell] then
+  if verbose then print('Not a valid spell: '..spell) end
+  return skill
+ end
+ spellTable = spellTable[spell]
+ TSSDS = {}
+ if spellTable.Type then table.insert(TSSDS,spellTable.Type) end
+ if spellTable.Sphere then table.insert(TSSDS,spellTable.Sphere) end
+ if spellTable.School then table.insert(TSSDS,spellTable.School) end
+ if spellTable.Discipline then table.insert(TSSDS,spellTable.Discipline) end
+ if spellTable.SubDiscipline then table.insert(TSSDS,spellTable.SubDiscipline) end
+ for _,add in pairs(TSSDS) do
+  sklCheck = add..'_'..base
+  skill = skill + dfhack.script_environment('functions/unit').getUnit(unit,'Skills',sklCheck,verbose)
+ end
+ return skill
+end
+
+function calculateStat(unit,spell,base,verbose)
+ local stat = 0
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return stat end
+ local persistTable = require 'persist-table'
+ local spellTable = persistTable.GlobalTable.roses.SpellTable
+ if not spellTable[spell] then
+  if verbose then print('Not a valid spell: '..spell) end
+  return stat
+ end
+ spellTable = spellTable[spell]
+ TSSDS = {}
+ if spellTable.Type then table.insert(TSSDS,spellTable.Type) end
+ if spellTable.Sphere then table.insert(TSSDS,spellTable.Sphere) end
+ if spellTable.School then table.insert(TSSDS,spellTable.School) end
+ if spellTable.Discipline then table.insert(TSSDS,spellTable.Discipline) end
+ if spellTable.SubDiscipline then table.insert(TSSDS,spellTable.SubDiscipline) end
+ for _,add in pairs(TSSDS) do
+  sttCheck = add..'_'..base
+  stat = stat + dfhack.script_environment('functions/unit').getUnit(unit,'Stats',sttCheck,verbose)
+ end
+ if base == 'SKILL_PENETRATION' then
+  if spellTable.Penetration then stat = stat + tonumber(spellTable.Penetration) end
+  if spellTable.Resistable then
+   for _,n in pairs(spellTable.Resistable._children) do
+    resistance = spellTable.Resistable[n]
+    stat = stat + dfhack.script_environment('functions/unit').getUnit(unit,'Stats',resistance..'_SKILL_PENETRATION',verbose)
+   end
+  end
+ elseif base == 'HIT_CHANCE' then
+  if spellTable.HitModifier then stat = stat + tonumber(spellTable.HitModifier) end
+  if spellTable.HitModifierPerc then stat = stat*(tonumber(spellTable.HitModifierPerc)/100) end
+ end
+ return stat
+end
+
 function calculateResistance(target,spell,verbose)
  local resistance = 0
  local unit = target
@@ -22,110 +117,31 @@ function calculateResistance(target,spell,verbose)
  end
  spellTable = spellTable[spell]
  if not spellTable.Resistable then return resistance end
- local getResistance = dfhack.script_environment('functions/unit').getUnit
- if spellTable.Type then typeResistance = getResistance(unit,'Resistances',spellTable.Type) end
- if spellTable.Sphere then sphereResistance = getResistance(unit,'Resistances',spellTable.Sphere) end
- if spellTable.School then schoolResistance = getResistance(unit,'Resistances',spellTable.School) end
- if spellTable.Discipline then disciplineResistance = getResistance(unit,'Resistances',spellTable.Discipline) end
- if spellTable.SubDiscipline then subdisciplineResistance = getResistance(unit,'Resistances',spellTable.SubDiscipline) end
- resistanceTable = {typeResistance,sphereResistance,schoolResistance,disciplineResistance,subdisciplineResistance}
+ local TSSDS = {}
+ if spellTable.Type then table.insert(TSSDS,spellTable.Type) end
+ if spellTable.Sphere then table.insert(TSSDS,spellTable.Sphere) end
+ if spellTable.School then table.insert(TSSDS,spellTable.School) end
+ if spellTable.Discipline then table.insert(TSSDS,spellTable.Discipline) end
+ if spellTable.SubDiscipline then table.insert(TSSDS,spellTable.SubDiscipline) end
+ local resistanceTable = TSSDS
  for _,x in pairs(spellTable.Resistable._children) do
   table.insert(resistanceTable,spellTable.Resistable[x])
  end
+ local resistances = {}
+ for _,rstCheck in pairs(resistanceTable) do
+  table.insert(resistances,dfhack.script_environment('functions/unit').getUnit(unit,'Resistances',rstCheck,verbose))
+ end
 -- Should resistance just take the largest one?
--- resistance = table.sort(resistanceTable)[#resistanceTable]
+-- resistance = table.sort(resistances)[#resistances]
 -- Or should it be multiplicative?
--- for _,val in pairs(resistanceTable) do
+-- for _,val in pairs(resistances) do
 --  resistance = resistance + val*(100-resistance)/100
 -- end
 -- Or should it just all add together?
- for _,val in pairs(resistanceTable) do
+ for _,val in pairs(resistances) do
   resistance = resistance + val
  end
  return resistance
-end
-
-function calculatePenetration(source,spell,verbose)
- local penetrate = 0
- local unit = source
- if not unit then return penetrate end
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- unitID = tostring(unit.id)
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
- if not spellTable[spell] then
-  if verbose then print('Not a valid spell: '..spell) end
-  return penetrate
- end
- spellTable = spellTable[spell]
- local spellPenetrate = spellTable.Penetrate or 0
- local getPenetrate = dfhack.script_environment('functions/unit').getUnit
- local basePenetrate = getPenetrate(unit,'Stats','SKILL_PENETRATION')
- if spellTable.Type then typePenetrate = getPenetrate(unit,'Stats',spellTable.Type..'_SKILL_PENETRATION') end
- if spellTable.Sphere then spherePenetrate = getPenetrate(unit,'Stats',spellTable.Sphere..'_SKILL_PENETRATION') end
- if spellTable.School then schoolPenetrate = getPenetrate(unit,'Stats',spellTable.School..'_SKILL_PENETRATION') end
- if spellTable.Discipline then disciplinePenetrate = getPenetrate(unit,'Stats',spellTable.Discipline..'_SKILL_PENETRATION') end
- if spellTable.SubDiscipline then subdisciplinePenetrate = getPenetrate(unit,'Stats',spellTable.SubDiscipline..'_SKILL_PENETRATION') end
- penetrateTable = {spellPenetrate,basePenetrate,typePenetrate,spherePenetrate,schoolPenetrate,disciplinePenetrate,subdisciplinePenetrate}
- if spellTable.Resistable then
-  for _,x in pairs(spellTable.Resistable._children) do
-   table.insert(penetrateTable,getPenetrate(unit,'Stats',spellTable.Resistable[x]..'_SKILL_PENETRATION'))
-  end
- end
--- Should penetration just take the largest one?
--- penetrate = table.sort(penetrateTable)[#penetrateTable]
--- Or should it be multiplicative?
--- for _,val in pairs(penetrateTable) do
---  penetrate = penetrate + val*(100-penetrate)/100
--- end
--- Or should it just all add together?
- for _,val in pairs(penetrateTable) do
-  penetrate = penetrate + val
- end
- return penetrate
-end
-
-function calculateHitChance(source,spell,verbose)
- local hitchance = 100
- if not source then return hitchance end
- if tonumber(source) then source = df.unit.find(tonumber(source)) end
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
- if not spellTable[spell] then
-  if verbose then print('Not a valid spell: '..spell) end
-  return hitchance
- end
- spellTable = spellTable[spell]
- if spellTable.Type then
-  hitchance = dfhack.script_environment('functions/misc').fillEquation(source,spell,spellTable.Type..'_HIT_CHANCE')
- else
-  hitchance = dfhack.script_environment('functions/misc').fillEquation(source,spell,'MAGICAL_HIT_CHANCE')
- end
- --[[
- spellTable = spellTable[spell]
- local spellHitBonus = spellTable.HitChance or 0
- local spellHitPerc = spellTable.HitChancePerc or 100
- local getHit = dfhack.script_environment('functions/unit').getUnit
- local baseHit = getPenetrate(unit,'Stats','HIT_CHANCE')
- local hitTable = {baseHit,spellHitBonus}
- if spellTable.Type then table.insert(hitTable,getHit(unit,'Stats',spellTable.Type..'_HIT_CHANCE')) end
- if spellTable.Sphere then table.insert(hitTable,getHit(unit,'Stats',spellTable.Sphere..'_HIT_CHANCE') end
- if spellTable.School then table.insert(hitTable,getHit(unit,'Stats',spellTable.School..'_HIT_CHANCE') end
- if spellTable.Discipline then table.insert(hitTable,getHit(unit,'Stats',spellTable.Discipline..'_HIT_CHANCE') end
- if spellTable.SubDiscipline then table.insert(hitTable,getHit(unit,'Stats',spellTable.SubDiscipline..'_HIT_CHANCE') end
--- Should penetration just take the largest one?
--- hitchance = table.sort(hitTable)[#hitTable]
--- Or should it be multiplicative?
--- for _,val in pairs(hitTable) do
--- hitchance = hitchance + val*(100-hitchance)/100
--- end
--- Or should it just all add together?
- for _,val in pairs(hitTable) do
-  hitchance = hitchance + val
- end
- hitchance = hitchance*(spellHitPerc/100)
- ]]
- return hitchance
 end
 
 function Spell(source,target,spell,verbose)
