@@ -215,7 +215,7 @@ function trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
  end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  if not unitTable[tostring(unit.id)].Skills[kind] then
-  dfhack.script_environment('functions/tables').makeUnitTableSkill(unit.id,kind)
+  dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit.id,'Skills',kind)
  end
  -- Track!
  trackCore(unit,'Skill',kind,unitTable.Skills,changeSkill,change,value,syndrome,dur,alter)
@@ -238,7 +238,7 @@ function trackStat(unit,kind,change,dur,alter,syndrome,cb_id)
  end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  if not unitTable[tostring(unit.id)].Stats[kind] then
-  dfhack.script_environment('functions/tables').makeUnitTableStat(unit.id,kind)
+  dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit.id,'Stats',kind)
  end
  -- Track!
  trackCore(unit,'Stat',kind,unitTable.Stats,changeStat,change,value,syndrome,dur,alter)
@@ -582,6 +582,7 @@ end
 function changeAttribute(unit,attribute,change,dur,track,syndrome,cb_id)
  -- Add/Subtract given amount from declared attribute of a unit.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
 
  local int16 = 30000000
  local current = 0
@@ -694,6 +695,7 @@ end
 function changeResistance(unit,resistance,change,dur,track,syndrome,cb_id)
  -- Add/Subtract given amount from resistance of a unit.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
 -- For if Toady ever implements actual in game resistances 
  if syndrome and not track == 'end' then changeSyndrome(unit,syndrome,'add') end 
  if dur > 0 then cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/unit','changeResistance',{unit.id,resistance,-change,0,'end',syndrome,nil}) end
@@ -703,6 +705,8 @@ end
 function changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
  -- Add/Subtract given amount from declared skill of a unit.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
+ 
  local skills = unit.status.current_soul.skills
  local skillid = df.job_skill[skill]
  local value = 0
@@ -762,6 +766,7 @@ end
 function changeStat(unit,stat,change,dur,track,syndrome,cb_id)
  -- Add/Subtract given amount from a stat of a unit.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
 -- For if Toady ever implements actual in game stats  
  if syndrome and not track == 'end' then changeSyndrome(unit,syndrome,'add') end 
  if dur > 0 then cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/unit','changeStat',{unit.id,stat,-change,0,'end',syndrome,nil}) end
@@ -794,6 +799,7 @@ end
 -------------- Body based unit changes (Body, Life, Wound) ------------------
 function changeBody(unit,part,changeType,change,dur)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
 
  if changeType == 'Temperature' then
   if change == 'Fire' then
@@ -1501,7 +1507,7 @@ end
 ---------------------------------------------------------------------------------------
 ------------------- Get something from a unit for desired things ----------------------
 ---------------------------------------------------------------------------------------
-function getUnit(unit,strType,strKind)
+function getUnit(unit,strType,strKind,initialize)
  -- Make sure we have the unit itself and not just the id.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local base = 0
@@ -1548,7 +1554,6 @@ function getUnit(unit,strType,strKind)
   unitTable = persistTable.GlobalTable.roses.UnitTable
   if not unitTable[tostring(unit.id)] then dfhack.script_environment('functions/tables').makeUnitTable(unit.id) end
   unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
-  --
   if strType == 'Attributes' then
    typeTable = unitTable.Attributes
    if df.physical_attribute_type[strkind] then
@@ -1594,13 +1599,14 @@ function getUnit(unit,strType,strKind)
    change = 0
    class = 0
    item = 0
-   total = base + change + class + item
+   total = 0
   else
    base = tonumber(typeTable[strKind]).Base
-   change = tonumber(typeTable[strKind]).Base
-   class = tonumber(typeTable[strKind]).Base
-   item = tonumber(typeTable[strKind]).Base
+   change = tonumber(typeTable[strKind]).Change
+   class = tonumber(typeTable[strKind]).Class
+   item = tonumber(typeTable[strKind]).Item
    if total == 'ADD' then total = base + change + class + item end
+   if initialize then base = total-syndrome-change-class-item end
   end
  end
  return total,base,change,class,item,syndrome
