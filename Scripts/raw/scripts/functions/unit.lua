@@ -55,7 +55,7 @@
 ---------------------------------------------------------------------------------------
 ----------- Track changes in the persist-table and handle termination -----------------
 ---------------------------------------------------------------------------------------
-function trackCore(unit,strname,kind,Table,func,change,value,syndrome,alter)
+function trackCore(unit,strname,kind,Table,func,change,value,syndrome,dur,alter)
  if alter == 'track' then -- Track changes to the unit for both durational effects and permanent effects
   typeTable = Table[kind]
   if dur > 0 then 
@@ -173,7 +173,7 @@ function trackAttribute(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit.id,'Attributes',kind)
  end
  -- Track!
- trackCore(unit,'Attribute',kind,unitTable.Attributes,changeAttribute,change,value,syndrome,alter)
+ trackCore(unit,'Attribute',kind,unitTable.Attributes,changeAttribute,change,value,syndrome,dur,alter)
 end
 
 function trackResistance(unit,kind,change,dur,alter,syndrome,cb_id)
@@ -194,7 +194,7 @@ function trackResistance(unit,kind,change,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit.id,'Resistances',kind)
  end
  -- Track!
- trackCore(unit,'Resistance',kind,unitTable.Resistances,changeResistance,change,value,syndrome,alter)
+ trackCore(unit,'Resistance',kind,unitTable.Resistances,changeResistance,change,value,syndrome,dur,alter)
 end
 
 function trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
@@ -218,7 +218,7 @@ function trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTableSkill(unit.id,kind)
  end
  -- Track!
- trackCore(unit,'Skill',kind,unitTable.Skills,changeSkill,change,value,syndrome,alter)
+ trackCore(unit,'Skill',kind,unitTable.Skills,changeSkill,change,value,syndrome,dur,alter)
 end
 
 function trackStat(unit,kind,change,dur,alter,syndrome,cb_id)
@@ -241,7 +241,7 @@ function trackStat(unit,kind,change,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTableStat(unit.id,kind)
  end
  -- Track!
- trackCore(unit,'Stat',kind,unitTable.Stats,changeStat,change,value,syndrome,alter)
+ trackCore(unit,'Stat',kind,unitTable.Stats,changeStat,change,value,syndrome,dur,alter)
 end
 
 function trackTrait(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
@@ -265,7 +265,7 @@ function trackTrait(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTableTrait(unit.id,kind)
  end
  -- Track!
- trackCore(unit,'Trait',kind,unitTable.Traits,changeTrait,change,value,syndrome,alter)
+ trackCore(unit,'Trait',kind,unitTable.Traits,changeTrait,change,value,syndrome,dur,alter)
 end
 
 -------------- Complex Tracking (Create, Side, Transform) -------------------
@@ -1546,9 +1546,7 @@ function getUnit(unit,strType,strKind)
  else
  -- Initialize the UnitTable for the unit id if necessary
   unitTable = persistTable.GlobalTable.roses.UnitTable
-  if not unitTable[tostring(unit.id)] then
-   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
-  end
+  if not unitTable[tostring(unit.id)] then dfhack.script_environment('functions/tables').makeUnitTable(unit.id) end
   unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
   --
   if strType == 'Attributes' then
@@ -1591,13 +1589,19 @@ function getUnit(unit,strType,strKind)
   end
   --
   if not typeTable[strKind] then
-   dfhack.script_environment('functions/table').makeUnitTableSecondary(unit,strTable,strKind)
+--   dfhack.script_environment('functions/table').makeUnitTableSecondary(unit,strTable,strKind)
+   base = 0
+   change = 0
+   class = 0
+   item = 0
+   total = base + change + class + item
+  else
+   base = tonumber(typeTable[strKind]).Base
+   change = tonumber(typeTable[strKind]).Base
+   class = tonumber(typeTable[strKind]).Base
+   item = tonumber(typeTable[strKind]).Base
+   if total == 'ADD' then total = base + change + class + item end
   end
-  base = tonumber(typeTable[strKind]).Base
-  change = tonumber(typeTable[strKind]).Base
-  class = tonumber(typeTable[strKind]).Base
-  item = tonumber(typeTable[strKind]).Base
-  if total == 'ADD' then total = base + change + class + item end
  end
  return total,base,change,class,item,syndrome
 end
