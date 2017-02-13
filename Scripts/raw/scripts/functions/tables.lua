@@ -1001,21 +1001,22 @@ function makeEnhancedCreatureTable()
     creature.Attributes = creature.Attributes or {}
     creature.Attributes[array[2]] = {}
     creature.Attributes[array[2]]['1'] = array[3]
-    creature.Attributes[array[2]]['2'] = array[4]
-    creature.Attributes[array[2]]['3'] = array[5]
-    creature.Attributes[array[2]]['4'] = array[6]
-    creature.Attributes[array[2]]['5'] = array[7]
-    creature.Attributes[array[2]]['6'] = array[8]
-   elseif test == '[SKILL' then
+    creature.Attributes[array[2]]['2'] = array[4] or array[3]
+    creature.Attributes[array[2]]['3'] = array[5] or array[3]
+    creature.Attributes[array[2]]['4'] = array[6] or array[3]
+    creature.Attributes[array[2]]['5'] = array[7] or array[3]
+    creature.Attributes[array[2]]['6'] = array[8] or array[3]
+    creature.Attributes[array[2]]['7'] = array[9] or array[3]
+   elseif test == '[NATURAL_SKILL' then
     creature.Skills = creature.Skills or {}
     creature.Skills[array[2]] = {}
     creature.Skills[array[2]].Min = array[3]
-    creature.Skills[array[2]].Max = array[4]
+    creature.Skills[array[2]].Max = array[4] or array[3]
    elseif test == '[STAT' then
     creature.Stats = creature.Stats or {}
     creature.Stats[array[2]] = {}
     creature.Stats[array[2]].Min = array[3]
-    creature.Stats[array[2]].Max = array[4]
+    creature.Stats[array[2]].Max = array[4] or array[3]
    elseif test == '[RESISTANCE' then
     creature.Resistances = creature.Resistances or {}
     creature.Resistances[array[2]] = array[3]
@@ -1066,27 +1067,47 @@ function makeEnhancedItemTable()
     item.Name = array[2]
    elseif test == '[DESCRIPTION' then
     item.Description = array[2]
+   elseif test == '[ON_EQUIP'
+    item.OnEquip = item.OnEquip or {}
+    onTable = item.OnEquip
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ON_STRIKE'
+    item.OnStrike = item.OnStrike or {}
+    onTable = item.OnStrike
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ON_PARRY'
+    item.OnParry = item.OnParry or {}
+    onTable = item.OnParry
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ON_DODGE'
+    item.OnDodge = item.OnDodge or {}
+    onTable = item.OnDodge
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
    elseif test == '[ATTRIBUTE_CHANGE' then
-    item.Attributes = item.Attributes or {}
-    item.Attributes[array[2]] = array[3]
+    onTable.Attributes = item.Attributes or {}
+    onTable.Attributes[array[2]] = array[3]
    elseif test == '[SKILL_CHANGE' then
-    item.Skills = item.Skills or {}
-    item.Skills[array[2]] = array[3]
+    onTable.Skills = item.Skills or {}
+    onTable.Skills[array[2]] = array[3]
    elseif test == '[TRAIT_CHANGE' then
-    item.Traits = item.Traits or {}
-    item.Traits[array[2]] = array[3]
+    onTable.Traits = item.Traits or {}
+    onTable.Traits[array[2]] = array[3]
    elseif test == '[STAT_CHANGE' then
-    item.Stats = item.Stats or {}
-    item.Stats[stat] = array[3]
+    onTable.Stats = item.Stats or {}
+    onTable.Stats[stat] = array[3]
    elseif test == '[RESISTANCE_CHANGE' then
-    item.Resistances = item.Resistances or {}
-    item.Resistances[array[2]] = array[3]
+    onTable.Resistances = item.Resistances or {}
+    onTable.Resistances[array[2]] = array[3]
    elseif test == '[INTERACTION_ADD' then
-    item.Interactions = item.Interactions or {}
-    item.Interactions[#item.Interactions+1] = array[2]
+    onTable.Interactions = item.Interactions or {}
+    onTable.Interactions[#item.Interactions+1] = array[2]
    elseif test == '[SYNDROME_ADD' then
-    item.Syndromes = item.Syndromes or {}
-    item.Syndromes[#item.Syndromes+1] = array[2]      
+    onTable.Syndromes = item.Syndromes or {}
+    onTable.Syndromes[#item.Syndromes+1] = array[2]      
    end
   end
  end
