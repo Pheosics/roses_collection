@@ -1537,12 +1537,13 @@ function makeUnitTableSecondary(unit,table,token)
  local persistTable = require 'persist-table'
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  unitTable[table][token] = {}
- base = dfhack.script_environment('functions/enhanced').getEnhancedCreature(unit,table,token)
- unitTable[table][token].Base = base
+ unitTable[table][token].Base = '0'
  unitTable[table][token].Change = '0'
  unitTable[table][token].Class = '0'
  unitTable[table][token].Item = '0'
- unitTable[table][token].StatusEffects = {}    
+ unitTable[table][token].StatusEffects = {}
+ _,base = dfhack.script_environment('functions/enhanced').getUnit(unit,table,token,'initialize')
+ unitTable[table][token].Base = base
 end
 
 function makeUnitTableClass(unit,class)
