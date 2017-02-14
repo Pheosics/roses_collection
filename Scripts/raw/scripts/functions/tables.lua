@@ -1058,60 +1058,116 @@ function makeEnhancedItemTable()
   item = items[itemToken]
   for j = startLine,endLine,1 do
    test = data[j]:gsub("%s+","")
-   test = split(test,':')[1]
    array = split(data[j],':')
    for k = 1, #array, 1 do
     array[k] = split(array[k],']')[1]
    end
+   test = array[1]
    if test == '[NAME' then
     item.Name = array[2]
    elseif test == '[DESCRIPTION' then
     item.Description = array[2]
-   elseif test == '[ON_EQUIP'
+   elseif test == '[ON_EQUIP' then
     item.OnEquip = item.OnEquip or {}
     onTable = item.OnEquip
     onTable.Script = onTable.Script or {}
     onTable.Script[#onTable.Script+1] = array[2]
-   elseif test == '[ON_STRIKE'
+   elseif test == '[ON_STRIKE' then
     item.OnStrike = item.OnStrike or {}
     onTable = item.OnStrike
     onTable.Script = onTable.Script or {}
     onTable.Script[#onTable.Script+1] = array[2]
-   elseif test == '[ON_PARRY'
+   elseif test == '[ON_PARRY' then
     item.OnParry = item.OnParry or {}
     onTable = item.OnParry
     onTable.Script = onTable.Script or {}
     onTable.Script[#onTable.Script+1] = array[2]
-   elseif test == '[ON_DODGE'
+   elseif test == '[ON_DODGE' then
     item.OnDodge = item.OnDodge or {}
     onTable = item.OnDodge
     onTable.Script = onTable.Script or {}
     onTable.Script[#onTable.Script+1] = array[2]
    elseif test == '[ATTRIBUTE_CHANGE' then
-    onTable.Attributes = item.Attributes or {}
+    onTable.Attributes = onTable.Attributes or {}
     onTable.Attributes[array[2]] = array[3]
    elseif test == '[SKILL_CHANGE' then
-    onTable.Skills = item.Skills or {}
+    onTable.Skills = onTable.Skills or {}
     onTable.Skills[array[2]] = array[3]
    elseif test == '[TRAIT_CHANGE' then
-    onTable.Traits = item.Traits or {}
+    onTable.Traits = onTable.Traits or {}
     onTable.Traits[array[2]] = array[3]
    elseif test == '[STAT_CHANGE' then
-    onTable.Stats = item.Stats or {}
+    onTable.Stats = onTable.Stats or {}
     onTable.Stats[stat] = array[3]
    elseif test == '[RESISTANCE_CHANGE' then
-    onTable.Resistances = item.Resistances or {}
+    onTable.Resistances = onTable.Resistances or {}
     onTable.Resistances[array[2]] = array[3]
    elseif test == '[INTERACTION_ADD' then
-    onTable.Interactions = item.Interactions or {}
-    onTable.Interactions[#item.Interactions+1] = array[2]
+    onTable.Interactions = onTable.Interactions or {}
+    onTable.Interactions[#onTable.Interactions+1] = array[2]
    elseif test == '[SYNDROME_ADD' then
-    onTable.Syndromes = item.Syndromes or {}
-    onTable.Syndromes[#item.Syndromes+1] = array[2]      
+    onTable.Syndromes = onTable.Syndromes or {}
+    onTable.Syndromes[#onTable.Syndromes+1] = array[2]
+   elseif test == '[ATTACKER_ATTRIBUTE_CHANGE' then
+    onTable.AttackerAttributes = onTable.AttackerAttributes or {}
+    onTable.AttackerAttributes[array[2]] = array[3]
+   elseif test == '[ATTACKER_SKILL_CHANGE' then
+    onTable.AttackerSkills = onTable.AttackerSkills or {}
+    onTable.AttackerSkills[array[2]] = array[3]
+   elseif test == '[ATTACKER_TRAIT_CHANGE' then
+    onTable.AttackerTraits = onTable.AttackerTraits or {}
+    onTable.AttackerTraits[array[2]] = array[3]
+   elseif test == '[ATTACKER_STAT_CHANGE' then
+    onTable.AttackerStats = onTable.AttackerStats or {}
+    onTable.AttackerStats[stat] = array[3]
+   elseif test == '[ATTACKER_RESISTANCE_CHANGE' then
+    onTable.AttackerResistances = onTable.AttackerResistances or {}
+    onTable.AttackerResistances[array[2]] = array[3]
+   elseif test == '[ATTACKER_INTERACTION_ADD' then
+    onTable.AttackerInteractions = onTable.AttackerInteractions or {}
+    onTable.AttackerInteractions[#onTable.AttackerInteractions+1] = array[2]
+   elseif test == '[ATTACKER_SYNDROME_ADD' then
+    onTable.AttackerSyndromes = onTable.AttackerSyndromes or {}
+    onTable.AttackerSyndromes[#onTable.SAttackeryndromes+1] = array[2]
+   elseif test == '[ATTACKER_CHANGE_DUR' then
+    onTable.AttackerDur = array[2]
+   elseif test == '[DEFENDER_ATTRIBUTE_CHANGE' then
+    onTable.DefenderAttributes = onTable.DefenderAttributes or {}
+    onTable.DefenderAttributes[array[2]] = array[3]
+   elseif test == '[DEFENDER_SKILL_CHANGE' then
+    onTable.DefenderSkills = onTable.DefenderSkills or {}
+    onTable.DefenderSkills[array[2]] = array[3]
+   elseif test == '[DEFENDER_TRAIT_CHANGE' then
+    onTable.DefenderTraits = onTable.DefenderTraits or {}
+    onTable.DefenderTraits[array[2]] = array[3]
+   elseif test == '[DEFENDER_STAT_CHANGE' then
+    onTable.DefenderStats = onTable.DefenderStats or {}
+    onTable.DefenderStats[stat] = array[3]
+   elseif test == '[DEFENDER_RESISTANCE_CHANGE' then
+    onTable.DefenderResistances = onTable.DefenderResistances or {}
+    onTable.DefenderResistances[array[2]] = array[3]
+   elseif test == '[DEFENDER_INTERACTION_ADD' then
+    onTable.DefenderInteractions = onTable.DefenderInteractions or {}
+    onTable.DefenderInteractions[#onTable.DefenderInteractions+1] = array[2]
+   elseif test == '[DEFENDER_SYNDROME_ADD' then
+    onTable.DefenderSyndromes = onTable.DefenderSyndromes or {}
+    onTable.DefenderSyndromes[#onTable.DefenderSyndromes+1] = array[2]
+   elseif test == '[DEFENDER_CHANGE_DUR' then
+    onTable.DefenderDur = array[2]
    end
   end
+  base = 'modtools/item-trigger -itemType '..itemToken
+  equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID'
+  action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID'
+  if item.OnEquip then
+   dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
+   dfhack.run_command(base..' -onUnequip '..equip..' ]')
+  end
+  if item.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
+  if item.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
+  if item.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end    
  end
-end   
+end
 -- End Enhanced System Functions
 
 -- Start Event System Functions
