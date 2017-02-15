@@ -2,15 +2,17 @@ print('Running base/roses-init with all options enabled')
 local classCheck = ' -classSystem [ Feats Spells ]'
 local civCheck = ' -civilizationSystem [ Diplomacy ]'
 local eventCheck = ' -eventSystem'
-local enhCheck = ' -enhancedSystem [ Creatures Items Materials Buildings ]
+local enhCheck = ' -enhancedSystem [ Creatures Items Materials Buildings ]'
 local verbose = true
 print('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose')
 dfhack.run_command('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose')
 
 local persistTable = require 'persist-table'
 local roses = persistTable.GlobalTable.roses
+
 print('')
 print('Generating test cases for each System')
+
 print('Class System:')
 local classTable = roses.ClassTable
 print('--Test Class 1')
@@ -62,6 +64,7 @@ class.Spells.TEST_SPELL_3 = {}
 class.Spells.TEST_SPELL_3.RequiredLevel = '1'
 class.Spells.TEST_SPELL_3.AutoLearn = 'true'
 printall(class)
+
 print('')
 print('Class System - Feat SubSystem:')
 local featTable = roses.FeatTable
@@ -87,6 +90,7 @@ feat.Cost = '0'
 feat.Effect = {}
 feat.Effect['0'] = 'devel/printargs UNIT_ID'
 printall(feat)
+
 print('')
 print('Class System - Spell SubSystem:')
 local spellTable = roses.SpellTable
@@ -125,6 +129,7 @@ spell.RequirementAttribute = {}
 spell.RequirementAttribute.STRENGTH = '750'
 printall(spell)
 print('Done generating test Class System entries')
+
 print('')
 print('Civilization System:')
 local civTable = roses.CivilizationTable
@@ -177,6 +182,7 @@ level.Required = {}
 level.Required.Time = '6000'
 printall(civ)
 print('Done generating test Civilization System entries (no entries to generate for the Diplomacy SubSystem)')
+
 print('')
 print('Event System:')
 local eventTable = roses.EventTable
@@ -228,9 +234,13 @@ event.Effect['2'].Script = {}
 event.Effect['2'].Scirpt['1'] = 'devel/print-args EFFECT_UNIT'
 printall(event)
 print('Done generating test Event System entries')
+
 print('')
 print('Enhanced System:')
+
 print('*Enhanced System - Buldings not currently operational')
+
+print('')
 print('Enhanced System - Creatures:')
 local ECTable = roses.EnhancedCreatureTable
 print('--Test Enhanced Creature 1')
@@ -251,6 +261,7 @@ ECTable.DWARF.Skills.GROWER = {}
 ECTable.DWARF.Skills.GROWER.Min = '5'
 ECTable.DWARF.Skills.GROWER.Max = '15'
 printall(ECTable.DWARF)
+
 print('')
 print('Enhanced System - Items:')
 local EITable = roses.EnhancedItemTable
@@ -272,11 +283,17 @@ item.OnEquip = {}
 item.OnEquip.Interactions = {}
 item.OnEquip.Interactions['1'] = 'TEST_SPELL_1'
 printall(item)
+
+print('')
 print('*Enhanced System - Materials not currently operational')
+
 print('Done generating test Enhanced System entries')
+
 print('')
 print('Done generating all System entries')
+
 print('Beginning System Checks')
+
 print('')
 print('Class System Checks:')
 print('Finding Unit')
@@ -294,7 +311,7 @@ df.global.cursor.x = unit.pos.x
 df.global.cursor.y = unit.pos.y
 df.global.cursor.z = unit.pos.z
 print('Attempting to assign Test Class 1 to unit')
-dfhack.script_environment('functions/class').changeClass(unit,'TEST_CLASS_1',verbose)
+dfhack.run_command('classes/change-class -unit '..tostring(unit.id)..' -class TEST_CLASS_1 -verbose')
 print('Class/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.TEST_CLASS_1)
@@ -303,7 +320,7 @@ printall(unitTable.Spells)
 printall(unitTable.Skills)
 print('Adding experience to unit - Will level up Test Class 1 to level 1 and assign Test Spell 1')
 print('Mining and Woodcutting skill will increase')
-dfhack.script_environment('functions/class').addExperience(unit,1,verbose)
+dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 print('Class/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.TEST_CLASS_1)
@@ -312,7 +329,7 @@ printall(unitTable.Spells)
 printall(unitTable.Skills)
 print('Adding experience to unit - Will level up Test Class 1 to level 2')
 print('Mining and Woodcutting skill will increase')
-dfhack.script_environment('functions/class').addExperience(unit,1,verbose)
+dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 print('Class/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.TEST_CLASS_1)
@@ -320,7 +337,7 @@ printall(unitTable.Classes.TEST_CLASS_2)
 printall(unitTable.Spells)
 printall(unitTable.Skills)
 print('Assigning Test Spell 2 to unit')
-dfhack.script_environment('functions/class').changeSpell(unit,'TEST_SPELL_2','learn',verbose)
+dfhack.run_command('classes/learn-skill -unit '..tostring(unit.id)..' -spell TEST_SPELL_2 -verbose')
 print('Class/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.TEST_CLASS_1)
@@ -329,7 +346,7 @@ printall(unitTable.Spells)
 printall(unitTable.Skills)
 print('Adding experience to unit - Will level up Test Class 1 to level 3 and auto change class to Test Class 2')
 print('Mining skill will increase, Woodcutting skill will reset')
-dfhack.script_environment('functions/class').addExperience(unit,1,verbose)
+dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 print('Class/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.TEST_CLASS_1)
@@ -338,35 +355,35 @@ printall(unitTable.Spells)
 printall(unitTable.Skills)
 print('Adding experience to unit - Will level up Test Class 2 to level 1 and replace Test Spell 1 with Test Spell 3')
 print('Mining skill will remain the same, Carpentry skill will increase')
-dfhack.script_environment('functions/class').addExperience(unit,1,verbose)
+dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 print('Class/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.TEST_CLASS_1)
 printall(unitTable.Classes.TEST_CLASS_2)
 printall(unitTable.Spells)
 printall(unitTable.Skills)
-print('')
 print('Base Class System checks and Spell assignment checks finished. Starting Feat SubSystem checks')
+
 print('Feat/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.Feats)
 print('Attempting to assign Test Feat 2 to unit, this should fail')
-dfhack.script_environment('functions/class').addFeat(unit,'TEST_FEAT_2',verbose)
+dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 print('Feat/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.Feats)
 print('Attempting to assign Test Feat 1 to unit, this should work')
-dfhack.script_environment('functions/class').addFeat(unit,'TEST_FEAT_1',verbose)
+dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_1 -verbose')
 print('Feat/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.Feats)
 print('Attempting to assign Test Feat 2 to unit, now this should work')
-dfhack.script_environment('functions/class').addFeat(unit,'TEST_FEAT_2',verbose)
+dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 print('Feat/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.Feats)
-print('')
 print('Feat SubSystem checks finished. Spell SubSystem checks will be made later')
+
 print('')
 print('Civilization System Checks:')
 print('Creating Entity Table for unit.civ_id')
@@ -382,7 +399,7 @@ printall(entityTable.Civilization)
 printall(df.global.world.entities[unit.civ_id].resources.animals.mount_races)
 printall(df.global.world.entities[unit.civ_id].resources.animals.mount_castes)
 print('Force level increase, should add dragons to available mounts and change level method')
-dfhack.script_environment('functions/civilization').changeLevel(unit.civ_id,1,verbose)
+dfhack.run_command('civilizations/level-up -civ '..tostring(unit.civ_id)..' -amount 1 -verbose')
 print('Entity details')
 printall(entityTable)
 printall(entityTable.Civilization)
@@ -398,15 +415,19 @@ dfhack.timeout(4000,'ticks',function ()
                              printall(df.global.world.entities[unit.civ_id].resources.animals.mount_castes)
                             end)
 print('Civilization System checks finished')
+
 print('')
 print('Event System checks:')
 print('Forcing Test Event 2 to trigger, both effects should fail')
-dfhack.script_environment('functions/event').checkEvent('TEST_EVENT_2',nil,verbose,'force')
+dfhack.run_command('events/trigger -event TEST_EVENT_2 -force')
 print('Test Event 1 should occur within 1 in-game day, if successful a random location and random unit id will be printed')
 print('Event Systen checks finished')
+
 print('')
 print('Enhanced System checks:')
+
 print('**Enhanced System - Buildings, not currently operational')
+
 print('')
 print('Enhanced System - Creatures')
 print('Enhancing all dwarf creatures')
@@ -423,7 +444,8 @@ end
 print('After:')
 printall(unit.body.physical_attrs.AGILITY)
 printall(unitTable.Skills)
-print('Enhanced System - Creatures checks finished')
+print('Enhanced System - Creatures check finished')
+
 print('')
 print('Enhanced System - Items')
 print('Enhanced Item checks need to be performed manually')
@@ -432,3 +454,60 @@ print('Easiest way to do this is to assign and unassign the Mining and Woodcutti
 print('When the pick is equipped the units Axe skill should increase to legendary')
 print('When the hand axe is equipped the unit should learn the Test Spell 1 spell')
 print('Both effects should revert when the item is unequipped')
+base = 'modtools/item-trigger -itemType ITEM_WEAPON_PICK -onEquip -command'
+dfhack.run_command(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
+dfhack.run_command(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
+base = 'modtools/item-trigger -itemType ITEM_WEAPON_PICK -onUnequip -command'
+dfhack.run_command(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID ]')
+dfhack.run_command(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID ]')
+print('Enhanced System - Items check finished')
+
+print('**Enhanced System - Materials not currently functioning')
+
+print('Enhanced System checks finished')
+
+dfhack.run_command('base/on-time')
+print('System checks finished, starting script checks')
+
+print('Building script checks')
+print('building/subtype-change')
+
+print('Flow script checks')
+print('flow/random-plan')
+print('flow/random-pos')
+print('flow/random-surface')
+print('flow/source')
+
+print('Item script checks')
+print('item/create')
+print('item/material-change')
+print('item/projectile')
+print('item/quality-change')
+print('item/subtype-change')
+
+print('Tile script checks')
+print('tile/material-change')
+print('tile/temperature-change')
+
+print('Unit script checks')
+print('unit/action-change')
+print('unit/attack')
+print('unit/attribute-change')
+print('unit/body-change')
+print('unit/butcher')
+print('unit/convert')
+print('unit/counter-change')
+print('unit/create')
+print('unit/destroy')
+print('unit/emotion-change')
+print('unit/flag-change')
+print('unit/move')
+print('unit/propel')
+print('unit/resistance-change')
+print('unit/skill-change')
+print('unit/syndrome-change')
+print('unit/trait-change')
+print('unit/transform')
+print('unit/wound-change')
+
+print('Wrapper script check')
