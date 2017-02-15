@@ -7,7 +7,6 @@ validArgs = --[[validArgs or]]utils.invert({
   'corpse',
   'location',
   'kill',
- 
 })
 
 local args = utils.processArgs({...}, validArgs)
