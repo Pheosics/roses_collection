@@ -60,7 +60,7 @@ local function EMaterialsNotAlreadyLoaded()
  return (not persistTable.GlobalTable.roses.EnhancedMaterialTable) or #persistTable.GlobalTable.roses.EnhancedMaterialTable._children < 1
 end
 
-dfhack.script_environment('functions/tables').makeBaseTable(args.verbose)
+dfhack.script_environment('functions/tables').makeBaseTable(args.testRun,args.verbose)
 
 if args.all or args.classSystem then
  if args.verbose then print('Initializing the Class System') end
