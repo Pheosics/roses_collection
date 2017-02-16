@@ -29,15 +29,16 @@ makeUnitTableTransform(unit) -- Add a table tracking transformation information 
 ---------------------------------------------------------------------------------------------
 -------- Functions that are shared between multiple other functions in this file ------------
 ---------------------------------------------------------------------------------------------
-function getData(table,dirLocation,filename,tokenCheck)
- --print('Searching for an '..table..' file')
+function getData(table,dirLocation,filename,tokenCheck,test,verbose)
+ if verbose then print('Searching for an '..table..' file') end
  local files = {}
  local dir = dfhack.getDFPath()
  local locations = {'/raw/objects/',dirLocation,'/raw/scripts/'}
  local n = 1
+ if test then filename = filename..'_test' end
  for _,location in ipairs(locations) do
   local path = dir..location
---  print('Looking in '..location)
+  if verbose then print('Looking in '..location) end
   if dfhack.internal.getDir(path) then
    for _,fname in pairs(dfhack.internal.getDir(path)) do
     if (split(fname,'_')[1] == filename or fname == filename..'.txt') the
@@ -49,10 +50,12 @@ function getData(table,dirLocation,filename,tokenCheck)
  end
  
  if #files >= 1 then
---  print(table..' files found:')
---  printall(files)
+  if verbose then 
+   print(table..' files found:')
+   printall(files)
+  end
  else
---  print('No '..table..' files found')
+  if verbose then print('No '..table..' files found') end
   return false
  end
  
@@ -105,7 +108,7 @@ end
 ---------------------------------------------------------------------------------------------
 -------- Functions for making persistent tables from text files (used in Systems) -----------
 ---------------------------------------------------------------------------------------------
-function makeBaseTable()
+function makeBaseTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
@@ -117,7 +120,7 @@ function makeBaseTable()
  local n = 1
  for _,location in ipairs(locations) do
   local path = dir..location
---  print('Looking in '..location)
+  if verbose then print('Looking in '..location) end
   if dfhack.internal.getDir(path) then
    for _,fname in pairs(dfhack.internal.getDir(path)) do
     if (fname == 'base.txt') then
@@ -144,6 +147,7 @@ function makeBaseTable()
   print('No Base file found, assuming defaults')
   base.Types = {'MAGICAL','PHYSICAL'}
  else
+  if verbose then printall(files) end
   for _,file in ipairs(files) do
    local data = {}
    local iofile = io.open(file,"r")
@@ -219,48 +223,49 @@ function makeBaseTable()
  end
 end
 
-function makeWrapperTemplateTable()
+function makeWrapperTemplateTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.WrapperTemplateTable = {}
  templates = persistTable.GlobalTable.roses.WrapperTemplateTable
  
- dataFiles,dataInfoFiles,files = getData('Wrapper Template','/raw/systems/','templates','[TEMPLATE')
+ dataFiles,dataInfoFiles,files = getData('Wrapper Template','/raw/systems/','templates','[TEMPLATE',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
-  templateToken = x[1]
-  startLine = x[2]+1
-  if i ==#dataInfo then
-   endLine = #data
-  else
-   endLine = dataInfo[i+1][2]-1
-  end
-  templates[templateToken] = {}
-  template = templates[templateToken]
-  template.Level = {}
-  template.Positions = {}
-  for j = startLine,endLine,1 do
-   test = data[j]:gsub("%s+","")
-   test = split(test,':')[1]
-   array = split(data[j],':')
-   for k = 1, #array, 1 do
-    array[k] = split(array[k],']')[1]
+  for i,x in ipairs(dataInfo) do
+   templateToken = x[1]
+   startLine = x[2]+1
+   if i ==#dataInfo then
+    endLine = #data
+   else
+    endLine = dataInfo[i+1][2]-1
    end
-   if test == '[NAME' then
-    template.Name = array[2]
-   elseif test == '[INPUT' then
-    template.Input = array[2]
+   templates[templateToken] = {}
+   template = templates[templateToken]
+   template.Level = {}
+   template.Positions = {}
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],']')[1]
+    end
+    if test == '[NAME' then
+     template.Name = array[2]
+    elseif test == '[INPUT' then
+     template.Input = array[2]
+    end
    end
   end
  end
 end
 
 -- Start Civilization System Functions
-function makeCivilizationTable()
+function makeCivilizationTable(test,verbose)
  function tchelper(first, rest)
   return first:upper()..rest:lower()
  end
@@ -271,7 +276,7 @@ function makeCivilizationTable()
  persistTable.GlobalTable.roses.CivilizationTable = {}
  civilizations = persistTable.GlobalTable.roses.CivilizationTable
  
- dataFiles,dataInfoFiles,files = getData('Civilization','/raw/systems/Civilizations','civilizations','[CIVILIZATION')
+ dataFiles,dataInfoFiles,files = getData('Civilization','/raw/systems/Civilizations','civilizations','[CIVILIZATION',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -547,8 +552,10 @@ function makeCivilizationTable()
  end
  end
 
- for id,entity in pairs(df.global.world.entities.all) do
-  makeEntityTable(id)
+ if not test then
+  for id,entity in pairs(df.global.world.entities.all) do
+   makeEntityTable(id)
+  end
  end
 
  return true
@@ -556,18 +563,18 @@ end
 -- End Civilization System Functions
    
 -- Start Class System Functions
-function makeClassTable(spellCheck)
+function makeClassTable(spellCheck,test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.ClassTable = {}
  classes = persistTable.GlobalTable.roses.ClassTable
  if not spellCheck then
---  print('Generating spell tables from class files')
+  if verbose then print('No spell files found. Generating spell tables from class files') end
   persistTable.GlobalTable.roses.SpellTable = {}
  end
  
- dataFiles,dataInfoFiles,files = getData('Class','/raw/systems/Classes','classes','[CLASS')
+ dataFiles,dataInfoFiles,files = getData('Class','/raw/systems/Classes','classes','[CLASS',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -713,14 +720,14 @@ function makeClassTable(spellCheck)
  return true
 end
 
-function makeSpellTable()
+function makeSpellTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.SpellTable = {}
  spells = persistTable.GlobalTable.roses.SpellTable
 
- dataFiles,dataInfoFiles,files = getData('Spell','/raw/systems/Classes','spells','[SPELL')
+ dataFiles,dataInfoFiles,files = getData('Spell','/raw/systems/Classes','spells','[SPELL',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -817,20 +824,20 @@ function makeSpellTable()
  end
  return true
 end
-   
-function makeFeatTable()
+
+function makeFeatTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.FeatTable = {}
  feats = persistTable.GlobalTable.roses.FeatTable
 
- dataFiles,dataInfoFiles,files = getData('Feat','/raw/systems/Classes','feats','[FEAT')
+ dataFiles,dataInfoFiles,files = getData('Feat','/raw/systems/Classes','feats','[FEAT',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
+  for i,x in ipairs(dataInfo) do
    featToken = x[1]
    startLine = x[2]+1
    if i ==#dataInfo then
@@ -884,164 +891,168 @@ end
 -- End Class System Functions
    
 -- Start Enhanced System Functions
-function makeEnhancedBuildingTable()
+function makeEnhancedBuildingTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.EnhancedBuildingTable = {}
  buildings = persistTable.GlobalTable.roses.EnhancedBuildingTable
  
- dataFiles,dataInfoFiles,files = getData('Enhanced Building','/raw/systems/Enhanced','Ebuildings','[BUILDING')
+ dataFiles,dataInfoFiles,files = getData('Enhanced Building','/raw/systems/Enhanced','Ebuildings','[BUILDING',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
-  buildingToken = x[1]
-  startLine = x[2]+1
-  if i ==#dataInfo then
-   endLine = #data
-  else
-   endLine = dataInfo[i+1][2]-1
-  end
-  buildings[buildingToken] = {}
-  building = buildings[buildingToken]
-  for j = startLine,endLine,1 do
-   test = data[j]:gsub("%s+","")
-   test = split(test,':')[1]
-   array = split(data[j],':')
-   for k = 1, #array, 1 do
-    array[k] = split(array[k],']')[1]
+  for i,x in ipairs(dataInfo) do
+   buildingToken = x[1]
+   startLine = x[2]+1
+   if i ==#dataInfo then
+    endLine = #data
+   else
+    endLine = dataInfo[i+1][2]-1
    end
-   if test == '[NAME' then
-    building.Name = array[2]
-   elseif test == '[DESCRIPTION' then
-    building.Description = array[2]
-   elseif test == '[MULTI_STORY' then
-    building.MultiStory = array[2]
-   elseif test == '[TREE_BUILDING' then
-    building.TreeBuilding = array[2]
-   elseif test == '[BASEMENT' then
-    building.Basement = array[2]
-   elseif test == '[ROOF' then
-    building.Roof = array[2]
-   elseif test == '[WALLS' then
-    building.Walls = array[2]
-   elseif test == '[STAIRS' then
-    building.Stairs = array[2]
-   elseif test == '[UPGRADE' then
-    building.Upgrade = array[2]
-   elseif test == '[SPELL' then
-    spell = array[2]
-    building.Spells = building.Spells or {}
-    building.Spells[spell] = {}
-    building.Spells[spell].Frequency = array[3]
-   elseif test == '[REQUIRED_WATER' then
-    building.RequiredWater = array[2]
-   elseif test == '[REQUIRED_MAGMA' then
-    building.RequiredMagma = array[2]
-   elseif test == '[MAX_AMOUNT' then
-    building.MaxAmount = array[2]
-   elseif test == '[OUTSIDE_ONLY]' then
-    building.OutsideOnly = 'true'
-   elseif test == '[INSIDE_ONLY]' then
-    building.InsideOnly = 'true'
-   elseif test == '[REQUIRED_BUILDING' then
-    building.RequiredBuildings = building.RequiredBuildings or {}
-    building.RequiredBuildings[array[2]] = array[3]
-   elseif test == '[FORBIDDEN_BUILDING' then
-    building.ForbiddenBuildings = building.ForbiddenBuildings or {}
-    building.ForbiddenBuildings[array[2]] = array[3]
+   buildings[buildingToken] = {}
+   building = buildings[buildingToken]
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],']')[1]
+    end
+    if test == '[NAME' then
+     building.Name = array[2]
+    elseif test == '[DESCRIPTION' then
+     building.Description = array[2]
+    elseif test == '[MULTI_STORY' then
+     building.MultiStory = array[2]
+    elseif test == '[TREE_BUILDING' then
+     building.TreeBuilding = array[2]
+    elseif test == '[BASEMENT' then
+     building.Basement = array[2]
+    elseif test == '[ROOF' then
+     building.Roof = array[2]
+    elseif test == '[WALLS' then
+     building.Walls = array[2]
+    elseif test == '[STAIRS' then
+     building.Stairs = array[2]
+    elseif test == '[UPGRADE' then
+     building.Upgrade = array[2]
+    elseif test == '[SPELL' then
+     spell = array[2]
+     building.Spells = building.Spells or {}
+     building.Spells[spell] = {}
+     building.Spells[spell].Frequency = array[3]
+    elseif test == '[REQUIRED_WATER' then
+     building.RequiredWater = array[2]
+    elseif test == '[REQUIRED_MAGMA' then
+     building.RequiredMagma = array[2]
+    elseif test == '[MAX_AMOUNT' then
+     building.MaxAmount = array[2]
+    elseif test == '[OUTSIDE_ONLY]' then
+     building.OutsideOnly = 'true'
+    elseif test == '[INSIDE_ONLY]' then
+     building.InsideOnly = 'true'
+    elseif test == '[REQUIRED_BUILDING' then
+     building.RequiredBuildings = building.RequiredBuildings or {}
+     building.RequiredBuildings[array[2]] = array[3]
+    elseif test == '[FORBIDDEN_BUILDING' then
+     building.ForbiddenBuildings = building.ForbiddenBuildings or {}
+     building.ForbiddenBuildings[array[2]] = array[3]
+    end
    end
   end
  end
+ return true
 end
  
-function makeEnhancedCreatureTable()
+function makeEnhancedCreatureTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.EnhancedCreatureTable = {}
  creatures = persistTable.GlobalTable.roses.EnhancedCreatureTable
   
- dataFiles,dataInfoFiles,files = getData('Enhanced Creature','/raw/systems/Enhanced','Ecreatures','[CREATURE')
+ dataFiles,dataInfoFiles,files = getData('Enhanced Creature','/raw/systems/Enhanced','Ecreatures','[CREATURE',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
-   dataInfo = dataInfoFiles[file]
-   data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
-  creatureToken = x[1]
-  startLine = x[2]+1
-  if i ==#dataInfo then
-   endLine = #data
-  else
-   endLine = dataInfo[i+1][2]-1
-  end
-  creatures[creatureToken] = {}
-  creature = creatures[creatureToken]
-  for j = startLine,endLine,1 do
-   test = data[j]:gsub("%s+","")
-   test = split(test,':')[1]
-   array = split(data[j],':')
-   for k = 1, #array, 1 do
-    array[k] = split(array[k],']')[1]
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+  for i,x in ipairs(dataInfo) do
+   creatureToken = x[1]
+   startLine = x[2]+1
+   if i == #dataInfo then
+    endLine = #data
+   else
+    endLine = dataInfo[i+1][2]-1
    end
-   if test == '[NAME' then
-    creature.Name = array[2]
-   elseif test == '[DESCRIPTION' then
-    creature.Description = array[2]
-   elseif test == '[BODY_SIZE' then
-    creature.Size = {}
-    creature.Size.Baby = array[2]
-    creature.Size.Child = array[3]
-    creature.Size.Adult = array[4]
-    creature.Size.Max = array[5]
-    creature.Size.Variance = array[6]
-   elseif test == '[ATTRIBUTE' then
-    creature.Attributes = creature.Attributes or {}
-    creature.Attributes[array[2]] = {}
-    creature.Attributes[array[2]]['1'] = array[3]
-    creature.Attributes[array[2]]['2'] = array[4] or array[3]
-    creature.Attributes[array[2]]['3'] = array[5] or array[3]
-    creature.Attributes[array[2]]['4'] = array[6] or array[3]
-    creature.Attributes[array[2]]['5'] = array[7] or array[3]
-    creature.Attributes[array[2]]['6'] = array[8] or array[3]
-    creature.Attributes[array[2]]['7'] = array[9] or array[3]
-   elseif test == '[NATURAL_SKILL' then
-    creature.Skills = creature.Skills or {}
-    creature.Skills[array[2]] = {}
-    creature.Skills[array[2]].Min = array[3]
-    creature.Skills[array[2]].Max = array[4] or array[3]
-   elseif test == '[STAT' then
-    creature.Stats = creature.Stats or {}
-    creature.Stats[array[2]] = {}
-    creature.Stats[array[2]].Min = array[3]
-    creature.Stats[array[2]].Max = array[4] or array[3]
-   elseif test == '[RESISTANCE' then
-    creature.Resistances = creature.Resistances or {}
-    creature.Resistances[array[2]] = array[3]
-   elseif test == '[CLASS' then
-    creature.Classes = creature.Classes or {}
-    creature.Classes[array[2]] = {}
-    creature.Classes[array[2]].Level = array[3]
-    creature.Classes[array[2]].Interactions = array[4]
-   elseif test =='[INTERACTION' then
-    creature.Interactions = creature.Interactions or {}
-    creature.Interactions[array[2]] = {}
-    creature.Interactions[array[2]].Probability = array[3]
+   creatures[creatureToken] = {}
+   creature = creatures[creatureToken]
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],']')[1]
+    end
+    if test == '[NAME' then
+     creature.Name = array[2]
+    elseif test == '[DESCRIPTION' then
+     creature.Description = array[2]
+    elseif test == '[BODY_SIZE' then
+     creature.Size = {}
+     creature.Size.Baby = array[2]
+     creature.Size.Child = array[3]
+     creature.Size.Adult = array[4]
+     creature.Size.Max = array[5]
+     creature.Size.Variance = array[6]
+    elseif test == '[ATTRIBUTE' then
+     creature.Attributes = creature.Attributes or {}
+     creature.Attributes[array[2]] = {}
+     creature.Attributes[array[2]]['1'] = array[3]
+     creature.Attributes[array[2]]['2'] = array[4] or array[3]
+     creature.Attributes[array[2]]['3'] = array[5] or array[3]
+     creature.Attributes[array[2]]['4'] = array[6] or array[3]
+     creature.Attributes[array[2]]['5'] = array[7] or array[3]
+     creature.Attributes[array[2]]['6'] = array[8] or array[3]
+     creature.Attributes[array[2]]['7'] = array[9] or array[3]
+    elseif test == '[NATURAL_SKILL' then
+     creature.Skills = creature.Skills or {}
+     creature.Skills[array[2]] = {}
+     creature.Skills[array[2]].Min = array[3]
+     creature.Skills[array[2]].Max = array[4] or array[3]
+    elseif test == '[STAT' then
+     creature.Stats = creature.Stats or {}
+     creature.Stats[array[2]] = {}
+     creature.Stats[array[2]].Min = array[3]
+     creature.Stats[array[2]].Max = array[4] or array[3]
+    elseif test == '[RESISTANCE' then
+     creature.Resistances = creature.Resistances or {}
+     creature.Resistances[array[2]] = array[3]
+    elseif test == '[CLASS' then
+     creature.Classes = creature.Classes or {}
+     creature.Classes[array[2]] = {}
+     creature.Classes[array[2]].Level = array[3]
+     creature.Classes[array[2]].Interactions = array[4]
+    elseif test =='[INTERACTION' then
+     creature.Interactions = creature.Interactions or {}
+     creature.Interactions[array[2]] = {}
+     creature.Interactions[array[2]].Probability = array[3]
+    end
    end
   end
  end
+ return true
 end
 
-function makeEnhancedItemTable()
+function makeEnhancedItemTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.EnhancedItemTable = {}
  items = persistTable.GlobalTable.roses.EnhancedItemTable
    
- dataFiles,dataInfoFiles,files = getData('Enhanced Item','/raw/systems/Enhanced','Eitems','[ITEM')
+ dataFiles,dataInfoFiles,files = getData('Enhanced Item','/raw/systems/Enhanced','Eitems','[ITEM',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -1156,29 +1167,172 @@ function makeEnhancedItemTable()
     onTable.DefenderDur = array[2]
    end
   end
-  base = 'modtools/item-trigger -itemType '..itemToken
-  equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID'
-  action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID'
-  if item.OnEquip then
-   dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
-   dfhack.run_command(base..' -onUnequip '..equip..' ]')
+  if not test then
+   base = 'modtools/item-trigger -itemType '..itemToken
+   equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID'
+   action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID'
+   if item.OnEquip then
+    dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
+    dfhack.run_command(base..' -onUnequip '..equip..' ]')
+   end
+   if item.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
+   if item.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
+   if item.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end    
   end
-  if item.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
-  if item.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
-  if item.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end    
  end
+ end
+ return true
 end
+    
+function makeEnhancedMaterialTable(test,verbose)
+ local utils = require 'utils'
+ local split = utils.split_string
+ local persistTable = require 'persist-table'
+ persistTable.GlobalTable.roses.EnhancedItemTable = {}
+ materials = persistTable.GlobalTable.roses.EnhancedMaterialTable
+   
+ dataFiles,dataInfoFiles,files = getData('Enhanced Material','/raw/systems/Enhanced','Ematerials','[MATERIAL',test,verbose)
+ if not dataFiles then return false end
+ for _,file in ipairs(files) do
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+ for i,x in ipairs(dataInfo) do
+  materialToken = x[1]
+  startLine = x[2]+1
+  if i ==#dataInfo then
+   endLine = #data
+  else
+   endLine = dataInfo[i+1][2]-1
+  end
+  materials[materialToken] = {}
+  material = materials[materialToken]
+  for j = startLine,endLine,1 do
+   test = data[j]:gsub("%s+","")
+   array = split(data[j],':')
+   for k = 1, #array, 1 do
+    array[k] = split(array[k],']')[1]
+   end
+   test = array[1]
+   if test == '[NAME' then
+    material.Name = array[2]
+   elseif test == '[DESCRIPTION' then
+    material.Description = array[2]
+   elseif test == '[ON_EQUIP' then
+    material.OnEquip = material.OnEquip or {}
+    onTable = material.OnEquip
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ON_STRIKE' then
+    material.OnStrike = material.OnStrike or {}
+    onTable = material.OnStrike
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ON_PARRY' then
+    material.OnParry = material.OnParry or {}
+    onTable = material.OnParry
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ON_DODGE' then
+    material.OnDodge = material.OnDodge or {}
+    onTable = material.OnDodge
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ATTRIBUTE_CHANGE' then
+    onTable.Attributes = onTable.Attributes or {}
+    onTable.Attributes[array[2]] = array[3]
+   elseif test == '[SKILL_CHANGE' then
+    onTable.Skills = onTable.Skills or {}
+    onTable.Skills[array[2]] = array[3]
+   elseif test == '[TRAIT_CHANGE' then
+    onTable.Traits = onTable.Traits or {}
+    onTable.Traits[array[2]] = array[3]
+   elseif test == '[STAT_CHANGE' then
+    onTable.Stats = onTable.Stats or {}
+    onTable.Stats[stat] = array[3]
+   elseif test == '[RESISTANCE_CHANGE' then
+    onTable.Resistances = onTable.Resistances or {}
+    onTable.Resistances[array[2]] = array[3]
+   elseif test == '[INTERACTION_ADD' then
+    onTable.Interactions = onTable.Interactions or {}
+    onTable.Interactions[#onTable.Interactions+1] = array[2]
+   elseif test == '[SYNDROME_ADD' then
+    onTable.Syndromes = onTable.Syndromes or {}
+    onTable.Syndromes[#onTable.Syndromes+1] = array[2]
+   elseif test == '[ATTACKER_ATTRIBUTE_CHANGE' then
+    onTable.AttackerAttributes = onTable.AttackerAttributes or {}
+    onTable.AttackerAttributes[array[2]] = array[3]
+   elseif test == '[ATTACKER_SKILL_CHANGE' then
+    onTable.AttackerSkills = onTable.AttackerSkills or {}
+    onTable.AttackerSkills[array[2]] = array[3]
+   elseif test == '[ATTACKER_TRAIT_CHANGE' then
+    onTable.AttackerTraits = onTable.AttackerTraits or {}
+    onTable.AttackerTraits[array[2]] = array[3]
+   elseif test == '[ATTACKER_STAT_CHANGE' then
+    onTable.AttackerStats = onTable.AttackerStats or {}
+    onTable.AttackerStats[stat] = array[3]
+   elseif test == '[ATTACKER_RESISTANCE_CHANGE' then
+    onTable.AttackerResistances = onTable.AttackerResistances or {}
+    onTable.AttackerResistances[array[2]] = array[3]
+   elseif test == '[ATTACKER_INTERACTION_ADD' then
+    onTable.AttackerInteractions = onTable.AttackerInteractions or {}
+    onTable.AttackerInteractions[#onTable.AttackerInteractions+1] = array[2]
+   elseif test == '[ATTACKER_SYNDROME_ADD' then
+    onTable.AttackerSyndromes = onTable.AttackerSyndromes or {}
+    onTable.AttackerSyndromes[#onTable.SAttackeryndromes+1] = array[2]
+   elseif test == '[ATTACKER_CHANGE_DUR' then
+    onTable.AttackerDur = array[2]
+   elseif test == '[DEFENDER_ATTRIBUTE_CHANGE' then
+    onTable.DefenderAttributes = onTable.DefenderAttributes or {}
+    onTable.DefenderAttributes[array[2]] = array[3]
+   elseif test == '[DEFENDER_SKILL_CHANGE' then
+    onTable.DefenderSkills = onTable.DefenderSkills or {}
+    onTable.DefenderSkills[array[2]] = array[3]
+   elseif test == '[DEFENDER_TRAIT_CHANGE' then
+    onTable.DefenderTraits = onTable.DefenderTraits or {}
+    onTable.DefenderTraits[array[2]] = array[3]
+   elseif test == '[DEFENDER_STAT_CHANGE' then
+    onTable.DefenderStats = onTable.DefenderStats or {}
+    onTable.DefenderStats[stat] = array[3]
+   elseif test == '[DEFENDER_RESISTANCE_CHANGE' then
+    onTable.DefenderResistances = onTable.DefenderResistances or {}
+    onTable.DefenderResistances[array[2]] = array[3]
+   elseif test == '[DEFENDER_INTERACTION_ADD' then
+    onTable.DefenderInteractions = onTable.DefenderInteractions or {}
+    onTable.DefenderInteractions[#onTable.DefenderInteractions+1] = array[2]
+   elseif test == '[DEFENDER_SYNDROME_ADD' then
+    onTable.DefenderSyndromes = onTable.DefenderSyndromes or {}
+    onTable.DefenderSyndromes[#onTable.DefenderSyndromes+1] = array[2]
+   elseif test == '[DEFENDER_CHANGE_DUR' then
+    onTable.DefenderDur = array[2]
+   end
+  end
+  if not test then
+   base = 'modtools/item-trigger -mat '..materialToken
+   equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -mat'
+   action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
+   if item.OnEquip then
+    dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
+    dfhack.run_command(base..' -onUnequip '..equip..' ]')
+   end
+   if material.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
+   if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
+   if material.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end    
+  end
+ end
+ end
+ return true
+end    
 -- End Enhanced System Functions
 
 -- Start Event System Functions
-function makeEventTable()
+function makeEventTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.EventTable = {}
  events = persistTable.GlobalTable.roses.EventTable
     
- dataFiles,dataInfoFiles,files = getData('Event','/raw/systems/Events','events','[EVENT')
+ dataFiles,dataInfoFiles,files = getData('Event','/raw/systems/Events','events','[EVENT',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -1432,7 +1586,7 @@ end
 ---------------------------------------------------------------------------------------------
 -------- Functions for making persistent tables for tracking in-game information ------------
 ---------------------------------------------------------------------------------------------
-function makeDiplomacyTable()
+function makeDiplomacyTable(verbose)
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.DiplomacyTable = persistTable.GlobalTable.roses.DiplomacyTable or {}
  for _,civ1 in pairs(persistTable.GlobalTable.roses.EntityTable._children) do
@@ -1448,7 +1602,7 @@ function makeDiplomacyTable()
  return true
 end
 
-function makeEntityTable(entity)
+function makeEntityTable(entity,verbose)
  if tonumber(entity) then
   civid = tonumber(entity)
  else
@@ -1517,7 +1671,7 @@ function makeEntityTable(entity)
  end
 end
 
-function makeGlobalTable()
+function makeGlobalTable(verbose)
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.GlobalTable = {}
  persistTable.GlobalTable.roses.GlobalTable.Kills = {}
@@ -1526,7 +1680,7 @@ function makeGlobalTable()
  persistTable.GlobalTable.roses.GlobalTable.Sieges = {}
 end
 
-function makeItemTable(item)
+function makeItemTable(item,verbose)
  if tonumber(item) then
   item = df.item.find(tonumber(item))
  end
@@ -1554,7 +1708,7 @@ function makeItemTable(item)
  itemTable.Stats.Kills = '0'
 end
 
-function makeUnitTable(unit)
+function makeUnitTable(unit,verbose)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
@@ -1586,7 +1740,7 @@ function makeUnitTable(unit)
  end
 end
 
-function makeUnitTableSecondary(unit,table,token)
+function makeUnitTableSecondary(unit,table,token,verbose)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
@@ -1598,11 +1752,11 @@ function makeUnitTableSecondary(unit,table,token)
  unitTable[table][token].Class = '0'
  unitTable[table][token].Item = '0'
  unitTable[table][token].StatusEffects = {}
- _,base = dfhack.script_environment('functions/enhanced').getUnit(unit,table,token,'initialize')
+ _,base = dfhack.script_environment('functions/enhanced').getUnit(unit,table,token,'initialize',verbose)
  unitTable[table][token].Base = base
 end
 
-function makeUnitTableClass(unit,class)
+function makeUnitTableClass(unit,class,test,verbose)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
@@ -1614,7 +1768,7 @@ function makeUnitTableClass(unit,class)
  unitTable.Classes[class].SkillExp = '0'
 end
 
-function makeUnitTableSpell(unit,spell)
+function makeUnitTableSpell(unit,spell,verbose)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
@@ -1623,7 +1777,7 @@ function makeUnitTableSpell(unit,spell)
  unitTable.Spells[spell] = '0'
 end
 
-function makeUnitTableSide(unit)
+function makeUnitTableSide(unit,verbose)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
@@ -1633,7 +1787,7 @@ function makeUnitTableSide(unit)
  unitTable.General.Side.StatusEffects = {}
 end
 
-function makeUnitTableTransform(unit)
+function makeUnitTableTransform(unit,verbose)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
@@ -1649,7 +1803,7 @@ function makeUnitTableTransform(unit)
  unitTable.General.Transform.StatusEffects = {}
 end
 
-function makeUnitTableSummon(unit)
+function makeUnitTableSummon(unit,verbose)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
