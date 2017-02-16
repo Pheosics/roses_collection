@@ -118,7 +118,7 @@ printall(unitTable.Classes.TEST_CLASS_1)
 printall(unitTable.Classes.TEST_CLASS_2)
 printall(unitTable.Spells)
 printall(unitTable.Skills)
-if unitTable.Classes.Current.Name ~= 'TEST_CLASS_1' then classCheck['TC1_Assign'] = false end
+if unitTable.Classes.Current.Name ~= 'TEST_CLASS_1' then classCheck['TC1_Assign'] = 'Test Class 1 was not assigned to the Unit' end
 print('Adding experience to unit - Will level up Test Class 1 to level 1 and assign Test Spell 1')
 print('Mining and Woodcutting skill will increase')
 dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
@@ -128,9 +128,9 @@ printall(unitTable.Classes.TEST_CLASS_1)
 printall(unitTable.Classes.TEST_CLASS_2)
 printall(unitTable.Spells)
 printall(unitTable.Skills)
-if unitTable.Classes.Current.TotalExp ~= 1 or unitTable.Classes.TEST_CLASS_1.Level ~= 1 then classCheck['TC1_L1'] = false end
-if unitTable.Skills.MINING.Class ~= 1 or unitTable.Skills.WOODCUTTING ~= 1 then classCheck['TC1_SC1'] = false end
-if unitTable.Spells.TEST_SPELL_1 ~= 1 or not unitTable.Spells.Active.TEST_SPELL_1 then classCheck['TC1_AddS1'] = false end
+if unitTable.Classes.Current.TotalExp ~= 1 or unitTable.Classes.TEST_CLASS_1.Level ~= 1 then classCheck['TC1_L1'] = 'Test Class 1 did not level from 0 to 1' end
+if unitTable.Skills.MINING.Class ~= 1 or unitTable.Skills.WOODCUTTING ~= 1 then classCheck['TC1_SC1'] = 'Test Class 1 level 1 skills were not applied correctly' end
+if unitTable.Spells.TEST_SPELL_1 ~= 1 or not unitTable.Spells.Active.TEST_SPELL_1 then classCheck['TC1_AddS1'] = 'Test Class 1 level 1 did not add Test Spell 1' end
 print('Adding experience to unit - Will level up Test Class 1 to level 2')
 print('Mining and Woodcutting skill will increase')
 dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
@@ -140,8 +140,8 @@ printall(unitTable.Classes.TEST_CLASS_1)
 printall(unitTable.Classes.TEST_CLASS_2)
 printall(unitTable.Spells)
 printall(unitTable.Skills)
-if unitTable.Classes.Current.TotalExp ~= 2 or unitTable.Classes.TEST_CLASS_1.Level ~= 2 then classCheck['TC1_L2'] = false end
-if unitTable.Skills.MINING.Class ~= 5 or unitTable.Skills.WOODCUTTING ~= 4 then classCheck['TC1_SC2'] = false end
+if unitTable.Classes.Current.TotalExp ~= 2 or unitTable.Classes.TEST_CLASS_1.Level ~= 2 then classCheck['TC1_L2'] = 'Test Class 1 did not level from 1 to 2' end
+if unitTable.Skills.MINING.Class ~= 5 or unitTable.Skills.WOODCUTTING ~= 4 then classCheck['TC1_SC2'] = 'Test Class 1 level 2 skills were not applied correctly' end
 print('Assigning Test Spell 2 to unit')
 dfhack.run_command('classes/learn-skill -unit '..tostring(unit.id)..' -spell TEST_SPELL_2 -verbose')
 print('Class/Unit details:')
@@ -150,7 +150,7 @@ printall(unitTable.Classes.TEST_CLASS_1)
 printall(unitTable.Classes.TEST_CLASS_2)
 printall(unitTable.Spells)
 printall(unitTable.Skills)
-if unitTable.Spells.TEST_CLASS_2 ~= 1 or not unitTable.Spells.Active.TEST_SPELL_2 then classCheck['TC1_AddS2'] = false end
+if unitTable.Spells.TEST_CLASS_2 ~= 1 or not unitTable.Spells.Active.TEST_SPELL_2 then classCheck['TC1_AddS2'] = 'Test Class 1 level 2 unable to add Test Spell 2' end
 print('Adding experience to unit - Will level up Test Class 1 to level 3 and auto change class to Test Class 2')
 print('Mining skill will increase, Woodcutting skill will reset')
 dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
@@ -160,10 +160,10 @@ printall(unitTable.Classes.TEST_CLASS_1)
 printall(unitTable.Classes.TEST_CLASS_2)
 printall(unitTable.Spells)
 printall(unitTable.Skills)
-if unitTable.Classes.Current.TotalExp ~= 3 or unitTable.Classes.TEST_CLASS_1.Level ~= 3 then classCheck['TC1_L3'] = false end
+if unitTable.Classes.Current.TotalExp ~= 3 or unitTable.Classes.TEST_CLASS_1.Level ~= 3 then classCheck['TC1_L3'] = 'Test Class 1 did not level from 2 to 3' end
 if unitTable.Skills.MINING.Class ~= 14 then classCheck['TC1_SC3'] = false end
-if unitTable.Classes.Current.Name ~= 'TEST_CLASS_2' then classCheck['TC2_Assign'] = false end
-if unitTable.Skills.WOODCUTTING.Class ~= 0 then claccCheck['TC2_SC1'] = false end
+if unitTable.Classes.Current.Name ~= 'TEST_CLASS_2' then classCheck['TC2_Assign'] = 'Test Class 1 did not automatically changed to Test Class 2' end
+if unitTable.Skills.WOODCUTTING.Class ~= 0 then claccCheck['TC2_SC1'] = 'Test Class 2 level 0 skills did not reset' end
 print('Adding experience to unit - Will level up Test Class 2 to level 1 and replace Test Spell 1 with Test Spell 3')
 print('Mining skill will remain the same, Carpentry skill will increase')
 dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
@@ -173,9 +173,9 @@ printall(unitTable.Classes.TEST_CLASS_1)
 printall(unitTable.Classes.TEST_CLASS_2)
 printall(unitTable.Spells)
 printall(unitTable.Skills)
-if unitTable.Classes.Current.TotalExp ~= 4 or unitTable.Classes.TEST_CLASS_2.Level ~= 1 then classCheck['TC2_L1'] = false end
-if unitTable.Skills.MINING.Class ~= 14 or unitTable.Skills.CARPENTRY.Class ~= 15 or unitTable.Skills.MASONRY.Class ~= 15 then classChecl['TC2_SC2'] = false end
-if unitTable.Spells.TEST_SPELL_3 ~= 1 or unitTable.Spells.Active.TEST_SPELL_1 or not unitTable.Spells.Active.TEST_SPELL_3 then classCheck['TC2_AddS3'] = false end
+if unitTable.Classes.Current.TotalExp ~= 4 or unitTable.Classes.TEST_CLASS_2.Level ~= 1 then classCheck['TC2_L1'] = 'Test Class 2 did not level from 0 to 1' end
+if unitTable.Skills.MINING.Class ~= 14 or unitTable.Skills.CARPENTRY.Class ~= 15 or unitTable.Skills.MASONRY.Class ~= 15 then classChecl['TC2_SC2'] = 'Test Class 2 level 1 skills were not applied correctly' end
+if unitTable.Spells.TEST_SPELL_3 ~= 1 or unitTable.Spells.Active.TEST_SPELL_1 or not unitTable.Spells.Active.TEST_SPELL_3 then classCheck['TC2_AddS3'] = 'Test Class 2 level 1 Test Spell 3 did not replace Test Spell 1' end
 print('Base Class System checks and Spell assignment checks finished. Starting Feat SubSystem checks')
 
 print('')
@@ -188,19 +188,19 @@ dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FE
 print('Feat/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.Feats)
-if unitTable.Classes.Feats.TEST_FEAT_2 then featCheck['TF2_Assign1'] = false end
+if unitTable.Classes.Feats.TEST_FEAT_2 then featCheck['TF2_Assign1'] = 'Test Feat 2 was applied when it should not have been' end
 print('Attempting to assign Test Feat 1 to unit, this should work')
 dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_1 -verbose')
 print('Feat/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.Feats)
-if not unitTable.Classes.Feats.TEST_FEAT_1 then featCheck['TF1_Assign'] = false end
+if not unitTable.Classes.Feats.TEST_FEAT_1 then featCheck['TF1_Assign'] = 'Test Feat 1 was not correctly applied' end
 print('Attempting to assign Test Feat 2 to unit, now this should work')
 dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 print('Feat/Unit details:')
 printall(unitTable.Classes.Current)
 printall(unitTable.Classes.Feats)
-if unitTable.Classes.Feats.TEST_FEAT_2 then featCheck['TF2_Assign2'] = false end
+if unitTable.Classes.Feats.TEST_FEAT_2 then featCheck['TF2_Assign2'] = 'Test Feat 2 was not correctly applied' end
 print('Feat SubSystem checks finished. Spell SubSystem checks will be made later')
 
 print('')
@@ -209,7 +209,7 @@ civCheck = {}
 print('Creating Entity Table for unit.civ_id')
 dfhack.script_environment('functions/tables').makeEntityTable(unit.civ_id,verbose)
 entityTable = roses.EntityTable[tostring(unit.civ_id)]
-if not entityTable.Civilization then civCheck['TV1_Assign'] = false end
+if not entityTable.Civilization then civCheck['TV1_Assign'] = 'Test Civilization 1 was not correctly assigned to the entity' end
 print('Entity details')
 printall(df.global.world.entities.all[unit.civ_id].resources.animals.mount_races)
 printall(df.global.world.entities.all[unit.civ_id].resources.animals.mount_castes)
@@ -219,7 +219,7 @@ printall(entityTable)
 printall(entityTable.Civilization)
 printall(df.global.world.entities.all[unit.civ_id].resources.animals.mount_races)
 printall(df.global.world.entities.all[unit.civ_id].resources.animals.mount_castes)
-if #df.global.world.entities.all[unit.civ_id].resources.animals.mount_races ~= 0 then civCheck['TV1_CA1'] = false end
+if #df.global.world.entities.all[unit.civ_id].resources.animals.mount_races ~= 0 then civCheck['TV1_CA1'] = 'Test Civilization 1 level 0 mount creatures were not removed' end
 print('Force level increase, should add dragons to available mounts and change level method')
 dfhack.run_command('civilizations/level-up -civ '..tostring(unit.civ_id)..' -amount 1 -verbose')
 print('Entity details')
@@ -228,7 +228,7 @@ printall(entityTable.Civilization)
 printall(df.global.world.entities.all[unit.civ_id].resources.animals.mount_races)
 printall(df.global.world.entities.all[unit.civ_id].resources.animals.mount_castes)
 if entityTable.Civilization.Level ~= 1 then civCheck['TV1_Level1'] = false end
-if #df.global.world.entities.all[unit.civ_id].resources.animals.mount_races ~= 2 then civCheck['TV1_CA2'] = false end
+if #df.global.world.entities.all[unit.civ_id].resources.animals.mount_races ~= 2 then civCheck['TV1_CA2'] = 'Test Civilization 1 level 1 mount creatures were not added' end
 print('Next level increase should occur within 1 in-game day, will add humans as available mounts')
 print('Set up call back to check Entity details')
 dfhack.timeout(4000,'ticks',function ()
@@ -247,148 +247,86 @@ for _,entity in pairs(df.global.world.entities.all) do
 end
 dfhack.script_environment('functions/tables').makeEntityTable(entity.id,verbose)
 nCheck = {
-npets = #entity.resources.animals.pet_races,
-nwagon = #entity.resources.animals.wagon_puller_races,
-nmount = #entity.resources.animals.mount_races,
-npack = #entity.resources.animals.pack_animal_races,
-nminion = #entity.resources.animals.minion_races,
-nexotic = #entity.resources.animals.exotic_pet_races,
-nfish = #entity.resources.fish_races,
-negg = #entity.resources.egg_races,
-nmetal = #entity.resources.metals,
-nstone = #entity.resources.stones,
-ngem = #entity.resources.gems,
-nleather = #entity.resources.organic.leather.mat_type,
-nfiber = #entity.resources.organic.fiber.mat_type,
-nsilk = #entity.resources.organic.silk.mat_type,
-nwool = #entity.resources.organic.wool.mat_type,
-nwood = #entity.resources.organic.wood.mat_type,
-nplant = #entity.resources.plants.mat_type,
-nseed = #entity.resources.seeds.mat_type,
-nbone = #entity.resources.refuse.bone.mat_type,
-nshell = #entity.resources.refuse.shell.mat_type,
-npearl = #entity.resources.refuse.pearl.mat_type,
-nivory = #entity.resources.refuse.ivory.mat_type,
-nhorn = #entity.resources.refuse.horn.mat_type,
-nweapon = #entity.resources.weapon_type,
-nshield = #entity.resources.shield_type,
-nammo = #entity.resources.ammo_type,
-nhelm = #entity.resources.helm_type,
-narmor = #entity.resources.armor_type,
-npants = #entity.resources.pants_type,
-nshoes = #entity.resources.shoes_type,
-ngloves = #entity.resources.gloves_type,
-ntrap = #entity.resources.trapcomp_type,
-nsiege = #entity.resources.siegeammo_type,
-ntoy = #entity.resources.toy_type,
-ninstrument = #entity.resources.instrument_type,
-ntool = #entity.resources.tool_type,
-npick = #entity.resources.metal.pick.mat_type,
-nmelee = #entity.resources.metal.weapon.mat_type,
-nranged = #entity.resources.metal.ranged.mat_type,
-nammo2 = #entity.resources.metal.ammo.mat_type,
-nammo3 = #entity.resources.metal.ammo2.mat_type,
-narmor2 = #entity.resources.metal.armor.mat_type,
-nanvil = #entity.resources.metal.anvil.mat_type,
-ncrafts = #entity.resources.misc_mat.crafts.mat_type,
-nbarrels = #entity.resources.misc_mat.barrels.mat_type,
-nflasks = #entity.resources.misc_mat.flasks.mat_type,
-nquivers = #entity.resources.misc_mat.quivers.mat_type,
-nbackpacks = #entity.resources.misc_mat.backpacks.mat_type,
-ncages = #entity.resources.misc_mat.cages.mat_type,
-nglass = #entity.resources.misc_mat.glass.mat_type,
-nsand = #entity.resources.misc_mat.sand.mat_type,
-nclay = #entity.resources.misc_mat.clay.mat_type,
-nbooze = #entity.resources.misc_mat.booze.mat_type,
-ncheese = #entity.resources.misc_mat.cheese.mat_type,
-npowder = #entity.resources.misc_mat.powders.mat_type,
-nextract = #entity.resources.misc_mat.extracts.mat_type,
-nmeat = #entity.resources.misc_mat.meat.mat_type
+pets = {'animals','pet_races'},
+wagon = {'animals','wagon_puller_races'},
+mount = {'animals','mount_races'},
+pack = {'animals','pack_animal_races'},
+minion = {'animals','minion_races'},
+exotic = {'animals','exotic_pet_races'},
+fish = {'fish_races'},
+egg = {'egg_races'},
+metal = {'metals'},
+stone = {'stones'},
+gem = {'gems'},
+leather = {'organic','leather','mat_type'},
+fiber = {'organic','fiber','mat_type'},
+silk = {'organic','silk','mat_type'},
+wool = {'organic','wool','mat_type'},
+wood = {'organic','wood','mat_type'},
+plant = {'plants','mat_type'},
+seed = {'seeds','mat_type'},
+bone = {'refuse','bone','mat_type'},
+shell = {'refuse','shell','mat_type'},
+pearl = {'refuse','pearl','mat_type'},
+ivory = {'refuse','ivory','mat_type'},
+horn = {'refuse','horn','mat_type'},
+weapon = {'weapon_type'},
+shield = {'shield_type'},
+ammo = {'ammo_type'},
+helm = {'helm_type'},
+armor = {'armor_type'},
+pants = {'pants_type'},
+shoes = {'shoes_type'},
+gloves = {'gloves_type'},
+trap = {'trapcomp_type'},
+siege = {'siegeammo_type'},
+toy = {'toy_type'},
+instrument = {'instrument_type'},
+tool = {'tool_type'},
+pick = {'metal','pick','mat_type'},
+melee = {'metal','weapon','mat_type'},
+ranged = {'metal','ranged','mat_type'},
+ammo2 = {'metal','ammo','mat_type'},
+ammo3 = {'metal','ammo2','mat_type'},
+armor2 = {'metal','armor','mat_type'},
+anvil = {'metal','anvil','mat_type'},
+crafts = {'misc_mat','crafts','mat_type'},
+barrels = {'misc_mat','barrels','mat_type'},
+flasks = {'misc_mat','flasks','mat_type'},
+quivers = {'misc_mat','quivers','mat_type'},
+backpacks = {'misc_mat','backpacks','mat_type'},
+cages = {'misc_mat','cages','mat_type'},
+glass = {'misc_mat','glass','mat_type'},
+sand = {'misc_mat','sand','mat_type'},
+clay = {'misc_mat','clay','mat_type'},
+booze = {'misc_mat','booze','mat_type'},
+cheese = {'misc_mat','cheese','mat_type'},
+powders = {'misc_mat','powders','mat_type'},
+extracts = {'misc_mat','extracts','mat_type'},
+meat = {'misc_mat','meat','mat_type'}
  }
-for xCheck,_ in pairs(nCheck) do
- if nCheck[xCheck] ~= 0 then
-  civCheck['TV2_L1_'..xCheck] = false
+for xCheck,aCheck in pairs(nCheck) do
+ resources = entity.resources
+ for _,tables in pairs(aCheck) do
+  resources = resources[tables]
  end
+ if #resources ~= 0 then civCheck['TV2_L1_'..xcheck] = 'Test Civilization 2 level 0 '..table.unpack(aCheck)..' not correctly removed from' end
 end
 dfhack.run_command('civilizations/level-up -civ '..tostring(entity.id)..' -amount 1 -verbose')
-nCheck = {
-npets = #entity.resources.animals.pet_races,
-nwagon = #entity.resources.animals.wagon_puller_races,
-nmount = #entity.resources.animals.mount_races,
-npack = #entity.resources.animals.pack_animal_races,
-nminion = #entity.resources.animals.minion_races,
-nexotic = #entity.resources.animals.exotic_pet_races,
-nfish = #entity.resources.fish_races,
-negg = #entity.resources.egg_races,
-nmetal = #entity.resources.metals,
-nstone = #entity.resources.stones,
-ngem = #entity.resources.gems,
-nleather = #entity.resources.organic.leather,
-nfiber = #entity.resources.organic.fiber,
-nsilk = #entity.resources.organic.silk,
-nwool = #entity.resources.organic.wool,
-nwood = #entity.resources.organic.wood,
-nplant = #entity.resources.plants,
-nseed = #entity.resources.seeds,
-nbone = #entity.resources.refuse.bone,
-nshell = #entity.resources.refuse.shell,
-npearl = #entity.resources.refuse.pearl,
-nivory = #entity.resources.refuse.ivory,
-nhorn = #entity.resources.refuse.horn,
-nweapon = #entity.resources.weapon_type,
-nshield = #entity.resources.shield_type,
-nammo = #entity.resources.ammo_type,
-nhelm = #entity.resources.helm_type,
-narmor = #entity.resources.armor_type,
-npants = #entity.resources.pants_type,
-nshoes = #entity.resources.shoes_type,
-ngloves = #entity.resources.gloves_type,
-ntrap = #entity.resources.trapcomp_type,
-nsiege = #entity.resources.siegeammo_type,
-ntoy = #entity.resources.toy_type,
-ninstrument = #entity.resources.instrument_type,
-ntool = #entity.resources.tool_type,
-npick = #entity.resources.metal.pick,
-nmelee = #entity.resources.metal.weapon,
-nranged = #entity.resources.metal.ranged,
-nammo2 = #entity.resources.metal.ammo,
-nammo3 = #entity.resources.metal.ammo2,
-narmor2 = #entity.resources.metal.armor,
-nanvil = #entity.resources.metal.anvil,
-ncrafts = #entity.resources.misc_mat.crafts,
-nbarrels = #entity.resources.misc_mat.barrels,
-nflasks = #entity.resources.misc_mat.flasks,
-nquivers = #entity.resources.misc_mat.quivers,
-nbackpacks = #entity.resources.misc_mat.backpacks,
-ncages = #entity.resources.misc_mat.cages,
-nglass = #entity.resources.misc_mat.glass,
-nsand = #entity.resources.misc_mat.sand,
-nclay = #entity.resources.misc_mat.clay,
-nbooze = #entity.resources.misc_mat.booze,
-ncheese = #entity.resources.misc_mat.cheese,
-npowder = #entity.resources.misc_mat.powders,
-nextract = #entity.resources.misc_mat.extracts,
-nmeat = #entity.resources.misc_mat.meat
- }
-for xCheck,_ in pairs(nCheck) do
- if nCheck[xCheck] ~= 1 then
-  civCheck['TV2_L2_'..xCheck] = false
+for xCheck,aCheck in pairs(nCheck) do
+ resources = entity.resources
+ for _,tables in pairs(aCheck) do
+  resources = resources[tables]
  end
+ if #resources >= 1 then civCheck['TV2_L2_'..xcheck] = 'Test Civilization 2 level 1 '..table.unpack(aCheck)..' not correctly added to' end
 end
 dfhack.run_command('civilizations/level-up -civ '..tostring(entity.id)..' -amount 1 -verbose')
-if roses.EntityTable[tostring(entity.id)].Civilization.Level == 3 then civCheck['TV2_L3'] = false end
+if roses.EntityTable[tostring(entity.id)].Civilization.Level == 3 then civCheck['TV2_L3'] = 'Test Civilization 2 level 2 incorrectly applied, should have failed' end
 print('Civilization System Run Checks Finished')
 
 print('')
-print('Event System checks:')
-print('Forcing Test Event 2 to trigger, both effects should fail')
-dfhack.run_command('events/trigger -event TEST_EVENT_2 -force -verbose')
-print('Test Event 1 should occur within 1 in-game day, if successful a random location and random unit id will be printed')
-print('Event Systen checks finished')
-
-print('')
 print('Enhanced System checks:')
-
+enhCheck = {}
 print('**Enhanced System - Buildings, not currently operational')
 
 print('')
@@ -407,6 +345,7 @@ end
 print('After:')
 printall(unit.body.physical_attrs.AGILITY)
 printall(unitTable.Skills)
+if unit.body.physical_attrs.AGILITY.current < 5000 or unitTable.Skills.GROWER.Base < 5 then enhCheck['ESC1'] = 'Enhanced System - Creature 1 not correctly applied' end
 print('Enhanced System - Creatures check finished')
 
 print('')
@@ -429,8 +368,31 @@ print('**Enhanced System - Materials not currently functioning')
 
 print('Enhanced System checks finished')
 
-dfhack.run_command('base/on-time')
-print('System checks finished, starting script checks')
+print('')
+print('Event System checks:')
+print('Forcing Test Event 2 to trigger, both effects should fail')
+dfhack.run_command('events/trigger -event TEST_EVENT_2 -force -verbose')
+print('Test Event 1 should occur within 1 in-game day, if successful a random location and random unit id will be printed')
+print('Event Systen checks finished')
+
+print('System checks finished, starting Base script checks')
+
+print('')
+print('Running Base commands:')
+print('Running base/persist-delay')
+dfhack.run_command('base/persist-delay -verbose')
+print('Running base/liquids-update')
+dfhack.run_command('base/liquids-update -verbose')
+print('Running base/flows-update')
+dfhack.run_command('base/flows-update -verbose')
+print('Running base/on-death')
+dfhack.run_command('base/on-death -verbose')
+print('Running base/on-time')
+dfhack.run_command('base/on-time -verbose')
+print('Running base/periodic-check')
+dfhack.run_command('base/periodic-check -verbose')
+
+print('Base script checks finished, starting full script checks')
 
 print('Building script checks')
 print('building/subtype-change')
