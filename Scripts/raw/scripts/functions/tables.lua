@@ -118,12 +118,14 @@ function makeBaseTable(test,verbose)
  local dir = dfhack.getDFPath()
  local locations = {'/raw/objects/','/raw/systems/','/raw/scripts/'}
  local n = 1
+ local filename = 'base.txt'
+ if test then filename = 'base_test.txt' end
  for _,location in ipairs(locations) do
   local path = dir..location
   if verbose then print('Looking in '..location) end
   if dfhack.internal.getDir(path) then
    for _,fname in pairs(dfhack.internal.getDir(path)) do
-    if (fname == 'base.txt') then
+    if (fname == filename) then
      files[n] = path..fname
      n = n + 1
     end
