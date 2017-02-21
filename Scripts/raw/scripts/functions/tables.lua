@@ -11,6 +11,8 @@ makeSpellTable() -- Class System | Spell SubSystem
 makeEnhancedBuildingTable() -- Enhanced System
 makeEnhancedCreatureTable() -- Enhanced System
 makeEnhancedItemTable() -- Enhanced System
+makeEnhancedMaterialTable()
+makeEnhancedReactionTable()
 makeEventTable() -- Event System
 
 makeDiplomacyTable() -- Civilization System | Diplomacy SubSystem
@@ -1190,7 +1192,7 @@ function makeEnhancedMaterialTable(test,verbose)
  local utils = require 'utils'
  local split = utils.split_string
  local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.EnhancedItemTable = {}
+ persistTable.GlobalTable.roses.EnhancedMaterialTable = {}
  materials = persistTable.GlobalTable.roses.EnhancedMaterialTable
    
  dataFiles,dataInfoFiles,files = getData('Enhanced Material','/raw/systems/Enhanced','Ematerials','[MATERIAL',test,verbose)
@@ -1323,7 +1325,73 @@ function makeEnhancedMaterialTable(test,verbose)
  end
  end
  return true
-end    
+end
+
+function makeEnhancedReactionTable(test,verbose)
+ local utils = require 'utils'
+ local split = utils.split_string
+ local persistTable = require 'persist-table'
+ persistTable.GlobalTable.roses.EnhancedReactionTable = {}
+ reactions = persistTable.GlobalTable.roses.EnhancedReactionTable
+  
+ dataFiles,dataInfoFiles,files = getData('Enhanced Reaction','/raw/systems/Enhanced','Ereactions','[REACTION',test,verbose)
+ if not dataFiles then return false end
+ for _,file in ipairs(files) do
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+  for i,x in ipairs(dataInfo) do
+   reactionToken = x[1]
+   startLine = x[2]+1
+   if i == #dataInfo then
+    endLine = #data
+   else
+    endLine = dataInfo[i+1][2]-1
+   end
+   reactions[reactionToken] = {}
+   reaction = reactions[reactionToken]
+   reaction.Frozen = 'false'
+   reaction.Disappear = 'false'
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],']')[1]
+    end
+    if test == '[NAME' then
+     reaction.Name = array[2]
+    elseif test == '[DESCRIPTION' then
+     reaction.Description = array[2]
+    elseif test == '[BASE_DURATION' then
+     reaction.BaseDur = array[2]
+    elseif test == '[SKILL' then
+     reaction.Skill = array[2]
+    elseif test == '[SKILL_DURATION' then
+     reaction.SkillDur = makeTable(array,2,20)
+    elseif test == '[DURATION_REDUCTION' then
+     reaction.DurReduction = {}
+     reaction.DurReduction.Increment = array[2]
+     reaction.DurReduction.MaxReduction = array[3]
+    elseif test == '[ADDITIONAL_PRODUCT' then
+     reaction.Products = reaction.Products or {}
+     num = #reaction.Products + 1
+     reaction.Products[num] = {}
+     reaction.Products[num].Chance = array[2]
+     reaction.Products[num].Number = array[3]
+     reaction.Products[num].MaterialType = array[4]
+     reaction.Products[num].MaterialSubType = array[5]
+     reaction.Products[num].ItemType = array[6]
+     reaction.Products[num].ItemSubType = array[7]
+    elseif test == '[FREEZE]' then
+     reaction.Frozen = 'true'
+    elseif test == '[REMOVE]' then
+     reaction.Disappear = 'true'
+    end
+   end
+  end
+ end
+ return true
+end
 -- End Enhanced System Functions
 
 -- Start Event System Functions
