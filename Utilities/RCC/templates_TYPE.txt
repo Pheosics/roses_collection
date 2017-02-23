@@ -6,21 +6,21 @@
 
 [TEMPLATE:TYPE:SAVAGE]
 	{DESCRIPTION:A ferocious animal found only in the most savage of landscapes.}
-	{NAME:ADJ:savage,ADJ:bestial,ADJ:fierce,ADJ:vicious,ADJ:dire,PREFIX:ferus,PREFIX:atrox,SUFFIX:immanis,SUFFIX:asper}
+	{NAME:ADJ:savage,ADJ:fierce,ADJ:vicious,PREFIX:dire,PREFIX:feral,PREFIX:cruel,MAIN:savage,MAIN:beast}
 	{TOKENS:SAVAGE}
         [NATURAL]
         [SAVAGE]
 
 [TEMPLATE:TYPE:CHAOS]
 	{DESCRIPTION:An creature that has been corrupted by the powers of chaos.}
-	{NAME:ADJ:warped,ADJ:corrupt,ADJ:twisted,PREFIX:kaos,SUFFIX:kaos,MAIN:monstrocity,MAIN:demon,MAIN:horror}
+	{NAME:ADJ:warped,ADJ:corrupt,ADJ:twisted,PREFIX:chaos,MAIN:monstrocity,MAIN:demon,MAIN:horror}
 	{TOKENS:CHAOS}
         [NATURAL]
         [EVIL]
 
 [TEMPLATE:TYPE:PURGED]
 	{DESCRIPTION:A malfunctioning creation that roams the land cleansing all signs of chaos.}
-	{NAME:ADJ:purged,ADJ:cleansed,MAIN:construct,MAIN:assembly,MAIN:formation,PREFIX:purgo,SUFFIX:eluo}
+	{NAME:ADJ:purged,ADJ:cleansed,MAIN:construct,MAIN:assembly,MAIN:creation,PREFIX:clean}
 	{TOKENS:PURGED}
         [NATURAL]
         [GOOD]
