@@ -29,7 +29,7 @@
 
 [TEMPLATE:LEG:NO_LEGS]
 	{DESCRIPTION:no legs}
-	{NAME:ADJ:legless}
+	{NAME:ADJ:legless,MAIN:worm,MAIN:snake}
 	{TOKENS:#NOLEGS}
 	
 [TEMPLATE:LEG:2_LEGS]
