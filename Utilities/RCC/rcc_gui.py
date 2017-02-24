@@ -110,37 +110,72 @@ speed_vals = [
  '900:306:204:102:1900:2900',
  '900:300:200:100:1900:2900'
 ]
-colors = [
- 'BLACK','CLEAR','GRAY','SILVER','WHITE','TAUPE_ROSE','CHESTNUT','MAROON',
- 'RED','VERMILION','RUSSET','SCARLET','BURNT_UMBER','TAUPE_MEDIUM','DARK_CHESTNUT',
- 'BURNT_SIENNA','RUST','AUBURN','MAHOGANY','PUMPKIN','CHOCOLATE','TAUPE_PALE',
- 'TAUPE_DARK','DARK_PEACH','COPPER','LIGHT_BROWN','BRONZE','PALE_BROWN','DARK_BROWN',
- 'SEPIA','OCHRE','BROWN','CINNAMON','TAN','RAW_UMBER','ORANGE','PEACH','TAUPE_SANDY',
- 'GOLDENROD','AMBER','DARK_TAN','SAFFRON','ECRU','GOLD','PEARL','BUFF','FLAX','BRASS',
- 'GOLDEN_YELLOW','LEMON','CREAM','BEIGE','OLIVE','YELLOW','IVORY','LIME','YELLOW_GREEN',
- 'DARK_OLIVE','CHARTREUSE','FERN_GREEN','MOSS_GREEN','GREEN','MINT_GREEN',
- 'ASH_GRAY','EMERALD','SEA_GREEN','SPRING_GREEN','DARK_GREEN','JADE','AQUAMARINE','PINE_GREEN',
- 'TURQUOISE','PALE_BLUE','TEAL','AQUA','LIGHT_BLUE','CERULEAN','SKY_BLUE','CHARCOAL',
- 'SLATE_GRAY','MIDNIGHT_BLUE','AZURE','COBALT','LAVENDER','DARK_BLUE','BLUE','PERIWINKLE',
- 'DARK_VIOLET','AMETHYST','DARK_INDIGO','VIOLET','INDIGO','PURPLE','HELIOTROPE','LILAC',
- 'PLUM','TAUPE_PURPLE','TAUPE_GRAY','FUCHSIA','MAUVE','LAVENDER_BLUSH','DARK_PINK','MAUVE_TAUPE',
- 'DARK_SCARLET','PUCE','CRIMSON','PINK','CARDINAL','CARMINE','PALE_PINK','PALE_CHESTNUT'
-]
-color_groups = {'BLACK':['BLACK','CHARCOAL'],'WHITE':['GRAY','SILVER','WHITE','IVORY','PEARL','ASH_GRAY'],'RED':['TAUPE_ROSE','CHESTNUT','MAROON',
- 'RED','VERMILION','RUSSET','SCARLET'],'BROWN':['PUMPKIN','CHOCOLATE','TAUPE_PALE','TAUPE_DARK','DARK_PEACH','COPPER','LIGHT_BROWN'],
- 'YELLOW':['SAFFRON','ECRU','GOLD','BUFF','FLAX','BRASS','GOLDEN_YELLOW','LEMON','CREAM','BEIGE','OLIVE','YELLOW'],
- 'GREEN':['LIME','YELLOW_GREEN','DARK_OLIVE','CHARTREUSE','FERN_GREEN','MOSS_GREEN','GREEN','MINT_GREEN','EMERALD','SEA_GREEN','SPRING_GREEN','DARK_GREEN','JADE','AQUAMARINE','PINE_GREEN'],
- 'BLUE':['TURQUOISE','PALE_BLUE','TEAL','AQUA','LIGHT_BLUE','CERULEAN','SKY_BLUE','MIDNIGHT_BLUE','AZURE','COBALT','LAVENDER','DARK_BLUE','BLUE'],
- 'ORANGE':['ORANGE','TAUPE_SANDY','GOLDENROD','AMBER','DARK_TAN','SAFFRON'],
- 'PURPLE':['DARK_VIOLET','AMETHYST','DARK_INDIGO','VIOLET','INDIGO','PURPLE','HELIOTROPE','LILAC','PLUM','TAUPE_PURPLE'],
- 'PINK':['FUCHSIA','MAUVE','LAVENDER_BLUSH','DARK_PINK','MAUVE_TAUPE','DARK_SCARLET','PUCE','CRIMSON','PINK','CARDINAL','CARMINE','PALE_PINK','PALE_CHESTNUT']
+colors = ['BLACK','CLEAR','GRAY','SILVER','WHITE','TAUPE_ROSE','CHESTNUT','MAROON','RED','VERMILION','RUSSET','SCARLET',
+          'BURNT_UMBER','TAUPE_MEDIUM','DARK_CHESTNUT','BURNT_SIENNA','RUST','AUBURN','MAHOGANY','PUMPKIN','CHOCOLATE',
+          'TAUPE_PALE','TAUPE_DARK','DARK_PEACH','COPPER','LIGHT_BROWN','BRONZE','PALE_BROWN','DARK_BROWN','SEPIA',
+          'OCHRE','BROWN','CINNAMON','TAN','RAW_UMBER','ORANGE','PEACH','TAUPE_SANDY','GOLDENROD','AMBER','DARK_TAN',
+          'SAFFRON','ECRU','GOLD','PEARL','BUFF','FLAX','BRASS','GOLDEN_YELLOW','LEMON','CREAM','BEIGE','OLIVE','YELLOW',
+          'IVORY','LIME','YELLOW_GREEN','DARK_OLIVE','CHARTREUSE','FERN_GREEN','MOSS_GREEN','GREEN','MINT_GREEN',
+          'ASH_GRAY','EMERALD','SEA_GREEN','SPRING_GREEN','DARK_GREEN','JADE','AQUAMARINE','PINE_GREEN','TURQUOISE',
+          'PALE_BLUE','TEAL','AQUA','LIGHT_BLUE','CERULEAN','SKY_BLUE','CHARCOAL','SLATE_GRAY','MIDNIGHT_BLUE','AZURE',
+          'COBALT','LAVENDER','DARK_BLUE','BLUE','PERIWINKLE','DARK_VIOLET','AMETHYST','DARK_INDIGO','VIOLET','INDIGO',
+          'PURPLE','HELIOTROPE','LILAC','PLUM','TAUPE_PURPLE','TAUPE_GRAY','FUCHSIA','MAUVE','LAVENDER_BLUSH','DARK_PINK',
+          'MAUVE_TAUPE','DARK_SCARLET','PUCE','CRIMSON','PINK','CARDINAL','CARMINE','PALE_PINK','PALE_CHESTNUT'
+         ]
+color_keys = ['BLACK','WHITE','RED','BROWN','YELLOW','GREEN','BLUE','ORANGE','PURPLE','PINK']
+color_groups = {'BLACK':['BLACK','CHARCOAL'],
+                'WHITE':['GRAY','SILVER','WHITE','IVORY','PEARL','ASH_GRAY'],
+                'RED':['TAUPE_ROSE','CHESTNUT','MAROON','RED','VERMILION','RUSSET','SCARLET'],
+                'BROWN':['PUMPKIN','CHOCOLATE','TAUPE_PALE','TAUPE_DARK','DARK_PEACH','COPPER','LIGHT_BROWN'],
+                'YELLOW':['SAFFRON','ECRU','GOLD','BUFF','FLAX','BRASS','GOLDEN_YELLOW','LEMON','CREAM','BEIGE','OLIVE','YELLOW'],
+                'GREEN':['LIME','YELLOW_GREEN','DARK_OLIVE','CHARTREUSE','FERN_GREEN','MOSS_GREEN','GREEN','MINT_GREEN','EMERALD','SEA_GREEN','SPRING_GREEN','DARK_GREEN','JADE','AQUAMARINE','PINE_GREEN'],
+                'BLUE':['TURQUOISE','PALE_BLUE','TEAL','AQUA','LIGHT_BLUE','CERULEAN','SKY_BLUE','MIDNIGHT_BLUE','AZURE','COBALT','LAVENDER','DARK_BLUE','BLUE'],
+                'ORANGE':['ORANGE','TAUPE_SANDY','GOLDENROD','AMBER','DARK_TAN','SAFFRON'],
+                'PURPLE':['DARK_VIOLET','AMETHYST','DARK_INDIGO','VIOLET','INDIGO','PURPLE','HELIOTROPE','LILAC','PLUM','TAUPE_PURPLE'],
+                'PINK':['FUCHSIA','MAUVE','LAVENDER_BLUSH','DARK_PINK','MAUVE_TAUPE','DARK_SCARLET','PUCE','CRIMSON','PINK','CARDINAL','CARMINE','PALE_PINK','PALE_CHESTNUT']
 }
-eye_colors = [
- 'IRIS_EYE_AMETHYST','IRIS_EYE_AQUAMARINE','IRIS_EYE_BRASS','IRIS_EYE_BRONZE','IRIS_EYE_COBALT','IRIS_EYE_COPPER','IRIS_EYE_EMERALD',
- 'IRIS_EYE_GOLD','IRIS_EYE_HELIOTROPE','IRIS_EYE_JADE','IRIS_EYE_OCHRE','IRIS_EYE_RAW_UMBER','IRIS_EYE_RUST','IRIS_EYE_SILVER',
- 'IRIS_EYE_SLATE_GRAY','IRIS_EYE_TURQUOISE'
-]
-
+color_names = {'BLACK':['black','charcoal'],
+               'WHITE':['gray','silver','white','ivory'],
+               'RED':['rose','maroon','red','scarlet'],
+               'BROWN':['pale','light brown','copper','brown'],
+               'YELLOW':['gold','brass','beige','yellow'],
+               'GREEN':['green','emerald','jade'],
+               'BLUE':['turquoise','teal','azure','cobalt','blue'],
+               'ORANGE':['orange','sandy','amber'],
+               'PURPLE':['violet','amethyst','purple'],
+               'PINK':['crimson','pink','scarlet']
+              }
+eye_colors = ['IRIS_EYE_AMETHYST','IRIS_EYE_AQUAMARINE','IRIS_EYE_BRASS','IRIS_EYE_BRONZE','IRIS_EYE_COBALT',
+              'IRIS_EYE_COPPER','IRIS_EYE_EMERALD','IRIS_EYE_GOLD','IRIS_EYE_HELIOTROPE','IRIS_EYE_JADE',
+              'IRIS_EYE_OCHRE','IRIS_EYE_RAW_UMBER','IRIS_EYE_RUST','IRIS_EYE_SILVER','IRIS_EYE_SLATE_GRAY',
+              'IRIS_EYE_TURQUOISE'
+             ]
+eye_color_names = {'IRIS_EYE_AMETHYST':'amethyst',
+                   'IRIS_EYE_AQUAMARINE':'aquamarine',
+                   'IRIS_EYE_BRASS':'brass',
+                   'IRIS_EYE_BRONZE':'bronze',
+                   'IRIS_EYE_COBALT':'cobalt',
+                   'IRIS_EYE_COPPER':'copper',
+                   'IRIS_EYE_EMERALD':'emerald',
+                   'IRIS_EYE_GOLD':'golden',
+                   'IRIS_EYE_HELIOTROPE':'purple',
+                   'IRIS_EYE_JADE':'jade',
+                   'IRIS_EYE_OCHRE':'brown',
+                   'IRIS_EYE_RAW_UMBER':'brown',
+                   'IRIS_EYE_RUST':'brown',
+                   'IRIS_EYE_SILVER':'silver',
+                   'IRIS_EYE_SLATE_GRAY':'gray',
+                   'IRIS_EYE_TURQUOISE':'turquoise'
+                  }
+part_keys = ['SCALE','CHITIN','SKIN','HAIR','FEATHER','HORN','TUSK']
+part_names = {'SCALE':'scaled',
+              'CHITIN':'chitinous',
+              'SKIN':'skinned',
+              'HAIR':'haired',
+              'FEATHER':'feathered',
+              'HORN':'horned',
+              'TUSK':'tusked'
+             }
 def read_templates():
 #TEMPLATES
  files = []
@@ -1463,19 +1498,24 @@ if __name__ == '__main__':
    creature['ColorTokens'] = {}
    creature['ColorTokens']['Basic'] = []
    creature['ColorTokens']['Caste'] = {}
-   random.shuffle(colors)
-   random.shuffle(eye_colors)
    parts = list(set(creature['Colors']['Parts']))
-   i = 0
    for part in parts:
     if part == 'EYE':
+     random.shuffle(eye_colors)
+     color_text = eye_colors[0]     
      creature['ColorTokens']['Basic'].append('[SET_TL_GROUP:BY_CATEGORY:EYE:'+part+']')
-     creature['ColorTokens']['Basic'].append('[TL_COLOR_MODIFIER:'+eye_colors[i]+':1]')
+     creature['ColorTokens']['Basic'].append('[TL_COLOR_MODIFIER:'+color_text+':1]')
      creature['ColorTokens']['Basic'].append('[TLCM_NOUN:eyes:PLURAL]')
+     colorName = eye_color_names[color_text]+' eyed'
     else:
+     random.shuffle(color_keys)
+     color_key = color_keys[0]
+     color_array = color_groups[color_key]
+     color_text = ':1:'.join(color_array)
      creature['ColorTokens']['Basic'].append('[SET_TL_GROUP:BY_CATEGORY:ALL:'+part+']')
-     creature['ColorTokens']['Basic'].append('[TL_COLOR_MODIFIER:'+colors[i]+':1]')
-    i += 1
+     creature['ColorTokens']['Basic'].append('[TL_COLOR_MODIFIER:'+color_text+':1]')
+     colorName = random.shuffle(color_group_names[color_key])[0]+' '+part_names[part]
+    creature['Names'].append('ADJ:'+colorName)
    for key in creature['Colors'].keys():
     random.shuffle(colors)
     random.shuffle(eye_colors)
