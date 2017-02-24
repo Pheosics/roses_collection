@@ -700,7 +700,7 @@ if __name__ == '__main__':
  def createCreature(n):
   creature = {}
   creature['Parts'] = {}
-  creature['Names'] = []
+  creature['Names'] = {}
   creature['Colors'] = {}
   creature['Colors']['Parts'] = []
 
@@ -737,20 +737,20 @@ if __name__ == '__main__':
  class pickCreature: #Picks from the various templates using random number generation
   def getFlagsPercents(creature):
    creature['Flags'] = []
-
    for key in numbers['percents'].keys():
     if random.randint(1,100) < numbers['percents'][key].get():
      creature['Flags'].append(key)
-     
    creature['Flags'].append('#MALE')
    creature['Flags'].append('#FEMALE')
+   
   def getArgsNumbers(creature):
    creature['Args'] = {}
-   
    for arg in args:
     creature['Args'][arg] = int(random.triangular(numbers['args'][arg]['min'].get(),numbers['args'][arg]['max'].get()))
+    
   def getType(creature):
    creature['Type'] = ''
+   creature['Names']['Type'] = []
    creature['Parts']['Type'] = []
    
    temp_array = []
@@ -800,9 +800,11 @@ if __name__ == '__main__':
      creature['Colors']['Parts'].append(bp)
     for bp in data['TYPE'][type]['BODY']:
      creature['Parts']['Type'].append(bp)
-    creature['Names'] += data['TYPE'][type]['NAME']
+    creature['Names']['Type'] += data['TYPE'][type]['NAME']
+    
   def getSize(creature):
    creature['Size'] = {}
+   creature['Names']['Size'] = [''] #Currently size doesn't contribute to a creatures name
    max = int(random.gauss(numbers['size']['mean'].get(),numbers['size']['sigma'].get()))
    if max < numbers['size']['min'].get():
     max = numbers['size']['min']
@@ -820,11 +822,15 @@ if __name__ == '__main__':
     max = mid
     mid = temp
    creature['Size'] = [min,mid,max]
+   
   def getSpeed(creature):
    creature['Speed'] = {}
+   creature['Names']['Speed'] = [''] #Currently speed doesn't contribute to a creatures name
    for gait in gaits:
     creature['Speed'][gait.capitalize()] = int(random.triangular(numbers['speed'][gait]['min'].get(),numbers['speed'][gait]['max'].get()))
+   
   def getPops(creature):
+   creature['Names']['Population'] = [''] #Currently population numbers don't contribute to a creatures name
    min_pop = int(random.triangular(1,numbers['population']['min'].get()))
    max_pop = int(random.triangular(numbers['population']['min'].get(),numbers['population']['max'].get()))
    creature['Population'] = [min_pop,max_pop]
@@ -837,11 +843,12 @@ if __name__ == '__main__':
    if creature['Flags'].count('#VERMIN') > 0 or creature['Flags'].count('#TINY') > 0:
     creature['Cluster'] = [0,0]
    if creature['Cluster'][0] == 0 and creature['Cluster'][1] > 0: creature['Cluster'][0] = 1
+   
   def getAttributes(creature):
    creature['Attribute'] = {}
    creature['PhysAttribute'] = {}
    creature['MentAttribute'] = {}
-   
+   creature['Names']['Attributes'] = [''] #Currently attributes don't contribute to a creatures name
    for att in phys_attributes:
     if numbers['attributes'][att]['max'].get() > 0:
      g = random.gauss(numbers['attributes'][att]['max'].get(),numbers['attributes'][att]['sigma'].get())
@@ -856,9 +863,10 @@ if __name__ == '__main__':
      d = (g+a)/2
      b,c,e,f = d-5*(g-d)/10,d-2*(g-d)/10,d+2*(g-d)/10,d+5*(g-d)/10
      creature['MentAttribute'][att] = [int(a),int(b),int(c),int(d),int(e),int(f),int(g)]
+   
   def getAge(creature):
    creature['Age'] = {}
-   
+   creature['Names']['Age'] = [''] #Currently age doesn't contribute to a creatures name
    min = random.triangular(numbers['age']['min'].get(),numbers['age']['max'].get())
    max = random.triangular(numbers['age']['max'].get(),numbers['age']['max'].get()+numbers['age']['delta'].get())
    creature['Age']['Max'] = [int(min),int(max)]
@@ -869,10 +877,12 @@ if __name__ == '__main__':
    if creature['Age']['Baby'] > creature['Age']['Child']:
     creature['Age']['Child'] = creature['Age']['Baby']
     creature['Age']['Baby'] = 0
+   creature['Names']['Age'] = ['']
+   
   def getBiome(creature):
    creature['Biome'] = ''
    creature['Parts']['Biome'] = []
-   
+   creature['Names']['Biome'] = []
    temp_array = []
    on = 0
    for key in status['BIOME'].keys():
@@ -884,7 +894,6 @@ if __name__ == '__main__':
     print('Total Number of Biome Templates = ' + str(len(status['BIOME'])))
     print('Number of Biome Templates Enabled = ' + str(on))
     return
-
    i = 0
    while i < 1000:
     check = False
@@ -911,7 +920,6 @@ if __name__ == '__main__':
        break
     else:
      i += 1
-
    if i == 1000:
     print('Unable to get valid biome from those available')
     print('Trouble link = '+prob)
@@ -923,11 +931,12 @@ if __name__ == '__main__':
      creature['Colors']['Parts'].append(bp)
     for bp in data['BIOME'][biome]['BODY']:
      creature['Parts']['Biome'].append(bp)
-    creature['Names'] += data['BIOME'][biome]['NAME']
+    creature['Names']['Biome'] += data['BIOME'][biome]['NAME']
+    
   def getBody(creature):
    creature['Body'] = {}
    creature['Parts']['Body'] = []
-   
+   creature['Names']['Body'] = []
    body_parts = ['TORSO','HEAD','LEG','ARM','HAND','FOOT','EYE','EAR','MOUTH','NOSE','ORGANS','SKELETAL']
    for bodypart in body_parts:
     temp_array = []
@@ -941,7 +950,6 @@ if __name__ == '__main__':
      print('Total Number of '+bodypart.capitalize()+' Templates = ' + str(len(status[bodypart])))
      print('Number of '+bodypart.capitalize()+' Templates Enabled = ' + str(on))
      break
-
     i = 0
     while i < 1000:
      check = False
@@ -968,7 +976,6 @@ if __name__ == '__main__':
         break
      else:
       i += 1
-
     if i == 1000:
      continue
  #    print('Unable to get valid '+bodypart.lower()+' from those available')
@@ -981,7 +988,7 @@ if __name__ == '__main__':
       creature['Colors']['Parts'].append(bp)
      for bp in data[bodypart][part]['BODY']:
       creature['Parts']['Body'].append(bp)
-     creature['Names'] += data[bodypart][part]['NAME']
+     creature['Names']['Body'] += data[bodypart][part]['NAME']
 
    body_parts = ['ATTACHMENT_HEAD','ATTACHMENT_LIMB','ATTACHMENT_TORSO','ATTACHMENT_MISC']
    for bodypart in body_parts:
@@ -996,12 +1003,10 @@ if __name__ == '__main__':
      print('Total Number of '+bodypart.capitalize()+' Templates = ' + str(len(status[bodypart])))
      print('Number of '+bodypart.capitalize()+' Templates Enabled = ' + str(on))
      break
-
     if random.randint(0,1) == 1:
      i = 0
     else:
      i = 2000
-
     while i < 1000:
      check = False
      part = temp_array[random.randint(0,on-1)]
@@ -1027,7 +1032,6 @@ if __name__ == '__main__':
         break
      else:
       i += 1
-
     if i == 1000:
      continue
  #    print('Unable to get valid '+bodypart.lower()+' from those available')
@@ -1040,11 +1044,12 @@ if __name__ == '__main__':
       creature['Colors']['Parts'].append(bp)
      for bp in data[bodypart][part]['BODY']:
       creature['Parts']['Body'].append(bp)
-     creature['Names'] += data[bodypart][part]['NAME']
+     creature['Names']['Body'] += data[bodypart][part]['NAME']
+     
   def getMaterials(creature):
    creature['Material'] = ''
    creature['Parts']['Material'] = []
-   
+   creature['Names']['Material'] = []
    temp_array = []
    on = 0
    for key in status['MATERIAL'].keys():
@@ -1056,7 +1061,6 @@ if __name__ == '__main__':
     print('Total Number of Material Templates = ' + str(len(status['MATERIAL'])))
     print('Number of Material Templates Enabled = ' + str(on))
     return
-
    i = 0
    while i < 1000:
     check = False
@@ -1083,7 +1087,6 @@ if __name__ == '__main__':
        break
     else:
      i += 1
-
    if i == 1000:
     print('Unable to get valid material from those available')
     print('Trouble link = '+prob)
@@ -1095,7 +1098,8 @@ if __name__ == '__main__':
      creature['Colors']['Parts'].append(bp)
     for bp in data['MATERIAL'][mat]['BODY']:
      creature['Parts']['Material'].append(bp)
-    creature['Names'] += data['MATERIAL'][mat]['NAME']
+    creature['Names']['Material'] += data['MATERIAL'][mat]['NAME']
+    
   def getCastes(creature):
    creature['Caste'] = {}
    creature['Caste']['Male'] = []
@@ -1104,7 +1108,7 @@ if __name__ == '__main__':
    creature['Parts']['Male'] = {}
    creature['Parts']['Female'] = {}
    creature['Parts']['Neutral'] = {}
-   
+   creature['Names']['Caste'] = [''] #Currently castes don't contribute to the name of the creature
    male_array = []
    female_array = []
    temp_array = []
@@ -1129,7 +1133,6 @@ if __name__ == '__main__':
        female_array.append(key)
       else:
        temp_array.append(key)
-
    for i in range(numbers['caste']['male'].get()):
     if len(male_array) > 0:
      random.shuffle(male_array)
@@ -1193,10 +1196,11 @@ if __name__ == '__main__':
        creature['Parts']['Neutral'][caste].append(bp)
      creature.update()
      temp_array.pop(num)
+     
   def getSubTypes(creature):
    creature['SubType'] = []
    creature['Parts']['SubType'] = []
-   
+   creature['Names']['SubType'] = []
    temp_array = []
    on = 0
    for key in status['SUBTYPE'].keys():
@@ -1215,7 +1219,6 @@ if __name__ == '__main__':
       if check:
        temp_array.append(key)
        on += 1
-
    for i in range(numbers['subtypes'].get()):
     if len(temp_array) > 0:
      stypen = random.randint(0,len(temp_array)-1)
@@ -1232,12 +1235,13 @@ if __name__ == '__main__':
        creature['Colors']['Parts'].append(bp)
       for bp in data['SUBTYPE'][stype]['BODY']:
        creature['Parts']['SubType'].append(bp)
-      creature['Names'] += data['SUBTYPE'][stype]['NAME']
+      creature['Names']['SubType'] += data['SUBTYPE'][stype]['NAME']
      creature.update()
      temp_array.pop(stypen)
+     
   def getInteractions(creature):
    creature['Interaction'] = []
-
+   creature['Names']['Interaction'] = []
    if numbers['interaction']['max'].get() > 0:
     temp_array = []
     on = 0
@@ -1257,7 +1261,6 @@ if __name__ == '__main__':
        if check:
         temp_array.append(key)
         on += 1
-
     for i in range(numbers['interaction']['max'].get()):
      if len(temp_array) > 0 and random.randint(1,100) < numbers['interaction']['chance'].get():
       stypen = random.randint(0,len(temp_array)-1)
@@ -1274,12 +1277,13 @@ if __name__ == '__main__':
         creature['Colors']['Parts'].append(bp)
        for bp in data['INTERACTION'][stype]['BODY']:
         creature['Parts']['Interaction'].append(bp)
-       creature['Names'] += data['INTERACTION'][stype]['NAME']
+       creature['Names']['Interaction'] += data['INTERACTION'][stype]['NAME']
       creature.update()
       temp_array.pop(stypen)
+      
   def getExtracts(creature):
    creature['Extract'] = []
-
+   creature['Names']['Extract'] = []
    temp_array = []
    on = 0
    for key in status['EXTRACT'].keys():
@@ -1298,7 +1302,6 @@ if __name__ == '__main__':
       if check:
        temp_array.append(key)
        on += 1
-
    random.shuffle(temp_array)
    for extract in temp_array:
     add = True
@@ -1313,11 +1316,12 @@ if __name__ == '__main__':
       creature['Colors']['Parts'].append(bp)
      for bp in data['EXTRACT'][extract]['BODY']:
       creature['Parts']['Extract'].append(bp)
-     creature['Names'] += data['EXTRACT'][extract]['NAME']
+     creature['Names']['Extract'] += data['EXTRACT'][extract]['NAME']
      creature.update()
+     
   def getAttacks(creature):
    creature['Attacks'] = []
-
+   creature['Names']['Attack'] = [''] #Currently attacks don't contribute to creature names
    # Checks for attacks in the creature type
    for attack in data['TYPE'][creature['Type']]['ATTACKS']:
     if list(status['ATTACK'].keys()).count(attack) > 0 and status['ATTACK'][attack] == 'on':
@@ -1410,16 +1414,15 @@ if __name__ == '__main__':
    for caste in creature['Caste']['Neutral']:
     creature['Description'][caste] = ''.join(data['CASTE'][caste]['DESCRIPTION'])
     creature['Description'][caste] = '[DESCRIPTION:' + creature['Description']['Basic'] + ' ' + creature['Description'][caste] + ']'
+    
   def createBodyToken(creature):
    creature['BodyToken'] = {}
    creature['BodyToken']['Basic'] = ['[BODY']
-
    creature['BodyToken']['Basic'] = creature['BodyToken']['Basic'] + creature['Parts']['Body']
    for key in creature['Parts'].keys():
     if key != 'Body' and key != 'Male' and key != 'Female' and key != 'Neutral':
      creature['BodyToken']['Basic'] = creature['BodyToken']['Basic'] + creature['Parts'][key]
    creature['BodyToken']['Basic'] = ':'.join(creature['BodyToken']['Basic']) +']'
-
    for caste in creature['Caste']['Male']:
     creature['BodyToken'][caste] = ':'.join(creature['Parts']['Male'][caste])
     creature['BodyToken'][caste] = '[BODY:' + creature['BodyToken'][caste] + ']'
@@ -1429,9 +1432,9 @@ if __name__ == '__main__':
    for caste in creature['Caste']['Neutral']:
     creature['BodyToken'][caste] = ':'.join(creature['Parts']['Neutral'][caste])
     creature['BodyToken'][caste] = '[BODY:' + creature['BodyToken'][caste] + ']'
+    
   def createSpeedToken(creature):
    creature['SpeedToken'] = {}
-   
    if creature['Flags'].count('#SWIMMING_GAITS') > 0 or creature['Flags'].count('#ONLY_SWIMMING') > 0:
     temp = creature['Speed']['Walk']
     creature['Speed']['Walk'] = creature['Speed']['Swim']
@@ -1454,36 +1457,35 @@ if __name__ == '__main__':
     creature['Speed']['Climb'] = 0
    if creature['Flags'].count('#NOLEGS') > 0:
     creature['Speed']['Walk'] = 0
-   
    for gait in gaits:
     if creature['Speed'][gait.capitalize()] > len(speed_vals)-1: creature['Speed'][gait.capitalize()] = len(speed_vals)-1
     if creature['Speed'][gait.capitalize()] > 0:
      creature['SpeedToken'][gait.capitalize()] = ''
      creature['SpeedToken'][gait.capitalize()] = '[APPLY_CREATURE_VARIATION:'+gaits_cvs[gait]+':'+speed_vals[creature['Speed'][gait.capitalize()]]+']'
+     
   def createAgeToken(creature):
    creature['Age']['Raws'] = []
-   
    creature['Age']['Raws'].append('[MAX_AGE:'+str(creature['Age']['Max'][0])+':'+str(creature['Age']['Max'][1])+']')
    if creature['Age']['Baby'] > 0:
     creature['Age']['Raws'].append('[BABY:'+str(creature['Age']['Baby'])+']')
    if creature['Age']['Child'] > 0:
     creature['Age']['Raws'].append('[CHILD:'+str(creature['Age']['Child'])+']')
+    
   def createSizeToken(creature):
    creature['SizeToken'] = []
-   
    creature['SizeToken'].append('[BODY_SIZE:0:0:'+str(creature['Size'][0])+']')
    creature['SizeToken'].append('[BODY_SIZE:'+str(creature['Age']['Baby']+1)+':0:'+str(creature['Size'][1])+']')
    creature['SizeToken'].append('[BODY_SIZE:'+str(creature['Age']['Child']+2)+':0:'+str(creature['Size'][2])+']')
+   
   def createPopToken(creature):
    creature['PopTokens'] = []
-   
    if creature['Population'][1] > 0:
     creature['PopTokens'].append('[POPULATION_NUMBER:'+str(creature['Population'][0])+':'+str(creature['Population'][1])+']')
    if creature['Cluster'][1] > 0:
     creature['PopTokens'].append('[CLUSTER_NUMBER:'+str(creature['Cluster'][0])+':'+str(creature['Cluster'][1])+']')
+    
   def createAttributeToken(creature):
    creature['Attribute']['Raws'] = []
-   
    for att in creature['PhysAttribute'].keys():
     a = creature['PhysAttribute'][att]
     for x in range(len(a)):
@@ -1494,6 +1496,7 @@ if __name__ == '__main__':
     for x in range(len(a)):
      a[x] = str(a[x])
     creature['Attribute']['Raws'].append('[MENT_ATT_RANGE:'+att+':'+':'.join(a)+']')
+    
   def createColors(creature):
    creature['ColorTokens'] = {}
    creature['ColorTokens']['Basic'] = []
@@ -1531,27 +1534,59 @@ if __name__ == '__main__':
        else:
         creature['ColorTokens']['Caste'][key].append('[SET_TL_GROUP:BY_CATEGORY:ALL:'+part+']')
         creature['ColorTokens']['Caste'][key].append('[TL_COLOR_MODIFIER:'+colors[i]+':1]')
-       i += 1      
+       i += 1
+       
   def createName(creature):
    creature['NameDict'] = {}
-   creature['NameDict']['Adjectives'] = {}
-   creature['NameDict']['Prefixes'] = {}
-   creature['NameDict']['Mains'] = {}
-   creature['NameDict']['Suffixes'] = {}
-   
-   for entry in creature['Names']:
-    if entry.split(':')[0] == 'ADJ':
-     creature['NameDict']['Adjectives'][entry.split(':')[1]] = 1
-    if entry.split(':')[0] == 'PREFIX':
-     creature['NameDict']['Prefixes'][entry.split(':')[1]] = 1
-    if entry.split(':')[0] == 'MAIN':
-     creature['NameDict']['Mains'][entry.split(':')[1]] = 1
-    if entry.split(':')[0] == 'SUFFIX':
-     creature['NameDict']['Suffixes'][entry.split(':')[1]] = 1
-     
-   num_adj = random.randint(0,2)
+   no_name = True
+   nADJ = 0
+   nPREFIX = 0
+   nMAIN = 0
+   nSUFFIX = 0
+   i = 0
+   while no_name and i < 1000:
+    creature['NameDict']['Adjectives'] = {}
+    creature['NameDict']['Prefixes'] = {}
+    creature['NameDict']['Mains'] = {}
+    creature['NameDict']['Suffixes'] = {}
+    for key in creature['Names'].keys():
+     table = creature['Names'][key]
+     random.shuffle(table)
+     split = table[0].split(':')[0]
+     if split == 'ADJ':
+      creature['NameDict']['Adjectives'][table[0].split(':')[1]] = 1
+      nADJ += 1
+     if split == 'PREFIX':
+      creature['NameDict']['Prefixes'][table[0].split(':')[1]] = 1
+      nPREFIX += 1
+     if split == 'MAIN':
+      creature['NameDict']['Mains'][table[0].split(':')[1]] = 1
+      nMAIN += 1
+     if split == 'SUFFIX':
+      creature['NameDict']['Suffixes'][table[0].split(':')[1]] = 1
+      nSUFFIX += 1
+    i += 1
+    if nADJ >= 1 and nPREFIX >= 1 and nMAIN >= 1:
+     no_name = False
+   if i == 1000:
+    creature['NameDict']['Adjectives'] = {}
+    creature['NameDict']['Prefixes'] = {}
+    creature['NameDict']['Mains'] = {}
+    creature['NameDict']['Suffixes'] = {}
+    for key in creature['Names'].keys():
+     for entry in creature['Names'][key]:
+      if entry.split(':')[0] == 'ADJ':
+       creature['NameDict']['Adjectives'][entry.split(':')[1]] = 1
+      if entry.split(':')[0] == 'PREFIX':
+       creature['NameDict']['Prefixes'][entry.split(':')[1]] = 1
+      if entry.split(':')[0] == 'MAIN':
+       creature['NameDict']['Mains'][entry.split(':')[1]] = 1
+      if entry.split(':')[0] == 'SUFFIX':
+       creature['NameDict']['Suffixes'][entry.split(':')[1]] = 1
+      
+   num_adj = random.randint(1,2)
    num_prf = random.randint(0,1)
-   num_man = random.randint(1,2)
+   num_man = random.randint(1,1)
    num_sff = random.randint(0,1)
    
    temp = list(creature['NameDict']['Adjectives'].keys())
@@ -1567,11 +1602,21 @@ if __name__ == '__main__':
    random.shuffle(temp)
    suffix = temp[:num_sff]
    
-   name = ' '.join(adjectives)+' '+''.join(prefix)+' '.join(main)+''.join(suffix)
+   adjectives = ' '.join(adjectives)
+   prefix = ''.join(prefix)
+   main = ' '.join(main)
+   suffix = ''.join(suffix)
+   if prefix != '':
+    main = prefix+'-'+main
+   if suffix != '':
+    main = main+'-'+suffix
+   
+   name = adjectives+' '+main
    test = ':'+name+':'+name+'s:'+name
    test = test.replace(': ',':')
    name = test.split(':')[1].lower()
    creature['Name'] = name+':'+name+'s:'+name
+   
   def createRaws(creature,j):
    creature['Raws'] = ['[CREATURE:RC_'+str(numbers['seed'].get())+'_'+str(j)+']']
    creature['Raws'].append('[NAME:'+creature['Name']+']')
