@@ -12,9 +12,10 @@ function enhanceCreature(unit)
  local EnhancedCreatureTable = persistTable.GlobalTable.roses.EnhancedCreatureTable
  if EnhancedCreatureTable then
   local creatureID = df.global.world.raws.creatures.all[unit.race].id
-  if EnhancedCreatureTable[creatureID] then
-   unitTable.Enhanced = 'true'  
-   local creatureTable = EnhancedCreatureTable[creatureID]
+  local casteID = df.global.world.raws.creatures.all[unit.caste].id
+  if safe_index(EnhancedCreatureTable,creatureID,casteID) then
+   unitTable.Enhanced = 'true'
+   local creatureTable = EnhancedCreatureTable[creatureID][casteID]
    if creatureTable.Size then setSize(unit,creatureTable.Size) end
    if creatureTable.Attributes then setAttributes(unit,creatureTable.Attributes) end
    if creatureTable.Skills then setSkills(unit,creatureTable.Skills) end

@@ -79,7 +79,11 @@ function getData(table,dirLocation,filename,tokenCheck,test,verbose)
   local count = 1
   for i,line in ipairs(data[file]) do
    if split(line,':')[1] == tokenCheck then
-    dataInfo[file][count] = {split(split(line,':')[2],']')[1],i,0}
+    if #split(line,':') == 3 then
+     dataInfo[file][count] = {split(line,':')[2]..':'..split(split(line,':')[3],']')[1],i,0}
+    else
+     dataInfo[file][count] = {split(split(line,':')[2],']')[1],i,0}
+    end
     count = count + 1
    end
   end
@@ -983,7 +987,7 @@ function makeEnhancedCreatureTable(test,verbose)
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
-   creatureToken = x[1]
+   creatureToken,casteToken = split(x[1],':')
    startLine = x[2]+1
    if i == #dataInfo then
     endLine = #data
@@ -991,7 +995,8 @@ function makeEnhancedCreatureTable(test,verbose)
     endLine = dataInfo[i+1][2]-1
    end
    creatures[creatureToken] = {}
-   creature = creatures[creatureToken]
+   creatures[creatureToken][casteToken] = {}
+   creature = creatures[creatureToken][casteToken]
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -1046,6 +1051,41 @@ function makeEnhancedCreatureTable(test,verbose)
    end
   end
  end
+
+-- Copy any ALL caste data into the respective CREATURE:CASTE combo, CASTE caste data is given priority
+ for _,creatureToken in pairs(creatures._children) do
+  for n,creature in pairs(df.global.world.raws.creatures.all) do
+   if creatureToken == creature.id then
+    creatureID = n
+    break
+   end
+  end
+  if creatureID then
+   for _,caste in pairs(creature.caste) do
+    if not creatures[creatureToken][caste.id] then
+     creatures[creatureToken][caste.id] = {}
+    end
+   end
+  end
+  if creatures[creatureToken].ALL then
+   for _,casteToken in pairs(creatures[creatureToken]._children) do
+    if not casteToken == 'ALL' then
+     for _,x in pairs(creatures[creatureToken].ALL._children) do
+      if not creatures[creatureToken][casteToken][x] then
+       creatures[creatureToken][casteToken][x] = creatures[creatureToken].ALL[x]
+      else
+       for _,y in pairs(creatures[creatureToken].ALL[x]._children) do
+        if not creatures[creatureToken][casteToken][x][y] then
+         creatures[creatureToken][casteToken][x][y] = creatures[creatureToken].ALL[x][y]
+        end
+       end
+      end
+     end
+    end
+   end
+  end
+ end
+
  return true
 end
 
@@ -1082,6 +1122,8 @@ function makeEnhancedItemTable(test,verbose)
     item.Name = array[2]
    elseif test == '[DESCRIPTION' then
     item.Description = array[2]
+   elseif test == '[CLASS' then
+    item.Class = array[2]
    elseif test == '[ON_EQUIP' then
     item.OnEquip = item.OnEquip or {}
     onTable = item.OnEquip
@@ -1193,128 +1235,233 @@ function makeEnhancedMaterialTable(test,verbose)
  local split = utils.split_string
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.EnhancedMaterialTable = {}
+ persistTable.GlobalTable.roses.EnhancedMaterialTable.Inorganic = {}
+ persistTable.GlobalTable.roses.EnhancedMaterialTable.Creature = {}
+ persistTable.GlobalTable.roses.EnhancedMaterialTable.Plant = {}
+ persistTable.GlobalTable.roses.EnhancedMaterialTable.Misc = {}
  materials = persistTable.GlobalTable.roses.EnhancedMaterialTable
-   
+
  dataFiles,dataInfoFiles,files = getData('Enhanced Material','/raw/systems/Enhanced','Ematerials','[MATERIAL',test,verbose)
  if not dataFiles then return false end
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
- for i,x in ipairs(dataInfo) do
-  materialToken = x[1]
-  startLine = x[2]+1
-  if i ==#dataInfo then
-   endLine = #data
-  else
-   endLine = dataInfo[i+1][2]-1
-  end
-  materials[materialToken] = {}
-  material = materials[materialToken]
-  for j = startLine,endLine,1 do
-   test = data[j]:gsub("%s+","")
-   array = split(data[j],':')
-   for k = 1, #array, 1 do
-    array[k] = split(array[k],']')[1]
+  for i,x in ipairs(dataInfo) do
+   materialToken,materialIndex = split(x[1],':')
+   startLine = x[2]+1
+   if i ==#dataInfo then
+    endLine = #data
+   else
+    endLine = dataInfo[i+1][2]-1
    end
-   test = array[1]
-   if test == '[NAME' then
-    material.Name = array[2]
-   elseif test == '[DESCRIPTION' then
-    material.Description = array[2]
-   elseif test == '[ON_EQUIP' then
-    material.OnEquip = material.OnEquip or {}
-    onTable = material.OnEquip
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
-   elseif test == '[ON_STRIKE' then
-    material.OnStrike = material.OnStrike or {}
-    onTable = material.OnStrike
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
-   elseif test == '[ON_PARRY' then
-    material.OnParry = material.OnParry or {}
-    onTable = material.OnParry
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
-   elseif test == '[ON_DODGE' then
-    material.OnDodge = material.OnDodge or {}
-    onTable = material.OnDodge
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
-   elseif test == '[ATTRIBUTE_CHANGE' then
-    onTable.Attributes = onTable.Attributes or {}
-    onTable.Attributes[array[2]] = array[3]
-   elseif test == '[SKILL_CHANGE' then
-    onTable.Skills = onTable.Skills or {}
-    onTable.Skills[array[2]] = array[3]
-   elseif test == '[TRAIT_CHANGE' then
-    onTable.Traits = onTable.Traits or {}
-    onTable.Traits[array[2]] = array[3]
-   elseif test == '[STAT_CHANGE' then
-    onTable.Stats = onTable.Stats or {}
-    onTable.Stats[stat] = array[3]
-   elseif test == '[RESISTANCE_CHANGE' then
-    onTable.Resistances = onTable.Resistances or {}
-    onTable.Resistances[array[2]] = array[3]
-   elseif test == '[INTERACTION_ADD' then
-    onTable.Interactions = onTable.Interactions or {}
-    onTable.Interactions[#onTable.Interactions+1] = array[2]
-   elseif test == '[SYNDROME_ADD' then
-    onTable.Syndromes = onTable.Syndromes or {}
-    onTable.Syndromes[#onTable.Syndromes+1] = array[2]
-   elseif test == '[ATTACKER_ATTRIBUTE_CHANGE' then
-    onTable.AttackerAttributes = onTable.AttackerAttributes or {}
-    onTable.AttackerAttributes[array[2]] = array[3]
-   elseif test == '[ATTACKER_SKILL_CHANGE' then
-    onTable.AttackerSkills = onTable.AttackerSkills or {}
-    onTable.AttackerSkills[array[2]] = array[3]
-   elseif test == '[ATTACKER_TRAIT_CHANGE' then
-    onTable.AttackerTraits = onTable.AttackerTraits or {}
-    onTable.AttackerTraits[array[2]] = array[3]
-   elseif test == '[ATTACKER_STAT_CHANGE' then
-    onTable.AttackerStats = onTable.AttackerStats or {}
-    onTable.AttackerStats[stat] = array[3]
-   elseif test == '[ATTACKER_RESISTANCE_CHANGE' then
-    onTable.AttackerResistances = onTable.AttackerResistances or {}
-    onTable.AttackerResistances[array[2]] = array[3]
-   elseif test == '[ATTACKER_INTERACTION_ADD' then
-    onTable.AttackerInteractions = onTable.AttackerInteractions or {}
-    onTable.AttackerInteractions[#onTable.AttackerInteractions+1] = array[2]
-   elseif test == '[ATTACKER_SYNDROME_ADD' then
-    onTable.AttackerSyndromes = onTable.AttackerSyndromes or {}
-    onTable.AttackerSyndromes[#onTable.SAttackeryndromes+1] = array[2]
-   elseif test == '[ATTACKER_CHANGE_DUR' then
-    onTable.AttackerDur = array[2]
-   elseif test == '[DEFENDER_ATTRIBUTE_CHANGE' then
-    onTable.DefenderAttributes = onTable.DefenderAttributes or {}
-    onTable.DefenderAttributes[array[2]] = array[3]
-   elseif test == '[DEFENDER_SKILL_CHANGE' then
-    onTable.DefenderSkills = onTable.DefenderSkills or {}
-    onTable.DefenderSkills[array[2]] = array[3]
-   elseif test == '[DEFENDER_TRAIT_CHANGE' then
-    onTable.DefenderTraits = onTable.DefenderTraits or {}
-    onTable.DefenderTraits[array[2]] = array[3]
-   elseif test == '[DEFENDER_STAT_CHANGE' then
-    onTable.DefenderStats = onTable.DefenderStats or {}
-    onTable.DefenderStats[stat] = array[3]
-   elseif test == '[DEFENDER_RESISTANCE_CHANGE' then
-    onTable.DefenderResistances = onTable.DefenderResistances or {}
-    onTable.DefenderResistances[array[2]] = array[3]
-   elseif test == '[DEFENDER_INTERACTION_ADD' then
-    onTable.DefenderInteractions = onTable.DefenderInteractions or {}
-    onTable.DefenderInteractions[#onTable.DefenderInteractions+1] = array[2]
-   elseif test == '[DEFENDER_SYNDROME_ADD' then
-    onTable.DefenderSyndromes = onTable.DefenderSyndromes or {}
-    onTable.DefenderSyndromes[#onTable.DefenderSyndromes+1] = array[2]
-   elseif test == '[DEFENDER_CHANGE_DUR' then
-    onTable.DefenderDur = array[2]
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],']')[1]
+    end
+    test = array[1]
+    material = {}
+    if test == '[NAME' then
+     material.Name = array[2]
+    elseif test == '[DESCRIPTION' then
+     material.Description = array[2]
+    elseif test == '[ON_EQUIP' then
+     material.OnEquip = material.OnEquip or {}
+     onTable = material.OnEquip
+     onTable.Script = onTable.Script or {}
+     onTable.Script[#onTable.Script+1] = array[2]
+    elseif test == '[ON_STRIKE' then
+     material.OnStrike = material.OnStrike or {}
+     onTable = material.OnStrike
+     onTable.Script = onTable.Script or {}
+     onTable.Script[#onTable.Script+1] = array[2]
+    elseif test == '[ON_PARRY' then
+     material.OnParry = material.OnParry or {}
+     onTable = material.OnParry
+     onTable.Script = onTable.Script or {}
+     onTable.Script[#onTable.Script+1] = array[2]
+    elseif test == '[ON_DODGE' then
+     material.OnDodge = material.OnDodge or {}
+     onTable = material.OnDodge
+     onTable.Script = onTable.Script or {}
+     onTable.Script[#onTable.Script+1] = array[2]
+    elseif test == '[ATTRIBUTE_CHANGE' then
+     onTable.Attributes = onTable.Attributes or {}
+     onTable.Attributes[array[2]] = array[3]
+    elseif test == '[SKILL_CHANGE' then
+     onTable.Skills = onTable.Skills or {}
+     onTable.Skills[array[2]] = array[3]
+    elseif test == '[TRAIT_CHANGE' then
+     onTable.Traits = onTable.Traits or {}
+     onTable.Traits[array[2]] = array[3]
+    elseif test == '[STAT_CHANGE' then
+     onTable.Stats = onTable.Stats or {}
+     onTable.Stats[stat] = array[3]
+    elseif test == '[RESISTANCE_CHANGE' then
+     onTable.Resistances = onTable.Resistances or {}
+     onTable.Resistances[array[2]] = array[3]
+    elseif test == '[INTERACTION_ADD' then
+     onTable.Interactions = onTable.Interactions or {}
+     onTable.Interactions[#onTable.Interactions+1] = array[2]
+    elseif test == '[SYNDROME_ADD' then
+     onTable.Syndromes = onTable.Syndromes or {}
+     onTable.Syndromes[#onTable.Syndromes+1] = array[2]
+    elseif test == '[ATTACKER_ATTRIBUTE_CHANGE' then
+     onTable.AttackerAttributes = onTable.AttackerAttributes or {}
+     onTable.AttackerAttributes[array[2]] = array[3]
+    elseif test == '[ATTACKER_SKILL_CHANGE' then
+     onTable.AttackerSkills = onTable.AttackerSkills or {}
+     onTable.AttackerSkills[array[2]] = array[3]
+    elseif test == '[ATTACKER_TRAIT_CHANGE' then
+     onTable.AttackerTraits = onTable.AttackerTraits or {}
+     onTable.AttackerTraits[array[2]] = array[3]
+    elseif test == '[ATTACKER_STAT_CHANGE' then
+     onTable.AttackerStats = onTable.AttackerStats or {}
+     onTable.AttackerStats[stat] = array[3]
+    elseif test == '[ATTACKER_RESISTANCE_CHANGE' then
+     onTable.AttackerResistances = onTable.AttackerResistances or {}
+     onTable.AttackerResistances[array[2]] = array[3]
+    elseif test == '[ATTACKER_INTERACTION_ADD' then
+     onTable.AttackerInteractions = onTable.AttackerInteractions or {}
+     onTable.AttackerInteractions[#onTable.AttackerInteractions+1] = array[2]
+    elseif test == '[ATTACKER_SYNDROME_ADD' then
+     onTable.AttackerSyndromes = onTable.AttackerSyndromes or {}
+     onTable.AttackerSyndromes[#onTable.SAttackeryndromes+1] = array[2]
+    elseif test == '[ATTACKER_CHANGE_DUR' then
+     onTable.AttackerDur = array[2]
+    elseif test == '[DEFENDER_ATTRIBUTE_CHANGE' then
+     onTable.DefenderAttributes = onTable.DefenderAttributes or {}
+     onTable.DefenderAttributes[array[2]] = array[3]
+    elseif test == '[DEFENDER_SKILL_CHANGE' then
+     onTable.DefenderSkills = onTable.DefenderSkills or {}
+     onTable.DefenderSkills[array[2]] = array[3]
+    elseif test == '[DEFENDER_TRAIT_CHANGE' then
+     onTable.DefenderTraits = onTable.DefenderTraits or {}
+     onTable.DefenderTraits[array[2]] = array[3]
+    elseif test == '[DEFENDER_STAT_CHANGE' then
+     onTable.DefenderStats = onTable.DefenderStats or {}
+     onTable.DefenderStats[stat] = array[3]
+    elseif test == '[DEFENDER_RESISTANCE_CHANGE' then
+     onTable.DefenderResistances = onTable.DefenderResistances or {}
+     onTable.DefenderResistances[array[2]] = array[3]
+    elseif test == '[DEFENDER_INTERACTION_ADD' then
+     onTable.DefenderInteractions = onTable.DefenderInteractions or {}
+     onTable.DefenderInteractions[#onTable.DefenderInteractions+1] = array[2]
+    elseif test == '[DEFENDER_SYNDROME_ADD' then
+     onTable.DefenderSyndromes = onTable.DefenderSyndromes or {}
+     onTable.DefenderSyndromes[#onTable.DefenderSyndromes+1] = array[2]
+    elseif test == '[DEFENDER_CHANGE_DUR' then
+     onTable.DefenderDur = array[2]
+    end
+   end
+   -- Seperate materials into Inorganic, Creature, and Plant
+   if materialToken == 'INORGANIC' then
+    materials.Inorganic[materialIndex] = material
+   else
+    creatureCheck = false
+    plantCheck = false
+    for _,creature in pairs(df.global.world.raws.creatures.all) do
+     if creature.id == materialToken then
+      materials.Creature[materialToken] =  materials.Creature[materialToken] or {}
+      materials.creature[materialToken][materialIndex] = material
+      creatureCheck = true
+      break
+     end
+    end
+    if not creatureCheck then
+     for _,plant in pairs(df.global.world.raws.plants.all) do
+      if plant.id == materialToken then
+       materials.Plant[materialToken] = materials.Plant[materialToken] or {}
+       materials.Plant[materialToken][materialIndex] = material
+       plantCheck = true
+       break
+      end
+     end
+    end
+    if not creatureCheck and not plantCheck then
+     materials.Misc[materialToken] = materials.Misc[materialToken] or {}
+     materials.Misc[materialToken][materialIndex] = material
+    end
    end
   end
-  if not test then
+ end
+-- Copy any ALL material data into the respective MATERIAL:INDEX combo, INDEX material data is given priority
+ -- No need for inorganics
+ -- Creatures
+ for _,materialToken in pairs(materials.Creature._children) do
+  for n,creature in pairs(df.global.world.raws.creatures.all) do
+   if materialToken == creature.id then
+    creatureID = n
+    break
+   end
+  end
+  if creatureID and materials.Creature[materialToken].ALL then
+   for _,material in pairs(creature.caste[0].materials) do
+    if not materials.Creature[materialToken][material.id] then
+     materials.Creature[materialToken][material.id] = {}
+    end
+   end
+  end
+  if materials.Creature[materialToken].ALL then
+   for _,materialIndex in pairs(materials.Creature[materialToken]._children) do
+    if not materialIndex == 'ALL' then
+     for _,x in pairs(materials.Creature[materialToken].ALL._children) do
+      if not materials.Creature[materialToken][materialIndex][x] then
+       materials.Creature[materialToken][materialIndex][x] = materials.Creature[materialToken].ALL[x]
+      else
+       for _,y in pairs(materials.Creature[materialToken].ALL[x]._children) do
+        if not materials.Creature[materialToken][materialIndex][x][y] then
+         materials.Creature[materialToken][materialIndex][x][y] = materials.Creature[materialToken].ALL[x][y]
+        end
+       end
+      end
+     end
+    end
+   end
+  end
+ end
+ -- Plants 
+for _,materialToken in pairs(materials.Plant._children) do
+  for n,plant in pairs(df.global.world.raws.plants.all) do
+   if materialToken == plant.id then
+    plantID = n
+    break
+   end
+  end
+  if plantID and materials.Plant[materialToken].ALL then
+   for _,material in pairs(plant.materials) do
+    if not materials.Plant[materialToken][material.id] then
+     materials.Plant[materialToken][material.id] = {}
+    end
+   end
+  end
+  if materials.Plant[materialToken].ALL then
+   for _,materialIndex in pairs(materials.Plant[materialToken]._children) do
+    if not materialIndex == 'ALL' then
+     for _,x in pairs(materials.Plant[materialToken].ALL._children) do
+      if not materials.Plant[materialToken][materialIndex][x] then
+       materials.Plant[materialToken][materialIndex][x] = materials.Plant[materialToken].ALL[x]
+      else
+       for _,y in pairs(materials.Plant[materialToken].ALL[x]._children) do
+        if not materials.Plant[materialToken][materialIndex][x][y] then
+         materials.Plant[materialToken][materialIndex][x][y] = materials.Plant[materialToken].ALL[x][y]
+        end
+       end
+      end
+     end
+    end
+   end
+  end
+ end
+
+ if not test then
+  for _,materialToken in pairs(materials.Inorganic._children) do
+   material = materials.Inorganic[materialToken]
    base = 'modtools/item-trigger -mat '..materialToken
    equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -mat'
    action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
-   if item.OnEquip then
+   if material.OnEquip then
     dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
     dfhack.run_command(base..' -onUnequip '..equip..' ]')
    end
@@ -1322,7 +1469,40 @@ function makeEnhancedMaterialTable(test,verbose)
    if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
    if material.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end    
   end
- end
+  for _,materialToken in pairs(materials.Creature._children) do
+   for _,materialIndex in pairs(materials.Creature[materialToken]._children) do
+    if not materialIndex == 'ALL' then
+     material = materials.Creature[materialToken][materialIndex]
+     base = 'modtools/item-trigger -mat '..'CREATURE_MAT:'..materialToken..':'..materialIndex
+     equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -mat'
+     action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
+     if material.OnEquip then
+      dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
+      dfhack.run_command(base..' -onUnequip '..equip..' ]')
+     end
+     if material.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
+     if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
+     if material.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end
+    end
+   end
+  end
+  for _,materialToken in pairs(materials.Plant._children) do
+   for _,materialIndex in pairs(materials.Plant[materialToken]._children) do
+    if not materialIndex == 'ALL' then
+     material = materials.Plant[materialToken][materialIndex]
+     base = 'modtools/item-trigger -mat '..'PLANT_MAT:'..materialToken..':'..materialIndex
+     equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -mat'
+     action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
+     if material.OnEquip then
+      dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
+      dfhack.run_command(base..' -onUnequip '..equip..' ]')
+     end
+     if material.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
+     if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
+     if material.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end
+    end
+   end
+  end
  end
  return true
 end

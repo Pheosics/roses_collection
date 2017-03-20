@@ -1,154 +1,155 @@
-
+-- Creature Tokens
+---- Biomes
 biomeTokens = { 
-                ANY_LAND = 'Any Land',
-                ALL_MAIN = 'All Main',
-                ANY_OCEAN = 'Any Ocean',
-                ANY_LAKE = 'Any Lake',
-                ANY_TEMPERATE_LAKE = 'Temperate Lakes',
-                ANY_TROPICAL_LAKE = 'Tropical Lakes',
-                ANY_RIVER = 'Lives in any rivers',
-                ANY_TEMPERATE_RIVER = 'Temperate Rivers',
-                ANY_TROPICAL_RIVER = 'Tropical Rivers',
-                ANY_POOL = 'Any Pool',
-                NOT_FREEZING = 'Not Freezing',
-                ANY_TEMPERATE = 'Any Temperate',
-                ANY_TROPICAL = 'Any Tropical',
-                ANY_FOREST = 'Any Forest',
-                ANY_SHRUBLAND = 'Any Shrubland',
-                ANY_GRASSLAND = 'Any Grassland',
-                ANY_SAVANNA = 'Any Savanna',
-                ANY_TEMPERATE_FOREST = 'Any Temperate Forest',
-                ANY_TROPICAL_FOREST = 'Any Tropical Forest',
-                ANY_TEMPERATE_BROADLEAF = 'Any Temperate Vegetation',
-                ANY_TROPICAL_BROADLEAF = 'Any Tropical Vegetation',
-                ANY_WETLAND = 'Any Wetland',
-                ANY_TEMPERATE_WETLAND = 'Any Temperate Wetland',
-                ANY_TROPICAL_WETLAND = 'Any Tropical Wetland',
-                ANY_TEMPERATE_MARSH = 'Any Temperate Marsh',
-                ANY_TROPICAL_MARSH = 'Any Tropical Marsh',
-                ANY_TEMPERATE_SWAMP = 'Any Temperate Swamp',
-                ANY_TROPICAL_SWAMP = 'Any Tropical Swamp',
-                ANY_DESERT = 'Any Desert',
-                MOUNTAIN = 'Mountains',
-                MOUNTAINS = 'Mountains',
-                GLACIER = 'Glaciers',
-                TUNDRA = 'Tundra',
-                SWAMP_TEMPERATE_FRESHWATER = 'Temperate Freshwater Swamp',
-                SWAMP_TEMPERATE_SALTWATER = 'Temperate Saltwater Swamp',
-                SWAMP_TROPICAL_FRESHWATER = 'Tropical Freshwater Swamp',
-                SWAMP_TROPICAL_SALTWATER = 'Tropical Saltwater Swamp',
-                SWAMP_MANGROVE = 'Mangrove Swamp',
-                MARSH_TEMPERATE_FRESHWATER = 'Temperate Freshwater Marsh',
-                MARSH_TEMPERATE_SALTWATER = 'Temperate Saltwater Marsh',
-                MARSH_TROPICAL_FRESHWATER = 'Tropical Freshwater Marsh',
-                MARSH_TROPICAL_SALTWATER = 'Tropical Saltwater Marsh',
-                FOREST_TAIGA = 'Taiga',
-                TAIGA = 'Taiga',
-                FOREST_TEMPERATE_BROADLEAF = 'Temperate Broadleaf Forest',
-                FOREST_TEMPERATE_CONIFER = 'Temperate Conifer Forest',
-                FOREST_TROPICAL_DRY_BROADLEAF = 'Tropical Dry Broadleaf Forest',
-                FOREST_TROPICAL_MOIST_BROADLEAF = 'Tropical Moist Broadleaf Forest',
-                FOREST_TROPICAL_CONIFER = 'Tropical Conifer Forest',
-                GRASSLAND_TEMPERATE = 'Temperate Grassland',
-                GRASSLAND_TROPICAL = 'Tropical Grassland',
-                SHRUBLAND_TEMPERATE = 'Temperate Shrubland',
-                SHRUBLAND_TROPICAL = 'Tropical Shrubland',
-                SAVANNA_TEMPERATE = 'Temperate Savanna',
-                SAVANNA_TROPICAL = 'Tropical Savanna',
-                OCEAN_ARCTIC = 'Arctic Ocean',
-                OCEAN_TEMPERATE = 'Temperate Ocean',
-                OCEAN_TROPICAL = 'Tropical Ocean',
-                DESERT_BADLAND = 'Badlands',
-                DESERT_ROCK = 'Rocky Wastes',
-                DESERT_SAND = 'Sandy Desert',
-                POOL_TEMPERATE_FRESHWATER = 'Temperate Freshwater Pool',
-                POOL_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater Pool',
-                POOL_TEMPERATE_SALTWATER = 'Temperate Saltwater Pool',
-                POOL_TROPICAL_FRESHWATER = 'Tropical Freshwater Pool',
-                POOL_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater Pool',
-                POOL_TROPICAL_SALTWATER = 'Tropical Saltwater Pool',
-                LAKE_TEMPERATE_FRESHWATER = 'Temperate Freshwater Lake',
-                LAKE_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater Lake',
-                LAKE_TEMPERATE_SALTWATER = 'Temperate Saltwater Lake',
-                LAKE_TROPICAL_FRESHWATER = 'Tropical Freshwater Lake',
-                LAKE_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater Lake',
-                LAKE_TROPICAL_SALTWATER = 'Tropical Saltwater Lake',
-                RIVER_TEMPERATE_FRESHWATER = 'Temperate Freshwater River',
-                RIVER_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater River',
-                RIVER_TEMPERATE_SALTWATER = 'Temperate Saltwater River',
-                RIVER_TROPICAL_FRESHWATER = 'Tropical Freshwater River',
-                RIVER_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater River',
-                RIVER_TROPICAL_SALTWATER = 'Tropical Saltwater River',
-                SUBTERRANEAN_WATER = 'Subterranean Water',
-                SUBTERRANEAN_CHASM = 'Subterranean Chasm',
-                SUBTERRANEAN_LAVA = 'Subterranean Lava',
-                BIOME_MOUNTAIN = 'Mountain',
-                BIOME_GLACIER = 'Glacier',
-                BIOME_TUNDRA = 'Tundra',
-                BIOME_SWAMP_TEMPERATE_FRESHWATER = 'Temperate Freshwater Swamp',
-                BIOME_SWAMP_TEMPERATE_SALTWATER = 'Temperate Saltwater Swamp',
-                BIOME_MARSH_TEMPERATE_FRESHWATER = 'Temperate Freshwater Marsh',
-                BIOME_MARSH_TEMPERATE_SALTWATER = 'Temperate Saltwater Marsh',
-                BIOME_SWAMP_TROPICAL_FRESHWATER = 'Tropical Freshwater Swamp',
-                BIOME_SWAMP_TROPICAL_SALTWATER = 'Tropical Saltwater Swamp',
-                BIOME_SWAMP_MANGROVE = 'Mangrove Swamp',
-                BIOME_MARSH_TROPICAL_FRESHWATER = 'Tropical Freshwater Marsh',
-                BIOME_MARSH_TROPICAL_SALTWATER = 'Tropical Saltwater Marsh',
-                BIOME_FOREST_TAIGA = 'Taiga',
-                BIOME_FOREST_TEMPERATE_CONIFER = 'Temperate Coniferous Forest',
-                BIOME_FOREST_TEMPERATE_BROADLEAF = 'Temperate Broadlead Forest',
-                BIOME_FOREST_TROPICAL_CONIFER = 'Tropical Coniferous Forest',
-                BIOME_FOREST_TROPICAL_DRY_BROADLEAF = 'Tropical Dry Broadleaf Forest',
-                BIOME_FOREST_TROPICAL_MOIST_BROADLEAF = 'Tropical Moist Broadleaf Forest',
-                BIOME_GRASSLAND_TEMPERATE = 'Temperate Grassland',
-                BIOME_SAVANNA_TEMPERATE = 'Temperate Savanna',
-                BIOME_SHRUBLAND_TEMPERATE = 'Temperate Shrubland',
-                BIOME_GRASSLAND_TROPICAL = 'Tropical Grassland',
-                BIOME_SAVANNA_TROPICAL = 'Tropical Savanna',
-                BIOME_SHRUBLAND_TROPICAL = 'Tropical Shrubland',
-                BIOME_DESERT_BADLAND = 'Badland Desert',
-                BIOME_DESERT_ROCK = 'Rock Desert',
-                BIOME_DESERT_SAND = 'Sand Desert',
-                BIOME_OCEAN_TROPICAL = 'Tropical Ocean',
-                BIOME_OCEAN_TEMPERATE = 'Temperate Ocean',
-                BIOME_OCEAN_ARCTIC = 'Arctic Ocean',
-                BIOME_SUBTERRANEAN_WATER = 'Underground Water',
-                BIOME_SUBTERRANEAN_CHASM = 'Ungerground Chasm',
-                BIOME_SUBTERRANEAN_LAVA = 'Underground Lava',
-                BIOME_POOL_TEMPERATE_FRESHWATER = 'Temperate Freshwater Pool',
-                BIOME_POOL_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater Pool',
-                BIOME_POOL_TEMPERATE_SALTWATER = 'Temperate Saltwater Pool',
-                BIOME_POOL_TROPICAL_FRESHWATER = 'Tropical Freshwater Pool',
-                BIOME_POOL_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater Pool',
-                BIOME_POOL_TROPICAL_SALTWATER = 'Tropical Saltwater Pool',
-                BIOME_LAKE_TEMPERATE_FRESHWATER = 'Temperate Freshwater Lake',
-                BIOME_LAKE_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater Lake',
-                BIOME_LAKE_TEMPERATE_SALTWATER = 'Temperate Saltwater Lake',
-                BIOME_LAKE_TROPICAL_FRESHWATER = 'Tropical Freshwater Lake',
-                BIOME_LAKE_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater Lake',
-                BIOME_LAKE_TROPICAL_SALTWATER = 'Tropical Saltwater Lake',
-                BIOME_RIVER_TEMPERATE_FRESHWATER = 'Temperate Freshwater River',
-                BIOME_RIVER_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater River',
-                BIOME_RIVER_TEMPERATE_SALTWATER = 'Temperate Saltwater River',
-                BIOME_RIVER_TROPICAL_FRESHWATER = 'Tropical Freshwater River',
-                BIOME_RIVER_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater River',
-                BIOME_RIVER_TROPICAL_SALTWATER = 'Tropical Saltwater River'
-              }
+ANY_LAND = 'Any Land',
+ALL_MAIN = 'All Main',
+ANY_OCEAN = 'Any Ocean',
+ANY_LAKE = 'Any Lake',
+ANY_TEMPERATE_LAKE = 'Temperate Lakes',
+ANY_TROPICAL_LAKE = 'Tropical Lakes',
+ANY_RIVER = 'Lives in any rivers',
+ANY_TEMPERATE_RIVER = 'Temperate Rivers',
+ANY_TROPICAL_RIVER = 'Tropical Rivers',
+ANY_POOL = 'Any Pool',
+NOT_FREEZING = 'Not Freezing',
+ANY_TEMPERATE = 'Any Temperate',
+ANY_TROPICAL = 'Any Tropical',
+ANY_FOREST = 'Any Forest',
+ANY_SHRUBLAND = 'Any Shrubland',
+ANY_GRASSLAND = 'Any Grassland',
+ANY_SAVANNA = 'Any Savanna',
+ANY_TEMPERATE_FOREST = 'Any Temperate Forest',
+ANY_TROPICAL_FOREST = 'Any Tropical Forest',
+ANY_TEMPERATE_BROADLEAF = 'Any Temperate Vegetation',
+ANY_TROPICAL_BROADLEAF = 'Any Tropical Vegetation',
+ANY_WETLAND = 'Any Wetland',
+ANY_TEMPERATE_WETLAND = 'Any Temperate Wetland',
+ANY_TROPICAL_WETLAND = 'Any Tropical Wetland',
+ANY_TEMPERATE_MARSH = 'Any Temperate Marsh',
+ANY_TROPICAL_MARSH = 'Any Tropical Marsh',
+ANY_TEMPERATE_SWAMP = 'Any Temperate Swamp',
+ANY_TROPICAL_SWAMP = 'Any Tropical Swamp',
+ANY_DESERT = 'Any Desert',
+MOUNTAIN = 'Mountains',
+MOUNTAINS = 'Mountains',
+GLACIER = 'Glaciers',
+TUNDRA = 'Tundra',
+SWAMP_TEMPERATE_FRESHWATER = 'Temperate Freshwater Swamp',
+SWAMP_TEMPERATE_SALTWATER = 'Temperate Saltwater Swamp',
+SWAMP_TROPICAL_FRESHWATER = 'Tropical Freshwater Swamp',
+SWAMP_TROPICAL_SALTWATER = 'Tropical Saltwater Swamp',
+SWAMP_MANGROVE = 'Mangrove Swamp',
+MARSH_TEMPERATE_FRESHWATER = 'Temperate Freshwater Marsh',
+MARSH_TEMPERATE_SALTWATER = 'Temperate Saltwater Marsh',
+MARSH_TROPICAL_FRESHWATER = 'Tropical Freshwater Marsh',
+MARSH_TROPICAL_SALTWATER = 'Tropical Saltwater Marsh',
+FOREST_TAIGA = 'Taiga',
+TAIGA = 'Taiga',
+FOREST_TEMPERATE_BROADLEAF = 'Temperate Broadleaf Forest',
+FOREST_TEMPERATE_CONIFER = 'Temperate Conifer Forest',
+FOREST_TROPICAL_DRY_BROADLEAF = 'Tropical Dry Broadleaf Forest',
+FOREST_TROPICAL_MOIST_BROADLEAF = 'Tropical Moist Broadleaf Forest',
+FOREST_TROPICAL_CONIFER = 'Tropical Conifer Forest',
+GRASSLAND_TEMPERATE = 'Temperate Grassland',
+GRASSLAND_TROPICAL = 'Tropical Grassland',
+SHRUBLAND_TEMPERATE = 'Temperate Shrubland',
+SHRUBLAND_TROPICAL = 'Tropical Shrubland',
+SAVANNA_TEMPERATE = 'Temperate Savanna',
+SAVANNA_TROPICAL = 'Tropical Savanna',
+OCEAN_ARCTIC = 'Arctic Ocean',
+OCEAN_TEMPERATE = 'Temperate Ocean',
+OCEAN_TROPICAL = 'Tropical Ocean',
+DESERT_BADLAND = 'Badlands',
+DESERT_ROCK = 'Rocky Wastes',
+DESERT_SAND = 'Sandy Desert',
+POOL_TEMPERATE_FRESHWATER = 'Temperate Freshwater Pool',
+POOL_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater Pool',
+POOL_TEMPERATE_SALTWATER = 'Temperate Saltwater Pool',
+POOL_TROPICAL_FRESHWATER = 'Tropical Freshwater Pool',
+POOL_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater Pool',
+POOL_TROPICAL_SALTWATER = 'Tropical Saltwater Pool',
+LAKE_TEMPERATE_FRESHWATER = 'Temperate Freshwater Lake',
+LAKE_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater Lake',
+LAKE_TEMPERATE_SALTWATER = 'Temperate Saltwater Lake',
+LAKE_TROPICAL_FRESHWATER = 'Tropical Freshwater Lake',
+LAKE_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater Lake',
+LAKE_TROPICAL_SALTWATER = 'Tropical Saltwater Lake',
+RIVER_TEMPERATE_FRESHWATER = 'Temperate Freshwater River',
+RIVER_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater River',
+RIVER_TEMPERATE_SALTWATER = 'Temperate Saltwater River',
+RIVER_TROPICAL_FRESHWATER = 'Tropical Freshwater River',
+RIVER_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater River',
+RIVER_TROPICAL_SALTWATER = 'Tropical Saltwater River',
+SUBTERRANEAN_WATER = 'Subterranean Water',
+SUBTERRANEAN_CHASM = 'Subterranean Chasm',
+SUBTERRANEAN_LAVA = 'Subterranean Lava',
+BIOME_MOUNTAIN = 'Mountain',
+BIOME_GLACIER = 'Glacier',
+BIOME_TUNDRA = 'Tundra',
+BIOME_SWAMP_TEMPERATE_FRESHWATER = 'Temperate Freshwater Swamp',
+BIOME_SWAMP_TEMPERATE_SALTWATER = 'Temperate Saltwater Swamp',
+BIOME_MARSH_TEMPERATE_FRESHWATER = 'Temperate Freshwater Marsh',
+BIOME_MARSH_TEMPERATE_SALTWATER = 'Temperate Saltwater Marsh',
+BIOME_SWAMP_TROPICAL_FRESHWATER = 'Tropical Freshwater Swamp',
+BIOME_SWAMP_TROPICAL_SALTWATER = 'Tropical Saltwater Swamp',
+BIOME_SWAMP_MANGROVE = 'Mangrove Swamp',
+BIOME_MARSH_TROPICAL_FRESHWATER = 'Tropical Freshwater Marsh',
+BIOME_MARSH_TROPICAL_SALTWATER = 'Tropical Saltwater Marsh',
+BIOME_FOREST_TAIGA = 'Taiga',
+BIOME_FOREST_TEMPERATE_CONIFER = 'Temperate Coniferous Forest',
+BIOME_FOREST_TEMPERATE_BROADLEAF = 'Temperate Broadlead Forest',
+BIOME_FOREST_TROPICAL_CONIFER = 'Tropical Coniferous Forest',
+BIOME_FOREST_TROPICAL_DRY_BROADLEAF = 'Tropical Dry Broadleaf Forest',
+BIOME_FOREST_TROPICAL_MOIST_BROADLEAF = 'Tropical Moist Broadleaf Forest',
+BIOME_GRASSLAND_TEMPERATE = 'Temperate Grassland',
+BIOME_SAVANNA_TEMPERATE = 'Temperate Savanna',
+BIOME_SHRUBLAND_TEMPERATE = 'Temperate Shrubland',
+BIOME_GRASSLAND_TROPICAL = 'Tropical Grassland',
+BIOME_SAVANNA_TROPICAL = 'Tropical Savanna',
+BIOME_SHRUBLAND_TROPICAL = 'Tropical Shrubland',
+BIOME_DESERT_BADLAND = 'Badland Desert',
+BIOME_DESERT_ROCK = 'Rock Desert',
+BIOME_DESERT_SAND = 'Sand Desert',
+BIOME_OCEAN_TROPICAL = 'Tropical Ocean',
+BIOME_OCEAN_TEMPERATE = 'Temperate Ocean',
+BIOME_OCEAN_ARCTIC = 'Arctic Ocean',
+BIOME_SUBTERRANEAN_WATER = 'Underground Water',
+BIOME_SUBTERRANEAN_CHASM = 'Ungerground Chasm',
+BIOME_SUBTERRANEAN_LAVA = 'Underground Lava',
+BIOME_POOL_TEMPERATE_FRESHWATER = 'Temperate Freshwater Pool',
+BIOME_POOL_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater Pool',
+BIOME_POOL_TEMPERATE_SALTWATER = 'Temperate Saltwater Pool',
+BIOME_POOL_TROPICAL_FRESHWATER = 'Tropical Freshwater Pool',
+BIOME_POOL_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater Pool',
+BIOME_POOL_TROPICAL_SALTWATER = 'Tropical Saltwater Pool',
+BIOME_LAKE_TEMPERATE_FRESHWATER = 'Temperate Freshwater Lake',
+BIOME_LAKE_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater Lake',
+BIOME_LAKE_TEMPERATE_SALTWATER = 'Temperate Saltwater Lake',
+BIOME_LAKE_TROPICAL_FRESHWATER = 'Tropical Freshwater Lake',
+BIOME_LAKE_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater Lake',
+BIOME_LAKE_TROPICAL_SALTWATER = 'Tropical Saltwater Lake',
+BIOME_RIVER_TEMPERATE_FRESHWATER = 'Temperate Freshwater River',
+BIOME_RIVER_TEMPERATE_BRACKISHWATER = 'Temperate Brackishwater River',
+BIOME_RIVER_TEMPERATE_SALTWATER = 'Temperate Saltwater River',
+BIOME_RIVER_TROPICAL_FRESHWATER = 'Tropical Freshwater River',
+BIOME_RIVER_TROPICAL_BRACKISHWATER = 'Tropical Brackishwater River',
+BIOME_RIVER_TROPICAL_SALTWATER = 'Tropical Saltwater River'}
+---- Habitats
 habitatFlags = {
 AMPHIBIOUS = 'Amphibious',
 AQUATIC = 'Aquatic',
 GOOD = 'Living in good biomes',
 EVIL = 'Living in evil biomes',
-SAVAGE = 'Living in savage biomes'
-              }
+SAVAGE = 'Living in savage biomes'}
+---- Activity
 activeFlags = {
 ALL_ACTIVE = 'At all times',
 DIURNAL = 'During the day',
 NOCTURNAL = 'During the night',
 CREPUSCULAR = 'At dawn and dusk',
 VESPERTINE = 'At dusk',
-MATUTINAL = 'At dawn',
-              }
+MATUTINAL = 'At dawn'}
+---- Utility
 utilityFlags = {
 COMMON_DOMESTIC = 'Domesticated',
 WAGON_PULLER = 'Can pull wagons',
@@ -158,16 +159,16 @@ TRAINABLE_WAR = 'Can be trained for fighting',
 PET = 'Can be tamed',
 PET_EXOTIC = 'Can be tamed with difficulty',
 MOUNT = 'Can be used as a mount',
-MOUNT_EXOTIC = 'Can be used as a mount',
-               }               
+MOUNT_EXOTIC = 'Can be used as a mount'}  
+---- Diet             
 dietFlags = {
 NO_EAT = "Doesn't need food",
 NO_DRINK = "Doesn't need drink",
 BONECARN = 'Eats meat and bones',
 CARNIVORE = 'Only eats meat',
 GRAZER = 'Eats grass',
-GOBBLE_VERMIN = 'Eats vermin',
-            }
+GOBBLE_VERMIN = 'Eats vermin'}
+---- Behavior
 behaviorFlags = {
 MISCHIEVOUS = 'Mischievous',
 CURIOUSBEAST_ANY = 'Steals anything',
@@ -183,8 +184,8 @@ CRAZED = 'Constantly berserk',
 FLEEQUICK = 'Quick to flee',
 AT_PEACE_WITH_WILDLIFE = 'At peace with wildlife',
 AMBUSHPREDATOR = 'Ambushes prey',
-OPPOSED_TO_LIFE = 'Hostile to the living',
-                }
+OPPOSED_TO_LIFE = 'Hostile to the living'}
+---- Movement
 movementFlags = {
 FLIER = 'Can fly',
 IMMOBILE = 'Can not move',
@@ -196,8 +197,8 @@ STANCE_CLIMBER = 'can climb with its feet',
 CANNOT_CLIMB = 'Can not climb',
 SWIMS_LEARNED = 'Can learn to swim',
 VERMIN_MICRO = 'Moves in a swarm',
-UNDERSWIM = 'Swims underwater',
-                }
+UNDERSWIM = 'Swims underwater'}
+---- Immunities
 immuneFlags = {
 NO_DIZZINESS = 'Does not get dizzy',
 NO_FEVERS = 'Does not get fevers',
@@ -212,8 +213,8 @@ NOFEAR = 'Can not be scared',
 NO_SLEEP = "Doesn't need sleep",
 FIREIMMUNE = 'Immune to fire',
 FIREIMMUNE_SUPER = 'Immune to dragonfire',
-WEBIMMUNE = 'Does not get caught in webs',
-              }
+WEBIMMUNE = 'Does not get caught in webs'}
+---- Bonuses
 bonusFlags = {
 WEBBER = 'Creates webs',
 THICKWEB = 'Webs large targets',
@@ -229,8 +230,8 @@ LISP = 'Speaks with a lisp',
 LIGHT_GEN = 'Generates light',
 EXTRAVISION = 'Can see in the dark',
 SLOW_LEARNER = 'Slow learner',
-UTTERANCES = 'Unintelligible utterances',
-             }              
+UTTERANCES = 'Unintelligible utterances'}
+---- Body Flags
 bodyFlags = {
 NOT_BUTCHERABLE = 'Can not be butchered',
 COOKABLE_LIVE = 'Can be cooked live',
@@ -240,54 +241,118 @@ NOBONES = 'Does not have bones',
 NOMEAT = 'Does not have meat',
 NOTHOUGHT = 'Does not have a brain',
 NO_THOUGHT_CENTER_FOR_MOVEMENT = 'Does not need a brain to move',
-VEGETATION = 'Made of swampstuff',
-            }              
+VEGETATION = 'Made of swampstuff'}
+---- Seasonal
 seasonFlags = {
 NO_SPRING = 'Absent during the spring',
 NO_SUMMER = 'Absent during the summer',
 NO_AUTUMN = 'Absent during the fall',
-NO_WINTER = 'Absent during the winter',
-              }
+NO_WINTER = 'Absent during the winter'}
+---- Types
+typeCreatureFlags = {
+FANCIFUL = 'Fanciful',
+CASTE_MEGABEAST = 'Megabeast',
+CASTE_SEMIMEGABEAST = 'Semi-Megabeast',
+CASTE_BENIGN = 'Benign',
+CASTE_POWER = 'Power',
+CASTE_TITAN = 'Titan',
+CASTE_FEATURE_BEAST = 'Feature Beast',
+CASTE_UNIQUE_DEMON = 'Unique Demon',
+CASTE_DEMON = 'Demon',
+CASTE_NIGHT_CREATURE_ANY = 'Night Creature'}
+
+-- Plant Flags
+---- Seasonal
 seasonPlantFlags = {
 SPRING = 'Grows during the spring',
 SUMMER = 'Grows during the summer',
 AUTUMN = 'Grows during the fall',
-WINTER = 'Grows during the winter',
-              }
-typeCreatureFlags = {
-                     FANCIFUL = 'Fanciful',
-                     CASTE_MEGABEAST = 'Megabeast',
-                     CASTE_SEMIMEGABEAST = 'Semi-Megabeast',
-                     CASTE_BENIGN = 'Benign',
-                     CASTE_POWER = 'Power',
-                     CASTE_TITAN = 'Titan',
-                     CASTE_FEATURE_BEAST = 'Feature Beast',
-                     CASTE_UNIQUE_DEMON = 'Unique Demon',
-                     CASTE_DEMON = 'Demon',
-                     CASTE_NIGHT_CREATURE_ANY = 'Night Creature'
-}
+WINTER = 'Grows during the winter',}
+
+-- Material Flags
+---- Edible
 materialEdibleFlags = {
-                        EDIBLE_VERMIN = 'Vermin',
-                        EDIBLE_RAW = 'Raw',
-                        EDIBLE_COOKED = 'Cooked'
+EDIBLE_VERMIN = 'Vermin',
+EDIBLE_RAW = 'Raw',
+EDIBLE_COOKED = 'Cooked'
 }
+---- Items
 materialItemFlags = {
-                  ITEMS_WEAPON = 'Makes melee weapons',
-                  ITEMS_WEAPON_RANGED = 'Makes ranges weapons',
-                  ITEMS_ANVIL = 'Makes anvils',
-                  ITEMS_AMMO = 'Makes ammo',
-                  ITEMS_DIGGER = 'Makes digging items',
-                  ITEMS_ARMOR = 'Makes armor',
-                  ITEMS_DELICATE = 'Makes delicate items',
-                  ITEMS_SIEGE_ENGINE = 'Makes siege engine ammo',
-                  ITEMS_QUERN = 'Makes querns',
-                  ITEMS_METAL = 'Makes metal items',
-                  ITEMS_BARRED = 'Makes barred items',
-                  ITEMS_SCALED = 'Makes scaled items',
-                  ITEMS_LEATHER = 'Makes leather items',
-                  ITEMS_SOFT = 'Makes soft items',
-                  ITEMS_HARD = 'Makes hard items'
+ITEMS_WEAPON = 'Makes melee weapons',
+ITEMS_WEAPON_RANGED = 'Makes ranges weapons',
+ITEMS_ANVIL = 'Makes anvils',
+ITEMS_AMMO = 'Makes ammo',
+ITEMS_DIGGER = 'Makes digging items',
+ITEMS_ARMOR = 'Makes armor',
+ITEMS_DELICATE = 'Makes delicate items',
+ITEMS_SIEGE_ENGINE = 'Makes siege engine ammo',
+ITEMS_QUERN = 'Makes querns',
+ITEMS_METAL = 'Makes metal items',
+ITEMS_BARRED = 'Makes barred items',
+ITEMS_SCALED = 'Makes scaled items',
+ITEMS_LEATHER = 'Makes leather items',
+ITEMS_SOFT = 'Makes soft items',
+ITEMS_HARD = 'Makes hard items'
 }
+---- Types
+typeMaterialFlags = {
+IS_METAL = 'Metal',
+IS_GLASS = 'Glass',
+IS_STONE = 'Stone'
+}
+
+-- Item Flags
+---- Materials
+itemCraftFlags = {
+SOFT = 'Soft',
+HARD = 'Hard',
+METAL = 'Metal',
+BARRED = 'Barred',
+SCALED = 'Scaled',
+LEATHER = 'Leather',
+METAL_MAT = 'Metal',
+STONE_MAT = 'Stone',
+WOOD_MAT = 'Wood',
+GLASS_MAT = 'Glass',
+CERAMIC_MAT = 'Ceramic',
+SHELL_MAT = 'Shell',
+BONE_MAT = 'Bone',
+HARD_MAT = 'Hard',
+SHEET_MAT = 'Sheet',
+THREAD_PLANT_MAT = 'Plant Thread',
+SILK_MAT = 'Silk',
+SOFT_MAT = 'Soft',
+METAL_WEAPON_MAT = 'Metal',
+CAN_STONE = 'Stone'
+}
+---- Uses
+itemUseFlags = {
+TRAINING = 'Training',
+FURNITURE = 'Furniture',
+LIQUID_COOKING = 'Cooking',
+LIQUID_SCOOP = 'Liquid Scoop',
+GRIND_POWDER_RECEPTACLE = 'Powder Receptacle',
+GRIND_POWDER_GRINDER = 'Powder Grinder',
+MEAT_CARVING = 'Meat Carving',
+MEAT_BONING = 'Meat Boning',
+MEAT_SLICING = 'Meat Slicing',
+MEAT_CLEAVING = 'Meat Cleaving',
+HOLD_MEAT_FOR_CARVING = 'Meat Holding',
+MEAL_CONTAINER = 'Meal Container',
+LIQUID_CONTAINER = 'Liquid Container',
+FOOD_STORAGE = 'Food Storage',
+HIVE = 'Artificial Hive',
+NEST_BOX = 'Nest Box',
+SMALL_OBJECT_STORAGE = 'Small Object Storage',
+TRACK_CART = 'Track Cart',
+HEAVY_OBJECT_HAULING = 'Heavy Object Hauling',
+STAND_AND_WORK_ABOVE = 'Stand and Work Above',
+ROLL_UP_SHEET = 'Roll Up Sheet',
+PROTECT_FOLDED_SHEETS = 'Protect Paper',
+CONTAIN_WRITING = 'Hold Writings',
+BOOKCASE = 'Hold Books'
+}
+
 unusedFlags = {
 --AMPHIBIOUS = 'Amphibious',
 --AQUATIC = 'Aquatic',
@@ -569,7 +634,8 @@ function insertWidgetInput(input,method,list,options)
   if type(list.second) == 'table' then
    local check = true
    if list.length == 0 then
-    table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text='--',rjustify=true,width=width-#list.header,pen=pen}}})
+    return input
+--    table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text='--',rjustify=true,width=width-#list.header,pen=pen}}})
    else
     for first,second in pairs(list.second) do
      if options.fill == 'flags' then
@@ -588,214 +654,297 @@ function insertWidgetInput(input,method,list,options)
     end
    end
   else
-   table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text=list.second,rjustify=true,width=width-#list.header,pen=pen}}})
+   if list.second == '' or list.second == '--' then
+    return input
+   else
+    table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text=list.second,rjustify=true,width=width-#list.header,pen=pen}}})
+   end
   end
  end
  return input
 end
 
 -- For CompendiumUi
-function getSortBiome(biomeTokens,list,frame) -- Sorts creatures and plants by their biome
- local utils = require 'utils'
- local split = utils.split_string
- local biomes = {}
- if frame == 'Bestiary' then
-  for _,x in pairs(list) do
-   for flag,check in pairs(x.flags) do
-    if check then
-     if split(flag,'_')[1] == 'BIOME' then
-      biomes[biomeTokens[flag]] = biomes[biomeTokens[flag]] or {}
-      biomes[biomeTokens[flag]][#biomes[biomeTokens[flag]]+1] = x.name[0]
-     end
-    end
-   end
-  end
- elseif frame == 'Herbiary' then
-  for _,x in pairs(list) do
-   for flag,check in pairs(x.flags) do
-    if check then
-     if split(flag,'_')[1] == 'BIOME' then
-      biomes[biomeTokens[flag]] = biomes[biomeTokens[flag]] or {}
-      biomes[biomeTokens[flag]][#biomes[biomeTokens[flag]]+1] = x.name
-     end
-    end
-   end
-  end 
- end
- return biomes
-end
-
-function getSortType(list,frame)
- local types = {}
- if frame == 'Bestiary' then
-  for _,x in pairs(list) do
-   for flag,check in pairs(x.flags) do
-    if check then
-     if typeCreatureFlags[flag] then
-      types[flag] = types[flag] or {}
-      types[flag][#types[flag]+1] = x.name[0]
-     end
-    end
-   end
-  end
- end
- return types
-end
-
 function getShow(choice,frame) -- Gets the list of objects (creature, plant, item, material, etc...)
- if frame == 'Bestiary' then
-  return getShowBestiary(choice)
- elseif frame == 'Herbiary' then
-  return getShowHerbiary(choice)
+ if frame == 'Creatures' then
+  return getShowCreatures(choice)
+ elseif frame == 'Plants' then
+  return getShowPlants(choice)
  elseif frame == 'Items' then
   return getShowItems(choice)
- elseif frame == 'Inorganics' then
-  return getShowInorganic(choice)
+ elseif frame == 'Materials' then
+  return getShowMaterials(choice)
+ elseif frame == 'Buildings' then
+  return getShowBuildings(choice)
+ elseif frame == 'Reactions' then
+  return getShowReactions(choice)
  end
 end
 
-function getShowBestiary(choice)
+function getShowCreatures(choice)
  local creatureList = df.global.world.raws.creatures.alphabetic
  local creatures = {}
  local creatureNames = {}
- for _,creature in pairs(creatureList) do
+ local creatureIDs = {}
+ for id,creature in pairs(creatureList) do
   if choice.text == 'All Creatures' then
    creatures[#creatures+1] = creature
    creatureNames[#creatureNames+1] = creature.name[0]
-  elseif choice.text == 'GOOD Creatures' then
+   creatureIDs[#creatureIDs+1] = id
+  elseif choice == 'GOOD Creatures' then
    if creature.flags.GOOD then
     creatures[#creatures+1] = creature
     creatureNames[#creatureNames+1] = creature.name[0]
+    creatureIDs[#creatureIDs+1] = id
    end
-  elseif choice.text == 'EVIL Creatures' then
+  elseif choice == 'EVIL Creatures' then
    if creature.flags.EVIL then
     creatures[#creatures+1] = creature
     creatureNames[#creatureNames+1] = creature.name[0]
+    creatureIDs[#creatureIDs+1] = id
    end
-  elseif choice.text == 'SAVAGE Creatures' then
+  elseif choice == 'SAVAGE Creatures' then
    if creature.flags.SAVAGE then
     creatures[#creatures+1] = creature
     creatureNames[#creatureNames+1] = creature.name[0]
+    creatureIDs[#creatureIDs+1] = id
    end
   end
  end
- return creatures,creatureNames
+ return creatures,creatureNames,creatureIDs
 end
 
-function getShowHerbiary(choice)
+function getShowPlants(choice)
  local plants = {}
  local plantNames = {}
- if choice.text == 'All Plants' then
+ local plantIDs = {}
+ if choice == 'All Plants' then
   array = df.global.world.raws.plants.all
- elseif choice.text == 'Trees' then
+ elseif choice == 'Trees' then
   array = df.global.world.raws.plants.trees
- elseif choice.text == 'Bushes' then
+ elseif choice == 'Bushes' then
   array = df.global.world.raws.plants.bushes
- elseif choice.text == 'Grasses' then
+ elseif choice == 'Grasses' then
   array = df.global.world.raws.plants.grasses
  end
  for _,plant in pairs(array) do
   plants[#plants+1] = plant
   plantNames[#plantNames+1] = plant.name
+  plantIDs[#plantIDs+1] = plant.id
  end
- return plants,plantNames
+ return plants,plantNames,plantIDs
 end
 
 function getShowItems(choice)
  local items = {}
  local itemNames = {}
- if choice.text == 'All Items' then
+ local itemIDs = {}
+ if choice == 'All Items' then
   array = df.global.world.raws.itemdefs.all
- elseif choice.text == 'Weapons' then
+ elseif choice == 'Weapons' then
   array = df.global.world.raws.itemdefs.weapons
- elseif choice.text == 'Helms' then
+ elseif choice == 'Helms' then
   array = df.global.world.raws.itemdefs.helms
- elseif choice.text == 'Armor' then
+ elseif choice == 'Armor' then
   array = df.global.world.raws.itemdefs.armor
- elseif choice.text == 'Gloves' then
+ elseif choice == 'Gloves' then
   array = df.global.world.raws.itemdefs.gloves
- elseif choice.text == 'Pants' then
+ elseif choice == 'Pants' then
   array = df.global.world.raws.itemdefs.pants
- elseif choice.text == 'Shoes' then
+ elseif choice == 'Shoes' then
   array = df.global.world.raws.itemdefs.shoes
- elseif choice.text == 'Shields' then
+ elseif choice == 'Shields' then
   array = df.global.world.raws.itemdefs.shields
- elseif choice.text == 'Ammo' then
+ elseif choice == 'Ammo' then
   array = df.global.world.raws.itemdefs.ammo
- elseif choice.text == 'Siege Ammo' then
+ elseif choice == 'Siege Ammo' then
   array = df.global.world.raws.itemdefs.siege_ammo
- elseif choice.text == 'Trap Components' then
+ elseif choice == 'Trap Components' then
   array = df.global.world.raws.itemdefs.trapcomps
- elseif choice.text == 'Toys' then
+ elseif choice == 'Toys' then
   array = df.global.world.raws.itemdefs.toys
- elseif choice.text == 'Tools' then
+ elseif choice == 'Tools' then
   array = df.global.world.raws.itemdefs.tools
- elseif choice.text == 'Instruments' then
+ elseif choice == 'Instruments' then
   array = df.global.world.raws.itemdefs.instruments
- elseif choice.text == 'Food' then
+ elseif choice == 'Food' then
   array = df.global.world.raws.itemdefs.food
  end
  for _,item in pairs(array) do
   items[#items+1] = item
   itemNames[#itemNames+1] = item.name
+  itemIDs[#itemIDs+1] = item.id
  end
- return items,itemNames
+ return items,itemNames,itemIDs
 end
 
-function getShowInorganic(choice)
- local inorganics = {}
- local inorganicNames = {}
- local array = df.global.world.raws.inorganics
- for _,inorganic in pairs(array) do
-  if choice.text == 'All Inorganics' then
-   inorganics[#inorganics+1] = inorganic
-   inorganicNames[#inorganicNames+1] = inorganic.material.state_name.Solid
-  elseif choice.text == 'Metals' then
-   if inorganic.material.flags.IS_METAL then
-    inorganics[#inorganics+1] = inorganic
-    inorganicNames[#inorganicNames+1] = inorganic.material.state_name.Solid    
-   end
-  elseif choice.text == 'Stone' then
-   if inorganic.material.flags.IS_STONE then
-    inorganics[#inorganics+1] = inorganic
-    inorganicNames[#inorganicNames+1] = inorganic.material.state_name.Solid    
-   end   
-  elseif choice.text == 'Gems' then
-   if inorganic.material.flags.IS_GEM then
-    inorganics[#inorganics+1] = inorganic
-    inorganicNames[#inorganicNames+1] = inorganic.material.state_name.Solid    
-   end   
-  elseif choice.text == 'Glass' then
-   if inorganic.material.flags.IS_GLASS then
-    inorganics[#inorganics+1] = inorganic
-    inorganicNames[#inorganicNames+1] = inorganic.material.state_name.Solid    
-   end   
-  end
+function getShowMaterials(choice)
+ local materials = {}
+ local materialNames = {}
+ local materialIDs = {}
+ if choice == 'All Materials' then
+
+ elseif choice == 'Inorganics' then
+  array = df.global.world.raws.inorganics
+ elseif choice == 'Creature Materials' then
+
+ elseif choice == 'Plant Materials' then
+
  end
- return inorganics,inorganicNames
+ return materials,materialNames,materialIDs
 end
 
-function getEntry(name,frame) -- Gets sub-objects of an object (castes for a creature, products for a plant, etc...)
- if frame == 'Bestiary' then
-  return getEntryBestiary(name)
- elseif frame == 'Herbiary' then
-  return getEntryHerbiary(name)
+function getShowBuildings(choice)
+ local buildings = {}
+ local buildingNames = {}
+ local buildingIDs = {}
+ if choice == 'All Buildings' then
+  array = df.global.world.raws.buildings.all
+ elseif choice == 'Workshops' then
+  array = df.global.world.raws.buildings.workshops
+ elseif choice == 'Furnaces' then
+  array = df.global.world.raws.buildings.furnaces
+ end
+ for _,building in pairs(array) do
+  buildings[#buildings+1] = building
+  buildingNames[#buildingNames+1] = building.name
+  buildingIDs[#buildingIDs+1] = building.id
+ end
+ return buildings,buildingNames,buildingIDs
+end
+
+function getShowReactions(choice)
+ local reactions = {}
+ local reactionNames = {}
+ local reactionIDs = {}
+ if choice == 'All Reactions' then
+  array = df.global.world.raws.reactions
+ end
+ for _,reaction in pairs(array) do
+  reactions[#reactions+1] = reaction
+  reactionNames[#reactionNames+1] = reaction.name
+  reactionIDs[#reactionIDs+1] = reaction.id
+ end
+ return reactions,reactionNames,reactionIDs
+end
+
+function getSort(list,frame,choice)
+ if frame == 'Creatures' then
+  return getSortCreatures(list,choice)
+ elseif frame == 'Plants' then
+  return getSortPlants(list,choice)
  elseif frame == 'Items' then
-  return getEntryItems(name)
- elseif frame == 'Inorganics' then
+  return getSortItems(list,choice)
+ elseif frame == 'Materials' then
+  return getSortMaterials(list,choice)
+ elseif frame == 'Buildings' then
+  return getSortBuildings(list,choice)
+ elseif frame == 'Reactions' then
+  return getSortReactions(list,choice)
  end
 end
 
-function getEntryBestiary(name)
- local creature = nil
- local castes = {}
- local creatureList = df.global.world.raws.creatures.alphabetic
- for _,x in pairs(creatureList) do
-  if x.name[0] == name then
-   creature = x
-   break
+function getSortCreatures(list,choice)
+ local utils = require 'utils'
+ local split = utils.split_string
+ local out = {}
+ for _,x in pairs(list) do
+  for flag,check in pairs(x.flags) do
+   if check then
+    if choice == 'Biome' then
+     if split(flag,'_')[1] == 'BIOME' then
+      out[biomeTokens[flag]] = out[biomeTokens[flag]] or {}
+      out[biomeTokens[flag]][#out[biomeTokens[flag]]+1] = x.name[0]
+     end
+    elseif choice == 'Type' then
+     if typeCreatureFlags[flag] then
+      out[flag] = out[flag] or {}
+      out[flag][#out[flag]+1] = x.name[0]
+     end
+    end
+   end
   end
  end
+ return out
+end
+
+function getSortPlants(list,choice)
+ local utils = require 'utils'
+ local split = utils.split_string
+ local out = {}
+ for _,x in pairs(list) do
+  for flag,check in pairs(x.flags) do
+   if check then
+    if choice == 'Biome' then
+     if split(flag,'_')[1] == 'BIOME' then
+      out[biomeTokens[flag]] = out[biomeTokens[flag]] or {}
+      out[biomeTokens[flag]][#out[biomeTokens[flag]]+1] = x.name
+     end
+    end
+   end
+  end
+ end 
+ return out
+end
+
+function getSortItems(list,choice)
+ local out = {}
+
+ return out
+end
+
+function getSortMaterials(list,choice)
+ local out = {}
+
+ if choice == 'Type' then
+
+ end
+
+ return out
+end
+
+function getSortBuildings(list,choice)
+ local out = {}
+
+ if choice == 'Entity' then
+
+ end
+
+ return out
+end
+
+function getSortReactions(list,choice)
+ local out = {}
+
+ if choice == 'Building' then
+
+ elseif choice == 'Entity' then
+
+ end
+
+ return out
+end
+
+function getEntry(name,dict,frame) -- Gets sub-objects of an object (castes for a creature, products for a plant, nothing for items, nothing for materials)
+ id = dict[name]
+ if frame == 'Creatures' then
+  return getEntryCreature(id)
+ elseif frame == 'Plants' then
+  return getEntryPlant(id)
+ elseif frame == 'Items' then
+  return getEntryItems(id)
+ elseif frame == 'Materials' then
+  return getEntryMaterial(id)
+ elseif frame == 'Buildings' then
+  return getEntryBuilding(id)
+ elseif frame == 'Reactions' then
+  return getEntryReaction(id)
+ end
+end
+
+function getEntryCreature(id)
+ local creature = df.global.world.raws.creatures.all[id]
+ local castes = {}
  if not creature then 
   return nil, nil
  end
@@ -811,19 +960,13 @@ function getEntryBestiary(name)
  return creature, castes
 end
 
-function getEntryHerbiary(name)
- local plant = nil
+function getEntryPlant(id)
+ local plant = df.global.world.raws.plants.all[id]
  local products = {}
- local plantList = df.global.world.raws.plants.all
- for _,x in pairs(plantList) do
-  if x.name == name then
-   plant = x
-   break
-  end
- end
  if not plant then 
   return nil, nil
  end
+--[[
  for _,material in pairs(plant.material) do
   if material.flags.LIQUID_MISC or material.flags.ALCOHOL then
    mat_name = material.state_name.Liquid
@@ -839,56 +982,214 @@ function getEntryHerbiary(name)
   end
   products[#products+1] = product
  end
+]]
+ products = {plant.name}
  return plant, products
 end
 
-function getEntryItems(name)
- local item = nil
+function getEntryItems(id)
+ local item = df.global.world.raws.itemdefs.all[id]
  local item2 = {}
- local itemList = df.global.world.raws.itemdefs.all
- for _,x in pairs(itemList) do
-  if x.name == name then
-   item = x
-   break
-  end
- end
  if not item then
   return nil,nil
  end
+ item2 = {item}
  return item,item2
 end
 
-function getDetails(frame,entry,index)
- if frame == 'Bestiary' then
-  if index then
-   return getCreatureCasteDetails(entry,index)
-  else
-   return getCreatureDetails(entry)
-  end
- elseif frame == 'Herbiary' then
-  if index then
-   return getPlantProductDetails(entry,index)
-  else
-   return getPlantDetails(entry)
-  end
+function getEntryMaterial(id)
+ local material = nil
+ local material2 = {}
+ 
+ if not material then
+  return nil,nil
+ end
+ material2 = {material.state_name.Solid}
+ return material,material2
+end
+
+function getEntryBuilding(id)
+ local building = nil
+ local building2 = {}
+ 
+ if not building then
+  return nil,nil
+ end
+ building2 = {building.name}
+ return building,building2
+end
+
+function getEntryReaction(id)
+ local reaction = nil
+ local reaction2 = {}
+ 
+ if not reaction then
+  return nil,nil
+ end
+ reaction2 = {reaction.name}
+ return reaction,reaction2
+end
+
+function getDetails(frame,entry,index) -- Gets details for creatures, plants, items, materials
+ if frame == 'Creatures' then
+  info = getCreatureDetails(entry,index)
+  return makeCreatureOutput(info)
+ elseif frame == 'Plants' then
+  info = getPlantDetails(entry)
+  return makePlantOutput(info)
  elseif frame == 'Items' then
-  
+  info = getItemDetails(entry)
+  return makeItemOutput(info)
+ elseif frame == 'Materials' then
+  info = getMaterialDetails(entry)
+  return makeMaterialOutput(info)
+ elseif frame == 'Buildings' then
+  info = getBuildingDetails(entry)
+  return makeBuildingOutput(info)
+ elseif frame == 'Reactions' then
+  info = getReactionDetails(entry)
+  return makeReactionOutput(info)
  end
 end
 
-function getCreatureDetails(creature)
- return
-end
-
-function getCreatureCasteDetails(creature,caste) -- Gets all the details of a creature/caste combination
- local utils = require 'utils'
- local split = utils.split_string
+function getItemDetails(item)
  local input = {}
  local input2 = {}
  local header = {}
- local creature = creature
- local caste = creature.caste[caste]
+ local persistTable = require 'persist-table'
+ local gt = persistTable.GlobalTable
  local info = {}
+ info.header
+ info.name = ''
+ info.class = ''
+ info.description = ''
+ info.armorlevel = ''
+ info.upstep = ''
+ info.ubstep = ''
+ info.lbstep = ''
+ info.value = ''
+ info.materialsize = ''
+ info.layer = ''
+ info.layersize = ''
+ info.layerpermit = ''
+ info.coverage = ''
+ info.ammoclass = ''
+ info.blockchance = ''
+ info.twohanded = ''
+ info.minimumsize = ''
+ info.shootforce = ''
+ info.shootvelocity = ''
+ info.capacity = ''
+ info.hits = ''
+ info.attacks = {}
+ info.flags = {}
+ return info
+end
+
+function makeItemOutput(info)
+-- Header Information
+ table.insert(header,{text={{text=center(info.header,85),pen=COLOR_LIGHTRED,width=85}}})
+ table.insert(header,{text={{text=center('Description',85),width=85,pen=COLOR_YELLOW}}})
+ for _,second in pairs(split(info.description,'\n')) do
+  table.insert(header,{text={{text=second,pen=COLOR_WHITE,width=85}}})
+ end
+-- Left Column Information (Name, Class, Value, Material Size, Materials, Uses) 
+ table.insert(input,{text={{text=center('Details',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Item Name:',second=info.name},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Class:',second=info.class},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Value:',second=info.value},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Material Size:',second=info.materialsize},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Materials:',second=info.flags},{replacement=itemCraftFlags,pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Uses:',second=info.flags},{replacement=itemUseFlags,pen=COLOR_LIGHTCYAN})
+-- Right Column Information (Offensive Stats, Defensive Stats, Instrument Stats)
+ table.insert(input2,{text={{text=center('Offensive Details',40),width=40,pen=COLOR_YELLOW}}})
+ input2 = insertWidgetInput(input2,'header',{header='Min Size:',second=info.minimumsize},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Two Handed:',second=info.twohanded},{pen=COLOR_LIGHTCYAN}) 
+ input2 = insertWidgetInput(input2,'header',{header='Attacks:',second=info.attacks},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Ammo Class:',second=info.ammoclass},{pen=COLOR_LIGHTCYAN})
+ table.insert(input2,{text={{text=center('Defensive Details',40),width=40,pen=COLOR_YELLOW}}})
+ input2 = insertWidgetInput(input2,'header',{header='Block Chance:',second=info.blockchance},{pen=COLOR_LIGHTCYAN}) 
+ input2 = insertWidgetInput(input2,'header',{header='Layer:',second=info.layer},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Layer Size:',second=info.layersize},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Layer Permit:',second=info.layerpermit},{pen=COLOR_LIGHTCYAN}) 
+ input2 = insertWidgetInput(input2,'header',{header='Armor Level:',second=info.armorlevel},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Coverage:',second=info.coverage},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Up Step:',second=info.upstep},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='UB Step:',second=info.ubstep},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='LB Step:',second=info.lbstep},{pen=COLOR_LIGHTCYAN})
+ return header,input,input2
+end
+
+function getMaterialDetails(material)
+ local info = {}
+ 
+ return info
+end
+
+function makeMaterialOutput(info)
+ local input = {}
+ local input2 = {}
+ local header = {}
+-- Header Information
+ table.insert(header,{text={{text=center(info.header,85),pen=COLOR_LIGHTRED,width=85}}})
+ table.insert(header,{text={{text=center('Description',85),width=85,pen=COLOR_YELLOW}}})
+ for _,second in pairs(split(info.description,'\n')) do
+  table.insert(header,{text={{text=second,pen=COLOR_WHITE,width=85}}})
+ end
+-- Left Column Information 
+ table.insert(input,{text={{text=center('Details',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Item Name:',second=info.name},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Class:',second=info.class},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Value:',second=info.value},{pen=COLOR_LIGHTCYAN})
+-- Right Column Information
+ table.insert(input2,{text={{text=center('Shear',40),width=40,pen=COLOR_YELLOW}}})
+ for key,val in pairs(info.shear) do
+  table.insert(input2,{text
+ table.insert(input2,{text={{text=center('Fracture',40),width=40,pen=COLOR_YELLOW}}})
+
+ table.insert(input2,{text={{text=center('Yield',40),width=40,pen=COLOR_YELLOW}}})
+
+ return header,input,input2
+end
+
+function getBuildingDetails(building)
+ local info = {}
+ 
+ return info
+end
+
+function makeBuildingOutput(info)
+ local input = {}
+ local input2 = {}
+ local header = {}
+
+ return header,input,input2
+end
+
+function getReactionDetails(reaction)
+ local info = {}
+ 
+ return info
+end
+
+function makeReactionOutput(info)
+ local input = {}
+ local input2 = {}
+ local header = {}
+
+ return header,input,input2
+end
+
+function getCreatureDetails(creature,caste) -- Gets all the details of a creature/caste combination
+ local utils = require 'utils'
+ local split = utils.split_string
+ local persistTable = require 'persist-table'
+ local gt = persistTable.GlobalTable
+ local creature = creature
+ if caste then caste = creature.caste[caste] end
+ local info = {}
+ info.creaturename = creature.name[0]
+ info.castename = ''
  info.attacks = {}
  info.flags = {}
  info.interactions = {}
@@ -896,91 +1197,181 @@ function getCreatureCasteDetails(creature,caste) -- Gets all the details of a cr
  info.products = {}
  info.butcher_corpse = {}
  info.extra_butcher = {}
+ info.attributes = {}
+ info.skills = {}
+ info.item_corpse = ''
  info.description = ''
- info.item_corpse = dfhack.script_environment('functions/unit').getItemCorpse(caste)
- if info.item_corpse == 'Corpse' then
-  info.butcher_corpse[#info.butcher_corpse+1] = 'Butcher Products'
-  info.butcher_corpse[#info.butcher_corpse+1] = 'will go here'
- else
-  info.butcher_corpse[#info.butcher_corpse+1] = 'NA'
- end
- info.extra_butcher[1] = 'Extra Butcher Objects'
- info.extra_butcher[2] = 'will go here'
- if caste.extracts.milkable_mat >= 0 then
-  matinfo = dfhack.matinfo.decode(caste.extracts.milkable_mat,caste.extracts.milkable_matidx)
-  c = matinfo.creature.name[0]
-  m = matinfo.material.state_name.Solid
-  info.products[#info.products+1] = c..' '..m
- end
- if caste.extracts.webber_mat >= 0 then
-  matinfo = dfhack.matinfo.decode(caste.extracts.webber_mat,caste.extracts.webber_matidx)
-  c = matinfo.creature.name[0]
-  m = matinfo.material.state_name.Solid
-  info.products[#info.products+1] = c..' '..m
- end
- for i,matid in ipairs(caste.extracts.extract_mat) do
-  matinfo = dfhack.matinfo.decode(matid,caste.extracts.extract_matidx[i])
-  c = matinfo.creature.name[0]
-  m = matinfo.material.state_name.Liquid
-  info.products[#info.products+1] = c..' '..m
- end
- for _,attack in pairs(caste.body_info.attacks) do
-  if attack.specialattack_mat_type then
-   matinfo = dfhack.matinfo.decode(attack.specialattack_mat_type[0],attack.specialattack_mat_index[0])
+-- Get Caste Specific Information
+ if caste then
+  info.header = 'Press ESC to Return to Creature Details and List'
+  info.castename = caste.caste_name[0]
+-- Get Corpse, Butcher Results, and Extra Butcher Objects
+  info.item_corpse = dfhack.script_environment('functions/unit').getItemCorpse(caste)
+  if info.item_corpse == 'Corpse' then
+   info.butcher_corpse[#info.butcher_corpse+1] = 'Butcher Products'
+   info.butcher_corpse[#info.butcher_corpse+1] = 'will go here'
+  else
+   info.butcher_corpse[#info.butcher_corpse+1] = 'NA'
+  end
+  info.extra_butcher[1] = 'Extra Butcher Objects'
+  info.extra_butcher[2] = 'will go here'
+-- Get Products (milk, eggs, honey, etc...), Extracts, and Special Attack Injections
+  if caste.extracts.milkable_mat >= 0 then
+   matinfo = dfhack.matinfo.decode(caste.extracts.milkable_mat,caste.extracts.milkable_matidx)
+   c = matinfo.creature.name[0]
+   m = matinfo.material.state_name.Solid
+   info.products[#info.products+1] = c..' '..m
+  end
+  if caste.extracts.webber_mat >= 0 then
+   matinfo = dfhack.matinfo.decode(caste.extracts.webber_mat,caste.extracts.webber_matidx)
+   c = matinfo.creature.name[0]
+   m = matinfo.material.state_name.Solid
+   info.products[#info.products+1] = c..' '..m
+  end
+  for i,matid in ipairs(caste.extracts.extract_mat) do
+   matinfo = dfhack.matinfo.decode(matid,caste.extracts.extract_matidx[i])
+   c = matinfo.creature.name[0]
    m = matinfo.material.state_name.Liquid
-   info.products[#info.products+1] = m
+   info.products[#info.products+1] = c..' '..m
   end
- end
- info.adultsize = caste.misc.adult_size/100
- info.maxage = (caste.misc.maxage_min + caste.misc.maxage_max)/2
- if info.maxage <= 0 then info.maxage = 'NA' end
- 
- local n = math.floor(#caste.description/85)+1
- for i = 1,n do
-  info.description = info.description..string.sub(caste.description,1+85*(i-1),85*i)..'\n'
- end
- for _,attack in pairs(caste.body_info.attacks) do
-  info.attacks[attack.name] = attack.verb_2nd
- end
- for _,interaction in pairs(caste.body_info.interactions) do
-  info.interactions[#info.interactions+1] = interaction.unk.adv_name
- end
- for flag,check in pairs(creature.flags) do
-  if check then
-   info.flags[#info.flags+1] = flag
+  for _,attack in pairs(caste.body_info.attacks) do
+   if attack.specialattack_mat_type then
+    matinfo = dfhack.matinfo.decode(attack.specialattack_mat_type[0],attack.specialattack_mat_index[0])
+    m = matinfo.material.state_name.Liquid
+    info.products[#info.products+1] = m
+   end
   end
- end
- for flag,check in pairs(caste.flags) do
-  if check then
-   info.flags[#info.flags+1] = flag
+-- Get Numbers (Size, Age, Skills, Attributes, etc...)
+  info.adultsize = caste.misc.adult_size/100
+  info.maxage = (caste.misc.maxage_min + caste.misc.maxage_max)/2
+  if info.maxage <= 0 then 
+   info.maxage = 'NA'
+  else
+   info.maxage = tostring(info.maxage)..' years'
   end
- end
- for _,line in pairs(creature.raws) do
-  if split(line.value,':')[1] == '[BIOME' then
-   info.biomes[#info.biomes+1] = split(split(line.value,':')[2],']')[1]
+  for attribute,x in pairs(caste.attributes.phys_att_range) do
+   if safe_index(gt,"roses","EnhancedCreatureTable",creature.id,caste.id,attribute) then
+    info.attributes[attribute] = table.join(gt.roses.EnhancedCreatureTable[creature.id][caste.id][attribute],':')
+   else
+    info.attributes[attribute] = table.join(x,':')
+   end
+  for attribute,x in pairs(caste.attributes.ment_att_range) do
+   if safe_index(gt,"roses","EnhancedCreatureTable",creature.id,caste.id,attribute) then
+    info.attributes[attribute] = table.join(gt.roses.EnhancedCreatureTable[creature.id][caste.id][attribute],':')
+   else
+    info.attributes[attribute] = table.join(x,':')
+   end
   end
+-- Get Possible Classes
+  if safe_index(gt,"roses","EnhancedCreatureTable",creature.id,caste.id,"Classes") then
+   info.classes = {}
+   for _,x in pairs(gt.roses.EnhancedCreatureTable[creature.id][caste.id].Classes._children) do
+    if safe_index(gt,"roses","ClassTable",x) then
+     key = gt.roses.ClassTable[x].Name
+    else
+     key = x
+    end
+    info.classes[key] = gt.roses.EnhancedCreatureTable[creature.id][caste.id].Classes[x].Level
+   end
+  end
+-- Get Description broken into multiple lines
+  local n = math.floor(#caste.description/85)+1
+  for i = 1,n do
+   info.description = info.description..string.sub(caste.description,1+85*(i-1),85*i)..'\n'
+  end
+-- Get names of attacks
+  for _,attack in pairs(caste.body_info.attacks) do
+   info.attacks[attack.name] = attack.verb_2nd
+  end
+-- Get names of interactions
+  for _,interaction in pairs(caste.body_info.interactions) do
+   info.interactions[#info.interactions+1] = interaction.unk.adv_name
+  end
+-- Get Creature and Caste flags
+  for flag,check in pairs(creature.flags) do
+   if check then
+    info.flags[#info.flags+1] = flag
+   end
+  end
+  for flag,check in pairs(caste.flags) do
+   if check then
+    info.flags[#info.flags+1] = flag
+   end
+  end
+-- Get Biomes from the actual raws
+  for _,line in pairs(creature.raws) do
+   if split(line.value,':')[1] == '[BIOME' then
+    info.biomes[#info.biomes+1] = split(split(line.value,':')[2],']')[1]
+   end
+  end
+  if #info.biomes == 0 then info.biomes = info.flags end
+ else
+  info.header = 'Press ENTER to View Caste Information'
  end
- if #info.biomes == 0 then info.biomes = info.flags end
- 
+ return info
+end
+
+function makeCreatureOutput(info)
+ local input = {}
+ local input2 = {}
+ local header = {}
+-- Header Information (Creature Description)
+ table.insert(header,{text={{text=center(info.header,85),pen=COLOR_LIGHTRED,width=85}}})
  table.insert(header,{text={{text=center('Description',85),width=85,pen=COLOR_YELLOW}}})
  for _,second in pairs(split(info.description,'\n')) do
   table.insert(header,{text={{text=second,pen=COLOR_WHITE,width=85}}})
  end
-
+-- Left Column Information (Name, Lifespan, Size, Environment, Attributes, Natural Skills, Available Classes)
  table.insert(input,{text={{text=center('Details',40),width=40,pen=COLOR_YELLOW}}})
- input = insertWidgetInput(input,'header',{header='Creature Name:',second=creature.name[0]},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Caste Name:',second=caste.caste_name[0]},{pen=COLOR_LIGHTGREEN})
- input = insertWidgetInput(input,'header',{header='Average Life:',second=tostring(info.maxage)..' years'},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Creature Name:',second=info.creaturename},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Caste Name:',second=info.castename},{pen=COLOR_LIGHTGREEN})
+ table.insert(input,{text={{text=center('Numbers',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Average Life:',second=info.maxage},{pen=COLOR_LIGHTCYAN})
  input = insertWidgetInput(input,'header',{header='Adult Size:',second=tostring(info.adultsize)..' kg'},{pen=COLOR_LIGHTGREEN})
  table.insert(input,{text={{text=center('Environment ',40),width=40,pen=COLOR_YELLOW}}})
  input = insertWidgetInput(input,'header',{header='Biomes:',second=info.biomes},{replacement=biomeTokens,pen=COLOR_LIGHTCYAN})
  input = insertWidgetInput(input,'header',{header='Habitat:',second=info.flags},{replacement=habitatFlags,pen=COLOR_LIGHTGREEN})
  input = insertWidgetInput(input,'header',{header='Seasons:',second=info.flags},{replacement=seasonFlags,pen=COLOR_LIGHTCYAN})
  input = insertWidgetInput(input,'header',{header='Active Times:',second=info.flags},{replacement=activeFlags,pen=COLOR_LIGHTGREEN})
- table.insert(input,{text={{text=center('Attacks and Interactions',40),width=40,pen=COLOR_YELLOW}}})
- input = insertWidgetInput(input,'header',{header='Attacks:',second=info.attacks},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Interactions:',second=info.interactions},{pen=COLOR_LIGHTGREEN})
- 
+ table.insert(input,{text={{text=center('Attributes',40),width=40,pen=COLOR_YELLOW}}})
+ color = COLOR_LIGHTCYAN
+ for key,val in pairs(info.attributes) do
+  input = insertWidgetInput(input,'header',{header=string.lower(key),second=val},{pen=color})
+  if color == COLOR_LIGHTCYAN then 
+   color = COLOR_LIGHTGREEN
+  else
+   color = COLOR_LIGHTCYAN
+  end
+ end
+ table.insert(input,{text={{text=center('Natural Skills',40),width=40,pen=COLOR_YELLOW}}})
+ skills = 0
+ for key,val in pairs(info.skills) do
+  input = insertWidgetInput(input,'header',{header=string.lower(key),second=val},{pen=color})
+  if color == COLOR_LIGHTCYAN then 
+   color = COLOR_LIGHTGREEN
+  else
+   color = COLOR_LIGHTCYAN
+  end
+  skills = skills + 1
+ end
+ if skills == 0 then
+  table.insert(input,{text={{text=center('No Natural Skills',40),width=40,pen=color}}})
+ end
+ if info.classes then
+  table.insert(input,{text={{text=center('Available Classes',40),width=40,pen=COLOR_YELLOW}}})
+  for key,val in pairs(info.classes) do
+   input = insertWidgetInput(input,'header',{header=string.lower(key),second=val},{pen=color})
+   if color = COLOR_LIGHTCYAN then
+    color = COLOR_LIGHTGREEN
+   else
+    color = COLOR_LIGHTCYAN
+   end
+  end
+ end
+-- Right Column Information (Attacks, Interactions, Flags, Corpse, Products, Extracts)
+ table.insert(input2,{text={{text=center('Attacks and Interactions',40),width=40,pen=COLOR_YELLOW}}})
+ input2 = insertWidgetInput(input2,'header',{header='Attacks:',second=info.attacks},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Interactions:',second=info.interactions},{pen=COLOR_LIGHTGREEN}) 
  table.insert(input2,{text={{text=center('Flags',40),width=40,pen=COLOR_YELLOW}}})
  input2 = insertWidgetInput(input2,'header',{header='Utility Flags:',second=info.flags},{replacement=utilityFlags,fill='flags',pen=COLOR_LIGHTGREEN})
  input2 = insertWidgetInput(input2,'header',{header='Behavior Flags:',second=info.flags},{replacement=behaviorFlags,fill='flags',pen=COLOR_LIGHTCYAN})
@@ -991,31 +1382,44 @@ function getCreatureCasteDetails(creature,caste) -- Gets all the details of a cr
  input2 = insertWidgetInput(input2,'header',{header='Butcher Parts:',second=info.butcher_corpse},{pen=COLOR_LIGHTCYAN})
  input2 = insertWidgetInput(input2,'header',{header='Extra Butcher:',second=info.extra_butcher},{pen=COLOR_LIGHTGREEN})
  input2 = insertWidgetInput(input2,'header',{header='Extracts:',second=info.products},{pen=COLOR_LIGHTCYAN})
- 
  return header,input,input2
 end
 
-function getPlantDetails(plant) -- Gets all the details of a plant/product combination
- local input = {}
- local input2 = {}
- local header = {}
+function getPlantDetails(plant)
+ local persistTable = require 'persist-table'
+ local gt = persistTable.GlobalTable
  local info = {}
  info.flags = {}
  info.growths = {}
- info.description = 'Plant Description Will Go Here'
+ info.description = 'None'
+ info.class = '--'
+ info.rarity = '--'
+ info.name = plant.name
+ info.header = ''
  info.growdur = plant.growdur
  info.value = plant.value
  info.frequency = plant.frequency
  info.clustersize = plant.clustersize
  info.products = {}
+-- Check for Enhanced Material Plant
+ if safe_index(gt,"roses","EnhancedMaterialTemplate","Plant",plant.id,"ALL") then
+  local plantTable = gt.roses.EnhancedMaterialTemplate.Plants[plant.id].ALL
+  if plantTable.Description then info.description = plantTable.Description end
+  if plantTable.Class then info.description = plantTable.Class end
+  if plantTable.Rarity then info.rarity = plantTable.Rarity end
+  if plantTable.Name then info.name = plantTable.Name
+ end
+-- Get Flags
  for flag,check in pairs(plant.flags) do
   if check then
    info.flags[#info.flags+1] = flag
   end
  end
+-- Get Growths
  for _,growth in pairs(plant.growths) do
   info.growths[#info.growths+1] = growth.name
  end
+-- Get Products
  if plant.material_defs.type_basic_mat >= 0 then info.structure = 'Structural Mat' end
  if plant.material_defs.type_tree >= 0 then info.products[#info.products+1] = dfhack.matinfo.decode(plant.material_defs.type_tree,plant.material_defs.idx_tree).material.state_name.Solid end
  if plant.material_defs.type_drink >= 0 then info.products[#info.products+1] = dfhack.matinfo.decode(plant.material_defs.type_drink,plant.material_defs.idx_drink).material.state_name.Liquid end
@@ -1024,79 +1428,34 @@ function getPlantDetails(plant) -- Gets all the details of a plant/product combi
  if plant.material_defs.type_extract_vial >= 0 then info.products[#info.products+1] = dfhack.matinfo.decode(plant.material_defs.type_extract_vial,plant.material_defs.idx_extract_vial).material.state_name.Solid end
  if plant.material_defs.type_extract_barrel >= 0 then info.products[#info.products+1] = dfhack.matinfo.decode(plant.material_defs.type_extract_barrel,plant.material_defs.idx_extract_barrel).material.state_name.Solid end
  if plant.material_defs.type_extract_still_vial >= 0 then info.products[#info.products+1] = dfhack.matinfo.decode(plant.material_defs.type_extract_still_vial,plant.material_defs.idx_extract_still_vial).material.state_name.Solid end
-  
+ return info
+end
+
+function makePlantOutput(info)
+ local input = {}
+ local input2 = {}
+ local header = {}
+-- Header Information
+ table.insert(header,{text={{text=center(info.header,85),pen=COLOR_LIGHTRED,width=85}}})
  table.insert(header,{text={{text=center('Description',85),pen=COLOR_YELLOW,width=85}}})
  table.insert(header,{text={{text=info.description,pen=COLOR_WHITE,width=85}}})
-  
+-- Left Column Information (Name, Class, Rarity, Numbers, Environment)  
  table.insert(input,{text={{text=center('Details',40),pen=COLOR_YELLOW,width=40}}})
- input = insertWidgetInput(input,'header',{header='Plant Name:',second=plant.name},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Value:',second=plant.value},{pen=COLOR_LIGHTGREEN})
- input = insertWidgetInput(input,'header',{header='Frequency:',second=plant.frequency},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Cluster Size:',second=plant.clustersize},{pen=COLOR_LIGHTGREEN})
- input = insertWidgetInput(input,'header',{header='Grow Duration:',second=plant.growdur},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Plant Name:',second=info.name},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Class:',second=info.class},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Rarity:',second=info.rarity},{pen=COLOR_LIGHTCYAN})
+ table.insert(input,{text={{text=center('Numbers',40),pen=COLOR_YELLOW,width=40}}})
+ input = insertWidgetInput(input,'header',{header='Value:',second=info.value},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Frequency:',second=info.frequency},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Cluster Size:',second=info.clustersize},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Grow Duration:',second=info.growdur},{pen=COLOR_LIGHTCYAN})
  table.insert(input,{text={{text=center('Environment',40),pen=COLOR_YELLOW,width=40}}})
  input = insertWidgetInput(input,'header',{header='Biomes:',second=info.flags},{replacement=biomeTokens,pen=COLOR_LIGHTGREEN})
  input = insertWidgetInput(input,'header',{header='Seasons:',second=info.flags},{replacement=seasonPlantFlags,pen=COLOR_LIGHTCYAN})
-  
+-- Right Column Information (Products and Growths)
  table.insert(input2,{text={{text=center('Products and Growths',40),pen=COLOR_YELLOW,width=40}}})
  input2 = insertWidgetInput(input2,'header',{header='Products:',second=info.products},{pen=COLOR_LIGHTGREEN})
  input2 = insertWidgetInput(input2,'header',{header='Growths:',second=info.growths},{pen=COLOR_LIGHTCYAN})
- return header, input, input2
-end
-
-function getPlantProductDetails(plant,productID)
- local utils = require 'utils'
- local split = utils.split_string
- local product = plant.material[productID]
- local header = {}
- local input = {}
- local input2 = {}
- local info = {}
- info.syndromes = {}
- info.edible = {}
- info.flags = {}
- info.yields = {}
- info.fracture = {}
- info.strain = {}
- for _,syndrome in pairs(product.syndrome) do
-  info.syndromes[#info.syndromes+1] = syndrome.syn_name
- end
- for flag,check in pairs(product.flags) do
-  if check then
-   info.flags[#info.flags+1] = flag
-  end
- end
- for flag,check in pairs(product.flags) do
-  if check then
-   if split(flag,'_')[1] == 'EDIBLE' then
-    info.edible[#info.edible+1] = string.lower(split(flag,'_')[2])
-   end
-  end
- end
- for flag,val in pairs(product.strength.yield) do
-  info.yields[#info.yields+1] = string.lower(flag)..' '..val
- end
- for flag,val in pairs(product.strength.fracture) do
-  info.fracture[#info.fracture+1] = string.lower(flag)..' '..val
- end
- for flag,val in pairs(product.strength.strain_at_yield) do
-  info.strain[#info.strain+1] = string.lower(flag)..' '..val
- end
- table.insert(input,{text={{text=center('Numbers',40),pen=COLOR_YELLOW,width=40}}})
- input = insertWidgetInput(input,'header',{header='Material Value:',second=product.material_value},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Extract Storage:',second=product.extract_storage},{pen=COLOR_LIGHTGREEN})
- input = insertWidgetInput(input,'header',{header='Absorption:',second=product.strength.absorption},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Max Edge:',second=product.strength.max_edge},{pen=COLOR_LIGHTGREEN})
- input = insertWidgetInput(input,'header',{header='Yields:',second=info.yields},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Fracture:',second=info.fracture},{pen=COLOR_LIGHTGREEN})
- input = insertWidgetInput(input,'header',{header='Strains:',second=info.strain},{pen=COLOR_LIGHTCYAN})
- 
- table.insert(input2,{text={{text=center('Uses',40),pen=COLOR_YELLOW,width=40}}})
- input2 = insertWidgetInput(input2,'header',{header='Edible:',second=info.flags},{replacement=materialEdibleFlags,pen=COLOR_LIGHTCYAN})
- input2 = insertWidgetInput(input2,'header',{header='Items:',second=info.flags},{replacement=materialItemFlags,pen=COLOR_LIGHTGREEN})
- table.insert(input2,{text={{text=center('Syndromes',40),pen=COLOR_YELLOW,width=40}}})
- input2 = insertWidgetInput(input2,'header',{header='Syndromes:',second=info.syndromes},{pen=COLOR_LIGHTCYAN})
- 
  return header, input, input2
 end
 

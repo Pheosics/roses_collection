@@ -6,30 +6,30 @@ local utils = require 'utils'
 local split = utils.split_string
 
 args = {...}
-if args[1] == 'Bestiary' then
+if args[1] == 'Creatures' then
  showList = {'All Creatures','GOOD Creatures','EVIL Creatures','SAVAGE Creatures'}
  sortList = {'None','Biome','Type'}
  headers = {'Creatures','Castes'}
-elseif args[1] == 'Herbiary' then
+elseif args[1] == 'Plants' then
  showList = {'All Plants','Trees','Bushes','Grasses'}
  sortList = {'None','Biome','Type'}
- headers = {'Plants','Products'}
+ headers = {'Plants','Plant'}
 elseif args[1] == 'Items' then
  showList = {'All Items','Weapons','Shields','Helms','Armor','Gloves','Pants','Shoes','Ammo','Siege Ammo','Trap Components','Tools','Instruments','Food'}
  sortList = {'None'}
  headers = {'Items','Item'}
-elseif args[1] == 'Inorganics' then
- showList = {'All Inorganics','Metals','Gems','Stone','Glass'}
- sortList = {'None','Environment'}
- headers = {'Inorganics','Inorganic'}
-elseif args[1] == 'Organics' then
- showList = {'All Organics','Leather','Silk','Plant Fiber','Bone','Shell','Horn','Tooth','Wood'}
- sortList = {'None'}
- headers = {'Organics','Organic'}
-elseif args[1] == 'Food' then
- return
-elseif args[1] == 'Drinks' then
- return
+elseif args[1] == 'Materials' then
+ showList = {'All Materials','Inorganics','Creature Materials','Plant Materials'}
+ sortList = {'None','Type'}
+ headers = {'Materials','Material'}
+elseif args[1] == 'Buildings' then
+ showList = {'All Buildings','Workshops','Furnaces'}
+ sortList = {'None','Entity'}
+ headers = {'Buildings','Building'}
+elseif args[1] == 'Reactions' then
+ showList = {'All Reactions'}
+ sortList = {'None','Building','Entity'}
+ headers = {'Reactions','Reaction'}
 else
  return
 end
@@ -246,24 +246,28 @@ function CompendiumUi:setShowSort()
 end
 
 function CompendiumUi:getShow(input,choice)
- list, listNames = guiFunctions.getShow(choice,self.frame_title)
+ list, listNames, listIDs = guiFunctions.getShow(choice.text,self.frame_title)
+ dict = {}
+ for i,name in pairs(list) do
+  dict[name] = listIDs[i]
+ end
  self.list = list
  self.listNames = listNames
- 
+ self.listIDs = listIDs
+ self.dict = dict
+
+ self.ShowChoice = choice.text
  self.subviews.compendiumBaseShow.active = false
  self.subviews.compendiumBaseSort.active = true
 end
 
 function CompendiumUi:getSort(input,choice)
+ self.SortChoice = choice.text
  if choice.text == 'None' then
   guiFunctions.makeWidgetList(self.subviews.nonsortedList1,'second',self.listNames)
   guiFunctions.changeViewScreen(self.subviews,self.viewcheck,'base','nonsortedList')
  else
-  if choice.text == 'Biome' then
-   sort = guiFunctions.getSortBiome(biomeTokens,self.list,self.frame_title)
-  elseif choice.text == 'Type' then
-   sort = guiFunctions.getSortType(self.list,self.frame_title)
-  end
+  sort = guiFunctions.getSort(self.list,self.frame_title,choice.text)
   guiFunctions.makeWidgetList(self.subviews.sortedList1,'first',sort)
   self.sort = sort
   guiFunctions.changeViewScreen(self.subviews,self.viewcheck,'base','sortedList')
@@ -279,7 +283,7 @@ function CompendiumUi:selectEntry(index,choice)
  local input2 = {}
  local header = {}
  if not choice then return end
- entry, subList = guiFunctions.getEntry(choice.text,self.frame_title)
+ entry, subList = guiFunctions.getEntry(choice.text,self.dict,self.frame_title)
  if not entry then return end
  self.entry = entry 
  self.subList = subList
@@ -295,12 +299,15 @@ function CompendiumUi:submitSort(index,choice)
 end
 
 function CompendiumUi:submitEntry(index,choice)
- guiFunctions.changeViewScreen(self.subviews,self.viewcheck,'down')
- if self.subviews.nonsortedList2.visible then
-  guiFunctions.makeWidgetList(self.subviews.nonsortedList2,'second',self.subList)
- elseif self.subviews.sortedList3.visible then
-  guiFunctions.makeWidgetList(self.subviews.sortedList3,'second',self.subList)
- end
+ if self.frame_title == 'Creatures' then
+  guiFunctions.changeViewScreen(self.subviews,self.viewcheck,'down')
+  if self.subviews.nonsortedList2.visible then
+   guiFunctions.makeWidgetList(self.subviews.nonsortedList2,'second',self.subList)
+  elseif self.subviews.sortedList3.visible then
+   guiFunctions.makeWidgetList(self.subviews.sortedList3,'second',self.subList)
+  end
+ else
+  return
 end
 
 function CompendiumUi:entryDetails(index,choice)

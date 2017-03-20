@@ -42,7 +42,17 @@ function JournalUi:init()
                 widgets.Label{
          view_id = 'creatureBottom',
          frame = {t=1,l=1},
-         text ={{text=": Bestiary ",key = "CHANGETAB",on_activate=self:callback('bestiary')},
+         text ={{text=": Buildings ",key = "CUSTOM_SHIFT_B",on_activate=self:callback('building')},
+                NEWLINE,
+                {text=": Creatures ",key = "CUSTOM_SHIFT_C",on_activate=self:callback('creature')},
+                NEWLINE,
+                {text=": Items ",key = "CUSTOM_SHIFT_I",on_activate=self:callback('item')},
+                NEWLINE,
+                {text=": Materials ",key = "CUSTOM_SHIFT_M",on_activate=self:callback('material')},
+                NEWLINE,
+                {text=": Plants ",key = "CUSTOM_SHIFT_P",on_activate=self:callback('plant')},
+                NEWLINE,
+                {text=": Reactions ",key = "CUSTOM_SHIFT_R",on_activate=self:callback('reaction')},
                 NEWLINE,
                 {text= ": Exit ",key= "LEAVESCREEN",} 
                }
@@ -52,8 +62,23 @@ function JournalUi:init()
         }
 end
 
-function JournalUi:bestiary()
- dfhack.run_command('gui/bestiary')
+function JournalUi:creature()
+ dfhack.run_command('gui/journal-details -Creatures')
+end
+function JournalUi:plant()
+ dfhack.run_command('gui/journal-details -Plants')
+end
+function JournalUi:item()
+ dfhack.run_command('gui/journal-details -Items')
+end
+function JournalUi:material()
+ dfhack.run_command('gui/journal-details -Materials')
+end
+function JournalUi:building()
+ dfhack.run_command('gui/journal-details -Buildings')
+end
+function JournalUi:reaction()
+ dfhack.run_command('gui/journal-details -Reactions')
 end
 
 function JournalUi:onInput(keys)
