@@ -1915,6 +1915,24 @@ function getCounter(unit,counter) -- Returns one of the counter values of a unit
  return location[counter] 
 end
 
+function getItemCorpse(caste)
+ item_type = caste.misc.itemcorpse_itemtype
+ item_subtype = caste.misc.itemcorpse_itemsubtype
+ mat_type = caste.misc.itemcorpse_materialtype
+ mat_index = caste.misc.itemcorpse_materialindex
+ if caste.flags.ITEMCORPSE then
+  if item_subtype >= 0 then
+   item = dfhack.items.getSubtypeDef(item_type,item_subtype).name
+  else
+   item = string.lower(df.item_type[item_type])
+  end
+  mat = dfhack.matinfo.decode(mat_type,mat_index).material.state_name.Solid
+  itemcorpse = mat..' '..item
+ else
+  itemcorpse = 'Corpse'
+ end
+ return itemcorpse
+end
 ---------------------------------------------------------------------------------------
 ------ The following function just reference modtools/create-unit, this allows --------
 ------ me to change certain features of that code without altering it directly --------
