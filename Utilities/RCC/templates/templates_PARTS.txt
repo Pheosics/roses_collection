@@ -1,0 +1,1013 @@
+= Order of templates
+== Head
+=== Ear
+=== Eye
+=== Mouth
+=== Nose
+=== Tongue
+=== Tooth
+===== Attachments Head
+== Torso
+===== Attachments Torso
+== Arm
+=== Hand
+==== Finger
+== Leg
+=== Foot
+==== Toe
+===== Attachments Limb
+== Organs
+== Skeletal
+== Details
+===== Attachments Misc
+
+===============================================================================================================
+================================================ HEAD TEMPLATES ===============================================
+===============================================================================================================
+
+[TEMPLATE:HEAD:HEAD_#REPLACE1_NECK]
+        {DESCRIPTION:#REPLACE2 head}
+        {NAME:ADJ:#REPLACE3}
+        {TOKENS:HEAD,NECK,THROAT}
+	{WEIGHT:200}
+	{REPLACEMENTS:SMALL:NORMAL:LARGE,a small::a large,small headed::large headed,200:300:400}
+        {BODY:HEAD_STANDARD_ONE}
+                [RELSIZE:BY_CATEGORY:HEAD:#REPLACE4]
+
+[TEMPLATE:HEAD:#REPLACE1_HEADS_NECK]
+        {DESCRIPTION:#REPLACE2 heads}
+        {NAME:ADJ:#REPLACE2 headed}
+        {TOKENS:HEAD,NECK,THROAT}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:TWO:THREE:FOUR:FIVE:SIX:SEVEN,two:three:four:five:six:seven,25:20:15:10:5:5}
+        {BODY:HEAD_STANDARD_#REPLACE1}
+		[PREFSTRING:multiple heads]
+
+[TEMPLATE:HEAD:HEAD_#REPLACE1_NECK_LONG]
+        {DESCRIPTION:a #REPLACE2 head on a long neck}
+        {NAME:ADJ:long necked}
+        {TOKENS:HEAD,NECK,THROAT}
+	{WEIGHT:75}
+	{REPLACEMENTS:SMALL:NORMAL:LARGE,small:single:large,200:300:400}
+        {BODY:HEAD_STANDARD_ONE}
+		[RELSIZE:BY_CATEGORY:HEAD:#REPLACE3]
+                [RELSIZE:BY_CATEGORY:NECK:700]
+		[PREFSTRING:long neck]
+
+[TEMPLATE:HEAD:#REPLACE1_HEADS_NECK_LONG]
+        {DESCRIPTION:#REPLACE2 heads on long necks}
+        {NAME:ADJ:#REPLACE2 headed,ADJ:long necked}
+        {TOKENS:HEAD,NECK,THROAT}
+        {WEIGHT:#REPLACE3}
+        {REPLACEMENTS:TWO:THREE:FOUR:FIVE:SIX:SEVEN,two:three:four:five:six:seven,25:20:15:10:5:5}
+        {BODY:HEAD_STANDARD_#REPLACE1}
+		[RELSIZE:BY_CATEGORY:NECK:700]
+		[PREFSTRING:multiple heads]
+		[PREFSTRING:long neck]
+
+[TEMPLATE:HEAD:HEAD_#REPLACE1_NONECK]
+        {DESCRIPTION:a #REPLACE2 head with no visible neck}
+        {TOKENS:HEAD,NONECK,NOTHROAT}
+	{WEIGHT:125}
+	{REPLACEMENTS:SMALL:NORMAL:LARGE,small:single:large,200:300:400}
+        {BODY:HEAD_NONECK}
+		[RELSIZE:BY_CATEGORY:HEAD:#REPLACE3]
+
+===============================================================================================================
+================================================ EAR TEMPLATES ================================================
+===============================================================================================================
+
+[TEMPLATE:EAR:NO_EARS]
+        {DESCRIPTION:no visible ears}
+        {NAME:ADJ:deaf}
+        {LINK:HEAD}
+	{WEIGHT:25}
+        {TOKENS:NOEAR}
+
+[TEMPLATE:EAR:ONE_EAR]
+        {DESCRIPTION:one ear}
+        {NAME:ADJ:one eared}
+        {TOKENS:EAR}
+        {LINK:HEAD}
+	{WEIGHT:25}
+        {BODY:FACE_EARS_ONE}
+		[BODY_DETAIL_PLAN:POSITION_EARS_FRONT]
+		[PREFSTRING:one ear]
+
+[TEMPLATE:EAR:EARS_#REPLACE1]
+        {DESCRIPTION:two #REPLACE2 ears}
+        {TOKENS:EAR}
+        {LINK:HEAD}
+	{WEIGHT:#REPLACE4}
+	{REPLACEMENTS:SMALL:NORMAL:LARGE:GIANT,small::large:giant,7:15:30:60,50:100:50:25}
+        {BODY:FACE_EARS_TWO}
+		[RELSIZE:BY_CATEGORY:EAR:#REPLACE3]
+		[BODY_DETAIL_PLAN:POSITION_EARS_SIDES]
+
+===============================================================================================================
+================================================ EYE TEMPLATES ================================================
+===============================================================================================================
+
+[TEMPLATE:EYE:EYES_NONE]
+        {DESCRIPTION:no eyes}
+        {NAME:ADJ:eyeless,ADJ:no-eye,ADJ:blind}
+        {LINK:HEAD}
+	{WEIGHT:75}
+        {TOKENS:NOEYE}
+
+[TEMPLATE:EYE:EYES_ONE]
+	{DESCRIPTION:one eye}
+	{NAME:ADJ:one eyed}
+	{BP_COLORS:EYE}
+	{TOKENS:EYE,EYELID}
+	{LINK:HEAD}
+	{WEIGHT:50}
+	{BODY:FACE_EYES_ONE,FACE_EYES_EYELID}
+		[BODY_DETAIL_PLAN:POSITION_EYES_FRONT]
+		[BODY_DETAIL_PLAN:RELATION_EYES_EYELIDS]
+		[PREFSTRING:one eye]
+
+[TEMPLATE:EYE:EYES_ONE_NOEYELID]
+        {DESCRIPTION:one eye with no eyelid}
+        {NAME:ADJ:one eyed,ADJ:unblinking}
+        {BP_COLORS:EYE}
+        {TOKENS:EYE}
+        {LINK:HEAD}
+	{WEIGHT:50}
+        {BODY:FACE_EYES_ONE}
+		[BODY_DETAIL_PLAN:POSITION_EYES_FRONT]
+		[PREFSTRING:one eye]
+
+[TEMPLATE:EYE:EYES_#REPLACE1]
+        {DESCRIPTION:#REPLACE2 eyes}
+        {NAME:ADJ:#REPLACE2 eyed}
+        {BP_COLORS:EYE}
+        {TOKENS:EYE,EYELID}
+	{LINK:HEAD}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:TWO:THREE:FOUR:SIX:EIGHT,two:three:four:six:eight,200:50:75:100:100}
+        {BODY:FACE_EYES_#REPLACE1,FACE_EYES_EYELID}
+		[BODY_DETAIL_PLAN:POSITION_EYES_SIDES]
+		[BODY_DETAIL_PLAN:RELATION_EYES_EYELIDS]
+		[PREFSTRING:#REPLACE2 eyes]
+
+[TEMPLATE:EYE:EYES_#REPLACE1_NOEYELID]
+        {DESCRIPTION:#REPLACE2 eyes with no eyelids}
+        {NAME:ADJ:#REPLACE2 eyed,ADJ:unblinking}
+        {BP_COLORS:EYE}
+        {TOKENS:EYE}
+        {LINK:HEAD}
+	{WEIGHT:#REPLACE3}
+        {REPLACEMENTS:TWO:THREE:FOUR:SIX:EIGHT,two:three:four:six:eight,200:50:75:100:100}
+        {BODY:FACE_EYES_#REPLACE1}
+		[BODY_DETAIL_PLAN:POSITION_EYES_SIDES]
+		[PREFSTRING:#REPLACE2 eyes]
+===============================================================================================================
+=============================================== MOUTH TEMPLATES ===============================================
+===============================================================================================================
+
+[TEMPLATE:MOUTH:NO_MOUTH]
+        {DESCRIPTION:no visible mouth}
+        {NAME:ADJ:mouthless}
+        {LINK:HEAD}
+        {TOKENS:NOMOUTH}
+	{WEIGHT:50}
+
+[TEMPLATE:MOUTH:MOUTH]
+        {DESCRIPTION:a mouth}
+        {LINK:HEAD}
+        {TOKENS:MOUTH,CHEEK}
+        {BODY:FACE_MOUTH_NORMAL,FACE_MOUTH_CHEEK}
+		[BODY_DETAIL_PLAN:POSITION_MOUTH_FRONT]
+		[BODY_DETAIL_PLAN:RELATION_MOUTH_CHEEK]
+
+[TEMPLATE:MOUTH:MOUTH_NOCHEEK]
+        {DESCRIPTION:a mouth with no cheeks}
+        {LINK:HEAD}
+        {TOKENS:MOUTH}
+        {BODY:FACE_MOUTH_NORMAL}
+		[BODY_DETAIL_PLAN:POSITION_MOUTH_FRONT]
+
+[TEMPLATE:MOUTH:BEAK]
+        {DESCRIPTION:a beak}
+        {NAME:ADJ:beaked}
+        {TOKENS:BEAK,NOSE}
+        {ATTACKS:ATTACK_HEAD_BEAK}
+        {LINK:HEAD}
+        {BP_COLORS:BEAK}
+        {BODY:FACE_MOUTH_BEAK}
+		[BODY_DETAIL_PLAN:POSITION_MOUTH_FRONT]
+		[PREFSTRING:beak]
+
+[TEMPLATE:MOUTH:BILL]
+        {DESCRIPTION:a large bill}
+        {NAME:ADJ:billed}
+        {TOKENS:BILL,NOSE}
+        {ATTACKS:ATTACK_HEAD_BILL}
+        {LINK:HEAD}
+        {BP_COLORS:BILL}
+        {BODY:FACE_MOUTH_BILL}
+		[BODY_DETAIL_PLAN:POSITION_MOUTH_FRONT]
+		[PREFSTRING:bill]
+
+[TEMPLATE:MOUTH:MUZZLE]
+        {DESCRIPTION:a large muzzle}
+        {TOKENS:MOUTH,CHEEK,NOSE}
+        {LINK:HEAD}
+	{TEMPLATES:NOSE}
+        {BODY:FACE_MOUTH_MUZZLE,FACE_MOUTH_CHEEK}
+		[BODY_DETAIL_PLAN:POSITION_MOUTH_FRONT]
+		[BODY_DETAIL_PLAN:POSITION_NOSE_FRONT]
+		[BODY_DETAIL_PLAN:RELATION_MOUTH_CHEEK]
+
+===============================================================================================================
+================================================ NOSE TEMPLATES ===============================================
+===============================================================================================================
+
+[TEMPLATE:NOSE:NO_NOSE]
+        {DESCRIPTION:no nose}
+        {NAME:ADJ:noseless}
+        {LINK:HEAD}
+        {TOKENS:NONOSE}
+
+[TEMPLATE:NOSE:NOSE_#REPLACE1]
+        {DESCRIPTION:a #REPLACE2 nose}
+        {TOKENS:NOSE}
+        {LINK:HEAD}
+	{REPLACEMENTS:SMALL:LARGE:GIANT:POINTED:CROOKED,small:large:giant:pointed:crooked,5:20:40:10:10}
+        {BODY:FACE_NOSE_NORMAL}
+		[RELSIZE:BY_CATEGORY:NOSE:#REPLACE3]
+		[BDOY_DETAIL_PLAN:POSITION_NOSE_FRONT]
+		[PREFSTRING:#REPLACE2 nose]
+
+[TEMPLATE:NOSE:TRUNK]
+        {DESCRIPTION:a large trunk}
+        {NAME:PREFIX:trunk}
+        {ATTACKS:ATTACK_HEAD_TRUNK}
+        {TOKENS:NOSE,TRUNK}
+        {LINK:HEAD}
+        {BODY:FACE_NOSE_TRUNK}
+		[BODY_DETAIL_PLAN:POSITION_NOSE_FRONT]
+		[PREFSTRING:trunk]
+
+===============================================================================================================
+=============================================== TONGUE TEMPLATES ==============================================
+===============================================================================================================
+
+[TEMPLATE:TONGUE:TONGUE_MOUTH]
+        {TOKENS:TONGUE}
+        {LINK:MOUTH}
+        {BODY:FACE_TONGUE_NORMAL}
+		[BODY_DETAIL_PLAN:POSITION_TONGUE_FRONT]
+
+[TEMPLATE:TONGUE:TONGUE_#REPLACE1]
+        {DESCRIPTION:a #REPLACE2 tongue}
+        {NAME:ADJ:#REPLACE2 tongued}
+        {LINK:MOUTH}
+	{REPLACEMENTS:FORKED:SPINY:CIRCULAR:STICKY,forked:spiny:circular:sticky}
+        {BODY:FACE_TONGUE_NORMAL}
+		[BODY_DETAIL_PLAN:POSITION_TONGUE_FRONT]
+		[PREFSTRING:#REPLACE2 tongue]
+
+[TEMPLATE:TONGUE:TONGUE_BILL]
+        {TOKENS:TONGUE}
+        {LINK:BILL}
+        {BODY:FACE_TONGUE_NORMAL}
+		[BODY_DETAIL_PLAN:POSITION_TONGUE_FRONT]
+
+[TEMPLATE:TONGUE:TONGUE_BEAK]
+        {TOKENS:TONGUE}
+        {LINK:BEAK}
+        {BODY:FACE_TONGUE_NORMAL}
+		[BODY_DETAIL_PLAN:POSITION_TONGUE_FRONT]
+
+===============================================================================================================
+=============================================== TOOTH TEMPLATES ===============================================
+===============================================================================================================
+
+[TEMPLATE:TOOTH:TEETH_#REPLACE1]
+	{DESCRIPTION:#REPLACE2 teeth}
+        {ATTACKS:ATTACK_HEAD_TOOTH}
+        {TOKENS:TOOTH}
+        {LINK:MOUTH}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:FACE_TEETH_TOOTH}
+		[USE_TISSUE_TEMPLATE:TOOTH:TOOTH_#REPLACE1]
+
+[TEMPLATE:TOOTH:FANGS_#REPLACE1]
+        {DESCRIPTION:large #REPLACE2 fangs}
+        {NAME:ADJ:fanged}
+        {ATTACKS:ATTACK_HEAD_FANG}
+        {TOKENS:TOOTH,FANG}
+        {LINK:MOUTH}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:FACE_TEETH_FANG}
+		[USE_TISSUE_TEMPLATE:TOOTH:TOOTH_#REPLACE1]
+		[PREFSTRING:fangs]
+
+===============================================================================================================
+=========================================== HEAD ATTACHMENT TEMPLATES =========================================
+===============================================================================================================
+
+[TEMPLATE:ATTACHMENT_HEAD:CREST_#REPLACE1]
+        {DESCRIPTION:a #REPLACE2 crest on top of it's head}
+        {NAME:ADJ:crested,ADJ:#REPLACE2 crested}
+        {LINK:HEAD}
+        {TOKENS:CREST}
+        {BP_COLORS:CREST}
+	{REPLACEMENTS:SMALL:LARGE,small:large,30:60}
+        {BODY:ATTACHMENT_HEAD_CREST}
+		[RELSIZE:BY_CATEGORY:CREST_HEAD:#REPLACE3]
+		[BODY_DETAIL_PLAN:POSITION_CREST_TOP]
+		[PREFSTRING:head crest]
+
+[TEMPLATE:ATTACHMENT_HEAD:FRILL_#REPLACE1]
+        {DESCRIPTION:a #REPLACE2 frill on the back of it's #REPLACE3}
+        {NAME:ADJ:frilled,ADJ:#REPLACE4}
+        {LINK:#REPLACE5}
+        {TOKENS:FRILL}
+        {BP_COLORS:FRILL}
+	{REPLACEMENTS:SMALL:LARGE:NECK,small:large:large,head:head:neck,small frilled:large frilled:neck-frilled,HEAD:HEAD:NECK,75:150:150}
+        {BODY:ATTACHMENT_HEAD_FRILL_#REPLACE5}
+		[RELSIZE:BY_CATEGORY:FRILL_HEAD:#REPLACE6]
+		[BODY_DETAIL_PLAN:POSITION_FRILL_BACK]
+		[PREFSTRING:#REPLACE3 frill]
+
+[TEMPLATE:ATTACHMENT_HEAD:FIN_#REPLACE1]
+        {DESCRIPTION:a #REPLACE2 fin on top of it's head}
+        {NAME:ADJ:finned,ADJ:#REPLACE2 finned}
+        {LINK:HEAD}
+        {TOKENS:FIN}
+        {REPLACEMENTS:SMALL:LARGE,small:large,150:300}
+        {BODY:ATTACHMENT_HEAD_FIN}
+                [RELSIZE:BY_CATEGORY:FIN_HEAD:#REPLACE3]
+		[BODY_DETAIL_PLAN:POSITION_FIN_TOP]
+		[PREFSTRING:head fin]
+
+[TEMPLATE:ATTACHMENT_HEAD:SPIKES_SMALL_#REPLACE1]
+        {DESCRIPTION:small #REPLACE2 spikes covering it's head}
+        {ATTACKS:ATTACK_HEAD_SPIKE}
+        {LINK:HEAD}
+        {TOKENS:SPIKE}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:ATTACHMENT_HEAD_SPIKE_SMALL}
+                [USE_TISSUE_TEMPLATE:SPIKE_HEAD:SPIKE_#REPLACE1]
+		[BODY_DETAIL_PLAN:RELATION_SPIKE_HEAD]
+		[PREFSTRING:head spikes]
+
+[TEMPLATE:ATTACHMENT_HEAD:SPIKES_LARGE_#REPLACE1]
+        {DESCRIPTION:large #REPLACE2 spikes on it's head}
+        {ATTACKS:ATTACK_HEAD_SPIKE}
+        {LINK:HEAD}
+        {TOKENS:SPIKE}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:ATTACHMENT_HEAD_SPIKE_LARGE}
+                [USE_TISSUE_TEMPLATE:SPIKE_HEAD:SPIKE_#REPLACE1]
+		[PREFSTRING:head spikes]
+
+[TEMPLATE:ATTACHMENT_HEAD:ANTLERS_#REPLACE1]
+        {DESCRIPTION:large #REPLACE2 antlers on the top of it's head}
+        {NAME:ADJ:antlered}
+        {ATTACKS:ATTACK_HEAD_ANTLER}
+        {TOKENS:ANTLER}
+	{LINK:HEAD}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:ATTACHMENT_HEAD_ANTLER}
+                [USE_TISSUE_TEMPLATE:HORN:HORN_#REPLACE1]
+		[BODY_DETAIL_PLAN:POSITION_HORN_TOP]
+		[PREFSTRING:antlers]
+
+[TEMPLATE:ATTACHMENT_HEAD:HORN_#REPLACE1_#ITERATE1]
+        {DESCRIPTION:#ITERATE2 #REPLACE2 horn#ITERATE3 jutting out from it's head}
+        {NAME:ADJ:#ITERATE4 horned}
+        {ATTACKS:ATTACK_HEAD_HORN}
+        {TOKENS:HORN}
+	{LINK:HEAD}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+	{ITERATIONS:ONE:TWO:FOUR,a single:two:four,:s:s,single:two:four}
+        {BODY:ATTACHMENT_HEAD_HORN_#ITERATE1}
+                [USE_TISSUE_TEMPLATE:HORN:HORN_#REPLACE1]
+		[BODY_DETAIL_PLAN:POSITION_HORN_TOP]
+		[PREFSTRING:#ITERATE4 horn#ITERATE3]
+
+[TEMPLATE:ATTACHMENT_HEAD:TUSK_#REPLACE1_#ITERATE1]
+        {DESCRIPTION:#ITERATE2 #REPLACE2 tusks on the front of it's face}
+        {NAME:ADJ:#ITERATE2 tusked}
+        {ATTACKS:ATTACK_HEAD_TUSK}
+        {TOKENS:TUSK}
+	{LINK:HEAD}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+	{ITERATIONS:TWO:FOUR,two:four}
+        {BODY:ATTACHMENT_HEAD_TUSK_#ITERATE1}
+                [USE_TISSUE_TEMPLATE:IVORY:IVORY_#REPLACE1]
+		[BODY_DETAIL_PLAN:POSITION_TUSK_FRONT]
+		[PREFSTRING:tusks]
+
+[TEMPLATE:ATTACHMENT_HEAD:MANDIBLES]
+        {DESCRIPTION:two large mandibles coming from it's mouth}
+        {ATTACKS:ATTACK_HEAD_MANDIBLE}
+        {TOKENS:MANDIBLES}
+        {BODY:ATTACHMENT_HEAD_MANDIBLE}
+        {LINK:MOUTH}
+		[BODY_DETAIL_PLAN:POSITION_MANDIBLE_FRONT]
+		[PREFSTRING:mandibles]
+
+[TEMPLATE:ATTACHMENT_HEAD:PROBOSCIS]
+        {DESCRIPTION:a large proboscis coming from it's mouth}
+        {ATTACKS:ATTACK_HEAD_PROBOSCIS}
+        {TOKENS:PROBOSCIS}
+        {BODY:ATTACHMENT_HEAD_PROBOSCIS}
+        {LINK:MOUTH}
+		[BODY_DETAIL_PLAN:POSITION_PROBOSCIS_FRONT]
+		[PREFSTRING:proboscis]
+		[PREFSTRING:ability to suck blood]
+
+===============================================================================================================
+================================================ TORSO TEMPLATES ============================================== 
+===============================================================================================================
+
+[TEMPLATE:TORSO:ONE_PART_#REPLACE1]
+	{DESCRIPTION:a #REPLACE2 torso}
+	{TOKENS:TORSO}
+	{REPLACEMENTS:SMALL:NORMA:LARGE,small:simple:large,1700:2000:2300}
+	{BODY:TORSO_ONE_PART}
+		[RELSIZE:BY_CATEGORY:BODY:#REPLACE3]
+
+[TEMPLATE:TORSO:TWO_PART]
+	{DESCRIPTION:a two part body}
+	{TOKENS:TORSO}
+	{BODY:TORSO_TWO_PART}
+
+[TEMPLATE:TORSO:TWO_PART_SMALL]
+	{DESCRIPTION:a small two part body}
+	{TOKENS:TORSO}
+	{BODY:TORSO_TWO_PART}
+		[RELSIZE:BY_CATEGORY:BODY_UPPER:850]
+		[RELSIZE:BY_CATEGORY:BODY_LOWER:850]
+
+[TEMPLATE:TORSO:TWO_PART_LARGE]
+	{DESCRIPTION:a large two part body}
+	{TOKENS:TORSO}
+	{BODY:TORSO_TWO_PART}
+		[RELSIZE:BY_CATEGORY:BODY_UPPER:1150]
+		[RELSIZE:BY_CATEGORY:BODY_LOWER:1150]
+
+[TEMPLATE:TORSO:TWO_PART_TOP]
+	{DESCRIPTION:a large upper body and small lower body}
+	{TOKENS:TORSO}
+	{BODY:TORSO_TWO_PART}
+		[RELSIZE:BY_CATEGORY:BODY_UPPER:1300]
+		[RELSIZE:BY_CATEGORY:BODY_LOWER:700]
+
+[TEMPLATE:TORSO:TWO_PART_BOTTOM]
+	{DESCRIPTION:a small upper body and large lower body}
+	{TOKENS:TORSO}
+	{BODY:TORSO_TWO_PART}
+		[RELSIZE:BY_CATEGORY:BODY_UPPER:700]
+		[RELSIZE:BY_CATEGORY:BODY_LOWER:1300]
+
+===============================================================================================================
+========================================== TORSO ATTACHMENT TEMPLATES =========================================
+===============================================================================================================
+
+[TEMPLATE:ATTACHMENT_TORSO:WINGS_#REPLACE1]
+	{DESCRIPTION:#REPLACE2 wings on it's back}
+	{NAME:ADJ:winged}
+	{ATTACKS:ATTACK_TORSO_WING}
+	{TOKENS:WING}
+	{LINK:TORSO}
+	{EXCEPT:WING}
+	{REPLACEMENTS:TWO:TWO_LARGE:TWO_HUGE:FOUR:SIX:EIGHT,two:two large:two huge:four:six small:eight small,TWO:TWO:TWO:FOUR:SIX:EIGHT,500:1000:2000:500:200:200}
+	{BODY:ATTACHMENT_TORSO_WING_#REPLACE3}
+		[RELSIZE:BY_CATEGORY:WING_BACK:#REPLACE4]
+		[BODY_DETAIL_PLAN:POSITION_WING_BACK]
+		[PREFSTRING:wings]
+
+[TEMPLATE:ATTACHMENT_TORSO:STINGER_2]
+        {DESCRIPTION:two stingers attached to it's lower body}
+        {ATTACKS:ATTACK_TORSO_TAIL,ATTACK_TAIL_STINGER}
+        {TOKENS:STINGER,TAIL}
+        {LINK:TORSO}
+        {EXCEPT:STINGER}
+        {BODY:ATTACHMENT_TORSO_STINGER_TWO}
+		[BODY_DETAIL_PLAN:POSITION_TAIL_BACK]
+		[PREFSTRING:stinger]
+
+[TEMPLATE:ATTACHMENT_TORSO:STINGER_LARGE]
+        {DESCRIPTION:a large stinger attached to it's lower body}
+        {ATTACKS:ATTACK_TORSO_TAIL,ATTACK_TAIL_STINGER}
+        {TOKENS:STINGER,TAIL}
+        {LINK:TORSO}
+        {EXCEPT:STINGER}
+        {BODY:ATTACHMENT_TORSO_STINGER_ONE}
+                [BODY_DETAIL_PLAN:POSITION_TAIL_BACK]
+		[PREFSTRING:stinger]
+
+[TEMPLATE:ATTACHMENT_TORSO:FIN]
+        {DESCRIPTION:a large fin on it's back}
+        {TOKENS:FIN_TORSO}
+        {LINK:TORSO}
+        {BODY:ATTACHMENT_TORSO_FIN}
+                [BODY_DETAIL_PLAN:POSITION_FIN_BACK]
+		[PREFSTRING:torso fin]
+
+[TEMPLATE:ATTACHMENT_TORSO:SPIKE_SMALL_#REPLACE1]
+        {DESCRIPTION:small #REPLACE2 spikes covering it's torso}
+        {NAME:ADJ:spiked,ADJ:spikey}
+        {ATTACKS:ATTACK_TORSO_SPIKE}
+        {TOKENS:SPIKE_TORSO,SPIKE}
+        {LINK:TORSO}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:ATTACHMENT_TORSO_SPIKE_SMALL}
+                [USE_TISSUE_TEMPLATE:SPIKE_TORSO:SPIKE_#REPLACE1]
+		[BODY_DETAIL_PLAN:RELATION_SPIKE_TORSO]
+		[PREFSTRING:torso spikes]
+
+[TEMPLATE:ATTACHMENT_TORSO:SPIKE_LARGE_#REPLACE1]
+        {DESCRIPTION:large #REPLACE2 spikes on it's torso}
+        {NAME:ADJ:spiked,ADJ:spikey}
+        {ATTACKS:ATTACK_TORSO_SPIKE}
+        {TOKENS:SPIKE_TORSO,SPIKE}
+        {LINK:TORSO}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:ATTACHMENT_TORSO_SPIKE_LARGE}
+                [USE_TISSUE_TEMPLATE:SPIKE_TORSO:SPIKE_#REPLACE1]
+		[PREFSTRING:torso spikes]
+
+[TEMPLATE:ATTACHMENT_TORSO:TAIL_#REPLACE1]
+        {DESCRIPTION:a #REPLACE2 tail attached to it's lower body}
+        {ATTACKS:ATTACK_TORSO_TAIL}
+        {TOKENS:TAIL}
+        {LINK:TORSO}
+        {EXCEPT:TAIL}
+	{REPLACEMENTS:SHORT:NORMAL:LONG,short::long,25:100:200}
+        {BODY:ATTACHMENT_TORSO_TAIL_ONE}
+		[RELSIZE:BY_CATEGORY:TAIL:#REPLACE3]
+                [BODY_DETAIL_PLAN:POSITION_TAIL_BACK]
+		[PREFSTRING:#REPLACE2 tail]
+
+[TEMPLATE:ATTACHMENT_TORSO:TAIL_CLUB]
+        {DESCRIPTION:a tail with a large club at the end attached to it's lower body}
+        {ATTACKS:ATTACK_TORSO_TAIL,ATTACK_TAIL_CLUB}
+        {TOKENS:TAIL,TAIL_CLUB}
+        {LINK:TORSO}
+        {EXCEPT:TAIL}
+        {BODY:ATTACHMENT_TORSO_TAIL_CLUB}
+                [BODY_DETAIL_PLAN:POSITION_TAIL_BACK]
+		[PREFSTRING:clubbed tail]
+
+[TEMPLATE:ATTACHMENT_TORSO:TAIL_SPIKE]
+        {DESCRIPTION:a spiked tail attached to it's lower body}
+        {ATTACKS:ATTACK_TORSO_TAIL,ATTACK_TAIL_SPIKE}
+        {TOKENS:TAIL,TAIL_SPIKE}
+        {LINK:TORSO}
+        {EXCEPT:TAIL}
+        {BODY:ATTACHMENT_TORSO_TAIL_SPIKE}
+                [BODY_DETAIL_PLAN:POSITION_TAIL_BACK]
+		[PREFSTRING:spiked tail]
+
+[TEMPLATE:ATTACHMENT_TORSO:TAIL_#REPLACE1]
+        {DESCRIPTION:#REPLACE2 tails attached to it's lower body}
+        {ATTACKS:ATTACK_TORSO_TAIL}
+        {TOKENS:TAIL}
+        {LINK:TORSO}
+        {EXCEPT:TAIL}
+	{REPLACEMENTS:TWO:THREE:FOUR,two:three:four}
+        {BODY:ATTACHMENT_TORSO_TAIL_#REPLACE1}
+                [BODY_DETAIL_PLAN:POSITION_TAIL_BACK]
+		[PREFSTRING:#REPLACE2 tails]
+
+===============================================================================================================
+================================================ ARM TEMPLATES ================================================
+===============================================================================================================
+
+[TEMPLATE:ARM:NO_ARMS]
+        {DESCRIPTION:no arms}
+        {NAME:ADJ:armless}
+        {TEMPLATES:HAND}
+        {TOKENS:#NOARM}
+
+[TEMPLATE:ARM:ARMS_#REPLACE1]
+        {DESCRIPTION:#REPLACE2 arms}
+        {NAME:ADJ:#REPLACE2 armed}
+        {TOKENS:ARM}
+        {REPLACEMENTS:TWO:FOUR:SIX,two:four:six}
+        {BODY:LIMBS_ARMS_ARM_#REPLACE1}
+
+[TEMPLATE:ARM:TENTACLES_#REPLACE1]
+        {DESCRIPTION:#REPLACE2 tentacles attached to it's upper body}
+        {TOKENS:TENTACLE,TENTACLE_ARM}
+        {REPLACEMENTS:TWO:FOUR,two:four}
+        {BODY:LIMBS_ARMS_TENTACLE_#REPLACE1}
+		[PREFSTRING:tentacles]
+
+[TEMPLATE:ARM:WINGS_#REPLACE1]
+        {DESCRIPTION:#REPLACE2 wings}
+        {NAME:ADJ:winged}
+        {ATTACKS:ATTACK_ARM_WING}
+        {TOKENS:#NOARM,WING}
+        {REPLACEMENTS:TWO:FOUR:SIX,two:four:six}
+        {BODY:LIMBS_ARMS_WING_#REPLACE1}
+		[PREFSTRING:wings]
+
+===============================================================================================================
+================================================ HAND TEMPLATES ===============================================
+===============================================================================================================
+
+[TEMPLATE:HAND:HAND_NOFINGERS]
+        {ATTACKS:ATTACK_HAND_HAND}
+        {TOKENS:HAND}
+        {LINKS:ARM,NOFINGER}
+        {TEMPLATES:FINGER}
+        {BODY:EXTREMITY_HANDS_HAND}
+
+[TEMPLATE:HAND:HAND_#REPLACE1]
+        {DESCRIPTION:#REPLACE2}
+        {ATTACKS:ATTACK_HAND_HAND}
+        {TOKENS:HAND}
+        {LINK:ARM}
+        {REPLACEMENTS:SMALL:NORMAL:LARGE:GIANT,small hands:hands:large hands:giant hands,40:80:160:320}
+        {BODY:EXTREMITY_HANDS_HAND}
+                [RELSIZE:BY_CATEGORY:HAND:#REPLACE3]
+
+[TEMPLATE:HAND:PAW_#REPLACE1]
+        {DESCRIPTION:#REPLACE2}
+        {ATTACKS:ATTACK_HAND_PAW}
+        {TOKENS:PAW,HAND}
+        {LINK:ARM}
+        {REPLACEMENTS:SMALL:NORMAL:LARGE:GIANT,small paws:paws:large paws:giant paws,40:80:160:320}
+        {BODY:EXTREMITY_HANDS_HAND}
+		[BODYGLOSS:HAND_PAW]
+                [RELSIZE:BY_CATEGORY:HAND:#REPLACE3]
+
+[TEMPLATE:HAND:TENTACLE_CLAW]
+        {DESCRIPTION:claws}
+        {NAME:ADJ:clawed,PREFIX:claw}
+        {ATTACKS:ATTACK_HAND_TENTACLE,ATTACK_TENTACLE_CLAW}
+        {TOKENS:CLAW}
+        {LINK:TENTACLE_ARM}
+        {TEMPLATES:FINGER}
+        {BODY:EXTREMITY_HANDS_TENTACLE_CLAW}
+		[PREFSTRING:clawed tentacles]
+
+[TEMPLATE:HAND:TENTACLE_CLUB]
+        {DESCRIPTION:clubs}
+        {NAME:ADJ:clubed,PREFIX:club}
+        {ATTACKS:ATTACK_HAND_TENTACLE,ATTACK_TENTACLE_CLUB}
+        {TOKENS:CLUB}
+        {LINK:TENTACLE_ARM}
+        {TEMPLATES:FINGER}
+        {BODY:EXTREMITY_HANDS_TENTACLE_CLUB}
+		[PREFSTRING:clubbed tentacles]
+
+[TEMPLATE:HAND:TENTACLE_PLAIN]
+        {ATTACKS:ATTACK_HAND_TENTACLE}
+        {LINK:TENTACLE_ARM}
+        {TEMPLATES:FINGER}
+
+[TEMPLATE:HAND:PINCER]
+        {DESCRIPTION:large pincers}
+        {NAME:ADJ:pincer}
+        {ATTACKS:ATTACK_HAND_PINCER}
+        {TOKENS:PINCER}
+        {LINK:ARM}
+        {TEMPLATES:FINGER}
+        {BODY:EXTREMITY_HANDS_PINCER}
+		[PREFSTRING:pincers]
+
+[TEMPLATE:HAND:SPIKE]
+        {DESCRIPTION:spikes}
+        {ATTACKS:ATTACK_HAND_SPIKE}
+        {TOKENS:SPIKE_HAND,SPIKE}
+        {LINK:ARM}
+        {TEMPLATES:FINGER}
+        {BODY:EXTREMITY_HANDS_SPIKE}
+		[PREFSTRING:hand spikes]
+
+===============================================================================================================
+=============================================== FINGER TEMPLATES ==============================================
+===============================================================================================================
+
+[TEMPLATE:FINGER:FINGER_NAIL_#REPLACE1_#ITERATE2]
+        {DESCRIPTION:#ITERATE1 fingers #REPLACE2}
+	{NAME:ADJ:#ITERATE1-fingered}
+        {LINK:HAND}
+	{ATTACKS:ATTACK_FINGER_NAIL}
+        {TOKENS:FINGER,NAIL}
+        {REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,with dull nails::with sharp nails:with extremely sharp nails}
+	{ITERATIONS:three:four:five,THREE:FOUR:FIVE}
+        {BODY:EXTREMITY_FINGERS_FINGER_#ITERATE2}
+                [USE_TISSUE_TEMPLATE:NAIL_FINGER:NAIL_#REPLACE1]
+                        [TISSUE_LAYER:BY_CATEGORY:FINGER:NAIL_FINGER:FRONT]
+
+[TEMPLATE:FINGER:FINGER_CLAW_#REPLACE1_#ITERATE2]
+        {DESCRIPTION:#ITERATE1 #REPLACE2 claws}
+	{NAME:ADJ:#ITERATE1-clawed}
+        {LINK:HAND}
+	{ATTACKS:ATTACK_FINGER_CLAW}
+        {TOKENS:FINGER,CLAW}
+        {REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp}
+	{ITERATIONS:three:four:five,THREE:FOUR:FIVE}
+        {BODY:EXTREMITY_FINGERS_FINGER_#ITERATE2}
+                [USE_TISSUE_TEMPLATE:CLAW_FINGER:CLAW_#REPLACE1]
+                        [TISSUE_LAYER:BY_CATEGORY:FINGER:CLAW_FINGER:FRONT]
+		[PREFSTRING:claws]
+
+===============================================================================================================
+================================================ LEG TEMPLATES ================================================
+===============================================================================================================
+
+[TEMPLATE:LEG:NO_LEGS]
+        {DESCRIPTION:no legs}
+        {NAME:ADJ:legless}
+        {TOKENS:#NOLEG}
+        {TEMPLATES:FOOT}
+
+[TEMPLATE:LEG:LEGS_#REPLACE1]
+        {DESCRIPTION:#REPLACE2 legs}
+        {NAME:ADJ:#REPLACE2 legged}
+        {TOKENS:LEG}
+        {REPLACEMENTS:TWO:FOUR:SIX,two:four:six}
+        {BODY:LIMBS_LEGS_LEG_#REPLACE1}
+		[PREFSTRING:#REPLACE2 legs]
+
+[TEMPLATE:LEG:LEGS_#REPLACE1_NOTOES]
+        {DESCRIPTION:#REPLACE2 legs}
+        {NAME:ADJ:#REPLACE2 legged}
+        {TOKENS:LEG,NOTOE}
+        {REPLACEMENTS:EIGHT:TEN:HUNDRED,eight:ten:one hundred}
+        {BODY:LIMBS_LEGS_LEG_#REPLACE1}
+		[PREFSTRING:#REPLACE2 legs]
+
+[TEMPLATE:LEG:TENTACLES_#REPLACE1]
+        {DESCRIPTION:#REPLACE2 tentacles attached to it's lower body}
+        {NAME:ADJ:#REPLACE2 tentacled}
+        {TOKENS:TENTACLE,TENTACLE_LEG}
+        {REPLACEMENTS:FOUR:SIX:EIGHT,four:six:eight}
+        {BODY:LIMBS_LEGS_TENTACLE_#REPLACE1}
+		[PREFSTRING:tentacles]
+
+[TEMPLATE:LEG:FLIPPERS_#REPLACE1]
+        {DESCRIPTION:#REPLACE2 flippers attached to it's lower body}
+        {ATTACKS:ATTACK_LEG_FLIPPER}
+        {TOKENS:FLIPPER,#SWIMMING_GAIT}
+        {TEMPLATES:FOOT,TOE}
+        {REPLACEMENTS:TWO:FOUR,two:four}
+        {BODY:LIMBS_LEGS_FLIPPER_#REPLACE1}
+		[PREFSTRING:flippers]
+
+===============================================================================================================
+================================================ FOOT TEMPLATES ===============================================
+===============================================================================================================
+
+[TEMPLATE:FOOT:FOOT_NOTOES]
+        {ATTACKS:ATTACK_FOOT_FOOT}
+        {TOKENS:FOOT}
+        {LINK:LEG,NOTOE}
+        {TEMPLATES:TOE}
+        {BODY:EXTREMITY_FEET_FOOT}
+
+[TEMPLATE:FOOT:FOOT_#REPLACE1]
+        {DESCRIPTION:#REPLACE2}
+        {ATTACKS:ATTACK_FOOT_FOOT}
+        {TOKENS:FOOT}
+        {LINK:LEG}
+        {REPLACEMENTS:SMALL:NORMAL:LARGE:GIANT,small feet:feet:large feet:giant feet,60:120:240:480}
+        {BODY:EXTREMITY_FEET_FOOT}
+                [RELSIZE:BY_CATEGORY:FOOT:#REPLACE3]
+
+[TEMPLATE:FOOT:PAW_#REPLACE1]
+        {DESCRIPTION:#REPLACE2}
+        {ATTACKS:ATTACK_FOOT_PAW}
+        {TOKENS:PAW,FOOT}
+        {LINK:LEG}
+        {REPLACEMENTS:SMALL:NORMAL:LARGE:GIANT,small paws:paws:large paws:giant paws,60:120:240:480}
+        {BODY:EXTREMITY_FEET_FOOT}
+                [BODYGLOSS:FOOT_PAW]
+                [RELSIZE:BY_CATEGORY:FOOT:#REPLACE3]
+
+[TEMPLATE:FOOT:TENTACLE_CLAWS]
+        {DESCRIPTION:claws}
+        {NAME:ADJ:clawed,PREFIX:claw}
+        {ATTACKS:ATTACK_FOOT_TENTACLE,ATTACK_TENTACLE_CLAW}
+        {TOKENS:CLAW}
+        {LINK:TENTACLE_LEG}
+        {TEMPLATES:TOE}
+        {BODY:EXTREMITY_FEET_TENTACLE_CLAW}
+		[PREFSTRING:clawed tentacles]
+
+[TEMPLATE:FOOT:TENTACLE_CLUBS]
+        {DESCRIPTION:clubs}
+        {NAME:ADJ:clubbed,PREFIX:club}
+        {ATTACKS:ATTACK_FOOT_TENTACLE,ATTACK_TENTACLE_CLUB}
+        {TOKENS:CLUB}
+        {LINK:TENTACLE_LEG}
+        {TEMPLATES:TOE}
+        {BODY:EXTREMTIY_FEET_TENTACLE_CLUB}
+		[PREFSTRING:clubbed tentacles]
+
+[TEMPLATE:FOOT:TENTACLE_PLAIN]
+        {ATTACKS:ATTACK_FOOT_TENTACLE}
+        {LINK:TENTACLE_LEG}
+        {TEMPLATES:TOE}
+
+[TEMPLATE:FOOT:HOOF]
+        {DESCRIPTION:hooves}
+        {NAME:ADJ:hoofed,PREFIX:hoof}
+        {ATTACKS:ATTACK_FOOT_HOOF}
+        {TOKENS:HOOF}
+        {LINK:LEG}
+        {TEMPLATES:TOE}
+        {BODY:EXTREMITY_FEET_HOOF}
+                [USE_TISSUE_TEMPLATE:HOOF:HOOF_NORMAL]
+		[PREFSTRING:hooves]
+
+[TEMPLATE:FOOT:SPIKE]
+        {DESCRIPTION:spikes}
+        {ATTACKS:ATTACK_FOOT_SPIKE}
+        {TOKENS:SPIKE_FOOT,SPIKE}
+        {LINK:LEG}
+        {TEMPLATES:TOE}
+        {BODY:EXTREMITY_FEET_SPIKE}
+		[PREFSTRING:foot spikes]
+
+===============================================================================================================
+================================================ TOE TEMPLATES ================================================
+===============================================================================================================
+
+[TEMPLATE:TOE:TOE_NAIL_#REPLACE1_#ITERATE2]
+        {DESCRIPTION:#ITERATE1 toes #REPLACE2}
+	{NAME:ADJ:#ITERATE1-toed}
+        {LINK:FOOT}
+	{ATTACKS:ATTACK_TOE_NAIL}
+        {TOKENS:TOE,NAIL}
+        {REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,with dull nails::with sharp nails:with extremely sharp nails}
+	{ITERATIONS:three:four:five,THREE:FOUR:FIVE}
+        {BODY:EXTREMITY_TOES_TOE_#ITERATE2}
+                [USE_TISSUE_TEMPLATE:NAIL_TOE:NAIL_#REPLACE1]
+                        [TISSUE_LAYER:BY_CATEGORY:TOE:NAIL_TOE:FRONT]
+
+[TEMPLATE:TOE:TOE_CLAW_#REPLACE1_#ITERATE2]
+        {DESCRIPTION:#ITERATE1 #REPLACE2 claws}
+	{NAME:ADJ:#ITERATE1-toed}
+        {LINK:FOOT}
+	{ATTACKS:ATTACK_TOE_CLAW}
+        {TOKENS:TOE,CLAW}
+        {REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp}
+	{ITERATIONS:three:four:five,THREE:FOUR:FIVE}
+        {BODY:EXTREMITY_TOES_TOE_#ITERATE2}
+                [USE_TISSUE_TEMPLATE:CLAW_TOE:CLAW_#REPLACE1]
+                        [TISSUE_LAYER:BY_CATEGORY:TOE:CLAW_TOE:FRONT]
+		[PREFSTRING:claws]
+
+===============================================================================================================
+========================================== LIMB ATTACHMENT TEMPLATES ==========================================
+===============================================================================================================
+
+[TEMPLATE:ATTACHMENT_LIMB:SUCKERS_TENTACLES]
+        {DESCRIPTION:large suckers on it's tentacles}
+        {ATTACKS:ATTACK_TENTACLE_SUCKER}
+        {TOKENS:SUCKER}
+        {LINK:TENTACLE}
+        {BODY:ATTACHMENT_LIMBS_TENTACLE_SUCKER}
+		[BODY_DETAIL_PLAN:RELATION_SUCKERS_TENTACLES]
+
+[TEMPLATE:ATTACHMENT_LIMB:SPIKES_ARMS_#REPLACE1]
+        {DESCRIPTION:large #REPLACE2 spikes on it's arms}
+        {NAME:ADJ:spiked}
+        {ATTACKS:ATTACK_ARM_SPIKE}
+        {TOKENS:SPIKE_ARM}
+        {LINK:ARM}
+	{WEIGHT:#REPLACE3}
+	{REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:ATTACHMENT_LIMBS_ARM_SPIKE}
+		[USE_TISSUE_TEMPLATE:SPIKE_ARM:SPIKE_#REPLACE1]
+		[PREFSTRING:arm spikes]
+
+[TEMPLATE:ATTACHMENT_LIMB:CREST_ARMS]
+        {DESCRIPTION:a small crest on it's arms}
+        {LINK:ARM}
+        {TOKENS:CREST_ARM}
+        {BP_COLORS:CREST}
+        {BODY:ATTACHMENT_LIMBS_ARMS_CREST}
+		[PREFSTRING:arm crest]
+
+[TEMPLATE:ATTACHMENT_LIMB:FIN_ARMS]
+        {DESCRIPTION:a small fin on it's arms}
+        {LINK:ARM}
+        {TOKENS:FIN_ARM}
+        {BODY:ATTACHMENT_LIMBS_ARMS_FIN}
+		[PREFSTRING:arm fin]
+
+[TEMPLATE:ATTACHMENT_LIMB:SPIKES_LEGS_#REPLACE1]
+        {DESCRIPTION:large spikes on it's legs}
+        {NAME:ADJ:spiked}
+        {ATTACKS:ATTACK_LEG_SPIKE}
+        {TOKENS:SPIKE_LEG,SPIKE}
+        {LINK:LEG}
+	{WEIGHT:#REPLACE3}
+        {REPLACEMENTS:DULL:NORMAL:SHARP:EXTREME,dull::sharp:extremely sharp,75:100:75:50}
+        {BODY:ATTACHMENT_LIMBS_LEG_SPIKE}
+		[USE_TISSUE_TEMPLATE:SPIKE_LEG:SPIKE_#REPLACE1]
+		[PREFSTRING:leg spikes]
+
+[TEMPLATE:ATTACHMENT_LIMB:CREST_LEGS]
+        {DESCRIPTION:a small crest on it's legs}
+        {LINK:LEG}
+        {TOKENS:CREST_LEG}
+        {BP_COLORS:CREST}
+        {BODY:ATTACHMENT_LIMBS_LEG_CREST}
+		[PREFSTRING:leg crest]
+
+[TEMPLATE:ATTACHMENT_LIMB:FIN_LEGS]
+        {DESCRIPTION:a small fin on it's legs}
+        {LINK:LEG}
+        {TOKENS:FIN_LEG}
+        {BODY:ATTACHMENT_LIMBS_LEG_FIN}
+		[PREFSTRING:leg fin]
+
+===============================================================================================================
+=============================================== ORGANS TEMPLATES ==============================================
+===============================================================================================================
+
+[TEMPLATE:ORGANS:STANDARD]
+	{TOKEN:ORGANS}
+	{LINK:THROAT,SKIN}
+        {BODY:ORGANS_STANDARD}
+                [SELECT_TISSUE_LAYER:HEART:BY_CATEGORY:HEART]
+                        [PLUS_TISSUE_LAYER:SKIN:BY_CATEGORY:THROAT]
+                        [TL_MAJOR_ARTERIES]
+                [BLOOD:CREATURE_MAT:ANIMAL:BLOOD:LIQUID]
+                [PUS:CREATURE_MAT:ANIMAL:PUS:LIQUID]
+                [HAS_NERVES]
+                [GETS_WOUND_INFECTIONS]
+                [GETS_INFECTIONS_FROM_ROT]
+
+[TEMPLATE:ORGANS:STANDARD_NOSKIN]
+        {TOKEN:ORGANS}
+        {EXCEPT:SKIN}
+        {BODY:ORGANS_STANDARD}
+                [SELECT_TISSUE_LAYER:HEART:BY_CATEGORY:HEART]
+                        [TL_MAJOR_ARTERIES]
+                [BLOOD:CREATURE_MAT:ANIMAL:BLOOD_NORMAL:LIQUID]
+                [PUS:CREATURE_MAT:ANIMAL:PUS_NORMAL:LIQUID]
+                [HAS_NERVES]
+                [GETS_WOUND_INFECTIONS]
+                [GETS_INFECTIONS_FROM_ROT]
+
+[TEMPLATE:ORGANS:STANDARD_NOTHROAT]
+	{TOKEN:ORGANS}
+	{LINK:NOTHROAT}
+	{BODY:ORGANS_STANDARD}
+                [SELECT_TISSUE_LAYER:HEART:BY_CATEGORY:HEART]
+                        [TL_MAJOR_ARTERIES]
+                [BLOOD:CREATURE_MAT:ANIMAL:BLOOD_NORMAL:LIQUID]
+                [PUS:CREATURE_MAT:ANIMAL:PUS_NORMAL:LIQUID]
+                [HAS_NERVES]
+                [GETS_WOUND_INFECTIONS]
+                [GETS_INFECTIONS_FROM_ROT]
+
+===============================================================================================================
+============================================== SKELETAL TEMPLATES =============================================
+===============================================================================================================
+
+[TEMPLATE:SKELETAL:NO_BONES]
+        {LINK:NOBONE}
+		[NOBONES]
+		[PREFSTRING:lack of bones]
+
+[TEMPLATE:SKELETAL:BONES_SIMPLE_RIBS_#REPLACE1]
+	{DESCRIPTION:#REPLACE2 bones}
+        {TOKEN:BONE}
+        {EXCEPT:NOBONE,NOHEAD}
+	{WEIGHT:#REPLACE3
+	{REPLACEMENTS:BRITTLE:NORMAL:STRONG:EXTREME,brittle:normal:strong:extremely strong,75:100:75:50}
+        {BODY:SKELETAL_SIMPLE}
+		[USE_TISSUE_TEMPLATE:BONE:BONE_#REPLACE1]
+		[USE_TISSUE_TEMPLATE:CARTILLAGE:CARTILLAGE_#REPLACE1]
+                [TENDONS:CREATURE_MAT:ANIMAL:SINEW_#REPLACE1:200]
+                [LIGAMENTS:CREATURE_MAT:ANIMAL:SINEW_#REPLACE1:200]
+		[BODY_DETAIL_PLAN:RELATION_SKELETAL_SIMPLE]
+
+===============================================================================================================
+============================================== DETAILS TEMPLATES ==============================================
+===============================================================================================================
+
+[TEMPLATE:DETAILS:TESTING]
+        {TOKENS:TESTING}
+
+===============================================================================================================
+========================================== MISC ATTACHMENT TEMPLATES ==========================================
+===============================================================================================================
+
+[TEMPLATE:ATTACHMENT_MISC:TESTING]
+        {TOKENS:TESTING}

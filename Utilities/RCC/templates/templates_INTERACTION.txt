@@ -1,0 +1,120 @@
+[TEMPLATE:INTERACTION:CLEAN_SELF]
+	{DESCRIPTION:cleans itself when dirty}
+	{LINK:TONGUE}
+	{TOKENS:CLEAN}
+		[APPLY_CREATURE_VARIATION:INTERACTION_CLEAN_TONGUE]
+
+[TEMPLATE:INTERACTION:HEAD_BUMP]
+	{DESCRIPTION:often greets other animals by head bumping them}
+	{LINK:HEAD}
+	{TOKENS:BUMP}
+		[APPLY_CREATURE_VARIATION:INTERACTION_BUMP_HEAD]
+
+[TEMPLATE:INTERACTION:HIDE]
+	{DESCRIPTION:can blend with it's surroundings and become invisible}
+	{NAME:ADJ:camouflauged,PREFIX:camo,ADJ:hidden,PREFIX:hiding}
+	{TOKENS:HIDE}
+    	{EXCEPT:HIDE}
+		[APPLY_CREATURE_VARIATION:INTERACTION_HIDE_ALWAYS]
+
+[TEMPLATE:INTERACTION:HIDE_RETREAT]
+	{DESCRIPTION:can blend with it's surroundings and become invisible when scared}
+	{NAME:ADJ:camouflauged,PREFIX:camo,ADJ:hidden,PREFIX:hiding}
+	{TOKENS:HIDE}
+    	{EXCEPT:HIDE}
+		[APPLY_CREATURE_VARIATION:INTERACTION_HIDE_RETREAT]
+
+[TEMPLATE:INTERACTION:VENOM_#ITERATE1_#REPLACE1_SPIT]
+	{DESCRIPTION:is able to spit its venom at range}
+	{NAME:ADJ:spitting,ADJ:hissing}
+	{TOKENS:VENOM_SPIT}
+   	{LINK:VENOM,VENOM_#ITERATE1_#REPLACE1_BITE}
+        {REPLACEMENTS:WEAK:STRONG:EXTREME}
+        {ITERATIONS:PAIN:SWELLING:BLISTERS:DIZZINESS:BLEEDING:NECROTIC:ERRATIC:PARALYZE}
+	    [CAN_DO_INTERACTION:MATERIAL_EMISSION]
+		[CDI:ADV_NAME:Spit venom]
+		[CDI:USAGE_HINT:ATTACK]
+		[CDI:MATERIAL:CREATURE_MAT:ANIMAL:VENOM_#ITERATE1_#REPLACE1:LIQUID_GLOB]
+		[CDI:VERB:spit venom:spits venom:NA]
+		[CDI:TARGET:C:LINE_OF_SIGHT]
+		[CDI:TARGET_RANGE:C:6]
+		[CDI:MAX_TARGET_NUMBER:C:1]
+		[CDI:WAIT_PERIOD:5000]
+
+[TEMPLATE:INTERACTION:WEB_SILK_SPRAY]
+	{DESCRIPTION:is able to spray its web at a distance}
+	{NAME:ADJ:spitting,ADJ:spraying}
+	{TOKENS:WEB_SPRAY}
+   	{LINK:HAS_WEB,SILK}
+	    [CAN_DO_INTERACTION:MATERIAL_EMISSION]
+		[CDI:ADV_NAME:Spray web]
+		[CDI:USAGE_HINT:ATTACK]
+		[CDI:MATERIAL:CREATURE_MAT:ANIMAL:SILK_NORMAL:WEB_SPRAY]
+		[CDI:VERB:spray web:sprays web:NA]
+		[CDI:TARGET:C:LINE_OF_SIGHT]
+		[CDI:TARGET_RANGE:C:5]
+		[CDI:MAX_TARGET_NUMBER:C:1]
+		[CDI:WAIT_PERIOD:500]
+
+[TEMPLATE:INTERACTION:FIRE_BREATH]
+	{DESCRIPTION:is able to generate intense heat in it's throat by constricting the muscles and can release the stored heat as a breath of fire}
+	{NAME:ADJ:fire-breathing,ADJ:flame}
+	{TOKENS:BREATH_ATTACK,FIRE}
+	{PERCENT:ELEMENTAL}
+	{LINK:MOUTH,ELEMENTAL}
+	{EXCEPT:WATER_ONLY,BREATH_ATTACK}
+		[APPLY_CREATURE_VARIATION:INTERACTION_FIRE_BREATH]
+		[PREFSTRING:ability to breath fire]
+	
+[TEMPLATE:INTERACTION:STORM_SPIKES]
+	{DESCRIPTION:is able to store a small amount of static electricity on the tips of it's spikes and can release the stored electricity as a bolt of lightning}
+	{NAME:ADJ:lightning,ADJ:electric}
+	{TOKENS:STORM}
+	{PERCENT:ELEMENTAL}
+	{LINK:SPIKE,ELEMENTAL}
+	{EXCEPT:WATER_ONLY}
+		[APPLY_CREATURE_VARIATION:INTERACTION_STORM_SPIKE]
+
+[TEMPLATE:INTERACTION:STORM_BREATH]
+	{DESCRIPTION:is able to generate large amounts of static electricity in it's throat and can release the stored electricity as a breath of lightning}
+	{NAME:ADJ:lightning,ADJ:electric,ADJ:lightning-breathing}
+	{TOKENS:BREATH_ATTACK,STORM}
+	{PERCENT:ELEMENTAL}
+	{LINK:MOUTH,ELEMENTAL}
+	{EXCEPT:WATER_ONLY,BREATH_ATTACK}
+		[APPLY_CREATURE_VARIATION:INTERACTION_STORM_BREATH]
+
+[TEMPLATE:INTERACTION:ICE_BREATH]
+	{DESCRIPTION:is able to regulate heat production in it's body and dramatically lower the temperature in it's mouth which it can release as a breath of ice}
+	{NAME:ADJ:frozen:ADJ:ice,ADJ:ice-breathing}
+	{TOKENS:BREATH_ATTACK,ICE}
+	{PERCENT:ELEMENTAL}
+	{LINK:MOUTH,FREEZING,ELEMENTAL}
+	{EXCEPT:WATER_ONLY,BREATH_ATTACK}
+		[APPLY_CREATURE_VARIATION:INTERACTION_ICE_BREATH]
+
+[TEMPLATE:INTERACTION:WATER_BREATH]
+	{DESCRIPTION:is able to store excess water in it's body which it can release in a jet of water}
+	{NAME:ADJ:spitting,ADJ:water-shooting}
+	{TOKENS:BREATH_ATTACK,WATER}
+	{PERCENT:ELEMENTAL}
+	{LINK:WATER_ONLY,MOUTH,ELEMENTAL}
+	{EXCEPT:BREATH_ATTACK}
+		[APPLY_CREATURE_VARIATION:INTERACTION_WATER_BREATH]
+
+[TEMPLATE:INTERACTION:CHARGE_HORN]
+	{DESCRIPTION:often charges at enemies that get too close with it's horns}
+	{NAME:ADJ:charging}
+	{TOKENS:CHARGE}
+	{LINK:HORN}
+	{EXCEPT:#NOLEGS,CHARGE}
+		[APPLY_CREATURE_VARIATION:INTERACTION_CHARGE_HORN]
+
+[TEMPLATE:INTERACTION:CHARGE_TUSK]
+        {DESCRIPTION:often charges at enemies that get too close with it's tusks}
+        {NAME:ADJ:charging}
+        {TOKENS:CHARGE}
+        {LINK:TUSK}
+        {EXCEPT:#NOLEGS,CHARGE}
+                [APPLY_CREATURE_VARIATION:INTERACTION_CHARGE_TUSK]
+

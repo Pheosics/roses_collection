@@ -4,9 +4,10 @@ import fnmatch
 from tkinter import tix
 from tkinter import filedialog
 import random
-from rcc_pickcreature import pickCreature
-from rcc_generatecreature import generateCreature
-import rcc_inputs as getInput
+from rcc_code.rcc_pickcreature import pickCreature
+from rcc_code.rcc_generatecreature import generateCreature
+from rcc_code.rcc_create import getCreature
+from rcc_code.rcc_globals import rcc
 
 # SPECIAL TOKENS
 #VERMIN - Checks if the creature is the correct size for vermin (defined by Size: Vermin)
@@ -24,123 +25,16 @@ import rcc_inputs as getInput
 #NOARMS - Removes the CLIMB gait
 #NOLEGS - Removes the WALK gait
 
-speed_vals = []
-getInput.getSpeed()
-
-colors = []
-color_keys = []
-color_groups = {}
-color_names = {}
-eye_colors = []
-eye_color_names = {}
-getInput.getColors()
-
-part_keys = []
-part_names = {}
-getInput.getParts()
-
-def read_templates():
-#TEMPLATES
- files = []
- for file in os.listdir():
-  if file.count('templates') > 0:
-   files.append(file)
-
- types = ['DESCRIPTION','NAME','ARGS','TOKENS','ATTACKS','BODY','LINK','PERCENT','EXCEPT','BP_COLORS','RAW']
-
- data_dict = {}
- data_store = {}
- for file in files:
-#  try:
-  f = open(file)
-  data = []
-  for row in f:
-   data.append(row)
-
-  type = 'BLANK'
-  template = 'BLANK'
-  for i in range(len(data)):
-   dstrip = data[i].strip()
-   if dstrip.count('[TEMPLATE:') >= 1:
-    type = dstrip.split(':')[1]
-    template = dstrip.split(':')[2].split(']')[0]
-    try:
-     data_dict[type][template] = {}
-     data_store[type][template] = []
-     for subtype in types:
-      data_dict[type][template][subtype] = []
-    except:
-     data_dict[type] = {}
-     data_store[type] = {}
-     data_dict[type][template] = {}
-     data_store[type][template] = []
-     for subtype in types:
-      data_dict[type][template][subtype] = []
-   elif dstrip.count('{') >= 1 and template != 'BLANK':
-    entry = dstrip.split(':')[0].split('{')[1]
-    data_dict[type][template][entry] = dstrip.partition(':')[2].split('}')[0].split(',')
-    data_store[type][template].append(data[i])
-   elif template != 'BLANK':
-    data_dict[type][template]['RAW'].append(dstrip)
-    data_store[type][template].append(data[i])
-
-
-#  except:
-#   print('No file found:',file)
-# data_dict['BLANK'] = data_dict['BLANK'].clear()
-# data_store['BLANK'] = data_store['BLANK'].clear()
-
- return data_dict,data_store
-
-def get_tokens(data):
- tokens = {}
- for key in data.keys():
-  for subkey in data[key].keys():
-   for tok in data[key][subkey]['PERCENT']:
-    tokens[tok] = 1
- return tokens
-def get_args(data):
- args = {}
- for key in data.keys():
-  for subkey in data[key].keys():
-   for arg in data[key][subkey]['ARGS']:
-    args[arg] = 1
- return args 
- 
 if __name__ == '__main__':
  root = tix.Tk()
 
- canvas = tix.Canvas(root, width=1000, height=500)
+ canvas = tix.Canvas(root, width=1000, height=600)
  canvas.grid(row=0, column=0, sticky=N+S+E+W)
  root.grid_rowconfigure(0, weight=1)
 
  frame = tix.Frame(canvas)
  frame.rowconfigure(1, weight=1)
  frame.columnconfigure(1,weight=1)
-
- data,store = read_templates()
- tokens = get_tokens(data)
- args = get_args(data)
- gaits = ['WALK','FLY','SWIM','CRAWL','CLIMB']
- gaits_cvs = { 'WALK':'STANDARD_WALKING_GAITS','FLY':'STANDARD_FLYING_GAITS','SWIM':'STANDARD_SWIMMING_GAITS','CRAWL':'STANDARD_CRAWLING_GAITS','CLIMB':'STANDARD_CLIMBING_GAITS'}
- phys_attributes = ['STRENGTH','AGILITY','ENDURANCE','TOUGHNESS','RECUPERATION','RESISTANCE']
- ment_attributes = ['WILLPOWER','FOCUS','CREATIVITY','INTUITION','PATIENCE','MEMORY','KINESTHETIC','SPATIAL','EMPATHY','ANALYTICAL','LINGUISTIC','MUSICALITY','SOCIAL']
- active = {'CREPUSCULAR':'at dawn and dusk','NOCTURNAL':'at night','DIURNAL':'during the day','MATUTINAL':'at dawn','VESPERTINE':'at dusk','ALL_ACTIVE':'all the time'}
- status = {}
- for key in data.keys():
-  status[key] = {}
-  status[key]['All'] = "on"
-  for subkey in data[key].keys():
-   status[key][subkey] = "on"
-
- checks = {}
- checks['Attacks'] = ['ATTACK','INTERACTION']
- checks['Materials'] = ['MATERIAL']
- checks['BodyParts'] = ['HEAD','TORSO','LEG','ARM','HAND','FOOT']
- checks['Attachments'] = ['ATTACHMENT_HEAD','ATTACHMENT_TORSO','ATTACHMENT_LIMB','ATTACHMENT_MISC']
- checks['Internal'] = ['ORGANS','SKELETAL','EXTRACT']
- checks['FacialFeatures'] = ['EYE','EAR','NOSE','MOUTH']
- checks['Biomes'] = ['BIOME','TYPE','SUBTYPE','CASTE']
 
  class checkWindow:
   def __init__(self,ty):
@@ -154,60 +48,61 @@ if __name__ == '__main__':
   def update(self,item):
    if len(item.split('.')) == 1:
     stat_save = self.cl[item].getstatus(item)
-    status[item]['All'] = stat_save
-    for obj in data[item].keys():
+    rcc.status[item]['All'] = stat_save
+    for obj in rcc.data[item].keys():
      self.cl[item].setstatus(item+'.'+obj,stat_save)
-     status[item][obj] = stat_save
+     rcc.status[item][obj] = stat_save
    else:
     key1 = item.split('.')[0]
     key2 = item.split('.')[1]
-    status[key1][key2] = self.cl[key1].getstatus(item)
+    rcc.status[key1][key2] = self.cl[key1].getstatus(item)
 
   def checkAll(self):
-   for type in checks[self.ty]:
-    status[type]['All'] = "on"
-    self.cl[type].setstatus(type,"on")
-    for type2 in data[type].keys():
-     self.cl[type].setstatus(type+'.'+type2,"on")
-     status[type][type2] = "on"
+   for type1 in rcc.checks[self.ty]:
+    rcc.status[type1]['All'] = "on"
+    self.cl[type1].setstatus(type1,"on")
+    for type2 in rcc.data[type1].keys():
+     self.cl[type1].setstatus(type1+'.'+type2,"on")
+     rcc.status[type1][type2] = "on"
 
   def uncheckAll(self):
-   for type in checks[self.ty]:
-    status[type]['All'] = "off"
-    self.cl[type].setstatus(type,"off")
-    for type2 in data[type].keys():
-     self.cl[type].setstatus(type+'.'+type2,"off")
-     status[type][type2] = "off"
+   for type1 in rcc.checks[self.ty]:
+    rcc.status[type1]['All'] = "off"
+    self.cl[type1].setstatus(type1,"off")
+    for type2 in rcc.data[type1].keys():
+     self.cl[type1].setstatus(type1+'.'+type2,"off")
+     rcc.status[type1][type2] = "off"
 
   def makelist(self):
    listBalloon = tix.Balloon(self.t)
    c = 0
    self.cl = {}
-   for type in checks[self.ty]:
+   for type1 in rcc.checks[self.ty]:
     j = 0
-    self.cl[type] = tix.CheckList(self.t, width = 250, height=400, browsecmd=self.update)
-    self.cl[type].grid(row=0,column=c)
-    self.cl[type].hlist.add(type, text=type)
-    self.cl[type].setstatus(type,status[type]['All'])
-    temp = list(data[type].keys())
+    self.cl[type1] = tix.CheckList(self.t, width = 350, height=600, browsecmd=self.update)
+    self.cl[type1].grid(row=0,column=c)
+    self.cl[type1].hlist.add(type1, text=type1)
+    self.cl[type1].setstatus(type1,rcc.status[type1]['All'])
+    temp = list(rcc.data[type1].keys())
     temp.sort()
     for subtype in temp:
      j = j + 1
-     hl = tix.Label(self.cl[type],text="?")
-     hl.place(in_=self.cl[type],x=235,y=13*j,width=10)
+     hl = tix.Label(self.cl[type1],text="?")
+     hl.place(in_=self.cl[type1],x=10,y=16*j+4,width=10,height=10)
 #     hl.place_forget()
-     self.cl[type].hlist.add(type+'.'+subtype,text=subtype)
-     self.cl[type].setstatus(type+'.'+subtype,status[type][subtype])
+     self.cl[type1].hlist.add(type1+'.'+subtype,text=subtype)
+     self.cl[type1].setstatus(type1+'.'+subtype,rcc.status[type1][subtype])
 #     print(self.cl[type].subwidgets_all())
-     listBalloon.bind_widget(hl,msg=''.join(store[type][subtype]))
+     listBalloon.bind_widget(hl,msg=''.join(rcc.store[type1][subtype]))
 #     hl.place_forget()
-    self.cl[type].autosetmode()
+    self.cl[type1].autosetmode()
     c = c + 1
    self.bb = tix.ButtonBox(self.t, orientation = tix.VERTICAL)
    self.bb.add('close', text='Close', command=self.close)
    self.bb.add('check', text='Check All', command=self.checkAll)
    self.bb.add('uncheck', text='Uncheck All', command=self.uncheckAll)
    self.bb.grid(row=0,column=c)
+
  class argWindow:
   def __init__(self,ty):
    self.t =Toplevel(root)
@@ -222,7 +117,7 @@ if __name__ == '__main__':
    
    arg = {}
    arg_variables = ['max','min']
-   temp = list(args.keys())
+   temp = list(rcc.args.keys())
    temp.sort()
    labels = {}
    bLabel = tix.Label(self.t,text='All arguments found in the Templates\nWhen each creature is generated a value is chosen for each argument\nThe value is selected from a triangular distribution between Min and Max')
@@ -237,7 +132,7 @@ if __name__ == '__main__':
     labels[key] = tix.Label(self.t,text=key.capitalize()+':').grid(row=r,column=c,stick=tix.W)
     for var in arg_variables:
      r = r + 1
-     arg[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=numbers['args'][key][var].get(),variable=numbers['args'][key][var],autorepeat=False)
+     arg[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=rcc.numbers['args'][key][var].get(),variable=rcc.numbers['args'][key][var],autorepeat=False)
      arg[key][var].subwidget('decr').destroy()
      arg[key][var].subwidget('incr').destroy()
      arg[key][var].grid(row=r,column=c,stick=tix.E,padx=10)   
@@ -246,6 +141,7 @@ if __name__ == '__main__':
    self.bb = tix.ButtonBox(self.t, orientation = tix.VERTICAL)
    self.bb.add('close', text='Close', command=self.close)
    self.bb.grid(row=0,column=c+1)
+
  class speedWindow:
   def __init__(self,ty):
    self.t =Toplevel(root)
@@ -260,7 +156,7 @@ if __name__ == '__main__':
 
    speed = {}
    speed_variables = ['max','min']
-   temp = gaits
+   temp = rcc.gaits
    temp.sort()
    labels = {}
    bLabel = tix.Label(self.t,text='Speed of various gaits in kph\nChosen from a triangular distribution between Min and Max\nSee the readme for additional information')
@@ -275,7 +171,7 @@ if __name__ == '__main__':
     labels[key] = tix.Label(self.t,text=key.capitalize()+':').grid(row=r,column=c,stick=tix.W)
     for var in speed_variables:
      r = r + 1
-     speed[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=numbers['speed'][key][var].get(),variable=numbers['speed'][key][var],autorepeat=False)
+     speed[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=rcc.numbers['speed'][key][var].get(),variable=rcc.numbers['speed'][key][var],autorepeat=False)
      speed[key][var].subwidget('decr').destroy()
      speed[key][var].subwidget('incr').destroy()
      speed[key][var].grid(row=r,column=c,stick=tix.E,padx=10)
@@ -284,7 +180,47 @@ if __name__ == '__main__':
    self.bb = tix.ButtonBox(self.t, orientation = tix.VERTICAL)
    self.bb.add('close', text='Close', command=self.close)
    self.bb.grid(row=0,column=c+1)
- class advancedWindow:
+
+ class variableWindow:
+  def __init__(self,ty):
+   self.t =Toplevel(root)
+   self.ty = ty
+   self.makelist()
+
+  def close(self):
+   self.t.destroy()
+
+  def makelist(self):
+   speedBalloon = tix.Balloon(self.t)
+
+   variable = {}
+   var_variables = ['percent']
+   temp = rcc.variability
+   temp.sort()
+   labels = {}
+   bLabel = tix.Label(self.t,text='Variability level between individual animals of the same creature\nPercent is assumed to be maximum variability\nIf 0 the BODY_APPEARANCE_MODIFIER tags will not be added')
+   r = 0
+   c = 1
+   for key in temp:
+    r = r + 1
+    variable[key] = {}
+    if r > 12:
+     c = c + 1
+     r = 1
+    labels[key] = tix.Label(self.t,text=key.capitalize()+':').grid(row=r,column=c,stick=tix.W)
+    for var in var_variables:
+     r = r + 1
+     variable[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=rcc.numbers['variable'][key][var].get(),variable=rcc.numbers['variable'][key][var],autorepeat=False)
+     variable[key][var].subwidget('decr').destroy()
+     variable[key][var].subwidget('incr').destroy()
+     variable[key][var].grid(row=r,column=c,stick=tix.E,padx=10)
+
+   bLabel.grid(row=0,column=0,columnspan=c)
+   self.bb = tix.ButtonBox(self.t, orientation = tix.VERTICAL)
+   self.bb.add('close', text='Close', command=self.close)
+   self.bb.grid(row=0,column=c+1)
+
+ class attributeWindow:
   def __init__(self,ty):
    self.t =Toplevel(root)
    self.ty = ty
@@ -299,7 +235,7 @@ if __name__ == '__main__':
    c = 0
    attribute = {}
    attribute_variables = ['max','min','sigma']
-   temp = phys_attributes
+   temp = rcc.phys_attributes
    temp.sort()
    labels = {}
    labels['Phys_Atts'] = tix.Label(self.t,text='Physical\nAttributes')
@@ -310,7 +246,7 @@ if __name__ == '__main__':
     labels[key] = tix.Label(self.t,text=key.capitalize()+':').grid(row=r,column=c,stick=tix.W)
     for var in attribute_variables:
      r = r + 1
-     attribute[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=numbers['attributes'][key][var].get(),variable=numbers['attributes'][key][var],autorepeat=False)
+     attribute[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=rcc.numbers['attributes'][key][var].get(),variable=rcc.numbers['attributes'][key][var],autorepeat=False)
      attribute[key][var].subwidget('decr').destroy()
      attribute[key][var].subwidget('incr').destroy()
      attribute[key][var].grid(row=r,column=c,stick=tix.E,padx=10)
@@ -318,7 +254,7 @@ if __name__ == '__main__':
 
    r = 0
    c = 1
-   temp = ment_attributes
+   temp = rcc.ment_attributes
    temp.sort()
    labels = {}
    for key in temp:
@@ -330,7 +266,7 @@ if __name__ == '__main__':
     labels[key] = tix.Label(self.t,text=key.capitalize()+':').grid(row=r,column=c,stick=tix.W)
     for var in attribute_variables:
      r = r + 1
-     attribute[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=numbers['attributes'][key][var].get(),variable=numbers['attributes'][key][var],autorepeat=False)
+     attribute[key][var] = tix.Control(self.t,label=var.capitalize(),min=0,value=rcc.numbers['attributes'][key][var].get(),variable=rcc.numbers['attributes'][key][var],autorepeat=False)
      attribute[key][var].subwidget('decr').destroy()
      attribute[key][var].subwidget('incr').destroy()
      attribute[key][var].grid(row=r,column=c,stick=tix.E,padx=10)
@@ -342,9 +278,8 @@ if __name__ == '__main__':
    self.bb.add('close', text='Close', command=self.close)
    self.bb.grid(row=0,column=c+1)
  class sampleWindow:
-  def __init__(self,ty):
+  def __init__(self):
    self.t =Toplevel(root)
-   self.ty = ty
    self.makelist()
 
   def close(self):
@@ -352,53 +287,58 @@ if __name__ == '__main__':
 
   def makelist(self):
    stext = tix.ScrolledText(self.t)
-   stext.subwidget('text').insert(tix.INSERT,'\n'.join(self.ty['Raws']))
+   stext.subwidget('text').insert(tix.INSERT,'\n'.join(rcc.creature['Raws']))
    stext.grid(row=0,column=0)
    self.bb = tix.ButtonBox(self.t, orientation = tix.VERTICAL)
    self.bb.add('close', text='Close', command=self.close)
    self.bb.grid(row=0,column=1) 
    
- def makeNumbersTable(numbers,frame,tokens):
+ def makeNumbersTable(frame):
   numbersSubFrame = tix.Frame(frame)
   numbersSubFrame.rowconfigure(1)
   numbersSubFrame.columnconfigure(1)
   numbersBalloon = tix.Balloon(numbersSubFrame)
 
-  numbers['args'] = {}
-  for key in args:
-   numbers['args'][key] = {}
-   numbers['args'][key]['max'] = tix.IntVar()
-   numbers['args'][key]['min'] = tix.IntVar()
+  rcc.numbers['args'] = {}
+  for key in rcc.args:
+   rcc.numbers['args'][key] = {}
+   rcc.numbers['args'][key]['max'] = tix.IntVar()
+   rcc.numbers['args'][key]['min'] = tix.IntVar()
 
-  numbers['speed'] = {}
-  for key in gaits:
-   numbers['speed'][key] = {}
-   numbers['speed'][key]['max'] = tix.IntVar()
-   numbers['speed'][key]['min'] = tix.IntVar()
+  rcc.numbers['speed'] = {}
+  for key in rcc.gaits:
+   rcc.numbers['speed'][key] = {}
+   rcc.numbers['speed'][key]['max'] = tix.IntVar()
+   rcc.numbers['speed'][key]['min'] = tix.IntVar()
 
-  numbers['attributes'] = {}
-  for key in phys_attributes:
-   numbers['attributes'][key] = {}
-   numbers['attributes'][key]['max'] = tix.IntVar()
-   numbers['attributes'][key]['min'] = tix.IntVar()
-   numbers['attributes'][key]['sigma'] = tix.IntVar()
-  for key in ment_attributes:
-   numbers['attributes'][key] = {}
-   numbers['attributes'][key]['max'] = tix.IntVar()
-   numbers['attributes'][key]['min'] = tix.IntVar()
-   numbers['attributes'][key]['sigma'] = tix.IntVar()   
+  rcc.numbers['attributes'] = {}
+  for key in rcc.phys_attributes:
+   rcc.numbers['attributes'][key] = {}
+   rcc.numbers['attributes'][key]['max'] = tix.IntVar()
+   rcc.numbers['attributes'][key]['min'] = tix.IntVar()
+   rcc.numbers['attributes'][key]['sigma'] = tix.IntVar()
+  for key in rcc.ment_attributes:
+   rcc.numbers['attributes'][key] = {}
+   rcc.numbers['attributes'][key]['max'] = tix.IntVar()
+   rcc.numbers['attributes'][key]['min'] = tix.IntVar()
+   rcc.numbers['attributes'][key]['sigma'] = tix.IntVar()   
    
+  rcc.numbers['variable'] = {}
+  for key in rcc.variability:
+   rcc.numbers['variable'][key] = {}
+   rcc.numbers['variable'][key]['percent'] = tix.IntVar()
+
   r=0
   c=0
   sizeLabel = tix.Label(numbersSubFrame,text='Sizes:')
   sizeLabel.grid(row=r,column=c,stick=tix.W) 
-  numbers['size'] = {}
+  rcc.numbers['size'] = {}
   creatureSize = {}
   size_variables = ['mean','sigma','min','vermin','tiny','trade']
   for var in size_variables:
    r = r + 1
-   numbers['size'][var] = tix.IntVar()
-   creatureSize[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=numbers['size'][var],autorepeat=False,integer=True)
+   rcc.numbers['size'][var] = tix.IntVar()
+   creatureSize[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=rcc.numbers['size'][var],autorepeat=False,integer=True)
    creatureSize[var].subwidget('decr').destroy()
    creatureSize[var].subwidget('incr').destroy()
    creatureSize[var].grid(row=r,column=c,stick=tix.E,padx=10)
@@ -407,13 +347,13 @@ if __name__ == '__main__':
   r=r+1
   ageLabel = tix.Label(numbersSubFrame,text='Ages:')
   ageLabel.grid(row=r,column=c,stick=tix.W) 
-  numbers['age'] = {}
+  rcc.numbers['age'] = {}
   creatureAge = {}
   age_variables = ['max','min','baby','child','delta']
   for var in age_variables:
    r = r + 1
-   numbers['age'][var] = tix.IntVar()
-   creatureAge[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=numbers['age'][var],autorepeat=False,integer=True)
+   rcc.numbers['age'][var] = tix.IntVar()
+   creatureAge[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=rcc.numbers['age'][var],autorepeat=False,integer=True)
    creatureAge[var].subwidget('decr').destroy()
    creatureAge[var].subwidget('incr').destroy()
    creatureAge[var].grid(row=r,column=c,stick=tix.E,padx=10)   
@@ -423,13 +363,13 @@ if __name__ == '__main__':
   c=1
   popLabel = tix.Label(numbersSubFrame,text='Pop Numbers:')
   popLabel.grid(row=r,column=c,stick=tix.W) 
-  numbers['population'] = {}
+  rcc.numbers['population'] = {}
   creaturePopulation = {}
   pop_variables = ['max','min']
   for var in pop_variables:
    r = r + 1
-   numbers['population'][var] = tix.IntVar()
-   creaturePopulation[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=numbers['population'][var],autorepeat=False,integer=True)
+   rcc.numbers['population'][var] = tix.IntVar()
+   creaturePopulation[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=rcc.numbers['population'][var],autorepeat=False,integer=True)
    creaturePopulation[var].subwidget('decr').destroy()
    creaturePopulation[var].subwidget('incr').destroy()
    creaturePopulation[var].grid(row=r,column=c,stick=tix.E,padx=10)
@@ -438,13 +378,13 @@ if __name__ == '__main__':
   r=r+1
   clusLabel = tix.Label(numbersSubFrame,text='Cluster Numbers:       ')
   clusLabel.grid(row=r,column=c,stick=tix.W) 
-  numbers['cluster'] = {}
+  rcc.numbers['cluster'] = {}
   creatureCluster = {}
   clus_variables = ['max','min']
   for var in clus_variables:
    r = r + 1
-   numbers['cluster'][var] = tix.IntVar()
-   creatureCluster[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=numbers['cluster'][var],autorepeat=False,integer=True)
+   rcc.numbers['cluster'][var] = tix.IntVar()
+   creatureCluster[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=rcc.numbers['cluster'][var],autorepeat=False,integer=True)
    creatureCluster[var].subwidget('decr').destroy()
    creatureCluster[var].subwidget('incr').destroy()
    creatureCluster[var].grid(row=r,column=c,stick=tix.E,padx=10)
@@ -453,13 +393,13 @@ if __name__ == '__main__':
   r=r+1
   intLabel = tix.Label(numbersSubFrame,text='Interactions:')
   intLabel.grid(row=r,column=c,stick=tix.W) 
-  numbers['interaction'] = {}
+  rcc.numbers['interaction'] = {}
   creatureInteraction = {}
   clus_variables = ['max','chance']
   for var in clus_variables:
    r = r + 1
-   numbers['interaction'][var] = tix.IntVar()
-   creatureInteraction[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=numbers['interaction'][var],autorepeat=False,integer=True)
+   rcc.numbers['interaction'][var] = tix.IntVar()
+   creatureInteraction[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=rcc.numbers['interaction'][var],autorepeat=False,integer=True)
    creatureInteraction[var].subwidget('decr').destroy()
    creatureInteraction[var].subwidget('incr').destroy()
    creatureInteraction[var].grid(row=r,column=c,stick=tix.E,padx=10)
@@ -468,13 +408,13 @@ if __name__ == '__main__':
   r=r+1
   casteLabel = tix.Label(numbersSubFrame,text='Castes:')
   casteLabel.grid(row=r,column=c,stick=tix.W) 
-  numbers['caste'] = {}
+  rcc.numbers['caste'] = {}
   creatureCaste = {}
   clus_variables = ['male','female','neutral']
   for var in clus_variables:
    r = r + 1
-   numbers['caste'][var] = tix.IntVar()
-   creatureCaste[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=numbers['caste'][var],autorepeat=False,integer=True)
+   rcc.numbers['caste'][var] = tix.IntVar()
+   creatureCaste[var] = tix.Control(numbersSubFrame,label=var.capitalize(),min=0,variable=rcc.numbers['caste'][var],autorepeat=False,integer=True)
    creatureCaste[var].subwidget('decr').destroy()
    creatureCaste[var].subwidget('incr').destroy()
    creatureCaste[var].grid(row=r,column=c,stick=tix.E,padx=10)
@@ -484,8 +424,8 @@ if __name__ == '__main__':
   subLabel = Label(numbersSubFrame,text='Subtypes:')
   subLabel.grid(row=r,column=c,stick=tix.W)
   r += 1
-  numbers['subtypes'] = tix.IntVar()
-  creatureSubtypes = tix.Control(numbersSubFrame,label='Max',min=0,value=0,variable=numbers['subtypes'],autorepeat=False,integer=True)
+  rcc.numbers['subtypes'] = tix.IntVar()
+  creatureSubtypes = tix.Control(numbersSubFrame,label='Max',min=0,value=0,variable=rcc.numbers['subtypes'],autorepeat=False,integer=True)
   creatureSubtypes.subwidget('decr').destroy()
   creatureSubtypes.subwidget('incr').destroy()
   creatureSubtypes.grid(row=r,column=c,stick=tix.E,padx=10)
@@ -496,144 +436,63 @@ if __name__ == '__main__':
   percLabel = Label(numbersSubFrame,text='Percents:')
   percLabel.grid(row=r,column=c,stick=tix.W)
   creaturePercentage = {}
-  numbers['percents'] = {}
-  temp = list(tokens.keys())
+  rcc.numbers['percents'] = {}
+  temp = list(rcc.tokens.keys())
   temp.sort()
   for key in temp:
    r += 1
-   numbers['percents'][key] = tix.IntVar()
-   creaturePercentage[key] = tix.Control(numbersSubFrame,label='    '+key,min=0,value=0,variable=numbers['percents'][key],autorepeat=False,integer=True)
+   rcc.numbers['percents'][key] = tix.IntVar()
+   creaturePercentage[key] = tix.Control(numbersSubFrame,label='    '+key,min=0,value=0,variable=rcc.numbers['percents'][key],autorepeat=False,integer=True)
    creaturePercentage[key].subwidget('decr').destroy()
    creaturePercentage[key].subwidget('incr').destroy()
    creaturePercentage[key].grid(row=r,column=2,stick=tix.E,padx=10)
   numbersBalloon.bind_widget(percLabel,msg='Percentage chance given token will be true\nIf you wish to generate a set of creatures that all share a commonality you would set the percent to 100')
 
   numbersSubFrame.grid(row=1,column=1)
-
- def fillDefaults():
-  numbers['number'].set(10)
-  numbers['size']['mean'].set(20000)
-  numbers['size']['sigma'].set(2500)
-  numbers['size']['min'].set(10)
-  numbers['size']['vermin'].set(100)
-  numbers['size']['tiny'].set(25)
-  numbers['size']['trade'].set(25000)
-  numbers['age']['max'].set(100)
-  numbers['age']['min'].set(25)
-  numbers['age']['baby'].set(1)
-  numbers['age']['child'].set(10)
-  numbers['age']['delta'].set(5)
-  numbers['population']['max'].set(10)
-  numbers['population']['min'].set(3)
-  numbers['cluster']['max'].set(5)
-  numbers['cluster']['min'].set(2)
-  numbers['interaction']['max'].set(2)
-  numbers['interaction']['chance'].set(50)
-  numbers['caste']['male'].set(1)
-  numbers['caste']['female'].set(1)
-  numbers['subtypes'].set(3)
-  numbers['speed']['WALK']['max'].set(80)
-  numbers['speed']['WALK']['min'].set(5)
-  numbers['speed']['SWIM']['max'].set(20)
-  numbers['speed']['SWIM']['min'].set(1)
-  numbers['speed']['FLY']['max'].set(0)
-  numbers['speed']['FLY']['min'].set(0)
-  numbers['speed']['CLIMB']['max'].set(6)
-  numbers['speed']['CLIMB']['min'].set(1)
-  numbers['speed']['CRAWL']['max'].set(6)
-  numbers['speed']['CRAWL']['min'].set(1)
-  
- def generateCreatures():
-  if numbers['seed'].get() == 0:
-   random.seed()
-  else:
-   random.seed(numbers['seed'].get())
-  j = 1
-  file = 'creature_rcc_'+str(numbers['seed'].get())+'_'+str(numbers['number'].get())+'.txt'
-  ofile = open(file,'w')
-  ofile.write(file+'\n')
-  ofile.write('\n[OBJECT:CREATURE]\n')
-  while j < numbers['number'].get():
-   ofile.write('\n')
-   creature = createCreature(j)
-   ofile.write('\n'.join(creature['Raws']))
-   j += 1
-  ofile.close()
- 
- def createCreature(n):
-  creature = {}
-  creature['Parts'] = {}
-  creature['Names'] = {}
-  creature['Colors'] = {}
-  creature['Colors']['Parts'] = []
-
-  pickCreature.getFlagsPercents(creature) #Computes token flags based on provided percentages
-  pickCreature.getArgsNumbers(creature)
-  pickCreature.getSize(creature) #Checks against #TRADE_ANIMAL and given sizes
-  pickCreature.getSpeed(creature) #No checks
-  pickCreature.getPops(creature) #No checks
-  pickCreature.getAttributes(creature)
-  pickCreature.getAge(creature)
-  pickCreature.getType(creature) #Checks against percentages
-  pickCreature.getBiome(creature) #Checks against links and percentages
-  pickCreature.getBody(creature) #Checks against links and percentages
-  pickCreature.getMaterials(creature) #Checks against links and percentages
-  pickCreature.getCastes(creature)
-  pickCreature.getSubTypes(creature) #Checks against all current tokens and percentages, and takes as many as are in max subtypes
-  pickCreature.getExtracts(creature) #Checks against all current tokens and percentages, and takes as many as are valid
-  pickCreature.getInteractions(creature) #Checks against all current tokens and percentages, and takes as many as are in max interactions, with respect to interactions chance
-  pickCreature.getAttacks(creature) #Fill in the attack table from all the other 
-  
-  generateCreature.createDescription(creature)
-  generateCreature.createBodyToken(creature)
-  generateCreature.createSpeedToken(creature)
-  generateCreature.createAgeToken(creature)
-  generateCreature.createSizeToken(creature)
-  generateCreature.createPopToken(creature)
-  generateCreature.createAttributeToken(creature)
-  generateCreature.createColors(creature)
-  generateCreature.createName(creature)
-  generateCreature.createRaws(creature,n)
-
-  return creature
-# Button Comands
+# Left Button Comands
  def attacks():
   checkWindow('Attacks')
  def materials():
   checkWindow('Materials')
  def bodyparts():
   checkWindow('BodyParts')
+ def bodyparts2():
+  checkWindow('BodyParts2')
  def attachments():
   checkWindow('Attachments')
  def internal():
   checkWindow('Internal')
  def face():
   checkWindow('FacialFeatures')
+ def face2():
+  checkWindow('FacialFeatures2')
  def biomes():
   checkWindow('Biomes')
+# Bottom Button Commands
  def arguments():
   argWindow('Arguments')
  def speeds():
   speedWindow('Speeds')
- def close():
-  return
+ def attributes():
+  attributeWindow('Advanced')
+ def variable():
+  variableWindow('Variable')
+# Right Button Commands
  def sampleCreature():
-  creature = createCreature(1)
-  sampleWindow(creature)
- def advanced():
-  advancedWindow('Advanced')
+  getCreature.createCreature(1)
+  sampleWindow()
  def generate():
-  generateCreatures()
+  getCreature()
  def defaults():
-  fillDefaults()
- 
+  rcc.fillDefaults(rcc.numbers)
+ def close():
+  return 
 
  canvas.create_window(0,0,anchor=NW,window=frame)
  frame.update_idletasks()
  canvas.config(scrollregion=canvas.bbox('all'))
  
- numbers = {}
- makeNumbersTable(numbers,frame,tokens)
+ makeNumbersTable(frame)
  
  mainBalloon = tix.Balloon(frame)
  templateLabel = tix.Label(frame,text='Templates')
@@ -642,28 +501,31 @@ if __name__ == '__main__':
  bb = tix.ButtonBox(frame, orientation = tix.VERTICAL)
  bb.add('attack', text='Attacks and Interactions', command=attacks)
  bb.add('base', text='Body Materials', command=materials)
- bb.add('body', text='Body Parts', command=bodyparts)
+ bb.add('body', text='Body Parts (Core)', command=bodyparts)
+ bb.add('body2',text='Body Parts (Extremities)', command=bodyparts2)
  bb.add('attachments', text='Body Part Attachments', command=attachments)
  bb.add('internal', text='Organs, Bones, and Extracts', command=internal)
- bb.add('face', text='Facial Features', command=face)
+ bb.add('face', text='Facial Features (Large)', command=face)
+ bb.add('face2',text='Facial Features (Small)', command=face2)
  bb.add('biome', text='Biomes, Types, and Castes', command=biomes)
  bb.grid(row=1,column=0)
  
  bb2 = tix.ButtonBox(frame,orientation = tix.HORIZONTAL)
  bb2.add('arg', text='Argument Values', command=arguments)
  bb2.add('speed',text='Gait Speeds', command=speeds)
- bb2.add('advanced',text='Advanced Options', command=advanced)
+ bb2.add('advanced',text='Attributes', command=attributes)
+ bb2.add('variable',text='Variability', command=variable)
  bb2.grid(row=2,column=1)
  
- numbers['seed'] = tix.IntVar()
- seedStore = tix.Control(frame,label='Seed',min=0,variable=numbers['seed'],autorepeat=False,integer=True)
+ rcc.numbers['seed'] = tix.IntVar()
+ seedStore = tix.Control(frame,label='Seed',min=0,variable=rcc.numbers['seed'],autorepeat=False,integer=True)
  seedStore.subwidget('decr').destroy()
  seedStore.subwidget('incr').destroy()
  seedStore.grid(row=0,column=2,stick=tix.E)
  mainBalloon.bind_widget(seedStore,msg='Seed used for random number generation, if left at 0 will use a random seed')
  
- numbers['number'] = tix.IntVar()
- creatureNumber = tix.Control(frame,label='    Creatures',min=0,variable=numbers['number'],autorepeat=False,integer=True)
+ rcc.numbers['number'] = tix.IntVar()
+ creatureNumber = tix.Control(frame,label='    Creatures',min=0,variable=rcc.numbers['number'],autorepeat=False,integer=True)
  creatureNumber.subwidget('decr').destroy()
  creatureNumber.subwidget('incr').destroy()
  creatureNumber.grid(row=0,column=3,stick=tix.E)

@@ -1,0 +1,58 @@
+c_variation_rcc_interactions
+
+[OBJECT:CREATURE_VARIATION]
+
+[CREATURE_VARIATION:INTERACTION_CLEAN_TONGUE]
+            [CAN_DO_INTERACTION:CLEANING]
+                [CDI:ADV_NAME:Clean]
+                [CDI:USAGE_HINT:CLEAN_SELF]
+                [CDI:USAGE_HINT:CLEAN_FRIEND]
+                [CDI:BP_REQUIRED:BY_CATEGORY:TONGUE]
+                [CDI:VERB:lick:licks:lick each other]
+                [CDI:CAN_BE_MUTUAL]
+                [CDI:TARGET:A:SELF_ALLOWED:TOUCHABLE]
+                [CDI:TARGET_RANGE:A:1]
+                [CDI:MAX_TARGET_NUMBER:A:1]
+                [CDI:WAIT_PERIOD:10000]
+
+[CREATURE_VARIATION:INTERACTION_BUMP_HEAD]
+            [CAN_DO_INTERACTION:BP_BUMP]
+                [CDI:ADV_NAME:Head bump]
+                [CDI:USAGE_HINT:GREETING]
+                [CDI:BP_REQUIRED:BY_CATEGORY:HEAD]
+                [CDI:VERB:head-bump:head-bumps:bump heads]
+                [CDI:CAN_BE_MUTUAL]
+                [CDI:TARGET:A:SELF_ONLY]
+                [CDI:TARGET:B:TOUCHABLE]
+                [CDI:TARGET_RANGE:B:1]
+                [CDI:MAX_TARGET_NUMBER:B:1]
+                [CDI:WAIT_PERIOD:20000]
+
+[CREATURE_VARIATION:INTERACTION_HIDE_ALWAYS]
+            [CAN_DO_INTERACTION:HIDE_EFFECT]
+                [CDI:ADV_NAME:Hide]
+                [CDI:VERB:blend with surroundings:blends with surroundings:NA]
+                [CDI:TARGET:A:SELF_ONLY]
+                [CDI:WAIT_PERIOD:2000]
+                [CDI:FREE_ACTION]
+
+[CREATURE_VARIATION:INTERACTION_HIDE_RETREAT]
+            [CAN_DO_INTERACTION:HIDE_EFFECT]
+                [CDI:ADV_NAME:Retreat and hide]
+                [CDI:USAGE_HINT:FLEEING]
+                [CDI:VERB:blend with surroundings:blends with surroundings:NA]
+                [CDI:TARGET:A:SELF_ONLY]
+                [CDI:WAIT_PERIOD:2000]
+                [CDI:FREE_ACTION]
+
+[CREATURE_VARIATION:INTERACTION_FIRE_BREATH]
+
+[CREATURE_VARIATION:INTERACTION_ICE_BREATH]
+
+[CREATURE_VARIATION:INTERACTION_STORM_BREATH]
+
+[CREATURE_VARIATION:INTERACTION_STORM_SPIKE]
+
+[CREATURE_VARIATION:INTERACTION_WATER_BREATH]
+
+[CREATURE_VARIATION:INTERACTION_CHARGE_HORN]

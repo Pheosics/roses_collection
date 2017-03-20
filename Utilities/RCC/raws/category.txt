@@ -1,0 +1,253 @@
+# BODY PARTS
+## Torso			## Head				## Arm				## Leg
+TORSO_ONE_PART			HEAD_STANDARD_ONE		LIMBS_ARMS_ARM_TWO		LIMBS_LEGS_LEG_TWO
+TORSO_TWO_PART			HEAD_STANDARD_TWO		LIMBS_ARMS_ARM_FOUR		LIMBS_LEGS_LEG_FOUR
+				HEAD_STANDARD_THREE		LIMBS_ARMS_ARM_SIX		LIMBS_LEGS_LEG_SIX
+				HEAD_STANDARD_FOUR		LIMBS_ARMS_TENTACLE_TWO		LIMBS_LEGS_LEG_EIGHT
+				HEAD_STANDARD_FIVE		LIMBS_ARMS_TENTACLE_FOUR	LIMBS_LEGS_LEG_TEN
+				HEAD_STANDARD_SIX		LIMBS_ARMS_WING_TWO		LIMBS_LEGS_LEG_HUNDRED
+				HEAD_STANDARD_SEVEN		LIMBS_ARMS_WING_FOUR		LIMBS_LEGS_TENTACLE_FOUR
+				HEAD_NONECK			LIMBS_ARMS_WING_SIX		LIMBS_LEGS_TENTACLE_SIX
+												LIMBS_LEGS_TENTACLE_EIGHT
+												LIMBS_LEGS_FLIPPER_TWO
+												LIMBS_LEGS_FLIPPER_FOUR
+
+## Hand				## Finger			## Foot				## Toe
+EXTREMITY_HANDS_HAND		EXTREMITY_FINGERS_FINGER_THREE	EXTREMITY_FEET_FOOT		EXTREMITY_TOES_TOE_THREE
+EXTREMITY_HANDS_PINCER		EXTREMITY_FINGERS_FINGER_FOUR	EXTREMITY_FEET_HOOF		EXTREMITY_TOES_TOE_FOUR
+EXTREMITY_HANDS_SPIKE		EXTREMITY_FINGERS_FINGER_FIVE	EXTREMITY_FEET_SPIKE		EXTREMITY_TOES_TOE_FIVE
+EXTREMITY_HANDS_TENTACLE_CLAW					EXTREMITY_FEET_TENTACLE_CLAW
+EXTREMITY_HANDS_TENTACLE_CLUB					EXTREMTIY_FEET_TENTACLE_CLUB
+
+## Face				## Face (cont)			## Organs			## Skeletal
+FACE_EARS_ONE			FACE_MOUTH_NORMAL		ORGANS_STANDARD			SKELETAL_SIMPLE
+FACE_EARS_TWO			FACE_MOUTH_MUZZLE
+FACE_EYES_ONE			FACE_MOUTH_BEAK
+FACE_EYES_TWO			FACE_MOUTH_BILL
+FACE_EYES_THREE			FACE_MOUTH_CHEEK
+FACE_EYES_FOUR			FACE_NOSE_NORMAL
+FACE_EYES_SIX			FACE_NOSE_TRUNK
+FACE_EYES_EIGHT			FACE_TONGUE_NORMAL
+FACE_EYES_EYELID		FACE_TEETH_TOOTH
+				FACE_TEETH_FANG
+
+## Torso Attachments		## Head Attachments		## Limb Attachments
+ATTACHMENT_TORSO_WING_TWO	ATTACHMENT_HEAD_CREST		ATTACHMENT_LIMBS_TENTACLE_SUCKER
+ATTACHMENT_TORSO_WING_FOUR	ATTACHMENT_HEAD_FRILL_HEAD	ATTACHMENT_LIMBS_ARM_SPIKE
+ATTACHMENT_TORSO_WING_SIX	ATTACHMENT_HEAD_FRILL_NECK	ATTACHMENT_LIMBS_ARM_CREST
+ATTACHMENT_TORSO_WING_EIGHT	ATTACHMENT_HEAD_FIN		ATTACHMENT_LIMBS_ARM_FIN
+ATTACHMENT_TORSO_STINGER_ONE	ATTACHMENT_HEAD_SPIKE_SMALL	ATTACHMENT_LIMBS_LEG_SPIKE
+ATTACHMENT_TORSO_STINGER_TWO	ATTACHMENT_HEAD_SPIKE_LARGE	ATTACHMENT_LIMBS_LEG_CREST
+ATTACHMENT_TORSO_FIN		ATTACHMENT_HEAD_ANTLER		ATTACHMENT_LIMBS_LEG_FIN
+ATTACHMENT_TORSO_SPIKE_SMALL	ATTACHMENT_HEAD_HORN_ONE
+ATTACHMENT_TORSO_SPIKE_LARGE	ATTACHMENT_HEAD_HORN_TWO
+ATTACHMENT_TORSO_TAIL_ONE	ATTACHMENT_HEAD_HORN_FOUR
+ATTACHMENT_TORSO_TAIL_TWO	ATTACHMENT_HEAD_TUSK_TWO
+ATTACHMENT_TORSO_TAIL_THREE	ATTACHMENT_HEAD_TUSK_FOUR
+ATTACHMENT_TORSO_TAIL_FOUR	ATTACHMENT_HEAD_MANDIBLE
+ATTACHMENT_TORSO_TAIL_SPIKE	ATTACHMENT_HEAD_PROBISCIS
+ATTACHMENT_TORSO_TAIL_CLUB
+
+# BODY_PART CATEGORIES
+## Torso			## Head				## Arm				## Leg
+BODY				NECK				ARM_UPPER_RIGHT			LEG_UPPER_RIGHT
+BODY_UPPER			THROAT				ARM_LOWER_RIGHT			LEG_LOWER_RIGHT
+BODY_LOWER			HEAD				ARM_UPPER_LEFT			LEG_UPPER_LEFT
+								ARM_LOWER_LEFT			LEG_LOWER_LEFT
+								TENTACLE_UPPERBODY		TENTACLE_LOWERBODY
+								WING				FLIPPER
+
+## Hand				## Finger			## Foot				## Toe
+HAND				FINGER				FOOT				TOE
+CLAW_TENTACLE							CLAW_TENTACLE
+CLUB_TENTACLE							CLUB_TENTACLE
+PINCER_HAND							HOOF
+SPIKE_HAND							SPIKE_FOOT
+
+## Face				## Organs			## Skeletal
+EAR				LIVER				SPINE
+EYE				STOMACH				SKULL
+MOUTH				PANCREAS			RIB
+BEAK				SPLEEN				RIB_TRUE
+NOSE				KIDNEY				RIB_FLOATING
+TONGUE				HEART				RIB_FALSE
+TOOTH				LUNG				JOINT
+EYELID				BRAIN
+CHEEK				GUTS
+LIP
+
+## Torso Attachments		## Head Attachments		## Limb Attachments		## Misc Attachments
+WING_BACK			CREST_HEAD			SUCKER
+SPIKE_TORSO			FRILL_HEAD			SPIKE_ARM
+TAIL				FIN_HEAD			CREST_ARM
+STINGER				SPIKE_HEAD			FIN_ARM
+SHELL				HORN				SPIKE_LEG
+CLUB_TAIL			TUSK				CREST_LEG
+SPIKE_TAIL			MANDIBLE			FIN_LEG
+HUMP				PROBOSCIS
+FIN_TORSO			ANTENNA
+
+# MATERIAL TEMPLATES						# TISSUE TEMPLATES
+# Creature Material Templates					# Creature Tissue Templates
+## Basic							## Basic
+MUSCLE_NORMAL							MUSCLE_NORMAL
+FAT_NORMAL							FAT_NORMAL
+EYE_NORMAL							EYE_NORMAL
+NERVE_NORMAL							NERVE_NORMAL
+BRAIN_NORMAL							BRAIN_NORMAL
+LUNG_NORMAL							LUNG_NORMAL
+HEART_NORMAL							HEART_NORMAL
+LIVER_NORMAL							LIVER_NORMAL
+GUT_NORMAL							GUT_NORMAL
+STOMACH_NORMAL							STOMACH_NORMAL
+PANCREAS_NORMAL							PANCREAS_NORMAL
+SPLEEN_NORMAL							SPLEEN_NORMAL
+KIDNEY_NORMAL							KIDNEY_NORMAL
+TALLOW_NORMAL							--
+SOAP_NORMAL							--
+GIZZARD_NORMAL							GIZZARD_NORMAL
+HAIR_NORMAL							HAIR_NORMAL
+FEATHER_NORMAL							FEATHER_NORMAL
+HOOF_NORMAL							HOOF_NORMAL
+BLOOD_NORMAL							--
+ICHOR_NORMAL							--
+PUS_NORMAL							--
+SLIME_NORMAL							--
+GOO_NORMAL							--
+
+## Four Part
+CHITIN_####							CHITIN_####
+SCALE_####							SCALE_####
+SKIN_####							SKIN_####
+LEATHER_####							--
+BONE_####							BONE_####
+--								SPINE_####
+SINEW_####							--
+CARTILLAGE_####							CARTILLAGE_####
+TOOTH_####							TOOTH_####
+HORN_####							HORN_####
+SHELL_####							SHELL_####
+CLAW_####							CLAW_####
+NAIL_####							NAIL_####
+SPIKE_####							SPIKE_####
+
+## Special
+WAX_CREATURE_NORMAL
+MILK_CREATURE_NORMAL
+CHEESE_CREATURE_NORMAL
+EGGSHELL_CREATURE_NORMAL
+LEATHERY_EGGSHELL_CREATURE_NORMAL
+EGG_WHITE_CREATURE_NORMAL
+EGG_YOLK_CREATURE_NORMAL
+EXTRACT_CREATURE_NORMAL
+ALCOHOL_CREATURE_NORMAL
+VENOM_VERMIN_BASE
+VENOM_CREATURE_BASE
+POISON_VERMIN_BASE
+POISON_CREATURE_BASE
+
+# ATTACKS
+## Creature Variation Based Attacks (See CREATURE VARIATIONS below)
+## Template Based Attacks
+### Inject Attacks
+ATTACK_VENOM_XXXX_YYYY_BITE
+ATTACK_VENOM_XXXX_YYYY_STINGER
+ATTACK_VENOM_XXXX_YYYY_CLAW
+
+# INTERACTIONS
+## Creature Variation Based Interactions (See CREATURE VARIATIONS below)
+## Template Based Interactions
+INTERACTION_VENOM_XXXX_YYYY_SPIT
+INTERACTION_WEB_SILK_SPRAY
+
+# CREATURE VARIATIONS
+## Attacks
+### Head Attacks                ### Torso Attacks               ### Arm Attacks                 ### Leg Attacks                 ### Tentacle Attacks
+ATTACK_HEAD_BEAK                ATTACK_TORSO_WING               ATTACK_ARM_WING                 ATTACK_LEG_FLIPPER              ATTACK_TENTACLE_CLAW
+ATTACK_HEAD_BILL                ATTACK_TORSO_SPIKE              ATTACK_ARM_SPIKE                ATTACK_LEG_SPIKE                ATTACK_TENTACLE_CLUB
+ATTACK_HEAD_TRUNK               ATTACK_TORSO_TAIL               ATTACK_HAND_PAW                 ATTACK_FOOT_PAW                 ATTACK_TENTACLE_SUCKER
+ATTACK_HEAD_TOOTH               ATTACK_TAIL_STINGER             ATTACK_HAND_PINCER              ATTACK_FOOT_HOOF
+ATTACK_HEAD_FANG                ATTACK_TAIL_CLUB                ATTACK_HAND_SPIKE               ATTACK_FOOT_SPIKE
+ATTACK_HEAD_SPIKE               ATTACK_TAIL_SPIKE               ATTACK_HAND_TENTACLE            ATTACK_FOOT_TENTACLE
+ATTACK_HEAD_ANTLER                                              ATTACK_FINGER_NAIL              ATTACK_TOE_NAIL
+ATTACK_HEAD_HORN                                                ATTACK_FINGER_CLAW              ATTACK_TOE_CLAW
+ATTACK_HEAD_TUSK
+ATTACK_HEAD_MANDIBLE
+ATTACK_HEAD_PROBOSCIS
+
+## Interactions
+### Basic Interactions          ### Elemental Interactions      ### BP Interactions
+INTERACTION_CLEAN_TONGUE        INTERACTION_FIRE_BREATH         INTERACTION_CHARGE_HORN
+INTERACTION_BUMP_HEAD           INTERACTION_ICE_BREATH          INTERACTION_CHARGE_TUSK
+INTERACTION_HIDE_ALWAYS         INTERACTION_STORM_BREATH
+INTERACTION_HIDE_RETREAT        INTERACTION_STORM_SPIKE
+                                INTERACTION_WATER_BREATH
+
+## Materials
+### Venoms			### Poisons			### Misc
+VENOM_PAIN			POISON_DEBILITATE		WAX_HONEY_MEAD
+VENOM_SWELLING			POISON_PAIN			JELLY
+VENOM_BLISTERS			POISON_PARALYZE
+VENOM_DIZZINESS			POISON_ERRATIC
+VENOM_BLEEDING			POISON_NECROTIC
+VENOM_NECROTIC
+VENOM_ERRATIC
+VENOM_PARALYZE
+
+# Names
+#ADJ
+barren		broadleaf	ocean		flame		small headed	mouthless		two horned	two legged		hunting		fluffy
+desolate	coniferous	lake		fire-breathing	large headed	beaked			four horned	four legged		raging		furry
+desert		taiga		pool		electric	two headed	billed			two tusked	six legged		mad		webbing
+sand		jungle		river		lightning	three headed	noseless		four tusked	eight legged		amphibious	weaver
+baslands	tropical	fresh water	frozen		four headed	forked tongued		winged		ten legged		gilled		thimble
+wasteland	plains		salt water	ice-breathing	five headed	spiny tongued		spiked		one hundred legged	flying		venomous
+rocky		savanna		honey		water-shooting	six headed	circular tongued	spikey		four tentacled		soaring		biting
+arctic		grassland	jelly		chitenous	seven headed	sticky tongued		armless		six tentacled		gliding		small
+ice		briar		venomous	armored		long necked	fanged			two armed	eight tentacled		aerial		burrowing
+snow		brush		poisonous	hairless	deaf		crested			four armed	hoofed			predatory	tunneling
+tundra		bramble		debilitating	bald		one eared	small crested		six armed	three-toed		carniverous	tiny
+glacier		backwoods	painful		smooth		eyeless		large crested		clawed		four-toed		hunting		savage
+durable		wetland		paralyzing	bare		no-eye		frilled			clubed		five-toed		stalking	fierce
+hardy		fen		hallucinatory	naked		blind		small frilled		pincer		domestic		roaming		vicious
+mountain	swamp		necrotic	scaled		one-eyed	large frilled		three-fingered	common			wandering
+cliff		morass		camouflauged	plated		unblinking	neck-frilled		four-fingered	fearless		meandering
+mesa		everglade	hidden		hairy		two-eyed	finned			five-fingered	tireless		peaceful
+plateau		subterranean	spitting	feathered	three-eyed	small finned		three-clawed	sleepless		calm
+forest		underground	hissing		crested		four-eyed	large finned		four-clawed	mischievious		hairy
+grove		submerged	spraying	fluffed		six-eyed	antlered		five-clawed	curious			wooly
+timber		water		charging	boneless	eight-eyed	single horned		legless		thieving		bushy
+
+#PREFIX
+sand		jelly
+rock		venom
+ice		poison
+snow		camo
+grove		hiding
+wood		trunk
+timber		claw
+tundra		club
+tangle		hoof
+fen		air
+swamp		ambush
+hidden		loom
+buried		web
+covered		silk
+earth		dire
+water		feral
+ocean		cruel
+lake
+pool
+river
+honey
+
+#MAIN
+mammal
+amphibian
+webber
+vermin
+bug
+insect
+rodent
+fish
+

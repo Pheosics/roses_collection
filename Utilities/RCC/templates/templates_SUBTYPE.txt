@@ -1,0 +1,489 @@
+================================================================================================================
+== Mundane Subtypes (Domestic, Ubiquitous, etc...)
+================================================================================================================
+
+[TEMPLATE:SUBTYPE:DOMESTIC]
+	{DESCRIPTION:is often domesticated}
+	{NAME:ADJ:domestic}
+	{LINK:MUNDANE}
+                [COMMON_DOMESTIC]
+
+[TEMPLATE:SUBTYPE:UBIQUITOUS]
+	{DESCRIPTION:is very common}
+	{NAME:ADJ:common}
+	{LINK:MUNDANE}
+		[UBIQUITOUS]
+
+================================================================================================================
+== Savage Subtypes
+================================================================================================================
+
+================================================================================================================
+== Evil Subtypes
+================================================================================================================
+
+================================================================================================================
+== Good Subtypes
+================================================================================================================
+
+================================================================================================================
+== Bonus Subtypes (Extravision, No Pain, Paralyze Immune, etc...)
+================================================================================================================
+
+[TEMPLATE:SUBTYPE:EXTRAVISION]
+	{DESCRIPTION:sees without the need of eyes}
+	{LINK:NOT_USED}
+		[EXTRAVISION]
+
+[TEMPLATE:SUBTYPE:NIGHTVISION]
+	{DESCRIPTION:has perfect night vision}
+	{LINK:EYE}
+		[LOW_LIGHT_VISION:10000]
+		[PREFSTRING:ability to see in the dark]
+
+[TEMPLATE:SUBTYPE:NOPAIN]
+	{DESCRIPTION:feels no pain}
+	{TOKENS:NOPAIN}
+		[NOPAIN]
+		[PREFSTRING:resistance to pain]
+
+[TEMPLATE:SUBTYPE:NOSTUN]
+	{DESCRIPTION:can not be stunned}
+	{TOKENS:NOSTUN}
+		[NOSTUN]
+		[PREFSTRING:resistance to being stunned]
+
+[TEMPLATE:SUBTYPE:NOPARALYZE]
+	{DESCRIPTION:can not be paralyzed}
+	{TOKENS:NOPARALYZE}
+		[PARALYZEIMMUNE]
+		[PREFSTRING:resistance to being paralyzed]
+
+[TEMPLATE:SUBTYPE:NOFEAR]
+	{DESCRIPTION:feels no fear}
+	{NAME:ADJ:fearless}
+	{TOKENS:NOFEAR}
+	{EXCEPT:NOEMOTION}
+		[NOFEAR]
+		[PREFSTRING:lack of fear]
+
+[TEMPLATE:SUBTYPE:NOEXERT]
+	{DESCRIPTION:never gets tired}
+	{NAME:ADJ:tireless}
+	{TOKENS:NOEXERT}
+		[NOEXERT]
+		[PREFSTRING:incredible stamina]
+
+[TEMPLATE:SUBTYPE:NOEMOTION]
+	{DESCRIPTION:has no emotions}
+	{NAME:ADJ:fearless}
+	{TOKENS:NOEMOTION}
+	{EXCEPT:NOFEAR}
+		[NOEMOTION]
+		[PREFSTRING:lack of emotion]
+
+[TEMPLATE:SUBTYPE:NOEAT]
+	{DESCRIPTION:does not need food}
+	{TOKENS:DIET}
+	{EXCEPT:DIET}
+		[NO_EAT]
+		[PREFSTRING:ability to survive without food]
+
+[TEMPLATE:SUBTYPE:NODRINK]
+	{DESCRIPTION:does not need water}
+	{TOKENS:NODRINK}
+		[NO_DRINK]
+		[PREFSTRING:ability to survive without water]
+
+[TEMPLATE:SUBTYPE:NODIZZINESS]
+	{DESCRIPTION:does not get dizzy}
+	{TOKENS:NODIZZINESS}
+		[NO_DIZZINESS]
+		[PREFSTRING:resistance to getting dizzy]
+
+[TEMPLATE:SUBTYPE:NOFEVER]
+	{DESCRIPTION:never gets a fever}
+	{TOKENS:NOFEVER}
+		[NO_FEVER]
+		[PREFSTRING:resistance to getting a fever]
+
+[TEMPLATE:SUBTYPE:NOSLEEP]
+	{DESCRIPTION:does not need sleep}
+	{NAME:ADJ:sleepless}
+	{TOKENS:NOSLEEP}
+		[NO_SLEEP]
+		[PREFSTRING:ability to survive without sleep]
+
+[TEMPLATE:SUBTYPE:NOWEB]
+	{DESCRIPTION:can not be trapped in webs}
+	{TOKENS:NOWEB}
+		[WEBIMMUNE]
+		[PREFSTRING:ability to break out of webs]
+
+[TEMPLATE:SUBTYPE:NOTRAP]
+	{DESCRIPTION:can not be trapped}
+	{TOKENS:NOTRAP}
+		[TRAPAVOID]
+		[PREFSTRING:ability to avoid traps]
+
+================================================================================================================
+== Trait Based Subtypes (Mischievious, Curious, etc...)
+================================================================================================================
+[TEMPLATE:SUBTYPE:MISCHIEVIOUS]
+	{DESCRIPTION:is a mischievious menace}
+	{NAME:ADJ:mischievious}
+	{TOKENS:MISCHIEVIOUS}
+                [CANOPENDOORS]
+                [MISCHIEVIOUS]
+		[PREFSTRING:mischieviousness]
+
+[TEMPLATE:SUBTYPE:CURIOUS_EATER]
+	{DESCRIPTION:will often eat food left lying around}
+	{NAME:ADJ:curious}
+	{TOKENS:CURIOUS}
+                [CURIOUSBEAST_EATER]
+		[PREFSTRING:curious nature]
+
+[TEMPLATE:SUBTYPE:CURIOUS_DRINKER]
+	{DESCRIPTION:will often drink directly from barrels left around}
+	{NAME:ADJ:curious}
+	{TOKENS:CURIOUS}
+                [CURIOUSBEAST_GUZZLER]
+		[PREFSTRING:curious nature]
+
+[TEMPLATE:SUBTYPE:CURIOUS_ITEM]
+	{DESCRIPTION:will often steal items from stockpiles}
+	{NAME:ADJ:curious,ADJ:thieving}
+	{TOKENS:CURIOUS}
+                [CURIOUSBEAST_ITEM]
+		[PREFSTRING:curious nature]
+		[PREFSTRING:item stealing]
+
+[TEMPLATE:SUBTYPE:PET_ADOPTS]
+	{DESCRIPTION:forms intense bonds with certain individuals}
+        {LINK:PET}
+                [ADOPTS_OWNER]
+		[PREFSTRING:loyalty]
+		[PREFSTRING:adoption]
+
+[TEMPLATE:SUBTYPE:LOOSE_CLUSTER]
+	{DESCRIPTION:spreads out while traveling as a group}
+		[LOOSE_CLUSTERS]
+
+[TEMPLATE:SUBTYPE:HUNTER]
+	{DESCRIPTION:enjoys hunting small vermin}
+	{NAME:ADJ:hunting}
+		[HUNTS_VERMIN]
+		[PREFSTRING:ability to hunt small vermin]
+
+[TEMPLATE:SUBTYPE:COWARD]
+	{DESCRIPTION:will run away at the first sign of conflict}
+	{NAME:ADJ:fleeing}
+	{TOKENS:FLEE}
+	{EXCEPT:PREDATOR,RAGE}
+		[FLEEQUICK]
+		[PREFSTRING:cowardice]
+
+[TEMPLATE:SUBTYPE:CAVE_ADAPTED]
+	{DESCRIPTION:is adapted to living underground}
+	{LINK:UNDERGROUND}
+		[CAVE_ADAPT]
+		[PREFSTRING:cave adaptation]
+
+[TEMPLATE:SUBTYPE:RAGE]
+	{DESCRIPTION:is prone to go into a rage}
+	{NAME:ADJ:raging,ADJ:mad}
+	{TOKENS:RAGE}
+	{EXCEPT:BENIGN,FLEE,NOEMOTION}
+		[PRONE_TO_RAGE:100]
+		[PREFSTRING:rage]
+
+================================================================================================================
+== Movement Based Subtypes (Aquatic, Flying, etc...)
+================================================================================================================
+[TEMPLATE:SUBTYPE:AMPHIBIOUS]
+	{DESCRIPTION:is amphibious}
+	{NAME:ADJ:amphibious,NAME:amphibian}
+    	{TOKENS:#SWIMMING_GAIT,AMPHIBIOUS}
+	{EXCEPT:AQUATIC,FLYING}
+	{LINK:WATER_ONLY}
+        	[AMPHIBIOUS]
+
+[TEMPLATE:SUBTYPE:AQUATIC]
+        {DESCRIPTION:is aquatic}
+        {NAME:ADJ:gilled}
+        {TOKENS:#ONLY_SWIMMING,AQUATIC}
+        {EXCEPT:AMPHIBIOUS,FLYING}
+        {LINK:WATER_ONLY}
+                [AQUATIC]
+                [UNDERSWIM]
+                [IMMOBILE_LAND]
+                [NO_DRINK]
+        	[PREFSTRING:ability to breath underwater]
+
+[TEMPLATE:SUBTYPE:FLYING]
+	{DESCRIPTION:can fly}
+    	{NAME:ADJ:flying,ADJ:soaring,ADJ:gliding,ADJ:aerial,PREFIX:air}
+    	{TOKENS:#FLYING_GAIT,FLIER}
+    	{PERCENT:FLYING}
+	{EXCEPT:FLIER,AQUATIC,AMPHIBIAN}
+	{LINK:FLYING,WING}
+        	[FLIER]
+		[PREFSTRING:ability to fly]
+
+[TEMPLATE:SUBTYPE:FLYING_DIVE]
+	{DESCRIPTION:can fly}
+	{NAME:ADJ:flying,ADJ:soaring,ADJ:gliding,ADJ:aerial,PREFIX:air}
+        {TOKENS:#FLYING_GAIT,FLIER}
+        {LINK:FLYING,WING}
+        {EXCEPT:FLIER,AQUATIC.AMPHIBIAN}
+                [FLIER]
+                [DIVE_HUNTS_VERMIN]
+		[PREFSTRING:ability to fly]
+		[PREFSTRING:diving to catch vermin]
+
+================================================================================================================
+== Diet/Behavior Based Subtypes (Predator, Benign, Meanderer, etc...)
+================================================================================================================
+[TEMPLATE:SUBTYPE:PREDATOR]
+	{DESCRIPTION:is a vicious predator}
+	{NAME:ADJ:predatory,ADJ:carniverous,ADJ:hunting}
+    	{PERCENT:PREDATOR}
+	{TOKENS:DIET}
+	{EXCEPT:DIET,BENIGN}
+	{LINK:PREDATOR}
+        	[LIKES_FIGHTING]
+        	[LARGE_PREDATOR]
+		[CARNIVORE]
+		[PREFSTRING:enjoyment of fighting]
+		[PREFSTRING:carniverous diet]
+
+[TEMPLATE:SUBTYPE:PREDATOR_AMBUSH]
+	{DESCRIPTION:is a vicious predator that stalks it's prey}
+	{NAME:ADJ:predatory,ADJ:carniverous,ADJ:hunting,ADJ:stalking,PREFIX:ambush}
+	{PERCENT:PREDATOR}
+	{TOKENS:DIET}
+	{EXCEPT:DIET,BENIGN}
+	{LINK:PREDATOR}
+                [LIKES_FIGHTING]
+                [LARGE_PREDATOR]
+                [AMBUSHPREDATOR]
+                [CARNIVORE]
+		[PREFSTRING:enjoyment of fighting]
+		[PREFSTRING:carniverous diet]
+		[PREFSTRING:ambushing ability]
+
+[TEMPLATE:SUBTYPE:ROAMING]
+	{DESCRIPTION:roams around}
+	{NAME:ADJ:roaming,ADJ:wandering,ADJ:meandering}
+    	{PERCENT:ROAMING}
+	{LINK:ROAMING}
+	{TOKENS:DIET}
+	{EXCEPT:DIET}
+        	[MEANDERER]
+        	[LARGE_ROAMING]
+		[STANDARD_GRAZER]
+		[PREFSTRING:herbivore diet]
+		[PREFSTRING:meandering nature]
+
+[TEMPLATE:SUBTYPE:BENIGN]
+	{DESCRIPTION:is peaceful}
+	{NAME:ADJ:peaceful,ADJ:calm}
+	{PERCENT:BENIGN}
+	{LINK:BENIGN}
+	{TOKENS:DIET}
+	{EXCEPT:PREDATOR,DIET}
+		[BENIGN]
+		[STANDARD_GRAZER]
+		[PREFSTRING:herbivore diet]
+		[PREFSTRING:benign nature]
+
+================================================================================================================
+== Product Based Subtypes (Shearable, Webbing, etc...)
+================================================================================================================
+[TEMPLATE:SUBTYPE:SHEARABLE]
+	{DESCRIPTION:is shearable}
+	{NAME:ADJ:hairy,ADJ:wooly,ADJ:bushy,ADJ:fluffy,ADJ:furry}
+    	{PERCENT:SHEARABLE}
+	{LINK:SHEARABLE,SHEAR_HAIR}
+        	[SET_TL_GROUP:BY_CATEGORY:ALL:HAIR]
+			[TLCM_NOUN:wool:SINGULAR]
+        		[TISSUE_LAYER_APPEARANCE_MODIFIER:LENGTH:0:0:0:0:0:0:0]
+            		[APP_MOD_NOUN:wool:SINGULAR]
+            		[APP_MOD_RATE:1:DAILY:0:300:0:0:NO_END]
+            		[APP_MOD_DESC_RANGE:10:50:100:150:200:300]
+            		[SHEARABLE_TISSUE_LAYER:LENGTH:300]
+		[PREFSTRING:wool]
+
+[TEMPLATE:SUBTYPE:WEBBER]
+        {DESCRIPTION:creates webs made of silk}
+        {NAME:ADJ:webbing,ADJ:weaver,ADJ:thimble,PREFIX:loom,PREFIX:web,PREFIX:silk,MAIN:webber}
+        {TOKENS:HAS_WEB,SILK}
+        {PERCENT:WEBBER}
+        {LINK:WEBBER}
+        {EXCEPT:HAS_WEB,AQUATIC}
+                [WEBBER:CREATURE_MAT:ANIMAL:SILK_NORMAL]
+		[PREFSTRING:silk]
+
+[TEMPLATE:SUBTYPE:WEBBER_THICK]
+        {DESCRIPTION:creates thick webs made of silk}
+        {NAME:ADJ:webbing,ADJ:weaver,ADJ:thimble,PREFIX:loom,PREFIX:web,PREFIX:silk,MAIN:webber}
+        {TOKENS:HAS_WEB,SILK}
+        {PERCENT:WEBBER}
+        {LINK:WEBBER}
+        {EXCEPT:HAS_WEB,AQUATIC}
+                [WEBBER:CREATURE_MAT:ANIMAL:SILK_NORMAL]
+                [THICKWEB]
+		[PREFSTRING:thick silk]
+
+================================================================================================================
+== Usefulness Based Subtypes (Mount, Trade, Training, etc...)
+================================================================================================================
+[TEMPLATE:SUBTYPE:MOUNT]
+	{DESCRIPTION:is often used as a mount}
+	{PERCENT:MOUNT}
+	{TOKENS:MOUNTABLE}
+	{EXCEPT:MOUNTABLE}
+        {LINK:PET,MOUNT}
+                [MOUNT]
+		[PREFSTRING:use as a mount]
+
+[TEMPLATE:SUBTYPE:MOUNT_EXOTIC]
+	{DESCRIPTION:is occasionally used as a mount}
+	{PERCENT:MOUNT}
+	{TOKENS:MOUNTABLE}
+	{EXCEPT:MOUNTABLE}
+        {LINK:PET_EXOTIC,MOUNT}
+                [MOUNT_EXOTIC]
+		[PREFSTRING:use as a mount]
+
+[TEMPLATE:SUBTYPE:TRADE]
+	{DESCRIPTION:is used as a pack animal}
+	{ARGS:CAPACITY}
+    	{TOKENS:TRADE_CREATURE}
+    	{EXCEPT:TRADE_CREATURE,AQUATIC,AMPHIBIOUS,FLYING,WATER_ONLY}
+    	{PERCENT:TRADE_ANIMAL}
+	{LINK:#TRADER,TRADE_ANIMAL}
+        	[PACK_ANIMAL]
+        	[TRADE_CAPACITY:#ARG1]
+		[PREFSTRING:use as a pack animal]
+
+[TEMPLATE:SUBTYPE:TRADE_WAGON]
+	{DESCRIPTION:is used as a wagon pulling animal}
+	{ARGS:CAPACITY}
+    	{TOKENS:TRADE_CREATURE}
+    	{EXCEPT:TRADE_CREATURE,AQUATIC,AMPHIBIOUS,FLYING,WATER_ONLY}
+    	{PERCENT:TRADE_ANIMAL}
+	{LINK:#TRADER,TRADE_ANIMAL}
+        	[WAGON_PULLER]
+        	[TRADE_CAPACITY:#ARG1]
+		[PREFSTRING:use as a wagon puller]
+
+[TEMPLATE:SUBTYPE:TRAIN]
+	{DESCRIPTION:can be trained to fight and hunt}
+    	{TOKENS:TRAINED}
+    	{EXCEPT:TRAINED}
+    	{PERCENT:TRAINABLE}
+	{LINK:TRAINABLE}
+        	[TRAINABLE]
+		[PREFSTRING:capability of being trained to fight and hunt]
+
+[TEMPLATE:SUBTYPE:TRAIN_HUNT]
+	{DESCRIPTION:can be trained to hunt}
+    	{TOKENS:TRAINED}
+    	{EXCEPT:TRAINED}
+    	{PERCENT:TRAINABLE}
+	{LINK:TRAINABLE}
+        	[TRAINABLE_HUNTING]
+		[PREFSTRING:capability of being trained to hunt]
+
+[TEMPLATE:SUBTYPE:TRAIN_WAR]
+	{DESCRIPTION:can be trained to fight}
+    	{TOKENS:TRAINED}
+    	{EXCEPT:TRAINED}
+    	{PERCENT:TRAINABLE}
+	{LINK:TRAINABLE}
+        	[TRAINABLE_WAR]
+		[PREFSTRING:capability of being trained to fight]
+
+================================================================================================================
+== Vermin Based Subtypes
+================================================================================================================
+[TEMPLATE:SUBTYPE:VERMIN_BITER]
+	{DESCRIPTION:is a venomous vermin}
+	{NAME:ADJ:venomous,ADJ:biting,ADJ:small,MAIN:vermin,MAIN:bug,MAIN:insect,MAIN:rodent}
+    	{TOKENS:VERMIN_CREATURE}
+    	{EXCEPT:VERMIN_CREATURE}
+	{LINK:#VERMIN}
+        	[VERMIN_GROUNDER]
+        	[VERMIN_HATEABLE]
+        	[SMALL_REMAINS]
+        	[NOT_BUTCHERABLE]
+        	[VERMIN_BITE:10:stung:CREATURE_MAT:ANIMAL:VENOM_VERMIN:LIQUID]
+		[PREFSTRING:venomous vermin bite]
+		[PREFSTRING:small size]
+
+[TEMPLATE:SUBTYPE:VERMIN_FISH]
+	{DESCRIPTION:can be caught fishing}
+	{NAME:ADJ:small,MAIN:fish}
+    	{TOKENS:VERMIN_CREATURE}
+    	{EXCEPT:VERMIN_CREATURE,AMPHIBIOUS}
+	{LINK:#VERMIN,WATER_ONLY,#ONLY_SWIMMING}
+        	[VERMIN_FISH]
+        	[FISHITEM]
+        	[VERMIN_HATEABLE]
+        	[SMALL_REMAINS]
+        	[NOT_BUTCHERABLE]
+		[PREFSTRING:small size]
+
+[TEMPLATE:SUBTYPE:VERMIN_GROUNDER]
+	{DESCRIPTION:is a vermin}
+	{NAME:ADJ:small,MAIN:vermin,MAIN:bug,MAIN:insect,MAIN:rodent}
+    	{TOKENS:VERMIN_CREATURE}
+    	{EXCEPT:VERMIN_CREATURE}
+	{LINK:#VERMIN}
+        	[VERMIN_GROUNDER]
+        	[VERMIN_HATEABLE]
+        	[SMALL_REMAINS]
+        	[NOT_BUTCHERABLE]
+		[PREFSTRING:small size]
+
+[TEMPLATE:SUBTYPE:VERMIN_SOIL]
+	{DESCRIPTION:is a vermin found in the soil}
+	{NAME:ADJ:burrowing,ADJ:tunneling,ADJ:small,MAIN:vermin,MAIN:bug,MAIN:insect,MAIN:rodent}
+    	{TOKENS:VERMIN_CREATURE}
+    	{EXCEPT:VERMIN_CREATURE}
+	{LINK:#VERMIN}
+        	[VERMIN_SOIL]
+        	[VERMIN_HATEABLE]
+        	[SMALL_REMAINS]
+        	[NOT_BUTCHERABLE]
+		[PREFSTRING:small size]
+
+[TEMPLATE:SUBTYPE:VERMIN_SOIL_COLONY]
+	{DESCRIPTION:is a vermin found in the soil that forms colonies}
+	{NAME:ADJ:burrowing,ADJ:tunneling,ADJ:small,MAIN:vermin,MAIN:bug,MAIN:insect}
+	{ARGS:DIVISOR}
+    	{TOKENS:VERMIN_CREATURE}
+    	{EXCEPT:VERMIN_CREATURE}
+	{LINK:#VERMIN}
+        	[VERMIN_SOIL_COLONY]
+        	[VERMIN_HATEABLE]
+        	[SMALL_REMAINS]
+        	[NOT_BUTCHERABLE]
+        	[PETVALUE_DIVISOR:#ARG1]
+		[PREFSTRING:colony nature]
+		[PREFSTRING:small size]
+
+[TEMPLATE:SUBTYPE:VERMIN_TINY]
+	{DESCRIPTION:is a tiny vermin}
+	{NAME:ADJ:tiny,MAIN:vermin,MAIN:bug,MAIN:insect}
+    	{TOKENS:VERMIN_TINY}
+    	{EXCEPT:VERMIN_TINY}
+	{LINK:#TINY}
+		[VERMIN_MICRO]
+		[VERMIN_HATEABLE]
+        	[VERMIN_NOTRAP]
+        	[NO_SLEEP]
+        	[NOBONES]
+		[PREFSTRING:tiny size]
