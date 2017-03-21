@@ -18,10 +18,18 @@ elseif args[1] == 'Items' then
  showList = {'All Items','Weapons','Shields','Helms','Armor','Gloves','Pants','Shoes','Ammo','Siege Ammo','Trap Components','Tools','Instruments','Food'}
  sortList = {'None'}
  headers = {'Items','Item'}
-elseif args[1] == 'Materials' then
- showList = {'All Materials','Inorganics','Creature Materials','Plant Materials'}
- sortList = {'None','Type'}
- headers = {'Materials','Material'}
+elseif args[1] == 'Inorganics' then
+ showList = {'All Inorganics','Metal','Glass','Stone','Gem'}
+ sortList = {'None','Environment'}
+ headers = {'Inorganics','Inorganic'}
+elseif args[1] == 'Food' then
+ showList = {'Meat','Fish','UnpreparedFish','Eggs','PlantDrink','CreatureDrink','PlantCheese','CreatureCheese','EdibleCheese','AnyDrink','EdiblePlant','CookableLiquid','CookablePowder','CookableSeed','CookableLeaf'}
+ sortList = {'None'}
+ headers = {'Foods','Food'}
+elseif args[1] == 'Organics' then
+ showList = {'Leather','Silk','PlantFiber','PlantPowder','CreaturePowder','PlantLiquid','CreatureLiquid','MiscLiquid','Bone','Shell','Wood','Horn','Pearl','Tooth','Paste','Pressed','Yarn','MetalThread'}
+ sortList = {'None'}
+ headers = {'Organics','Organic'}
 elseif args[1] == 'Buildings' then
  showList = {'All Buildings','Workshops','Furnaces'}
  sortList = {'None','Entity'}
@@ -248,7 +256,7 @@ end
 function CompendiumUi:getShow(input,choice)
  list, listNames, listIDs = guiFunctions.getShow(choice.text,self.frame_title)
  dict = {}
- for i,name in pairs(list) do
+ for i,name in pairs(listNames) do
   dict[name] = listIDs[i]
  end
  self.list = list
@@ -308,6 +316,7 @@ function CompendiumUi:submitEntry(index,choice)
   end
  else
   return
+ end
 end
 
 function CompendiumUi:entryDetails(index,choice)

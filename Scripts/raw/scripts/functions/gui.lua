@@ -672,8 +672,12 @@ function getShow(choice,frame) -- Gets the list of objects (creature, plant, ite
   return getShowPlants(choice)
  elseif frame == 'Items' then
   return getShowItems(choice)
- elseif frame == 'Materials' then
-  return getShowMaterials(choice)
+ elseif frame == 'Inorganics' then
+  return getShowInorganics(choice)
+ elseif frame == 'Food' then
+  return getShowFood(choice)
+ elseif frame == 'Organics' then
+  return getShowOrganics(choice)
  elseif frame == 'Buildings' then
   return getShowBuildings(choice)
  elseif frame == 'Reactions' then
@@ -682,12 +686,12 @@ function getShow(choice,frame) -- Gets the list of objects (creature, plant, ite
 end
 
 function getShowCreatures(choice)
- local creatureList = df.global.world.raws.creatures.alphabetic
+ local creatureList = df.global.world.raws.creatures.all
  local creatures = {}
  local creatureNames = {}
  local creatureIDs = {}
  for id,creature in pairs(creatureList) do
-  if choice.text == 'All Creatures' then
+  if choice == 'All Creatures' then
    creatures[#creatures+1] = creature
    creatureNames[#creatureNames+1] = creature.name[0]
    creatureIDs[#creatureIDs+1] = id
@@ -730,7 +734,7 @@ function getShowPlants(choice)
  for _,plant in pairs(array) do
   plants[#plants+1] = plant
   plantNames[#plantNames+1] = plant.name
-  plantIDs[#plantIDs+1] = plant.id
+  plantIDs[#plantIDs+1] = plant.anon_1
  end
  return plants,plantNames,plantIDs
 end
@@ -778,18 +782,92 @@ function getShowItems(choice)
  return items,itemNames,itemIDs
 end
 
-function getShowMaterials(choice)
+function getShowInorganics(choice)
  local materials = {}
  local materialNames = {}
  local materialIDs = {}
- if choice == 'All Materials' then
+ array = df.global.world.raws.inorganics
+ for id,inorganic in pairs(array) do
+  if choice == 'All Inorganics' then
+   materials[#materials+1] = inorganic
+   materialNames[#materialNames+1] = inorganic.material.state_name.Solid
+   materialIDs[#materialIDs+1] = id
+  elseif choice == 'Metal' then
+   if inorganic.material.flags.IS_METAL then
+    materials[#materials+1] = inorganic
+    materialNames[#materialNames+1] = inorganic.material.state_name.Solid
+    materialIDs[#materialIDs+1] = id   
+   end
+  elseif choice == 'Glass' then
+   if inorganic.material.flags.IS_GLASS then
+    materials[#materials+1] = inorganic
+    materialNames[#materialNames+1] = inorganic.material.state_name.Solid
+    materialIDs[#materialIDs+1] = id   
+   end  
+  elseif choice == 'Stone' then
+   if inorganic.material.flags.IS_STONE then
+    materials[#materials+1] = inorganic
+    materialNames[#materialNames+1] = inorganic.material.state_name.Solid
+    materialIDs[#materialIDs+1] = id   
+   end
+  elseif choice == 'Gem' then
+   if inorganic.material.flags.IS_GEM then
+    materials[#materials+1] = inorganic
+    materialNames[#materialNames+1] = inorganic.material.state_name.Solid
+    materialIDs[#materialIDs+1] = id   
+   end
+  end
+ end
+ return materials,materialNames,materialIDs
+end
 
- elseif choice == 'Inorganics' then
-  array = df.global.world.raws.inorganics
- elseif choice == 'Creature Materials' then
+function getShowOrganics(choice)
+ local materials = {}
+ local materialNames = {}
+ local materialIDs = {}
+ local x = df.global.world.raws.mat_table.organic_types
+ local y = df.global.world.raws.mat_table.organic_indexes
+ for i,mattype in pairs(x[choice]) do
+  matindex = y[choice][i]
+  material = dfhack.matinfo.decode(mattype,matindex).material
+  materials[#materials+1] = material
+  if choice == 'PlantLiquid' or choice == 'CreatureLiquid' or choice == 'MiscLiquid' then
+   materialNames[#materialNames+1] = material.prefix..' '..material.state_name.Liquid
+  else
+   materialNames[#materialNames+1] = material.prefix..' '..material.state_name.Solid
+  end
+  materialIDs[#materialIDs+1] = {mattype,matindex}
+ end
+ return materials,materialNames,materialIDs
+end
 
- elseif choice == 'Plant Materials' then
-
+function getShowFood(choice)
+ local materials = {}
+ local materialNames = {}
+ local materialIDs = {}
+ local x = df.global.world.raws.mat_table.organic_types
+ local y = df.global.world.raws.mat_table.organic_indexes
+ local z = df.global.world.raws.creatures.all
+ if choice == 'Eggs' or choice == 'Fish' or choice == 'UnpreparedFish' then
+  for i,creatureID in pairs(x[choice]) do
+   casteID = y[choice][i]
+   caste = z[creatureID].caste[casteID]
+   materials[#materials+1] = caste
+   materialNames[#materialNames+1] = caste.caste_name[0]..' '..choice
+   materialIDs[#materialIDs+1] = {creatureID,casteID}
+  end
+ else
+  for i,mattype in pairs(x[choice]) do
+   matindex = y[choice][i]
+   material = dfhack.matinfo.decode(mattype,matindex).material
+   materials[#materials+1] = material
+   if choice == 'PlantDrink' or choice == 'CreatureDrink' or choice == 'AnyDrink' or choice == 'CookableLiquid' then
+    materialNames[#materialNames+1] = material.prefix..' '..material.state_name.Liquid
+   else
+    materialNames[#materialNames+1] = material.prefix..' '..material.state_name.Solid
+   end
+   materialIDs[#materialIDs+1] = {mattype,matindex}
+  end
  end
  return materials,materialNames,materialIDs
 end
@@ -823,7 +901,7 @@ function getShowReactions(choice)
  for _,reaction in pairs(array) do
   reactions[#reactions+1] = reaction
   reactionNames[#reactionNames+1] = reaction.name
-  reactionIDs[#reactionIDs+1] = reaction.id
+  reactionIDs[#reactionIDs+1] = reaction.index
  end
  return reactions,reactionNames,reactionIDs
 end
@@ -835,8 +913,12 @@ function getSort(list,frame,choice)
   return getSortPlants(list,choice)
  elseif frame == 'Items' then
   return getSortItems(list,choice)
- elseif frame == 'Materials' then
-  return getSortMaterials(list,choice)
+ elseif frame == 'Inorganics' then
+  return getSortInorganics(list,choice)
+ elseif frame == 'Organics' then
+  return getSortOrganics(list,choice)
+ elseif frame == 'Food' then
+  return getSortFood(list,choice)
  elseif frame == 'Buildings' then
   return getSortBuildings(list,choice)
  elseif frame == 'Reactions' then
@@ -893,14 +975,29 @@ function getSortItems(list,choice)
  return out
 end
 
-function getSortMaterials(list,choice)
+function getSortInorganics(list,choice)
  local out = {}
-
- if choice == 'Type' then
-
+ for _,x in pairs(list) do
+  if choice == 'Environment' then
+   for _,loc in pairs(x.environment.location) do
+    out[df.environment_type[loc]] = out[df.environment_type[loc]] or {}
+    out[df.environment_type[loc]][#out[df.environment_type[loc]]+1] = x.material.state_name.Solid
+   end
+   for _,loc in pairs(x.environment_spec.mat_index) do
+    out[dfhack.matinfo.decode(0,loc).inorganic.id] = out[dfhack.matinfo.decode(0,loc).inorganic.id] or {}
+    out[dfhack.matinfo.decode(0,loc).inorganic.id][#out[dfhack.matinfo.decode(0,loc).inorganic.id]] = x.material.state_name.Solid
+   end
+  end
  end
-
  return out
+end
+
+function getSortOrganics(list,choice)
+
+end
+
+function getSortFood(list,choice)
+
 end
 
 function getSortBuildings(list,choice)
@@ -933,8 +1030,12 @@ function getEntry(name,dict,frame) -- Gets sub-objects of an object (castes for 
   return getEntryPlant(id)
  elseif frame == 'Items' then
   return getEntryItems(id)
- elseif frame == 'Materials' then
-  return getEntryMaterial(id)
+ elseif frame == 'Inorganics' then
+  return getEntryInorganic(id)
+ elseif frame == 'Organics' then
+  return getEntryOrganic(id)
+ elseif frame == 'Food' then
+  return getEntryFood(id)
  elseif frame == 'Buildings' then
   return getEntryBuilding(id)
  elseif frame == 'Reactions' then
@@ -943,6 +1044,7 @@ function getEntry(name,dict,frame) -- Gets sub-objects of an object (castes for 
 end
 
 function getEntryCreature(id)
+ print(id)
  local creature = df.global.world.raws.creatures.all[id]
  local castes = {}
  if not creature then 
@@ -988,24 +1090,37 @@ function getEntryPlant(id)
 end
 
 function getEntryItems(id)
- local item = df.global.world.raws.itemdefs.all[id]
+ local item = nil
  local item2 = {}
+ for _,x in pairs(df.global.world.raws.itemdefs.all) do
+  if x.id == id then
+   item = x
+   break
+  end
+ end
  if not item then
   return nil,nil
  end
- item2 = {item}
+ item2 = {item.name}
  return item,item2
 end
 
-function getEntryMaterial(id)
- local material = nil
+function getEntryInorganic(id)
+ local material = df.global.world.raws.inorganics[id]
  local material2 = {}
- 
  if not material then
   return nil,nil
  end
- material2 = {material.state_name.Solid}
+ material2 = {material.material.state_name.Solid}
  return material,material2
+end
+
+function getEntryOrganic(id)
+
+end
+
+function getEntryFood(id)
+
 end
 
 function getEntryBuilding(id)
@@ -1040,9 +1155,15 @@ function getDetails(frame,entry,index) -- Gets details for creatures, plants, it
  elseif frame == 'Items' then
   info = getItemDetails(entry)
   return makeItemOutput(info)
- elseif frame == 'Materials' then
-  info = getMaterialDetails(entry)
-  return makeMaterialOutput(info)
+ elseif frame == 'Inorganics' then
+  info = getInorganicDetails(entry)
+  return makeInorganicOutput(info)
+ elseif frame == 'Organics' then
+  info = getOrganicDetails(entry)
+  return makeOrganicOutput(info)
+ elseif frame == 'Food' then
+  info = getFoodDetails(entry)
+  return makeFoodOutput(info)
  elseif frame == 'Buildings' then
   info = getBuildingDetails(entry)
   return makeBuildingOutput(info)
@@ -1058,35 +1179,86 @@ function getItemDetails(item)
  local header = {}
  local persistTable = require 'persist-table'
  local gt = persistTable.GlobalTable
+ local temp = {}
+ for key,val in pairs(item) do
+  temp[key] = val
+ end
+ item = temp
  local info = {}
- info.header
- info.name = ''
+ info.header = ''
+ info.name = item.name or ''
  info.class = ''
- info.description = ''
- info.armorlevel = ''
- info.upstep = ''
- info.ubstep = ''
- info.lbstep = ''
- info.value = ''
- info.materialsize = ''
+ info.description = item.description or ''
+ info.armorlevel = item.armorlevel or ''
+ info.upstep = item.upstep or ''
+ info.ubstep = item.ubstep or ''
+ info.lbstep = item.lbstep or ''
+ info.value = item.value or ''
+ info.size = item.size or ''
+ info.materialsize = item.material_size or ''
+ info.level = item.level or ''
  info.layer = ''
  info.layersize = ''
  info.layerpermit = ''
  info.coverage = ''
- info.ammoclass = ''
- info.blockchance = ''
- info.twohanded = ''
- info.minimumsize = ''
- info.shootforce = ''
- info.shootvelocity = ''
- info.capacity = ''
- info.hits = ''
+ if item.props then
+  info.layer = item.props.layer
+  info.layersize = item.props.layer_size
+  info.layerpermit = item.props.layer_permit
+  info.coverage = item.props.coverage
+ end
+ info.ammoclass = item.ammo_class or ''
+ info.blockchance = item.blockchance or ''
+ info.twohanded = item.two_handed or ''
+ info.minimumsize = item.minimum_size or ''
+ info.shootforce = item.shoot_force or ''
+ info.shootvelocity = item.shoot_maxvel or ''
+ info.capacity = item.container_capacity or ''
+ info.hits = item.hits or ''
+ -- Get Attacks
  info.attacks = {}
+ if item.attacks then
+  for _,attack in pairs(item.attacks) do
+   info.attacks[#info.attacks+1] = attack.verb_2nd
+  end
+ end
+ -- Get Flags
  info.flags = {}
+ if item.props then
+  for flag,check in pairs(item.props.flags) do
+   if check then
+    info.flags[#info.flags+1] = flag
+   end
+  end
+ end
+ if item.flags then
+  for flag,check in pairs(item.flags) do
+   if check then
+    info.flags[#info.flags+1] = flag
+   end
+  end
+ end
+ if item.base_flags then
+  for flag,check in pairs(item.base_flags) do
+   if check then
+    info.flags[#info.flags+1] = flag
+   end
+  end
+ end
+ if item.tool_use then
+  for _,id in pairs(item.tool_use) do
+   info.flags[#info.flags+1] = df.tool_uses[id]
+  end
+ end
  return info
 end
 
 function makeItemOutput(info)
+ local utils = require 'utils'
+ local split = utils.split_string
+ local input = {}
+ local input2 = {}
+ local header = {}
 -- Header Information
  table.insert(header,{text={{text=center(info.header,85),pen=COLOR_LIGHTRED,width=85}}})
  table.insert(header,{text={{text=center('Description',85),width=85,pen=COLOR_YELLOW}}})
@@ -1096,37 +1268,103 @@ function makeItemOutput(info)
 -- Left Column Information (Name, Class, Value, Material Size, Materials, Uses) 
  table.insert(input,{text={{text=center('Details',40),width=40,pen=COLOR_YELLOW}}})
  input = insertWidgetInput(input,'header',{header='Item Name:',second=info.name},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Class:',second=info.class},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Class:',second=info.class},{pen=COLOR_LIGHTGREEN})
  input = insertWidgetInput(input,'header',{header='Value:',second=info.value},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Material Size:',second=info.materialsize},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Material Size:',second=info.materialsize},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Size:',second=info.size},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Container Capacity:',second=info.capacity},{pen=COLOR_LIGHTGREEN})
  input = insertWidgetInput(input,'header',{header='Materials:',second=info.flags},{replacement=itemCraftFlags,pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Uses:',second=info.flags},{replacement=itemUseFlags,pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Uses:',second=info.flags},{replacement=itemUseFlags,pen=COLOR_LIGHTGREEN})
 -- Right Column Information (Offensive Stats, Defensive Stats, Instrument Stats)
  table.insert(input2,{text={{text=center('Offensive Details',40),width=40,pen=COLOR_YELLOW}}})
  input2 = insertWidgetInput(input2,'header',{header='Min Size:',second=info.minimumsize},{pen=COLOR_LIGHTCYAN})
- input2 = insertWidgetInput(input2,'header',{header='Two Handed:',second=info.twohanded},{pen=COLOR_LIGHTCYAN}) 
+ input2 = insertWidgetInput(input2,'header',{header='Two Handed:',second=info.twohanded},{pen=COLOR_LIGHTGREEN}) 
  input2 = insertWidgetInput(input2,'header',{header='Attacks:',second=info.attacks},{pen=COLOR_LIGHTCYAN})
- input2 = insertWidgetInput(input2,'header',{header='Ammo Class:',second=info.ammoclass},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Ammo Class:',second=info.ammoclass},{pen=COLOR_LIGHTGREEN})
+ input2 = insertWidgetInput(input2,'header',{header='Hits:',second=info.hits},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Shoot Force:',second=info.shootforce},{pen=COLOR_LIGHTGREEN})
+ input2 = insertWidgetInput(input2,'header',{header='Shoot Velocity:',second=info.shootvelocity},{pen=COLOR_LIGHTCYAN})
  table.insert(input2,{text={{text=center('Defensive Details',40),width=40,pen=COLOR_YELLOW}}})
  input2 = insertWidgetInput(input2,'header',{header='Block Chance:',second=info.blockchance},{pen=COLOR_LIGHTCYAN}) 
- input2 = insertWidgetInput(input2,'header',{header='Layer:',second=info.layer},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Layer:',second=info.layer},{pen=COLOR_LIGHTGREEN})
  input2 = insertWidgetInput(input2,'header',{header='Layer Size:',second=info.layersize},{pen=COLOR_LIGHTCYAN})
- input2 = insertWidgetInput(input2,'header',{header='Layer Permit:',second=info.layerpermit},{pen=COLOR_LIGHTCYAN}) 
+ input2 = insertWidgetInput(input2,'header',{header='Layer Permit:',second=info.layerpermit},{pen=COLOR_LIGHTGREEN}) 
  input2 = insertWidgetInput(input2,'header',{header='Armor Level:',second=info.armorlevel},{pen=COLOR_LIGHTCYAN})
- input2 = insertWidgetInput(input2,'header',{header='Coverage:',second=info.coverage},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Coverage:',second=info.coverage},{pen=COLOR_LIGHTGREEN})
  input2 = insertWidgetInput(input2,'header',{header='Up Step:',second=info.upstep},{pen=COLOR_LIGHTCYAN})
- input2 = insertWidgetInput(input2,'header',{header='UB Step:',second=info.ubstep},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='UB Step:',second=info.ubstep},{pen=COLOR_LIGHTGREEN})
  input2 = insertWidgetInput(input2,'header',{header='LB Step:',second=info.lbstep},{pen=COLOR_LIGHTCYAN})
  return header,input,input2
 end
 
-function getMaterialDetails(material)
+function getInorganicDetails(inorganic)
+ local persistTable = require 'persist-table'
+ local gt = persistTable.GlobalTable
  local info = {}
- 
+ info.header = ''
+ info.description = ''
+ info.class = ''
+ info.rarity = ''
+ info.name = inorganic.material.state_name.Solid
+ info.solid_density = inorganic.material.solid_density
+ info.liquid_density = inorganic.material.liquid_density
+ info.molar_mass = inorganic.material.molar_mass
+ info.value = inorganic.material.material_value
+ info.absorption = inorganic.material.strength.absorption
+ info.maxedge = inorganic.material.strength.max_edge
+ info.yield = inorganic.material.strength.yield
+ info.fracture = inorganic.material.strength.fracture
+ info.strain = inorganic.material.strength.strain_at_yield
+ info.specheat = inorganic.material.heat.spec_heat
+ info.heatdam = inorganic.material.heat.heatdam_point
+ info.colddam = inorganic.material.heat.colddam_point
+ info.ignite = inorganic.material.heat.ignite_point
+ info.melting = inorganic.material.heat.melting_point
+ info.boiling = inorganic.material.heat.boiling_point
+ info.fixedtemp = inorganic.material.heat.mat_fixed_temp
+ -- Get Reaction Products
+ info.reactionproducts = {}
+ for id,x in pairs(inorganic.material.reaction_product.id) do
+  mattype = inorganic.material.reaction_product.material.mat_type[id]
+  matindex = inorganic.material.reaction_product.material.mat_index[id]
+  mat = dfhack.matinfo.decode(0,30).material
+  info.reactionproducts[#info.reactionproducts+1] = x.value..' '..mat.state_name.Solid
+ end
+ -- Get Reaction Classes
+ info.reactionclasses = {}
+ for _,class in pairs(inorganic.material.reaction_class) do
+  info.reactionclasses[#info.reactionclasses+1] = class.value
+ end
+ -- Get Syndromes
+ info.syndromes = {}
+ for _,syndrome in pairs(inorganic.material.syndrome) do
+  info.syndromes[#info.syndromes+1] = syndrome.syn_name
+ end
+ -- Get Flags
+ info.flags = {}
+ for flag,check in pairs(inorganic.material.flags) do
+  if check then
+   info.flags[#info.flags+1] = flag
+  end
+ end
+ for flag,check in pairs(inorganic.flags) do
+  if check then
+   info.flags[#info.flags+1] = flag
+  end
+ end
+ -- 
+ if safe_index(gt,"roses","EnhancedMaterialTable","Inorganic",inorganic.id) then
+  materialTable = gt.roses.EnhancedMaterialTable.Inorganic[inorganic.id]
+  if materialTable.Description then info.description = materialTable.Description end
+  if materialTable.Class then info.class = materialTable.Class end
+  if materialTable.Rarity then info.rarity = materialTable.Rarity end
+ end
  return info
 end
 
-function makeMaterialOutput(info)
+function makeInorganicOutput(info)
+ local utils = require 'utils'
+ local split = utils.split_string
  local input = {}
  local input2 = {}
  local header = {}
@@ -1139,15 +1377,70 @@ function makeMaterialOutput(info)
 -- Left Column Information 
  table.insert(input,{text={{text=center('Details',40),width=40,pen=COLOR_YELLOW}}})
  input = insertWidgetInput(input,'header',{header='Item Name:',second=info.name},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Class:',second=info.class},{pen=COLOR_LIGHTCYAN})
- input = insertWidgetInput(input,'header',{header='Value:',second=info.value},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Class:',second=info.class},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Rarity:',second=info.rarity},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Value:',second=info.value},{pen=COLOR_LIGHTGREEN})
+ table.insert(input,{text={{text=center('Densities',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Solid Density:',second=info.solid_density},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Liquid Density:',second=info.liquid_density},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Molar Mass:',second=info.molar_mass},{pen=COLOR_LIGHTCYAN})
+ table.insert(input,{text={{text=center('Temperatures',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Specific Heat:',second=info.specheat},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Fixed Temp:',second=info.fixedtemp},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='HeatDam Point:',second=info.heatdam},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='ColdDam Point:',second=info.colddam},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Ignite Point:',second=info.ignite},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Melting Point:',second=info.melting},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Boiling Point:',second=info.boiling},{pen=COLOR_LIGHTGREEN})
+ table.insert(input,{text={{text=center('Syndromes',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='',second=info.syndromes},{pen=COLOR_LIGHTCYAN})
+ table.insert(input,{text={{text=center('Reaction Classes',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='',second=info.reactionclasses},{pen=COLOR_LIGHTGREEN})
+ table.insert(input,{text={{text=center('Reaction Products',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='',second=info.reactionproducts},{pen=COLOR_LIGHTCYAN})
 -- Right Column Information
- table.insert(input2,{text={{text=center('Shear',40),width=40,pen=COLOR_YELLOW}}})
- for key,val in pairs(info.shear) do
-  table.insert(input2,{text
+ table.insert(input2,{text={{text=center('Numbers',40),width=40,pen=COLOR_YELLOW}}})
+ input2 = insertWidgetInput(input2,'header',{header='Max Edge:',second=info.maxedge},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Absorption:',second=info.absorption},{pen=COLOR_LIGHTGREEN})
+ table.insert(input2,{text={{text=center('Strain',40),width=40,pen=COLOR_YELLOW}}})
+ for key,val in pairs(info.strain) do
+  input2 = insertWidgetInput(input2,'header',{header=key..':',second=tostring(val)},{pen=COLOR_LIGHTCYAN})
+ end
  table.insert(input2,{text={{text=center('Fracture',40),width=40,pen=COLOR_YELLOW}}})
-
+ for key,val in pairs(info.fracture) do
+  input2 = insertWidgetInput(input2,'header',{header=key..':',second=tostring(val)},{pen=COLOR_LIGHTGREEN})
+ end
  table.insert(input2,{text={{text=center('Yield',40),width=40,pen=COLOR_YELLOW}}})
+ for key,val in pairs(info.yield) do
+  input2 = insertWidgetInput(input2,'header',{header=key..':',second=tostring(val)},{pen=COLOR_LIGHTCYAN})
+ end
+ return header,input,input2
+end
+
+function getOrganicDetails(building)
+ local info = {}
+ 
+ return info
+end
+
+function makeOrganicOutput(info)
+ local input = {}
+ local input2 = {}
+ local header = {}
+
+ return header,input,input2
+end
+
+function getFoodDetails(building)
+ local info = {}
+ 
+ return info
+end
+
+function makeFoodOutput(info)
+ local input = {}
+ local input2 = {}
+ local header = {}
 
  return header,input,input2
 end
@@ -1235,8 +1528,8 @@ function getCreatureDetails(creature,caste) -- Gets all the details of a creatur
    info.products[#info.products+1] = c..' '..m
   end
   for _,attack in pairs(caste.body_info.attacks) do
-   if attack.specialattack_mat_type then
-    matinfo = dfhack.matinfo.decode(attack.specialattack_mat_type[0],attack.specialattack_mat_index[0])
+   for i,special in pairs(attack.specialattack_mat_type) do
+    matinfo = dfhack.matinfo.decode(special[i],attack.specialattack_mat_index[i])
     m = matinfo.material.state_name.Liquid
     info.products[#info.products+1] = m
    end
@@ -1250,28 +1543,31 @@ function getCreatureDetails(creature,caste) -- Gets all the details of a creatur
    info.maxage = tostring(info.maxage)..' years'
   end
   for attribute,x in pairs(caste.attributes.phys_att_range) do
-   if safe_index(gt,"roses","EnhancedCreatureTable",creature.id,caste.id,attribute) then
-    info.attributes[attribute] = table.join(gt.roses.EnhancedCreatureTable[creature.id][caste.id][attribute],':')
+   if safe_index(gt,"roses","EnhancedCreatureTable",creature.creature_id,caste.caste_id,attribute) then
+    info.attributes[attribute] = table.concat(gt.roses.EnhancedCreatureTable[creature.creature_id][caste.caste_id][attribute],':')
    else
-    info.attributes[attribute] = table.join(x,':')
+    a = {x[0],x[3],x[6]}
+    info.attributes[attribute] = table.concat(a,':')
    end
+  end
   for attribute,x in pairs(caste.attributes.ment_att_range) do
-   if safe_index(gt,"roses","EnhancedCreatureTable",creature.id,caste.id,attribute) then
-    info.attributes[attribute] = table.join(gt.roses.EnhancedCreatureTable[creature.id][caste.id][attribute],':')
+   if safe_index(gt,"roses","EnhancedCreatureTable",creature.creature_id,caste.caste_id,attribute) then
+    info.attributes[attribute] = table.concat(gt.roses.EnhancedCreatureTable[creature.creature_id][caste.caste_id][attribute],':')
    else
-    info.attributes[attribute] = table.join(x,':')
+    a = {x[0],x[3],x[6]}
+    info.attributes[attribute] = table.concat(a,':')
    end
   end
 -- Get Possible Classes
-  if safe_index(gt,"roses","EnhancedCreatureTable",creature.id,caste.id,"Classes") then
+  if safe_index(gt,"roses","EnhancedCreatureTable",creature.creature_id,caste.caste_id,"Classes") then
    info.classes = {}
-   for _,x in pairs(gt.roses.EnhancedCreatureTable[creature.id][caste.id].Classes._children) do
+   for _,x in pairs(gt.roses.EnhancedCreatureTable[creature.creature_id][caste.caste_id].Classes._children) do
     if safe_index(gt,"roses","ClassTable",x) then
      key = gt.roses.ClassTable[x].Name
     else
      key = x
     end
-    info.classes[key] = gt.roses.EnhancedCreatureTable[creature.id][caste.id].Classes[x].Level
+    info.classes[key] = gt.roses.EnhancedCreatureTable[creature.creature_id][caste.caste_id].Classes[x].Level
    end
   end
 -- Get Description broken into multiple lines
@@ -1312,6 +1608,8 @@ function getCreatureDetails(creature,caste) -- Gets all the details of a creatur
 end
 
 function makeCreatureOutput(info)
+ local utils = require 'utils'
+ local split = utils.split_string
  local input = {}
  local input2 = {}
  local header = {}
@@ -1361,7 +1659,7 @@ function makeCreatureOutput(info)
   table.insert(input,{text={{text=center('Available Classes',40),width=40,pen=COLOR_YELLOW}}})
   for key,val in pairs(info.classes) do
    input = insertWidgetInput(input,'header',{header=string.lower(key),second=val},{pen=color})
-   if color = COLOR_LIGHTCYAN then
+   if color == COLOR_LIGHTCYAN then
     color = COLOR_LIGHTGREEN
    else
     color = COLOR_LIGHTCYAN
@@ -1402,12 +1700,12 @@ function getPlantDetails(plant)
  info.clustersize = plant.clustersize
  info.products = {}
 -- Check for Enhanced Material Plant
- if safe_index(gt,"roses","EnhancedMaterialTemplate","Plant",plant.id,"ALL") then
+ if safe_index(gt,"roses","EnhancedMaterialTable","Plant",plant.id,"ALL") then
   local plantTable = gt.roses.EnhancedMaterialTemplate.Plants[plant.id].ALL
   if plantTable.Description then info.description = plantTable.Description end
   if plantTable.Class then info.description = plantTable.Class end
   if plantTable.Rarity then info.rarity = plantTable.Rarity end
-  if plantTable.Name then info.name = plantTable.Name
+  if plantTable.Name then info.name = plantTable.Name end
  end
 -- Get Flags
  for flag,check in pairs(plant.flags) do

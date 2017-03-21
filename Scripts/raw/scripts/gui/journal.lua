@@ -46,9 +46,13 @@ function JournalUi:init()
                 NEWLINE,
                 {text=": Creatures ",key = "CUSTOM_SHIFT_C",on_activate=self:callback('creature')},
                 NEWLINE,
+                {text=": Food ",key = "CUSTOM_SHIFT_F",on_activate=self:callback('food')},
+                NEWLINE,
                 {text=": Items ",key = "CUSTOM_SHIFT_I",on_activate=self:callback('item')},
                 NEWLINE,
-                {text=": Materials ",key = "CUSTOM_SHIFT_M",on_activate=self:callback('material')},
+                {text=": Inorganics ",key = "CUSTOM_SHIFT_N",on_activate=self:callback('inorganic')},
+                NEWLINE,
+                {text=": Organics ",key = "CUSTOM_SHIFT_O",on_activate=self:callback('organic')},
                 NEWLINE,
                 {text=": Plants ",key = "CUSTOM_SHIFT_P",on_activate=self:callback('plant')},
                 NEWLINE,
@@ -63,22 +67,28 @@ function JournalUi:init()
 end
 
 function JournalUi:creature()
- dfhack.run_command('gui/journal-details -Creatures')
+ dfhack.run_command('gui/journal-details Creatures')
 end
 function JournalUi:plant()
- dfhack.run_command('gui/journal-details -Plants')
+ dfhack.run_command('gui/journal-details Plants')
+end
+function JournalUi:food()
+ dfhack.run_command('gui/journal-details Food')
 end
 function JournalUi:item()
- dfhack.run_command('gui/journal-details -Items')
+ dfhack.run_command('gui/journal-details Items')
 end
-function JournalUi:material()
- dfhack.run_command('gui/journal-details -Materials')
+function JournalUi:inorganic()
+ dfhack.run_command('gui/journal-details Inorganics')
+end
+function JournalUi:organic()
+ dfhack.run_command('gui/journal-details Organics')
 end
 function JournalUi:building()
- dfhack.run_command('gui/journal-details -Buildings')
+ dfhack.run_command('gui/journal-details Buildings')
 end
 function JournalUi:reaction()
- dfhack.run_command('gui/journal-details -Reactions')
+ dfhack.run_command('gui/journal-details Reactions')
 end
 
 function JournalUi:onInput(keys)
