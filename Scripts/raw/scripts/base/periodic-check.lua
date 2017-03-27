@@ -4,9 +4,9 @@ local roses = persistTable.GlobalTable.roses
 if not roses then return end
 
 -- Check all active units
-for id,unit in pairs(df.globa.world.units.active) do
- if not roses.UnitTable[tostring(id)] then dfhack.script_environment('functions/unit').makeUnitTable(unit) end
- local unitTable = roses.UnitTable[tostring(id)]
+for _,unit in pairs(df.global.world.units.active) do
+ if not roses.UnitTable[tostring(unit.id)] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
+ unitTable = roses.UnitTable[tostring(unit.id)]
  -- Class checks
  local classNeeded = false
  if roses.ClassTable and unitTable.Classes.Current.Name == 'NONE' then classNeeded = true end
@@ -23,4 +23,4 @@ for id,unit in pairs(df.globa.world.units.active) do
  end
 end
   
-dfhack.timeout(period,'ticks', function () dfhack.run_command('base/periodic-check) end )
+dfhack.timeout(period,'ticks', function () dfhack.run_command('base/periodic-check') end )

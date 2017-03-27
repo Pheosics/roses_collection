@@ -1,4 +1,5 @@
-script = require(gui.script)
+gui = require 'gui'
+script = gui.script
 
 function findItem(item,center)
 
@@ -13,12 +14,13 @@ function findUnit(kind,table,center)
  local roses = persistTable.GlobalTable.roses 
  print('Finding Unit')
  if kind == 'Citizen' then
-  for _,unit in pairs(df.global.world.creatures.active) do
-   if dfhack.units.isCitizen(unit) and not roses.UnitTable[tostring(unit.id)] then
+  for _,u in pairs(df.global.world.units.active) do
+   if dfhack.units.isCitizen(u) and not roses.UnitTable[tostring(u.id)] then
+    unit = u
     break
    end
   end
-  print('Dwarf found, ID: '..tostring(unit.id)..' Name: '..dfhack.units.getVisibleName(unit))
+  print('Dwarf found, ID: '..tostring(unit.id)..' Name: ')
  elseif kind == 'NonCitizen' then
   for _,unit in pairs(df.global.world.creatures.active) do
    if not dfhack.units.isCitizen(unit) and not roses.UnitTable[tostring(unit.id)] then
@@ -56,8 +58,8 @@ print('Running base/roses-init with all options enabled')
  local eventCheck = ' -eventSystem'
  local enhCheck = ' -enhancedSystem [ Buildings Creatures Items Materials Reactions ]'
  local verbose = true
-print('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun')
- dfhack.run_command('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun')
+ print('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
+ dfhack.run_command('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
  local persistTable = require 'persist-table'
  local roses = persistTable.GlobalTable.roses
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -70,102 +72,98 @@ print('')
 print('Class System:')
  local classTable = roses.ClassTable
 print('--Test Class 1')
- printall(classTable.TEST_CLASS_1)
+ printall(classTable.TEST_CLASS_1._children)
 print('--Test Class 2')
- printall(classTable.TEST_CLASS_2)
+ printall(classTable.TEST_CLASS_2._children)
 print('--Test Class 3')
- printall(classTable.TEST_CLASS_3)
+ printall(classTable.TEST_CLASS_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
 print('Class System - Feat SubSystem:')
  local featTable = roses.FeatTable
 print('--Test Feat 1')
- printall(featTable.TEST_FEAT_1)
+ printall(featTable.TEST_FEAT_1._children)
 print('--Test Feat 2')
- printall(featTable.TEST_FEAT_2)
+ printall(featTable.TEST_FEAT_2._children)
 print('--Test Feat 3')
- printall(featTable.TEST_FEAT_3)
+ printall(featTable.TEST_FEAT_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
 print('Class System - Spell SubSystem:')
  local spellTable = roses.SpellTable
 print('--Test Spell 1')
- printall(spellTable.TEST_SPELL_1)
+ printall(spellTable.TEST_SPELL_1._children)
 print('--Test Spell 2')
- printall(spellTable.TEST_SPELL_2)
+ printall(spellTable.TEST_SPELL_2._children)
 print('--Test Spell 3')
- printall(spellTable.TEST_SPELL_3)
-print('--Test Spell 4')
- printall(spellTable.TEST_SPELL_4)
+ printall(spellTable.TEST_SPELL_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
 print('Civilization System:')
  local civTable = roses.CivilizationTable
 print('--Test Dwarf Civ')
- printall(civTable.MOUNTAIN)
+ printall(civTable.MOUNTAIN._children)
 print('--Test Elf Civ')
- printall(civTable.FOREST)
+ printall(civTable.FOREST._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
 print('Event System:')
  local eventTable = roses.EventTable
 print('--Test Event 1')
- printall(eventTable.TEST_EVENT_1)
+ printall(eventTable.TEST_EVENT_1._children)
 print('--Test Event 2')
- printall(eventTable.TEST_EVENT_2)
+ printall(eventTable.TEST_EVENT_2._children)
 print('--Test Event 3')
- printall(eventTable.TEST_EVENT_3)
+ printall(eventTable.TEST_EVENT_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
 print('Enhanced System:')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-print('Enhanced System - Buldings')
+--[[print('Enhanced System - Buldings')
  local EBTable = roses.EnhancedBuildingTable
 print('--Test Enhanced Building 1')
- printall(EBTable.TEST_BUILDING_1)
+ printall(EBTable.TEST_BUILDING_1._children)
 print('--Test Enhanced Building 2')
- printall(EBTable.TEST_BUILDING_2)
+ printall(EBTable.TEST_BUILDING_2._children)
 print('--Test Enhanced Building 3')
- printall(EBTable.TEST_BUILDING_3)
+ printall(EBTable.TEST_BUILDING_3._children)]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
 print('Enhanced System - Creatures:')
  local ECTable = roses.EnhancedCreatureTable
-print('--Test Enhanced Creature 1 (DWARF:MALE and DWARF:FEMALE should be the same)')
- printall(ECTable.DWARF.MALE)
- printall(ECTable.DWARF.FEMALE)
-print('--Test Enhanced Creature 2 (ELF:MALE and ELF:FEMALE should be different)')
- printall(ECTable.ELF.MALE)
- printall(ECTable.ELF.FEMALE)
+print('--Test Enhanced Creature 1')
+ printall(ECTable.DWARF._children)
+print('--Test Enhanced Creature 2')
+ printall(ECTable.ELF._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
 print('Enhanced System - Items:')
  local EITable = roses.EnhancedItemTable
 print('--Test Enhanced Item 1')
- printall(EITable.ITEM_WEAPON_PICK)
+ printall(EITable.ITEM_WEAPON_PICK._children)
 print('--Test Enhanced Item 2')
- printall(EITable.ITEM_WEAPON_HANDAXE)
+ printall(EITable.ITEM_WEAPON_HANDAXE._children)
 print('--Test Enhanced Item 3')
- printall(EITable.ITEM_WEAPON_SWORD_SHORT)
+ printall(EITable.ITEM_WEAPON_SWORD_SHORT._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-print('')
+--[[print('')
 print('Enhanced System - Materials')
  local EMTable = roses.EnhancedMaterialTable
 print('--Test Enhanced Material 1')
- printall(EMTable.INORGANIC.SAPPHIRE)
+ printall(EMTable.INORGANIC.SAPPHIRE._children)
 print('--Test Enhanced Material 2')
- printall(EMTable.CREATURE_MAT.DRAGON.SCALE)
+ printall(EMTable.CREATURE_MAT.DRAGON.SCALE._children)]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-print('')
+--[[print('')
 print('Enhanced System - Reactions')
  local ERTable = roses.EnhancedReactionTable
 print('--Test Enhanced Reaction 1')
- printall(ERTable.TEST_REACTION_1)
+ printall(ERTable.TEST_REACTION_1._children)
 print('--Test Enhanced Reaction 2')
- printall(ERTable.TEST_REACTION_2)
+ printall(ERTable.TEST_REACTION_2._children)]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
@@ -186,8 +184,8 @@ print('Running base/on-death')
  dfhack.run_command('base/on-death -verbose')
 print('Running base/on-time')
  dfhack.run_command('base/on-time -verbose')
-print('Running base/periodic-check')
- dfhack.run_command('base/periodic-check -verbose')
+--print('Running base/periodic-check')
+-- dfhack.run_command('base/periodic-check -verbose')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -198,7 +196,7 @@ print('Beginning System Run Checks')
 print('')
 print('Class System:')
  classCheck = {}
- unit = findUnit('Civilian',true,true)
+ unit = findUnit('Citizen',true,true)
  unitTable = roses.UnitTable[tostring(unit.id)]
 print('Attempting to assign Test Class 1 to unit')
  dfhack.run_command('classes/change-class -unit '..tostring(unit.id)..' -class TEST_CLASS_1 -verbose')
@@ -253,7 +251,7 @@ print('Class/Unit details:')
   if unitTable.Classes.Current.TotalExp ~= 3 or unitTable.Classes.TEST_CLASS_1.Level ~= 3 then classCheck['TC1_L3'] = 'Test Class 1 did not level from 2 to 3' end
   if unitTable.Skills.MINING.Class ~= 14 then classCheck['TC1_SC3'] = false end
   if unitTable.Classes.Current.Name ~= 'TEST_CLASS_2' then classCheck['TC2_Assign'] = 'Test Class 1 did not automatically changed to Test Class 2' end
-  if unitTable.Skills.WOODCUTTING.Class ~= 0 then claccCheck['TC2_SC1'] = 'Test Class 2 level 0 skills did not reset' end
+  if unitTable.Skills.WOODCUTTING.Class ~= 0 then classCheck['TC2_SC1'] = 'Test Class 2 level 0 skills did not reset' end
 print('Adding experience to unit - Will level up Test Class 2 to level 1 and replace Test Spell 1 with Test Spell 3')
 print('Mining skill will remain the same, Carpentry skill will increase')
  dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
@@ -264,34 +262,35 @@ print('Class/Unit details:')
  printall(unitTable.Spells)
  printall(unitTable.Skills)
   if unitTable.Classes.Current.TotalExp ~= 4 or unitTable.Classes.TEST_CLASS_2.Level ~= 1 then classCheck['TC2_L1'] = 'Test Class 2 did not level from 0 to 1' end
-  if unitTable.Skills.MINING.Class ~= 14 or unitTable.Skills.CARPENTRY.Class ~= 15 or unitTable.Skills.MASONRY.Class ~= 15 then classChecl['TC2_SC2'] = 'Test Class 2 level 1 skills were not applied correctly' end
+  if unitTable.Skills.MINING.Class ~= 14 or unitTable.Skills.CARPENTRY.Class ~= 15 or unitTable.Skills.MASONRY.Class ~= 15 then classCheck['TC2_SC2'] = 'Test Class 2 level 1 skills were not applied correctly' end
   if unitTable.Spells.TEST_SPELL_3 ~= 1 or unitTable.Spells.Active.TEST_SPELL_1 or not unitTable.Spells.Active.TEST_SPELL_3 then classCheck['TC2_AddS3'] = 'Test Class 2 level 1 Test Spell 3 did not replace Test Spell 1' end
 print('Base Class System checks and Spell assignment checks finished. Starting Feat SubSystem checks')
+printall(classCheck)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
 print('Feat/Unit details:')
  featCheck = {}
  printall(unitTable.Classes.Current)
- printall(unitTable.Classes.Feats)
+ printall(unitTable.Feats)
 print('Attempting to assign Test Feat 2 to unit, this should fail')
  dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 print('Feat/Unit details:')
  printall(unitTable.Classes.Current)
- printall(unitTable.Classes.Feats)
-  if unitTable.Classes.Feats.TEST_FEAT_2 then featCheck['TF2_Assign1'] = 'Test Feat 2 was applied when it should not have been' end
+ printall(unitTable.Feats)
+  if unitTable.Feats.TEST_FEAT_2 then featCheck['TF2_Assign1'] = 'Test Feat 2 was applied when it should not have been' end
 print('Attempting to assign Test Feat 1 to unit, this should work')
  dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_1 -verbose')
 print('Feat/Unit details:')
  printall(unitTable.Classes.Current)
- printall(unitTable.Classes.Feats)
-  if not unitTable.Classes.Feats.TEST_FEAT_1 then featCheck['TF1_Assign'] = 'Test Feat 1 was not correctly applied' end
+ printall(unitTable.Feats)
+  if not unitTable.Feats.TEST_FEAT_1 then featCheck['TF1_Assign'] = 'Test Feat 1 was not correctly applied' end
 print('Attempting to assign Test Feat 2 to unit, now this should work')
  dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 print('Feat/Unit details:')
  printall(unitTable.Classes.Current)
- printall(unitTable.Classes.Feats)
-  if unitTable.Classes.Feats.TEST_FEAT_2 then featCheck['TF2_Assign2'] = 'Test Feat 2 was not correctly applied' end
+ printall(unitTable.Feats)
+  if unitTable.Feats.TEST_FEAT_2 then featCheck['TF2_Assign2'] = 'Test Feat 2 was not correctly applied' end
 print('Feat SubSystem checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print('')
@@ -1151,8 +1150,8 @@ print('unit/trait-change -unit '..tostring(unit.id)..' -trait [ ANGER DEPRESSION
  dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait [ ANGER DEPRESSION ] -amount 50')
 print('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGR -amount 50 (Should fail and print "Invalid trait token")')
  dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGR -amount 50')
-print('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGER -amount \-5 -mode Fixed (Should succeed and lower units anger trait by 5)')
- dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGER -amount \-5 -mode Fixed')
+print('unit/trait-change -unit '..tostring(unit.id).." -trait ANGER -amount \\-5 -mode Fixed (Should succeed and lower units anger trait by 5)'")
+ dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGER -amount \\-5 -mode Fixed')
 print('unit/trait-change -unit '..tostring(unit.id)..' -trait DEPRESSION -amount 25 -mode Percent -track (Should succeed and quarter units depression trait, will also create unit persist table)')
  dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait DEPRESSION -amount 25 -mode Percent -track')
 print('unit/trait-change checks finished')

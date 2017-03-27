@@ -12,7 +12,7 @@ if args[1] == 'Creatures' then
  headers = {'Creatures','Castes'}
 elseif args[1] == 'Plants' then
  showList = {'All Plants','Trees','Bushes','Grasses'}
- sortList = {'None','Biome','Type'}
+ sortList = {'None','Biome'}
  headers = {'Plants','Plant'}
 elseif args[1] == 'Items' then
  showList = {'All Items','Weapons','Shields','Helms','Armor','Gloves','Pants','Shoes','Ammo','Siege Ammo','Trap Components','Tools','Instruments','Food'}
@@ -20,23 +20,23 @@ elseif args[1] == 'Items' then
  headers = {'Items','Item'}
 elseif args[1] == 'Inorganics' then
  showList = {'All Inorganics','Metal','Glass','Stone','Gem'}
- sortList = {'None','Environment'}
- headers = {'Inorganics','Inorganic'}
-elseif args[1] == 'Food' then
- showList = {'Meat','Fish','UnpreparedFish','Eggs','PlantDrink','CreatureDrink','PlantCheese','CreatureCheese','EdibleCheese','AnyDrink','EdiblePlant','CookableLiquid','CookablePowder','CookableSeed','CookableLeaf'}
  sortList = {'None'}
- headers = {'Foods','Food'}
+ headers = {'Inorganics','Inorganic'}
+--elseif args[1] == 'Food' then
+-- showList = {'Meat','Fish','UnpreparedFish','Eggs','PlantDrink','CreatureDrink','PlantCheese','CreatureCheese','EdibleCheese','AnyDrink','EdiblePlant','CookableLiquid','CookablePowder','CookableSeed','CookableLeaf'}
+-- sortList = {'None'}
+-- headers = {'Foods','Food'}
 elseif args[1] == 'Organics' then
  showList = {'Leather','Silk','PlantFiber','PlantPowder','CreaturePowder','PlantLiquid','CreatureLiquid','MiscLiquid','Bone','Shell','Wood','Horn','Pearl','Tooth','Paste','Pressed','Yarn','MetalThread'}
  sortList = {'None'}
  headers = {'Organics','Organic'}
 elseif args[1] == 'Buildings' then
  showList = {'All Buildings','Workshops','Furnaces'}
- sortList = {'None','Entity'}
+ sortList = {'None'}
  headers = {'Buildings','Building'}
 elseif args[1] == 'Reactions' then
  showList = {'All Reactions'}
- sortList = {'None','Building','Entity'}
+ sortList = {'None'}
  headers = {'Reactions','Reaction'}
 else
  return
@@ -73,7 +73,7 @@ numsort = #sortList
  self:addviews{
        widgets.Panel{
        view_id = 'detailView',
-       frame = { l = 31, r = 0},
+       frame = { l = 21, r = 0},
        frame_inset = 1,
        subviews = {
         widgets.List{
@@ -136,7 +136,7 @@ numsort = #sortList
        	widgets.Label{
 		 view_id = 'nonsortedListHeader_1',
          frame = { l = 0, t = 0},
-         text = {{text=center(headers[1],40),pen=COLOR_LIGHTCYAN}}
+         text = {{text=center(headers[1],20),pen=COLOR_LIGHTCYAN}}
                 },
 	   	widgets.FilteredList{
 		 view_id = 'nonsortedList1',
@@ -151,7 +151,7 @@ numsort = #sortList
         widgets.Label{
 		 view_id = 'nonsortedListHeader_2',
          frame = { l = 0, t = 0},
-         text = {{text=center(headers[2],40),pen=COLOR_LIGHTCYAN}}
+         text = {{text=center(headers[2],20),pen=COLOR_LIGHTCYAN}}
                 },
 	   	widgets.List{
 		 view_id = 'nonsortedList2',
@@ -171,7 +171,7 @@ numsort = #sortList
        	widgets.Label{
 		 view_id = 'sortedListHeader_1',
          frame = { l = 0, t = 0},
-         text = {{text=center('Sorted',40),pen=COLOR_LIGHTCYAN}}
+         text = {{text=center('Sorted',20),pen=COLOR_LIGHTCYAN}}
                 },
 	   	widgets.FilteredList{
 		 view_id = 'sortedList1',
@@ -186,7 +186,7 @@ numsort = #sortList
         widgets.Label{
 		 view_id = 'sortedListHeader_2',
          frame = { l = 0, t = 0},
-         text = {{text=center(headers[1],40),pen=COLOR_LIGHTCYAN}}
+         text = {{text=center(headers[1],20),pen=COLOR_LIGHTCYAN}}
                 },
 	   	widgets.FilteredList{
 		 view_id = 'sortedList2',
@@ -201,7 +201,7 @@ numsort = #sortList
         widgets.Label{
 		 view_id = 'sortedListHeader_3',
          frame = { l = 0, t = 0},
-         text = {{text=center(headers[2],40),pen=COLOR_LIGHTCYAN}}
+         text = {{text=center(headers[2],20),pen=COLOR_LIGHTCYAN}}
                 },
 	   	widgets.List{
 		 view_id = 'sortedList3',

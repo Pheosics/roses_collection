@@ -1,0 +1,87 @@
+#Radius around the killed unit that experience is granted to allies of the killer
+[EXPERIENCE_RADIUS:-1]
+
+#Total amount of experience needed to gain a feat point and the increase for each subsequent feat
+[FEAT_GAINS:100:25]
+
+#List of spell types, spheres, schools, disciplines, and subdisciplines. Note this feature will be abreviated TSSDS
+[TYPE:MAGICAL:PHYSICAL]
+#Types are the only built in things, everything else is customizable. If you add more types you must create the corresponding equations and edit the fillEquations function (see Base ReadMe)
+#The following are a sample of entries for SPHERE, SCHOOL, DISCIPLINE, and SUBDISCIPLINE in my mod
+[SPHERE:ELEMENTAL:ARCANE]
+[SCHOOL:FIRE:WATER:AIR:EARTH]
+[SCHOOL:TIME:SPACE:FORCE:AEGIS]
+[DISCIPLINE:CONJURATION:EVOCATION:RESTORATION:TRANSMUTATION]
+[SUBDISCIPLINE:CURSE:DEBUFF:HARM:BUFF]
+
+#List of custom skills and profession names
+#Note that custom skills function the same as in-game skills, with 20 levels and experience between them, but do not rust
+[SKILL:SPELL_CASTING:caster] <- Currently used to determine exhaustion modifier
+#NOTE: The game will automatically generate a spell casting skill for each SCHOOL (i.e. !_SPELL_CASTING)
+
+#List of custom attributes
+#Note that custom attributes do not change like in-game attributes, they must be increased or decreased via scripts
+[ATTRIBUTE:FAITH]
+[ATTRIBUTE:INTELLIGENCE]
+[ATTRIBUTE:LUCK]
+[ATTRIBUTE:CHARISMA]
+
+#List of resistances, note that there is no max or min on resistances
+[RESISTANCE:MEGABEAST]
+[RESISTANCE:FALLING]
+#NOTE: The game will automatically generate a resistance for each TYPE, SPHERE, SCHOOL, DISCIPLINE, and SUBDISCIPLINE
+
+#List of custom stats, note that stats are limited between -100 and 100
+[STAT:CRITICAL_CHANCE] <- Used to calculate base critical chance for spells and abilities that can crit
+[STAT:CRITICAL_BONUS] <- Used to calculate base critical bonus for spells and abilities that can crit
+[STAT:CASTING_SPEED] <- Currently used to determine base casting speed modifiers
+[STAT:ATTACK_SPEED] <- Currently used to determine base attack speed modifers
+[STAT:SKILL_PENETRATION] <- Currently used to determine base resistance penetration
+[STAT:HIT_CHANCE] <- Currently used to determine base hit percentages
+[STAT:DODGE_CHANCE] <- Currently used to determine base dodge bonus
+#NOTE: The game will automatically make several different stat combinations for each TYPE, SPHERE, SCHOOL, DISCIPLINE,
+       and SUBDICIPLINE. These stats are;       !_CRITICAL_CHANCE
+                                                !_CRITICAL_BONUS
+                                                !_CASTING_SPEED
+                                                !_ATTACK_SPEED
+                                                !_SKILL_PENETRATION
+                                                !_HIT_CHANCE
+#NOTE2: The game will automatically make a skill penetration stat for each resistance (e.g. MEGABEAST_SKILL_PENETRATION)
+
+#List of customizable equations
+-- All of these equations check against the SOURCE unit (i.e. ATTRIBUTE.AGILITY is short for SOURCE.ATTRIBUTE.AGILITY)
+[EQUATION:MAGICAL_EXHAUSTION_MODIFIER:(100-4*SKILL.SPELL_CASTING)/100]
+[EQUATION:MAGICAL_SPEED_PERC:100-STAT.CASTING_SPEED-STAT.!_CASTING_SPEED-2.5*SKILL.!_SPELL_CASTING]
+[EQUATION:MAGICAL_HIT_CHANCE:STAT.HIT_CHANCE+STAT.!_HIT_CHANCE+5*SKILL.!_SPELL_CASTING]
+[EQUATION:MAGICAL_CRIT_CHANCE:STAT.CRITICAL_CHANCE+STAT.!_CRITICAL_CHANCE+ATTRIBUTE.FOCUS/100]
+[EQUATION:MAGICAL_CRIT_BONUS:150+STAT.CRITICAL_BONUS+STAT.!_CRITICAL_BONUS]
+[EQUATION:PHYSICAL_EXHAUSTION_MODIFIER:(100-4*SKILL.WEAPON)/100]
+[EQUATION:PHYSICAL_SPEED_PERC:100-STAT.ATTACK_SPEED-STAT.!_ATTACK_SPEED-2.5*SKILL.WEAPON]
+[EQUATION:PHYSICAL_HIT_CHANCE:STAT.HIT_CHANCE+STAT.!_HIT_CHANCE+5*SKILL.WEAPON]
+[EQUATION:PHYSICAL_CRIT_CHANCE:STAT.CRITICAL_CHANCE+STAT.!_CRITICAL_CHANCE+ATTRIBUTE.AGILITY/100]
+[EQUATION:PHYSICAL_CRIT_BONUS:200+STAT.CRITICAL_BONUS+STAT.!_CRITICAL_BONUS]
+-- All of these equations check against the TARGET unit (i.e. ATTRIBUTE.AGILITY is short for TARGET.ATTRIBUTE.AGILITY)
+[EQUATION:DODGE_CHANCE:STAT.DODGE_CHANCE+5*SKILL.DODGE+ATTRIBUTE.AGILITY/200-ATTRIBUTE.FULL_WEIGHT/10000]
+-- All of these equations use both SOURCE and TARGET checks, note that these are examples and are not used by default.
+   Also note that you could put these same equations in the wrapper script and they would work as well.
+[EQUATION:FIRE_DAMAGE_1:(50+10*SOURCE.ATTRIBUTE.PRIMARY/1000-5*TARGET.ATTRIBUTE.PRIMARY/1000)* (100-TARGET.RESISTANCE.!_TDDS+SOURCE.STAT.!_SKILL_PENETRATION)/100*(1+math.max(0,math.floor(math.min(1,EQUATION.MAGICAL_CRIT_CHANCE/math.random(100))))*(EQUATION.MAGICAL_CRIT_BONUS-100)/100)]
+[EQUATION:FIRE_DUR_1:300+25*SOURCE.ATTRIBUTE.SECONDARY/1000+10*(SOURCE.SKILL.FIRE_SPELL_CASTING+SOURCE.SKILL.SPELL_CASTING)
+
+ In order to evaluate an equation you can use;
+  dfhack.script_environment('functions/misc').fillEquation(source,target,spell,'FIRE_DAMAGE_1')
+ Special variables for equations
+  SKILL.WEAPON = The skill level associated with your currently equipped weapon
+  SKILL.!_SPELL_CASTING = Used in the Spell SubSystem, calculates the spell casting skill of the current school
+  STAT.SPEED = The movement speed of the unit
+  STAT.!_HIT_CHANCE = Used in the Spell SubSystem, calculates the hit chance bonus based on the TSSDS (additive)
+  STAT.!_CASTING_SPEED = ", calculates the casting speed bonus based on the TSSDS (additive)
+  STAT.!_ATTACK_SPEED = ", calculates the attack speed bonus based on the TSSDS (additive)
+  STAT.!_CRITICAL_CHANCE = ", calculates the critical chance bonus based on the TSSDS (additive)
+  STAT.!_CRITICAL_BONUS = ", calculates the critical damage bonus based on the TSSDS (additive)
+  ATTRIBUTE.WEIGHT = Calculates the weight of the unit (not including inventory)
+  ATTRIBUTE.FULL_WEIGHT = Calculates the weight of the unit (including inventory)
+  ATTRIBUTE.PRIMARY = Used in the Spell SubSystem, calculates the average of any listed source/target primary attributes
+  ATTRIBUTE.SECONDARY = ", calculates the average of any listed source/target secondary attributes
+ You can also nest equations to provide extra functionality, for example
+  -EQUATION:HIT:EQUATION.PHYSICAL_HIT_CHANCE-EQUATION.DODGE_CHANCE-
+ Lastly, you can use built-in functions in the equations, such as those found in math.

@@ -601,7 +601,7 @@ function checkRequirementsFeat(unit,feat,verbose)
  end
  if featTable.ForbiddenFeat then
   for _,forbiddenFeat in pairs(featTable.ForbiddenFeat._children) do
-   if unitTable[key].Feats.Active[forbiddenFeat] then
+   if unitTable[key].Feats[forbiddenFeat] then
     if verbose then print('Unit has a forbidden feat') end
     return false
    end
@@ -610,7 +610,7 @@ function checkRequirementsFeat(unit,feat,verbose)
  check = true
  if featTable.RequiredFeat then
   for _,requiredFeat in pairs(featTable.RequiredFeat._children) do
-   if not unitTable[key].Feats.Active[requiredFeat] then
+   if not unitTable[key].Feats[requiredFeat] then
     check = false
    end
   end

@@ -32,10 +32,12 @@ makeUnitTableTransform(unit) -- Add a table tracking transformation information 
 -------- Functions that are shared between multiple other functions in this file ------------
 ---------------------------------------------------------------------------------------------
 function getData(table,dirLocation,filename,tokenCheck,test,verbose)
+ local utils = require 'utils'
+ local split = utils.split_string
  if verbose then print('Searching for an '..table..' file') end
  local files = {}
  local dir = dfhack.getDFPath()
- local locations = {'/raw/objects/',dirLocation,'/raw/scripts/'}
+ local locations = {'/raw/objects/',dirLocation..'/','/raw/scripts/'}
  local n = 1
  if test then filename = filename..'_test' end
  for _,location in ipairs(locations) do
@@ -43,7 +45,7 @@ function getData(table,dirLocation,filename,tokenCheck,test,verbose)
   if verbose then print('Looking in '..location) end
   if dfhack.internal.getDir(path) then
    for _,fname in pairs(dfhack.internal.getDir(path)) do
-    if (split(fname,'_')[1] == filename or fname == filename..'.txt') the
+    if (split(fname,'_')[1] == filename or fname == filename..'.txt') and string.match(fname,'txt') then
      files[n] = path..fname
      n = n + 1
     end
@@ -153,7 +155,9 @@ function makeBaseTable(test,verbose)
  base.Equations = {}
  if #files < 1 then
   print('No Base file found, assuming defaults')
-  base.Types = {'MAGICAL','PHYSICAL'}
+  base.Types = {}
+  base.Types['1'] = 'MAGICAL'
+  base.Types['2'] = 'PHYSICAL'
  else
   if verbose then printall(files) end
   for _,file in ipairs(files) do
@@ -452,9 +456,9 @@ function makeCivilizationTable(test,verbose)
      civsLevel.Add.Misc[subType] = civsLevel.Add.Misc[subType] or {}
      civsLevel.Add.Misc[subType][array[4]] = array[5]
     elseif array[2] == 'PRODUCT' then
-     civsLevel.Remove.Product = civsLevel.Remove.Product or {}
-     civsLevel.Remove.Product[subType] = civsLevel.Remove.Product[subType] or {}
-     civsLevel.Remove.Product[subType][array[4]] = array[5]
+     civsLevel.Add.Product = civsLevel.Add.Product or {}
+     civsLevel.Add.Product[subType] = civsLevel.Add.Product[subType] or {}
+     civsLevel.Add.Product[subType][array[4]] = array[5]
     end
    elseif testa== '[LEVEL_CHANGE_ETHICS' then
     civsLevel.Ethics = civsLevel.Ethics or {}
@@ -554,7 +558,7 @@ function makeCivilizationTable(test,verbose)
    elseif test == '[FLAGS' then
     civsAddPosition.Flags[array[2]] = 'true'
    else
-    if position then civsAddPosition[split(split(data[j],']')[1],'%[')[2]] = 'true' end
+--    if position then civsAddPosition[split(split(data[j],']')[1],'%[')[2]] = 'true' end
    end
   end
  end
@@ -658,35 +662,75 @@ function makeClassTable(spellCheck,test,verbose)
      class.LevelBonus = class.LevelBonus or {}
      if array[2] == 'PHYSICAL' or array[2] == 'MENTAL' or array[2] == 'ATTRIBUTE' then
       class.LevelBonus.Attribute = class.LevelBonus.Attribute or {}
-      class.LevelBonus.Attribute[array[3]] = makeTable(array,4,class.Levels)
+      class.LevelBonus.Attribute[array[3]] = {}
+      tempTable = makeTable(array,4,class.Levels)
+      for x,y in pairs(tempTable) do
+       class.LevelBonus.Attribute[array[3]][tostring(x)] = y
+      end
      elseif array[2] == 'SKILL' then
       class.LevelBonus.Skill = class.LevelBonus.Skill or {}
-      class.LevelBonus.Skill[array[3]] = makeTable(array,4,class.Levels)
+      class.LevelBonus.Skill[array[3]] = {}
+      tempTable = makeTable(array,4,class.Levels)
+      for x,y in pairs(tempTable) do
+       class.LevelBonus.Skill[array[3]][tostring(x)] = y
+      end
      elseif array[2] == 'RESISTANCE' then
       class.LevelBonus.Resistance = class.LevelBonus.Resistance or {}
-      class.LevelBonus.Resistance[array[3]] = makeTable(array,4,class.Levels)
+      class.LevelBonus.Resistance[array[3]] = {}
+      tempTable = makeTable(array,4,class.Levels)
+      for x,y in pairs(tempTable) do
+       class.LevelBonus.Resistance[array[3]][tostring(x)] = y
+      end
      elseif array[2] == 'STAT' then
       class.LevelBonus.Stat = class.LevelBonus.Stat or {}
-      class.LevelBonus.Stat[array[3]] = makeTable(array,4,class.Levels)
+      class.LevelBonus.Stat[array[3]] = {}
+      tempTable = makeTable(array,4,class.Levels)
+      for x,y in pairs(tempTable) do
+       class.LevelBonus.Stat[array[3]][tostring(x)] = y
+      end
      elseif array[2] == 'TRAIT' then
       class.LevelBonus.Trait = class.LevelBonus.Trait or {}
-      class.LevelBonus.Trait[array[3]] = makeTable(array,4,class.Levels)
+      class.LevelBonus.Trait[array[3]] = {}
+      tempTable = makeTable(array,4,class.Levels)
+      for x,y in pairs(tempTable) do
+       class.LevelBonus.Trait[array[3]][tostring(x)] = y
+      end
      end
     elseif test == '[BONUS_PHYS' or test == '[BONUS_MENT' or test == '[BONUS_ATTRIBUTE' then
      class.BonusAttribute = class.BonusAttribute or {}
-     class.BonusAttribute[array[2]] = makeTable(array,3,class.Levels)
+     class.BonusAttribute[array[2]] = {}
+     tempTable = makeTable(array,3,class.Levels)
+     for x,y in pairs(tempTable) do
+      class.BonusAttribute[array[2]][tostring(x)] = y
+     end
     elseif test == '[BONUS_TRAIT' then
      class.BonusTrait = class.BonusTrait or {}
-     class.BonusTrait[array[2]] = makeTable(array,3,class.Levels)
+     class.BonusTrait[array[2]] = {}
+     tempTable = makeTable(array,3,class.Levels)
+     for x,y in pairs(tempTable) do
+      class.BonusTrait[array[2]][tostring(x)] = y
+     end
     elseif test == '[BONUS_SKILL' then
      class.BonusSkill = class.BonusSkill or {}
-     class.BonusSkill[array[2]] = makeTable(array,3,class.Levels)
+     class.BonusSkill[array[2]] = {}
+     tempTable = makeTable(array,3,class.Levels)
+     for x,y in pairs(tempTable) do
+      class.BonusSkill[array[2]][tostring(x)] = y
+     end
     elseif test == '[BONUS_STAT' then
      class.BonusStat = class.BonusStat or {}
-     class.BonusStat[array[2]] = makeTable(array,3,class.Levels)
+     class.BonusStat[array[2]] = {}
+     tempTable = makeTable(array,3,class.Levels)
+     for x,y in pairs(tempTable) do
+      class.BonusStat[array[2]][tostring(x)] = y
+     end
     elseif test == '[BONUS_RESISTANCE' then
      class.BonusResistance = class.BonusResistance or {}
-     class.BonusResistance[array[2]] = makeTable(array,3,class.Levels)
+     class.BonusResistance[array[2]] = {}
+     tempTable = makeTable(array,3,class.Levels)
+     for x,y in pairs(tempTable) do
+      class.BonusResistance[array[2]][tostring(x)] = y
+     end
     elseif test == '[SPELL' then
      spell = array[2]
      if not spellCheck then
@@ -791,13 +835,29 @@ function makeSpellTable(test,verbose)
     elseif test == '[HIT_MODIFIER_PERC' then
      spell.HitModifierPerc = array[2]
     elseif test == '[SOURCE_PRIMARY_ATTRIBUTES' then
-     spell.SourcePrimaryAttribute = makeTable(array,2)
+     spell.SourcePrimaryAttribute = {}
+     tempTable = makeTable(array,2)
+     for x,y in pairs(tempTable) do
+      spell.SourcePrimaryAttribute[tostring(x)] = y
+     end     
     elseif test == '[SOURCE_SECONDARY_ATTRIBUTES' then
-     spell.SourceSecondaryAttribute = makeTable(array,2)
+     spell.SourceSecondaryAttribute = {}
+     tempTable = makeTable(array,2)
+     for x,y in pairs(tempTable) do
+      spell.SourceSecondaryAttribute[tostring(x)] = y
+     end     
     elseif test == '[TARGET_PRIMARY_ATTRIBUTES' then
-     spell.TargetPrimaryAttribute = makeTable(array,2)
+     spell.TargetPrimaryAttribute = {}
+     tempTable = makeTable(array,2)
+     for x,y in pairs(tempTable) do
+      spell.TargetPrimaryAttribute[tostring(x)] = y
+     end     
     elseif test == '[TARGET_SECONDARY_ATTRIBUTES' then
-     spell.TargetSecondaryAttribute = makeTable(array,2)
+     spell.TargetSecondaryAttribute = {}
+     tempTable = makeTable(array,2)
+     for x,y in pairs(tempTable) do
+      spell.TargetSecondaryAttribute[tostring(x)] = y
+     end     
     elseif test == '[SCRIPT' then
      script = data[j]:gsub("%s+","")
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
@@ -987,7 +1047,8 @@ function makeEnhancedCreatureTable(test,verbose)
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
-   creatureToken,casteToken = split(x[1],':')
+   creatureToken = split(x[1],':')[1]
+   casteToken = split(x[1],':')[2]
    startLine = x[2]+1
    if i == #dataInfo then
     endLine = #data
@@ -1247,7 +1308,8 @@ function makeEnhancedMaterialTable(test,verbose)
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
-   materialToken,materialIndex = split(x[1],':')
+   materialToken = split(x[1],':')[1]
+   materialIndex = split(x[1],':')[2]
    startLine = x[2]+1
    if i ==#dataInfo then
     endLine = #data
@@ -1362,9 +1424,9 @@ function makeEnhancedMaterialTable(test,verbose)
     creatureCheck = false
     plantCheck = false
     for _,creature in pairs(df.global.world.raws.creatures.all) do
-     if creature.id == materialToken then
+     if creature.creature_id == materialToken then
       materials.Creature[materialToken] =  materials.Creature[materialToken] or {}
-      materials.creature[materialToken][materialIndex] = material
+      materials.Creature[materialToken][materialIndex] = material
       creatureCheck = true
       break
      end
@@ -1391,7 +1453,7 @@ function makeEnhancedMaterialTable(test,verbose)
  -- Creatures
  for _,materialToken in pairs(materials.Creature._children) do
   for n,creature in pairs(df.global.world.raws.creatures.all) do
-   if materialToken == creature.id then
+   if materialToken == creature.creature_id then
     creatureID = n
     break
    end
@@ -1430,7 +1492,7 @@ for _,materialToken in pairs(materials.Plant._children) do
    end
   end
   if plantID and materials.Plant[materialToken].ALL then
-   for _,material in pairs(plant.materials) do
+   for _,material in pairs(df.global.world.raws.plants.all[plantID].material) do
     if not materials.Plant[materialToken][material.id] then
      materials.Plant[materialToken][material.id] = {}
     end
@@ -2002,8 +2064,8 @@ function makeUnitTableSecondary(unit,table,token,verbose)
  unitTable[table][token].Class = '0'
  unitTable[table][token].Item = '0'
  unitTable[table][token].StatusEffects = {}
- _,base = dfhack.script_environment('functions/enhanced').getUnit(unit,table,token,'initialize',verbose)
- unitTable[table][token].Base = base
+ _,base = dfhack.script_environment('functions/unit').getUnit(unit,table,token,'initialize',verbose)
+ unitTable[table][token].Base = tostring(base)
 end
 
 function makeUnitTableClass(unit,class,test,verbose)

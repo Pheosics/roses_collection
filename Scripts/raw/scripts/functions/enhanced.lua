@@ -11,8 +11,8 @@ function enhanceCreature(unit)
  if unitTable.Enhanced then return end
  local EnhancedCreatureTable = persistTable.GlobalTable.roses.EnhancedCreatureTable
  if EnhancedCreatureTable then
-  local creatureID = df.global.world.raws.creatures.all[unit.race].id
-  local casteID = df.global.world.raws.creatures.all[unit.caste].id
+  local creatureID = df.global.world.raws.creatures.all[unit.race].creature_id
+  local casteID = df.global.world.raws.creatures.all[unit.race].caste[unit.caste].caste_id
   if safe_index(EnhancedCreatureTable,creatureID,casteID) then
    unitTable.Enhanced = 'true'
    local creatureTable = EnhancedCreatureTable[creatureID][casteID]
@@ -24,7 +24,7 @@ function enhanceCreature(unit)
    if creatureTable.Classes and classNeeded then setClass(unit,creatureTable.Classes) end
    if creatureTable.Interactions then setInteractions(unit,creatureTable.Classes) end
   else
-   unittable.Enhanced = 'true'
+   unitTable.Enhanced = 'true'
   end
  else
   unitTable.Enhanced = 'true'

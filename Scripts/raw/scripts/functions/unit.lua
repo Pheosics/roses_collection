@@ -168,7 +168,7 @@ function trackAttribute(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
  if not unitTable[tostring(unit.id)] then
   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
  end
- unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit,id)]
+ unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  if not unitTable.Attributes[kind] then
   dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit.id,'Attributes',kind)
  end
@@ -214,7 +214,7 @@ function trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
  end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
- if not unitTable[tostring(unit.id)].Skills[kind] then
+ if not unitTable.Skills[kind] then
   dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit.id,'Skills',kind)
  end
  -- Track!
@@ -705,6 +705,7 @@ end
 function changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
  -- Add/Subtract given amount from declared skill of a unit.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ utils = require 'utils'
  dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
  
  local skills = unit.status.current_soul.skills
@@ -1510,12 +1511,12 @@ end
 function getUnit(unit,strType,strKind,initialize)
  -- Make sure we have the unit itself and not just the id.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- local base = 0
- local change = 0
- local class = 0
- local item = 0
- local total = 0
- local syndrome = 0
+ base = 0
+ change = 0
+ class = 0
+ item = 0
+ total = 0
+ syndrome = 0
  persistTable = require 'persist-table'
  if not persistTable.GlobalTable.roses then
   if strType == 'Attributes' then
@@ -1556,7 +1557,7 @@ function getUnit(unit,strType,strKind,initialize)
   unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
   if strType == 'Attributes' then
    typeTable = unitTable.Attributes
-   if df.physical_attribute_type[strkind] then
+   if df.physical_attribute_type[strKind] then
     if unit.curse.attr_change then
      total = (unit.body.physical_attrs[strKind].value+unit.curse.attr_change.phys_att_add[strKind])*unit.curse.attr_change.phys_att_perc[strKind]/100
      syndrome = total - unit.body.physical_attrs[strKind].value
@@ -1595,16 +1596,16 @@ function getUnit(unit,strType,strKind,initialize)
   --
   if not typeTable[strKind] then
 --   dfhack.script_environment('functions/table').makeUnitTableSecondary(unit,strTable,strKind)
-   base = 0
-   change = 0
-   class = 0
-   item = 0
-   total = 0
+   base = total-syndrome
+   change = change
+   class = class
+   item = item
+   total = total
   else
-   base = tonumber(typeTable[strKind]).Base
-   change = tonumber(typeTable[strKind]).Change
-   class = tonumber(typeTable[strKind]).Class
-   item = tonumber(typeTable[strKind]).Item
+   base = tonumber(typeTable[strKind].Base)
+   change = tonumber(typeTable[strKind].Change)
+   class = tonumber(typeTable[strKind].Class)
+   item = tonumber(typeTable[strKind].Item)
    if total == 'ADD' then total = base + change + class + item end
    if initialize then base = total-syndrome-change-class-item end
   end

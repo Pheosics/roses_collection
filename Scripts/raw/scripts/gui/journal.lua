@@ -27,7 +27,7 @@ local guiFunctions = dfhack.script_environment('functions/gui')
 JournalUi = defclass(JournalUi, gui.FramedScreen)
 JournalUi.ATTRS={
                   frame_style = gui.BOUNDARY_FRAME,
-                  frame_title = "Bestiary",
+                  frame_title = "Journal",
 	             }
 
 function JournalUi:init()

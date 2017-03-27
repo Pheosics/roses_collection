@@ -621,12 +621,16 @@ function insertWidgetInput(input,method,list,options)
  end
  
  if method == 'first' then
-  for first,_ in pairs(list) do
-   table.insert(input,{text=first,pen=pen,width=width,rjustify=rjustify})
+  for first,second in pairs(list) do
+   if first ~= 'length' then
+    table.insert(input,{text=first,pen=pen,width=width,rjustify=rjustify})
+   end
   end
  elseif method == 'second' then
-  for _,second in pairs(list) do
-   table.insert(input,{text=second,pen=pen,width=width,rjustify=rjustify})
+  for first,second in pairs(list) do
+   if first ~= 'length' then
+    table.insert(input,{text={{text=second,pen=pen,width=width,rjustify=rjustify}}})
+   end
   end
  elseif method == 'center' then
   table.insert(input,{text=center(list,width),width=width,pen=pen,rjustify=rjustify})
@@ -1044,7 +1048,6 @@ function getEntry(name,dict,frame) -- Gets sub-objects of an object (castes for 
 end
 
 function getEntryCreature(id)
- print(id)
  local creature = df.global.world.raws.creatures.all[id]
  local castes = {}
  if not creature then 
@@ -1116,7 +1119,13 @@ function getEntryInorganic(id)
 end
 
 function getEntryOrganic(id)
-
+ local organic = dfhack.matinfo.decode(id[1],id[2])
+ local organic2 = {}
+ if not organic then
+  return nil,nil
+ end
+ organic2 = {organic.material.state_name.Solid}
+ return organic,organic2
 end
 
 function getEntryFood(id)
@@ -1124,9 +1133,8 @@ function getEntryFood(id)
 end
 
 function getEntryBuilding(id)
- local building = nil
+ local building = df.global.world.raws.buildings.all[id]
  local building2 = {}
- 
  if not building then
   return nil,nil
  end
@@ -1135,9 +1143,8 @@ function getEntryBuilding(id)
 end
 
 function getEntryReaction(id)
- local reaction = nil
+ local reaction = df.global.world.raws.reactions[id]
  local reaction2 = {}
- 
  if not reaction then
   return nil,nil
  end
@@ -1417,17 +1424,111 @@ function makeInorganicOutput(info)
  return header,input,input2
 end
 
-function getOrganicDetails(building)
+function getOrganicDetails(organic)
+ local persistTable = require 'persist-table'
+ local gt = persistTable.GlobalTable
  local info = {}
- 
+ info.header = ''
+ info.description = ''
+ info.class = ''
+ info.rarity = ''
+ info.name = organic.material.state_name.Solid
+ info.solid_density = organic.material.solid_density
+ info.liquid_density = organic.material.liquid_density
+ info.molar_mass = organic.material.molar_mass
+ info.value = organic.material.material_value
+ info.absorption = organic.material.strength.absorption
+ info.maxedge = organic.material.strength.max_edge
+ info.yield = organic.material.strength.yield
+ info.fracture = organic.material.strength.fracture
+ info.strain = organic.material.strength.strain_at_yield
+ info.specheat = organic.material.heat.spec_heat
+ info.heatdam = organic.material.heat.heatdam_point
+ info.colddam = organic.material.heat.colddam_point
+ info.ignite = organic.material.heat.ignite_point
+ info.melting = organic.material.heat.melting_point
+ info.boiling = organic.material.heat.boiling_point
+ info.fixedtemp = organic.material.heat.mat_fixed_temp
+ -- Get Reaction Products
+ info.reactionproducts = {}
+ for id,x in pairs(organic.material.reaction_product.id) do
+  mattype = organic.material.reaction_product.material.mat_type[id]
+  matindex = organic.material.reaction_product.material.mat_index[id]
+  mat = dfhack.matinfo.decode(0,30).material
+  info.reactionproducts[#info.reactionproducts+1] = x.value..' '..mat.state_name.Solid
+ end
+ -- Get Reaction Classes
+ info.reactionclasses = {}
+ for _,class in pairs(organic.material.reaction_class) do
+  info.reactionclasses[#info.reactionclasses+1] = class.value
+ end
+ -- Get Syndromes
+ info.syndromes = {}
+ for _,syndrome in pairs(organic.material.syndrome) do
+  info.syndromes[#info.syndromes+1] = syndrome.syn_name
+ end
+ -- Get Flags
+ info.flags = {}
+ for flag,check in pairs(organic.material.flags) do
+  if check then
+   info.flags[#info.flags+1] = flag
+  end
+ end
  return info
 end
 
 function makeOrganicOutput(info)
+ local utils = require 'utils'
+ local split = utils.split_string
  local input = {}
  local input2 = {}
  local header = {}
-
+-- Header Information
+ table.insert(header,{text={{text=center(info.header,85),pen=COLOR_LIGHTRED,width=85}}})
+ table.insert(header,{text={{text=center('Description',85),width=85,pen=COLOR_YELLOW}}})
+ for _,second in pairs(split(info.description,'\n')) do
+  table.insert(header,{text={{text=second,pen=COLOR_WHITE,width=85}}})
+ end
+-- Left Column Information 
+ table.insert(input,{text={{text=center('Details',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Item Name:',second=info.name},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Class:',second=info.class},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Rarity:',second=info.rarity},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Value:',second=info.value},{pen=COLOR_LIGHTGREEN})
+ table.insert(input,{text={{text=center('Densities',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Solid Density:',second=info.solid_density},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Liquid Density:',second=info.liquid_density},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Molar Mass:',second=info.molar_mass},{pen=COLOR_LIGHTCYAN})
+ table.insert(input,{text={{text=center('Temperatures',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Specific Heat:',second=info.specheat},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Fixed Temp:',second=info.fixedtemp},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='HeatDam Point:',second=info.heatdam},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='ColdDam Point:',second=info.colddam},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Ignite Point:',second=info.ignite},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Melting Point:',second=info.melting},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Boiling Point:',second=info.boiling},{pen=COLOR_LIGHTGREEN})
+ table.insert(input,{text={{text=center('Syndromes',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='',second=info.syndromes},{pen=COLOR_LIGHTCYAN})
+ table.insert(input,{text={{text=center('Reaction Classes',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='',second=info.reactionclasses},{pen=COLOR_LIGHTGREEN})
+ table.insert(input,{text={{text=center('Reaction Products',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='',second=info.reactionproducts},{pen=COLOR_LIGHTCYAN})
+-- Right Column Information
+ table.insert(input2,{text={{text=center('Numbers',40),width=40,pen=COLOR_YELLOW}}})
+ input2 = insertWidgetInput(input2,'header',{header='Max Edge:',second=info.maxedge},{pen=COLOR_LIGHTCYAN})
+ input2 = insertWidgetInput(input2,'header',{header='Absorption:',second=info.absorption},{pen=COLOR_LIGHTGREEN})
+ table.insert(input2,{text={{text=center('Strain',40),width=40,pen=COLOR_YELLOW}}})
+ for key,val in pairs(info.strain) do
+  input2 = insertWidgetInput(input2,'header',{header=key..':',second=tostring(val)},{pen=COLOR_LIGHTCYAN})
+ end
+ table.insert(input2,{text={{text=center('Fracture',40),width=40,pen=COLOR_YELLOW}}})
+ for key,val in pairs(info.fracture) do
+  input2 = insertWidgetInput(input2,'header',{header=key..':',second=tostring(val)},{pen=COLOR_LIGHTGREEN})
+ end
+ table.insert(input2,{text={{text=center('Yield',40),width=40,pen=COLOR_YELLOW}}})
+ for key,val in pairs(info.yield) do
+  input2 = insertWidgetInput(input2,'header',{header=key..':',second=tostring(val)},{pen=COLOR_LIGHTCYAN})
+ end
  return header,input,input2
 end
 
@@ -1447,29 +1548,214 @@ end
 
 function getBuildingDetails(building)
  local info = {}
- 
+ info.description = ''
+ info.header = ''
+ info.name = building.name
+ info.type = df.building_type[building.building_type]
+ info.dim = {x=building.dim_x,y=building.dim_y}
+ info.workloc = {x=building.workloc_x,y=building.workloc_y}
+ info.magma = building.needs_magma
+ info.labor = building.labor_description
+ info.buildmats = {}
+ for i,mat in pairs(building.build_items) do
+  info.buildmats[i] = {}
+  info.buildmats[i].item = ''
+  info.buildmats[i].mat = ''
+  info.buildmats[i].quantity = mat.quantity
+  info.buildmats[i].reaction_class = mat.reaction_class
+  info.buildmats[i].reaction_product = mat.has_material_reaction_product
+  if mat.item_type >= 0 then
+   if mat.item_subtype >= 0 then
+    info.buildmats[i].item = dfhack.items.getSubtypeDef(mat.item_type,mat.item_subtype).name
+   else
+    info.buildmats[i].item = df.item_type[mat.item_type]
+   end
+  end
+  if mat.mat_type >= 0 then
+   info.buildmats[i].mat = dfhack.matinfo.decode(mat.mat_type,mat.mat_index).material.state_name.Solid
+  end
+  info.buildmats[i].flags = {}
+  for flag,check in pairs(mat.flags1) do
+   if check then
+    info.buildmats[i].flags[#info.buildmats[i].flags+1] = flag
+   end
+  end
+  for flag,check in pairs(mat.flags2) do
+   if check then
+    info.buildmats[i].flags[#info.buildmats[i].flags+1] = flag
+   end
+  end
+  for flag,check in pairs(mat.flags3) do
+   if check then
+    info.buildmats[i].flags[#info.buildmats[i].flags+1] = flag
+   end
+  end
+ end
  return info
 end
 
 function makeBuildingOutput(info)
+ local utils = require 'utils'
+ local split = utils.split_string
  local input = {}
  local input2 = {}
  local header = {}
-
+-- Header Information
+ table.insert(header,{text={{text=center(info.header,85),pen=COLOR_LIGHTRED,width=85}}})
+ table.insert(header,{text={{text=center('Description',85),width=85,pen=COLOR_YELLOW}}})
+ for _,second in pairs(split(info.description,'\n')) do
+  table.insert(header,{text={{text=second,pen=COLOR_WHITE,width=85}}})
+ end
+-- Left Column Information 
+ table.insert(input,{text={{text=center('Details',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Name:',second=info.name},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Type:',second=info.type},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Dimensions:',second=tostring(info.dim.x)..'X'..tostring(info.dim.y)},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Work Location:',second=tostring(info.workloc.x)..'X'..tostring(info.workloc.y)},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Labor:',second=info.labor},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Needs Magma:',second=info.magma},{pen=COLOR_LIGHTGREEN})
+-- Right Column Information
+ table.insert(input2,{text={{text=center('Building Materials',40),width=40,pen=COLOR_YELLOW}}})
+ color = COLOR_LIGHTGREEN
+ for _,mat in pairs(info.buildmats) do
+  if color == COLOR_LIGHTCYAN then
+   color = COLOR_LIGHTGREEN
+  else
+   color = COLOR_LIGHTCYAN
+  end
+  input2 = insertWidgetInput(input2,'header',{header='Item:',second=mat.mat..' '..mat.item},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Flags:',second=mat.flags},{pen=color,fill='Flags'})
+  input2 = insertWidgetInput(input2,'header',{header='Reaction Class:',second=mat.reaction_class},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Reaction Product:',second=mat.reaction_product},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Quantity:',second=tostring(mat.quantity)},{pen=color})
+ end
  return header,input,input2
 end
 
 function getReactionDetails(reaction)
  local info = {}
- 
+ info.name = reaction.name
+ info.description = ''
+ info.header = ''
+ info.skill = df.job_skill[reaction.skill]
+ info.flags = {}
+ info.reagents = {}
+ info.products = {}
+ for _,reagent in pairs(reaction.reagents) do
+  n = #info.reagents+1
+  info.reagents[n] = {}
+  info.reagents[n].item = ''
+  info.reagents[n].mat = ''
+  info.reagents[n].flags = {}
+  info.reagents[n].quantity = reagent.quantity
+  info.reagents[n].reaction_class = reagent.reaction_class
+  info.reagents[n].reaction_product = reagent.has_material_reaction_product
+  if reagent.item_type >= 0 then
+   if reagent.item_subtype >= 0 then
+    info.reagents[n].item = dfhack.items.getSubtypeDef(reagent.item_type,reagent.item_subtype).name
+   else
+    info.reagents[n].item = df.item_type[reagent.item_type]
+   end
+  end
+  if reagent.mat_type >= 0 then
+   info.reagents[n].mat = dfhack.matinfo.decode(reagent.mat_type,reagent.mat_index).material.state_name.Solid
+  end
+  for flag,check in pairs(reagent.flags) do
+   if check then
+    info.reagents[n].flags[#info.reagents[n].flags+1] = flag
+   end
+  end
+  for flag,check in pairs(reagent.flags1) do
+   if check then
+    info.reagents[n].flags[#info.reagents[n].flags+1] = flag
+   end
+  end
+  for flag,check in pairs(reagent.flags2) do
+   if check then
+    info.reagents[n].flags[#info.reagents[n].flags+1] = flag
+   end
+  end
+  for flag,check in pairs(reagent.flags3) do
+   if check then
+    info.reagents[n].flags[#info.reagents[n].flags+1] = flag
+   end
+  end
+ end
+ for _,product in pairs(reaction.products) do
+  if df.reaction_product_itemst:is_instance(product) then
+   n = #info.products+1
+   info.products[n] = {}
+   info.products[n].item = ''
+   info.products[n].mat = ''
+   info.products[n].flags = {}
+   info.products[n].probability = product.probability
+   info.products[n].count = product.count
+   info.products[n].dimension = product.product_dimension
+   if product.item_type >= 0 then
+    if product.item_subtype >= 0 then
+     info.products[n].item = dfhack.items.getSubtypeDef(product.item_type,product.item_subtype).name
+    else
+     info.products[n].item = df.item_type[product.item_type]
+    end
+   end
+   if product.mat_type >= 0 then
+    info.products[n].mat = dfhack.matinfo.decode(product.mat_type,product.mat_index).material.state_name.Solid
+   end  
+  end
+ end
+ for flag,check in pairs(reaction.flags) do
+  if check then
+   info.flags[#info.flags+1] = flag
+  end
+ end
  return info
 end
 
 function makeReactionOutput(info)
+ local utils = require 'utils'
+ local split = utils.split_string
  local input = {}
  local input2 = {}
  local header = {}
-
+-- Header Information
+ table.insert(header,{text={{text=center(info.header,85),pen=COLOR_LIGHTRED,width=85}}})
+ table.insert(header,{text={{text=center('Description',85),width=85,pen=COLOR_YELLOW}}})
+ for _,second in pairs(split(info.description,'\n')) do
+  table.insert(header,{text={{text=second,pen=COLOR_WHITE,width=85}}})
+ end
+-- Left Column Information 
+ table.insert(input,{text={{text=center('Details',40),width=40,pen=COLOR_YELLOW}}})
+ input = insertWidgetInput(input,'header',{header='Name:',second=info.name},{pen=COLOR_LIGHTCYAN})
+ input = insertWidgetInput(input,'header',{header='Skill:',second=info.skill},{pen=COLOR_LIGHTGREEN})
+ input = insertWidgetInput(input,'header',{header='Flags:',second=info.flags},{pen=COLOR_LIGHTCYAN,fill='Flags'})
+-- Right Column Information
+ color = COLOR_LIGHTGREEN
+ table.insert(input2,{text={{text=center('Reagents',40),width=40,pen=COLOR_YELLOW}}})
+ for _,mat in pairs(info.reagents) do
+  if color == COLOR_LIGHTCYAN then
+   color = COLOR_LIGHTGREEN
+  else
+   color = COLOR_LIGHTCYAN
+  end
+  input2 = insertWidgetInput(input2,'header',{header='Item:',second=mat.mat..' '..mat.item},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Flags:',second=mat.flags},{pen=color,fill='Flags'})
+  input2 = insertWidgetInput(input2,'header',{header='Reaction Class:',second=mat.reaction_class},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Reaction Product:',second=mat.reaction_product},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Quantity:',second=tostring(mat.quantity)},{pen=color})
+ end
+ table.insert(input2,{text={{text=center('Products',40),width=40,pen=COLOR_YELLOW}}})
+ for _,mat in pairs(info.products) do
+  if color == COLOR_LIGHTCYAN then
+   color = COLOR_LIGHTGREEN
+  else
+   color = COLOR_LIGHTCYAN
+  end
+  input2 = insertWidgetInput(input2,'header',{header='Item:',second=mat.mat..' '..mat.item},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Flags:',second=mat.flags},{pen=color,fill='Flags'})
+  input2 = insertWidgetInput(input2,'header',{header='Probability:',second=mat.probability},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Count:',second=mat.count},{pen=color})
+  input2 = insertWidgetInput(input2,'header',{header='Dimension:',second=mat.dimension},{pen=color})
+ end
  return header,input,input2
 end
 
@@ -1878,7 +2164,7 @@ function getAttributes(unit)
  local persistTable = require 'persist-table'
  if persistTable.GlobalTable.roses then
   for i,x in pairs(unit.body.physical_attrs) do
-   local total,base,change,class,item,syndrome = dfhack.script_environment('functions/unit').trackAttribute(unit,i,nil,nil,nil,nil,'get')
+   local total,base,change,class,item,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',i)
    p_atts[i:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)] = {}
    p_atts[i:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)]['Base'] = base
    p_atts[i:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)]['Current'] = total
@@ -1887,7 +2173,7 @@ function getAttributes(unit)
    p_atts[i:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)]['Syndrome'] = syndrome
   end
   for i,x in pairs(unit.status.current_soul.mental_attrs) do
-   local total,base,change,class,item,syndrome = dfhack.script_environment('functions/unit').trackAttribute(unit,i,nil,nil,nil,nil,'get')
+   local total,base,change,class,item,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',i)
    m_atts[i:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)] = {}
    m_atts[i:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)]['Base'] = base
    m_atts[i:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)]['Current'] = total
@@ -1923,9 +2209,19 @@ function getSkills(unit)
  
  skl = {}
  for i,x in pairs(unit.status.current_soul.skills) do
-  skl[df.job_skill.attrs[x.id].caption_noun] = {df.skill_rating[dfhack.units.getEffectiveSkill(unit,x.id)],dfhack.units.getExperience(unit,x.id),df.job_skill[x.id]}
+  skl[df.job_skill.attrs[x.id].caption_noun] = {level=df.skill_rating[dfhack.units.getEffectiveSkill(unit,x.id)],experience=dfhack.units.getExperience(unit,x.id),df.job_skill[x.id]}
  end
- return skl
+ height, s1, s2, s3 = 5, 0, 0, 0
+ for i,x in pairs(skl) do
+  height = height + 1
+  if #i > s1 then s1 = #i end
+  if #x.level > s2 then s2 = #x.level end
+  if #tostring(x.experience) > s3 then s3 = #tostring(x.experience) end
+ end
+ skillinfo = {}
+ skillinfo.width = s1 + s2 + s3
+ skillinfo.height = height+1
+ return skl,skillinfo
 end
 
 function getEntity(unit,translate)
@@ -1956,25 +2252,13 @@ function getEntity(unit,translate)
  return ent, civ, mem
 end
 
-function getInfo(tar)
+function getInfo(unit,length)
  local gui = require 'gui'
  local utils = require 'utils'
  local split = utils.split_string
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
- 
- game_mode = df.global.gamemode
- if game_mode == 0 then
-  local temp_screen = df.viewscreen_unitst:new()
-  temp_screen.unit = tar
-  gui.simulateInput(temp_screen,1)
- elseif game_mode == 1 then
-  local temp_screen = df.viewscreen_dungeon_monsterstatusst:new()
-  temp_screen.unit = tar
-  gui.simulateInput(temp_screen,291)
- end
- local read_screen = dfhack.gui.getCurViewscreen()
  local info = ''
  local info_pars = {}
  local no_color = {}
@@ -1985,7 +2269,6 @@ function getInfo(tar)
  information.wounds = ''
  information.preferences = ''
  information.attributes = {'',''}
- local a_num = 1
  information.worship = ''
  information.membership = ''
  information.values = ''
@@ -1993,6 +2276,46 @@ function getInfo(tar)
  information.description = ''
  information.appearance = ''
  information.traits = ''
+
+ game_mode = df.global.gamemode
+ if game_mode == 0 then
+  gui.simulateInput(dfhack.gui.getCurViewscreen(),'LEAVESCREEN')
+  local unitList = {}
+  unitList[0] = 'Citizens'
+  unitList[1] = 'Livestock'
+  unitList[2] = 'Others'
+  local temp_screen = df.viewscreen_dwarfmodest:new()
+  gui.simulateInput(temp_screen,'D_UNITLIST')
+  listScreen = dfhack.gui.getCurViewscreen()
+  for page,key in pairs(unitList) do
+   for num,unitCheck in pairs(listScreen.units[key]) do
+    if unit.id == unitCheck.id then
+     x = page
+     y = key
+     z = num
+     break
+    end
+   end
+  end
+  if x and y and z then
+   listScreen.page = x
+   listScreen.cursor_pos[y] = z
+   gui.simulateInput(listScreen,'UNITJOB_VIEW_UNIT')
+   cur = dfhack.gui.getCurViewscreen()
+   gui.simulateInput(listScreen,'LEAVESCREEN')
+   if not df.viewscreen_textviewerst:is_instance(cur) then
+    gui.simulateInput(cur,'SELECT')
+   end
+  end
+ elseif game_mode == 1 then
+  local temp_screen = df.viewscreen_dungeon_monsterstatusst:new()
+  temp_screen.unit = tar
+  gui.simulateInput(temp_screen,'A_STATUS_DESC')
+ end
+ 
+ local read_screen = dfhack.gui.getCurViewscreen()
+ if df.viewscreen_textviewerst:is_instance(read_screen) then
+ local a_num = 1
  local check = 0
  for i,x in pairs(read_screen.src_text) do
   info = info..' '..x.value
@@ -2052,5 +2375,40 @@ function getInfo(tar)
   end
  end
  information.description = no_color[#no_color]
- return information
+ end
+ 
+ temp_info = {}
+ for key,val in pairs(information) do
+  if key == 'attributes' then
+   temp_text = {}
+   n = math.floor(#information[key][1]/length)+1
+   for i = 1,n do
+    temp_text[#temp_text+1] = string.sub(information[key][1],1+length*(i-1),length*i)
+   end
+   temp_info[key..'1'] = {}
+   temp_info[key..'1'].text = temp_text
+   temp_info[key..'1'].height = n
+   temp_info[key..'1'].width = length
+   temp_text = {}
+   n = math.floor(#information[key][2]/length)+1
+   for i = 1,n do
+    temp_text[#temp_text+1] = string.sub(information[key][2],1+length*(i-1),length*i)
+   end
+   temp_info[key..'2'] = {}
+   temp_info[key..'2'].text = temp_text
+   temp_info[key..'2'].height = n
+   temp_info[key..'2'].width = length 
+  else
+   temp_text = {}
+   n = math.floor(#information[key]/length)+1
+   for i = 1,n do
+    temp_text[#temp_text+1] = string.sub(information[key],1+length*(i-1),length*i)
+   end
+   temp_info[key] = {}
+   temp_info[key].text = temp_text
+   temp_info[key].height = n
+   temp_info[key].width = length
+  end
+ end
+ return temp_info
 end

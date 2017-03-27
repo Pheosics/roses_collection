@@ -104,7 +104,7 @@ if args.template then
   return
  end
  if templateTable[args.template] then
-  str = templateTable[args.template]
+  str = templateTable[args.template].Input
   temp = table.concat(input,' ')
   temp = temp:gsub('-template '..args.template,str)
   dfhack.run_command('wrapper'..temp)

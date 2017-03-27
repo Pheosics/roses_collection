@@ -194,14 +194,14 @@ if args.all or args.enhancedSystem then
     if args.verbose then print('Enhanced System - Creatures already loaded, use -forceReload to force a reload of the system') end
    end
   elseif check == 'Items' then
-   if EItemssNotAlreadyLoaded() or args.forceReload then
+   if EItemsNotAlreadyLoaded() or args.forceReload then
     itemCheck = dfhack.script_environment('functions/tables').makeEnhancedItemTable(args.testRun,args.verbose)
    elseif not EItemssNotAlreadyLoaded() then
     itemCheck = true
     if args.verbose then print('Enhanced System - Items already loaded, use -forceReload to force a reload of the system') end
    end
   elseif check == 'Materials' then
-   if EMaterialssNotAlreadyLoaded() or args.forceReload then
+   if EMaterialsNotAlreadyLoaded() or args.forceReload then
     materialCheck = dfhack.script_environment('functions/tables').makeEnhancedMaterialTable(args.testRun,args.verbose)
    elseif not EMaterialssNotAlreadyLoaded() then
     materialCheck = true
