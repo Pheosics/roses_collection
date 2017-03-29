@@ -43,7 +43,7 @@ UnitViewUi.ATTRS={
 	             }
 
 function UnitViewUi:init(args)
- test_length = 30
+ test_length = 40
 -- Gather data
  full_name = guiFunctions.getUnitName(args.target)
  caste = guiFunctions.getCasteName(args.target)
@@ -60,10 +60,10 @@ function UnitViewUi:init(args)
 --[[
           X                   Y                 Z
     Name               |                |                |
-A   Caste              | Description    | Basic Health   | Traits/Preferences
+A   Caste              | Description    |                |
     Civilization       |                |                |
 -----------------------|----------------|----------------|
-B   Membership/Worship | Appearance     | Emotions       |
+B   Membership/Worship | Appearance     |                |
 -----------------------|----------------|----------------|
 C   Skills             | Attribute Desc |                |
 ----------------------------------------------------------
@@ -71,25 +71,24 @@ Bottom UI
 ]]
  AX = {anchor = {top = 0, left = 0}, width = test_length, height = 6}
  AY = {anchor = {top = 0, left = 0}, width = info.description.width, height = info.description.height+1}
- AZ = {anchor = {top = 0, left = 0}, width = info.wounds.width, height = info.wounds.height+1}
+ AZ = {anchor = {top = 0, left = 0}, width = 0, height = 0}
  BX = {anchor = {top = AX.height+1, left = 0}, width = math.max(info.membership.width,info.worship.width), height = info.membership.height+info.worship.height+3}
  BY = {anchor = {top = AY.height+1, left = 0}, width = info.appearance.width, height = info.appearance.height+1}
- BZ = {anchor = {top = AZ.height+1, left = 0}, width = info.thoughts.width, height = info.thoughts.height+1}
+ BZ = {anchor = {top = AZ.height+1, left = 0}, width = 0, height = 0}
  CX = {anchor = {top = AX.height+BX.height+2, left = 0}, width = skillinfo.width, height = skillinfo.height+1}
  CY = {anchor = {top = AY.height+BY.height+2, left = 0}, width = math.max(info.attributes1.width,info.attributes2.width), height = info.attributes1.height+info.attributes2.height+3}
- CZ = {anchor = {top = 0, left = AX.width+AY.width+AZ.width+3}, width = math.max(info.traits.width,info.preferences.width,info.values.width), height = info.traits.height+info.preferences.height+info.values.height+5}
+ CZ = {anchor = {top = 0, left = AX.width+AY.width+AZ.width+3}, width = 0, height = 0}
  X_width = math.max(AX.width,BX.width,CX.width)
  Y_width = math.max(AY.width,BY.width,CY.width)
  Z_width = math.max(AZ.width,BZ.width)
- AY.anchor.left = X_width+1
- AZ.anchor.left = X_width+Y_width+2
- BY.anchor.left = X_width+1
- BZ.anchor.left = X_width+Y_width+2
- CY.anchor.left = X_width+1
+ AY.anchor.left = X_width+4
+ AZ.anchor.left = X_width+Y_width+8
+ BY.anchor.left = X_width+4
+ BZ.anchor.left = X_width+Y_width+8
+ CY.anchor.left = X_width+4
+ 
 -- Create frames
- self:addviews{
-       widgets.Panel{
-	   view_id = 'main',
+ self:addviews{widgets.Panel{view_id = 'main',
        frame = { l = 0, r = 0 },
        frame_inset = 1,
        subviews = {
@@ -148,8 +147,34 @@ Bottom UI
 		    }
         }
     }
+ self:addviews{widgets.Panel{view_id = 'thoughtsView',
+       frame = { l = 0, r = 0 },
+       frame_inset = 1,
+       subviews = {
+	   	widgets.List{
+		 view_id = 'thoughtsViewDetailed',
+         frame = { l = 0, t = 0},
+                },
+        widgets.List{
+		 view_id = 'thoughtsViewDetailed2',
+         frame = { l = 45, t = 0},
+                }
+		    }
+        }
+    }
+ self:addviews{widgets.Panel{view_id = 'syndromeView',
+       frame = { l = 0, r = 0 },
+       frame_inset = 1,
+	   subviews = {
+	   	widgets.List{
+		 view_id = 'syndromeViewDetailed',
+         frame = { l = 0, t = 0},
+                },
+		    }
+        }
+    }
  self:addviews{widgets.Panel{view_id = 'classView2',
-       frame = { l = 71, r = 0},
+       frame = { l = 51, r = 0},
        frame_inset = 1,
        subviews = {
         widgets.List{
@@ -173,71 +198,10 @@ Bottom UI
                 },
 	   	widgets.List{
 		 view_id = 'classViewDetailedClasses',
+         on_select = self:callback('checkClass'),
          text_pen=dfhack.pen.parse{fg=COLOR_DARKGRAY,bg=0},
          cursor_pen=dfhack.pen.parse{fg=COLOR_YELLOW,bg=0},
          frame = { l = 0, t = 3},
-                },
-		    }
-        }
-    }
-    --[[
- self:addviews{widgets.Panel{view_id = 'equipmentView',
-       frame = { l = 0, r = 0 },
-       frame_inset = 1,
-	   subviews = {
-		    }
-        }
-    }
-    ]]
-    --[[
- self:addviews{widgets.Panel{view_id = 'healthView',
-       frame = { l = 0, r = 0 },
-       frame_inset = 1,
-	   subviews = {
-		    }
-        }
-    }
-    ]]
-    --[[
- self:addviews{widgets.Panel{view_id = 'interactionView',
-       frame = { l = 0, r = 0 },
-       frame_inset = 1,
-	   subviews = {
-		    }
-        }
-    }
-    ]]
-    --[[
- self:addviews{widgets.Panel{view_id = 'spellbookView',
-       frame = { l = 0, r = 0 },
-       frame_inset = 1,
-	   subviews = {
-		    }
-        }
-    }]]
-    --[[
- self:addviews{widgets.Panel{view_id = 'legendsView',
-       frame = { l = 0, r = 0 },
-       frame_inset = 1,
-	   subviews = {
-		    }
-        }
-    }]]
-    --[[
- self:addviews{widgets.Panel{view_id = 'relationshipView',
-       frame = { l = 0, r = 0 },
-       frame_inset = 1,
-	   subviews = {
-		    }
-        }
-    }]]
- self:addviews{widgets.Panel{view_id = 'syndromeView',
-       frame = { l = 0, r = 0 },
-       frame_inset = 1,
-	   subviews = {
-	   	widgets.List{
-		 view_id = 'syndromeViewDetailed',
-         frame = { l = 0, t = 0},
                 },
 		    }
         }
@@ -246,37 +210,26 @@ Bottom UI
  self.subviews.attributeView.visible = false
  self.subviews.classView.visible = false
  self.subviews.classView2.visible = false
- --[[
- self.subviews.equipmentView.visible = false
- self.subviews.healthView.visible = false
- self.subviews.interactionView.visible = false
- self.subviews.legendsView.visible = false
- self.subviews.spellbookView.visible = false
- self.subviews.relationshipView.visible = false
- ]]
  self.subviews.syndromeView.visible = false
-
+ self.subviews.thoughtsView.visible = false
  self.subviews.main.visible = true
+ 
  self:fillMain(full_name,caste,entity,civilization,membership,skills,info)
  self:detailsAttributes(p_attributes,m_attributes)
  self:detailsClasses()
  self:detailsSyndromes(syndromes,syndromes_detail)
+ self:detailsThoughts(info)
  self:updateBottom()
 end
 
 function UnitViewUi:updateBottom()
+ 
     self.subviews.bottom_ui:setText(
         {
             { key = 'CUSTOM_SHIFT_A', text = ': Attribute Information  ', on_activate = self:callback('attributeView') }, 
             { key = 'CUSTOM_SHIFT_C', text = ': Class Information  ', on_activate = self:callback('classView') }, 
---            { key = 'CUSTOM_SHIFT_E', text = ': Equipment List  ', on_activate = self:callback('equipmentView') }, 
---            { key = 'CUSTOM_SHIFT_H', text = ': Health Information  ', on_activate = self:callback('healthView') }, 
---            NEWLINE,
---            { key = 'CUSTOM_SHIFT_I', text = ': Interaction Information  ', on_activate = self:callback('interactionView') }, 
---            { key = 'CUSTOM_SHIFT_L', text = ': Legends  ', on_activate = self:callback('legendsView') }, 
---            { key = 'CUSTOM_SHIFT_P', text = ': Spellbook  ', on_activate = self:callback('spellbookView') },
---            { key = 'CUSTOM_SHIFT_R', text = ': Relationship Information  ', on_activate = self:callback('relationshipView') }, 
-            { key = 'CUSTOM_SHIFT_S', text = ': Syndrome Information  ', on_activate = self:callback('syndromeView') }
+            { key = 'CUSTOM_SHIFT_S', text = ': Syndrome Information  ', on_activate = self:callback('syndromeView') },
+            { key = 'CUSTOM_SHIFT_T', text = ': Thoughts and Preferences  ', on_activate = self:callback('thoughtsView') }
         })
 end
 function UnitViewUi:attributeView()
@@ -288,41 +241,12 @@ function UnitViewUi:classView()
  self.subviews.classView2.visible = true
  self.subviews.main.visible = false
 end
---[[function UnitViewUi:equipmentView()
- self.subviews.equipmentView.visible = true
- self.subviews.main.visible = false
-end
-function UnitViewUi:healthView()
--- self.subviews.healthView.visible = true
--- self.subviews.main.visible = false
- local temp_screen = df.viewscreen_unitst:new()
- temp_screen.unit = target
- gui.simulateInput(temp_screen,'UNITVIEW_HEALTH')
-end
-function UnitViewUi:interactionView()
- self.subviews.interactionView.visible = true
- self.subviews.main.visible = false
-end
-function UnitViewUi:legendsView()
--- self.subviews.legendsView.visible = true
--- self.subviews.main.visible = false
- local temp_screen = df.viewscreen_unitst:new()
- temp_screen.unit = target
- gui.simulateInput(temp_screen,'UNITVIEW_KILLS')
-end
-function UnitViewUi:spellbookView()
- self.subviews.spellbookView.visible = true
- self.subviews.main.visible = false
-end
-function UnitViewUi:relationshipView()
--- self.subviews.relationshipView.visible = true
--- self.subviews.main.visible = false
- local temp_screen = df.viewscreen_unitst:new()
- temp_screen.unit = target
- gui.simulateInput(temp_screen,'UNITVIEW_RELATIONSHIPS')
-end]]
 function UnitViewUi:syndromeView()
  self.subviews.syndromeView.visible = true
+ self.subviews.main.visible = false
+end
+function UnitViewUi:thoughtsView()
+ self.subviews.thoughtsView.visible = true
  self.subviews.main.visible = false
 end
 
@@ -368,12 +292,7 @@ function UnitViewUi:fillMain(name,caste,entity,civ,mem,skills,info)
  local list = self.subviews.BY
  list:setChoices(insert)
 --BZ
- local insert = {}
- local w_frame = self.subviews.BZ.frame.w
- table.insert(insert,{text = { {text = center('Thoughts',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.thoughts.text,{width=w_frame})
- local list = self.subviews.BZ
- list:setChoices(insert)
+
 --CX
  local insert = {}
  local w_frame = self.subviews.CX.frame.w
@@ -393,16 +312,7 @@ function UnitViewUi:fillMain(name,caste,entity,civ,mem,skills,info)
  local list = self.subviews.CY
  list:setChoices(insert)
 --CZ
- local insert = {}
- local w_frame = self.subviews.CZ.frame.w
- table.insert(insert,{text = { {text = center('Traits and Preferences',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.traits.text,{width=w_frame})
- table.insert(insert,{text={{text='',width=w_frame}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.preferences.text,{width=w_frame})
- table.insert(insert,{text={{text='',width=w_frame}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.values.text,{width=w_frame})
- local list = self.subviews.CZ
- list:setChoices(insert)
+
 end
 
 function UnitViewUi:detailsAttributes(p_attributes,m_attributes)
@@ -488,9 +398,9 @@ function UnitViewUi:detailsClasses()
  tar = self.target
  input = {}
  in2 = {}
- table.insert(in2,{text = {{text=center('Classes',60),width=60,pen=COLOR_LIGHTCYAN}}})
+ table.insert(in2,{text = {{text=center('Classes',40),width=30,pen=COLOR_LIGHTCYAN}}})
  table.insert(in2,{text = {
-                             {text='Class',width=41,pen=COLOR_LIGHTMAGENTA},
+                             {text='Class',width=21,pen=COLOR_LIGHTMAGENTA},
                              {text='Level',width=7,rjustify=true,pen=COLOR_LIGHTMAGENTA},
                              {text='Experience',width=12,rjustify=true,pen=COLOR_LIGHTMAGENTA},
                             }})
@@ -506,13 +416,13 @@ function UnitViewUi:detailsClasses()
    for i,x in pairs(classTable._children) do
     if unitClasses[x] then
      table.insert(input,{text = {
-                                {text=classTable[x].Name,width=41},
+                                {text=classTable[x].Name,width=21},
                                 {text=tostring(unitClasses[x].Level),width=7,rjustify=true},
                                 {text=tostring(unitClasses[x].Experience),width=12,rjustify=true},
                                 }})
     else
      table.insert(input,{text = {
-                                {text=classTable[x].Name,width=41},
+                                {text=classTable[x].Name,width=21},
                                 {text='0',width=7,rjustify=true},
                                 {text='0',width=12,rjustify=true},
                                 }})  
@@ -528,6 +438,340 @@ function UnitViewUi:detailsClasses()
  list:setChoices(input)
  local list = self.subviews.classViewDetailedTop
  list:setChoices(in2)
+end
+
+function UnitViewUi:checkClass(index,choice)
+ if not choice then return end
+ input = {}
+ target = self.target
+ local name = choice.text[1].text
+ local persistTable = require 'persist-table'
+ local classTable = persistTable.GlobalTable.roses.ClassTable
+ local unitClasses = persistTable.GlobalTable.roses.UnitTable[tostring(target.id)].Classes
+ local unitSpells  = persistTable.GlobalTable.roses.UnitTable[tostring(target.id)].Spells
+ for _,x in pairs(classTable._children) do
+  if classTable[x].Name == name then
+   class = x
+   break
+  end
+ end
+ local currentClass = unitClasses.Current.Name
+ if currentClass == 'NONE' then
+  currentName = 'None'
+ else
+  currentName = classTable[currentClass].Name
+ end
+ for _,x in pairs(classTable._children) do
+  if classTable[x].Name == unitClasses.Current.Name then
+   currentClass = x
+   break
+  end
+ end
+ if not class then return end
+ table.insert(input,{text = {{text='Current Class = '..currentName,width=20,pen=COLOR_WHITE}}})
+ table.insert(input,{text = {{text=center(name,40),width=30,pen=COLOR_LIGHTCYAN}}})
+ table.insert(input,{text = {{text='Requirements:',width=20,pen=COLOR_LIGHTMAGENTA}}})
+ 
+ table.insert(input,{text = {{text='Classes:',width=30,pen=COLOR_YELLOW}}})
+ local test = true
+ if safe_index(classTable,class,"RequiredClass") then
+  for _,x in pairs(classTable[class].RequiredClass._children) do
+   local check = unitClasses[x].Level
+   local level = classTable[class].RequiredClass[x]
+   if tonumber(check) < tonumber(level) then
+    fgc = COLOR_LIGHTRED
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   table.insert(input,{text = {{text='Level '..classTable[class].RequiredClass[x]..' '..classTable[x].Name,width=30,rjustify=true,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_LIGHTGREEN}}}) end
+ 
+ table.insert(input,{text = {{text='Attributes:',width=30,pen=COLOR_YELLOW}}})
+ local test = true
+ if safe_index(classTable,class,"RequiredAttribute") then
+  for _,x in pairs(classTable[class].RequiredAttribute._children) do
+   local total,base,change,classval,syndrome = dfhack.script_environment('functions/unit').getUnit(target,'Attributes',x)
+   local check = total-change-classval-syndrome
+   local value = classTable[class].RequiredAttribute[x]
+   if tonumber(check) < tonumber(value) then
+    fgc = COLOR_LIGHTRED
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   table.insert(input,{text = {{text=classTable[class].RequiredAttribute[x]..' '..x,width=30,rjustify=true,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_LIGHTGREEN}}}) end
+ 
+ table.insert(input,{text = {{text='Skills:',width=30,pen=COLOR_YELLOW}}})
+ local test = true
+ if safe_index(classTable,class,"RequiredSkill") then
+  for _,x in pairs(classTable[class].RequiredSkill._children) do
+   local total,base,change,classval,syndrome = dfhack.script_environment('functions/unit').getUnit(target,'Skills',x)
+   local check = total-change-classval-syndrome
+   local value = classTable[class].RequiredSkill[x]
+   if tonumber(check) < tonumber(value) then
+    fgc = COLOR_LIGHTRED
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   table.insert(input,{text = {{text='Level '..classTable[class].RequiredSkill[x]..' '..x,width=30,rjustify=true,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_LIGHTGREEN}}}) end
+ 
+ table.insert(input,{text = {{text='Traits:',width=30,pen=COLOR_YELLOW}}})
+ local test = true
+ if safe_index(classTable,class,"RequiredTrait") then
+  for _,x in pairs(classTable[class].RequiredTrait._children) do
+   local total,base,change,classval,syndrome = dfhack.script_environment('functions/unit').getUnit(target,'Traits',x)
+   local check = total-change-classval-syndrome
+   local value = classTable[class].RequiredTrait[x]
+   if tonumber(check) < tonumber(value) then
+    fgc = COLOR_LIGHTRED
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   table.insert(input,{text = {{text=classTable[class].RequiredTrait[x]..' '..x,width=30,rjustify=true,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_LIGHTGREEN}}}) end
+ 
+ table.insert(input,{text = {{text='',width=30,pen=COLOR_WHITE}}})
+ table.insert(input,{text = {{text='Attribute Changes:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ local test = true
+ if safe_index(classTable,class,"BonusAttribute") then
+  current = {}
+  if currentClass and safe_index(classTable,currentClass,"BonusAttribute") then
+   for _,x in pairs(classTable[currentClass].BonusAttribute._children) do
+    current[x] = classTable[currentClass].BonusAttribute[x][tostring(unitClasses[currentClass].Level+1)]
+   end
+  end
+  nextto = {}
+  for _,x in pairs(classTable[class].BonusAttribute._children) do
+   if unitClasses[class] then
+    level = tostring(unitClasses[class].Level+1)
+   else
+    level = '1'
+   end
+   nextto[x] = classTable[class].BonusAttribute[x][level]
+  end
+  new = {}
+  for str,val in pairs(current) do
+   new[str] = -tonumber(val)
+  end
+  for str,val in pairs(nextto) do
+   if new[str] then
+    new[str] = new[str] + tonumber(val)
+   else
+    new[str] = tonumber(val)
+   end
+  end
+  for str,val in pairs(new) do
+   if val > 0 then 
+    fgc = COLOR_LIGHTGREEN
+    val = '+'..tostring(val)
+   elseif val < 0 then 
+    fgc = COLOR_LIGHTRED
+    val = tostring(val)
+   elseif val == 0 then 
+    fgc = COLOR_WHITE 
+    val = tostring(val)
+   end
+   table.insert(input,{text = {
+                              {text=str,width=20,pen=fgc},
+                              {text=val,width=10,rjustify=true,pen=fgc}
+                              }})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+ 
+ table.insert(input,{text = {{text='Skill Changes:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ local test = true
+ if safe_index(classTable,class,"BonusSkill") then
+  current = {}
+  if currentClass and safe_index(classTable,currentClass,"BonusSkill") then
+   for _,x in pairs(classTable[currentClass].BonusSkill._children) do
+    current[x] = classTable[currentClass].BonusSkill[x][tostring(unitClasses[currentClass].Level+1)]
+   end
+  end
+  nextto = {}
+  for _,x in pairs(classTable[class].BonusSkill._children) do
+   if unitClasses[class] then
+    level = tostring(unitClasses[class].Level+1)
+   else
+    level = '1'
+   end
+   nextto[x] = classTable[class].BonusSkill[x][level]
+  end
+  new = {}
+  for str,val in pairs(current) do
+   new[str] = -tonumber(val)
+  end
+  for str,val in pairs(nextto) do
+   if new[str] then
+    new[str] = new[str] + tonumber(val)
+   else
+    new[str] = tonumber(val)
+   end
+  end
+  for str,val in pairs(new) do
+   if val > 0 then 
+    fgc = COLOR_LIGHTGREEN
+    val = '+'..tostring(val)
+   elseif val < 0 then 
+    fgc = COLOR_LIGHTRED
+    val = tostring(val)
+   elseif val == 0 then 
+    fgc = COLOR_WHITE 
+    val = tostring(val)
+   end
+   table.insert(input,{text = {
+                              {text=str,width=20,pen=fgc},
+                              {text=val,width=10,rjustify=true,pen=fgc}
+                              }})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end 
+ 
+ table.insert(input,{text = {{text='Trait Changes:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ local test = true
+ if safe_index(classTable,class,"BonusTrait") then
+  current = {}
+  if currentClass and safe_index(classTable,currentClass,"BonusTrait") then
+   for _,x in pairs(classTable[currentClass].BonusTrait._children) do
+    current[x] = classTable[currentClass].BonusTrait[x][tostring(unitClasses[currentClass].Level+1)]
+   end
+  end
+  nextto = {}
+  for _,x in pairs(classTable[class].BonusTrait._children) do
+   if unitClasses[class] then
+    level = tostring(unitClasses[class].Level+1)
+   else
+    level = '1'
+   end
+   nextto[x] = classTable[class].BonusTrait[x][level]
+  end
+  new = {}
+  for str,val in pairs(current) do
+   new[str] = -tonumber(val)
+  end
+  for str,val in pairs(nextto) do
+   if new[str] then
+    new[str] = new[str] + tonumber(val)
+   else
+    new[str] = tonumber(val)
+   end
+  end
+  for str,val in pairs(new) do
+   if val > 0 then 
+    fgc = COLOR_LIGHTGREEN
+    val = '+'..tostring(val)
+   elseif val < 0 then 
+    fgc = COLOR_LIGHTRED
+    val = tostring(val)
+   elseif val == 0 then 
+    fgc = COLOR_WHITE 
+    val = tostring(val)
+   end
+   table.insert(input,{text = {
+                              {text=str,width=20,pen=fgc},
+                              {text=val,width=10,rjustify=true,pen=fgc}
+                              }})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+ 
+ input2 = {}
+ table.insert(input2,{text = {{text='Leveling Bonuses:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ table.insert(input2,{text = {{text='Attributes:',width=30,pen=COLOR_YELLOW}}})
+ test = true
+ if safe_index(classTable,class,"LevelBonus","Attribute") then
+  if unitClasses[class] then
+   level = tostring(unitClasses[class].Level+1)
+  else
+   level = '1'
+  end
+  for _,x in pairs(classTable[class].LevelBonus.Attribute._children) do
+   table.insert(input2,{text = {
+                               {text=x,width=20,pen=COLOR_WHITE},
+                               {text=classTable[class].LevelBonus.Attribute[x][level],width=10,rjustify=true,pen=COLOR_WHITE}
+                               }})
+   test=false
+  end
+ end
+ if test then table.insert(input2,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+ 
+ table.insert(input2,{text = {{text='Skills:',width=30,pen=COLOR_YELLOW}}})
+ test = true
+ if safe_index(classTable,class,"LevelBonus","Skill") then
+  if unitClasses[class] then
+   level = tostring(unitClasses[class].Level+1)
+  else
+   level = '1'
+  end
+  for _,x in pairs(classTable[class].LevelBonus.Skill._children) do
+   table.insert(input2,{text = {
+                               {text=x,width=20,pen=COLOR_WHITE},
+                               {text=classTable[class].LevelBonus.Skill[x][level],width=10,rjustify=true,pen=COLOR_WHITE}
+                               }})
+   test=false
+  end
+ end
+ if test then table.insert(input2,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+ 
+ table.insert(input2,{text = {{text='Traits:',width=30,pen=COLOR_YELLOW}}})
+ test = true
+ if safe_index(classTable,class,"LevelBonus","Trait") then
+  if unitClasses[class] then
+   level = tostring(unitClasses[class].Level+1)
+  else
+   level = '1'
+  end
+  for _,x in pairs(classTable[class].LevelBonus.Trait._children) do
+   table.insert(input2,{text = {
+                               {text=x,width=20,pen=COLOR_WHITE},
+                               {text=classTable[class].LevelBonus.Trait[x][level],width=10,rjustify=true,pen=COLOR_WHITE}
+                               }})
+   test=false
+  end
+ end
+ if test then table.insert(input2,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+ 
+ table.insert(input,{text = {{text='',width=30,pen=COLOR_WHITE}}})
+ table.insert(input2,{text = {{text='Spells and Abilities:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ test = true
+ if safe_index(classTable,class,"Spells") then
+  for _,x in pairs(classTable[class].Spells._children) do
+   if unitSpells[x] == '1' then
+    fgc = COLOR_WHITE
+   else
+    fgc = COLOR_GREY
+   end
+   if persistTable.GlobalTable.roses.SpellTable[x] then
+    name = persistTable.GlobalTable.roses.SpellTable[x].Name
+   else
+    name = 'Unknown'
+   end
+   table.insert(input2,{text = {{text=name,width=30,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input2,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+ 
+ local list = self.subviews.classViewDetailedDetails1
+ list:setChoices(input)
+ local list2 = self.subviews.classViewDetailedDetails2
+ list2:setChoices(input2)
 end
 
 function UnitViewUi:detailsSyndromes(syndromes,details)
@@ -598,11 +842,29 @@ function UnitViewUi:detailsSyndromes(syndromes,details)
  list:setChoices(detail)
 end
 
+function UnitViewUi:detailsThoughts(info)
+ local insert = {}
+ local w_frame = 40
+ table.insert(insert,{text = { {text = center('Thoughts',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.thoughts.text,{width=w_frame})
+ table.insert(insert,{text={{text='',width=w_frame}}})
+ table.insert(insert,{text = { {text = center('Traits',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.traits.text,{width=w_frame})
+ local list = self.subviews.thoughtsViewDetailed
+ list:setChoices(insert)
+ 
+ insert = {}
+ table.insert(insert,{text = { {text = center('Preferences',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.preferences.text,{width=w_frame})
+ table.insert(insert,{text={{text='',width=w_frame}}})
+ table.insert(insert,{text = { {text = center('Values',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.values.text,{width=w_frame})
+ local list = self.subviews.thoughtsViewDetailed2
+ list:setChoices(insert)
+end
+
 function UnitViewUi:onInput(keys)
  if keys.LEAVESCREEN then
---[[  if self.subviews.interactionView.visible then
-   self.subviews.interactionView.visible = false
-   self.subviews.main.visible = true]]
   if self.subviews.syndromeView.visible then
    self.subviews.syndromeView.visible = false
    self.subviews.main.visible = true
@@ -613,18 +875,9 @@ function UnitViewUi:onInput(keys)
    self.subviews.classView.visible = false
    self.subviews.classView2.visible = false
    self.subviews.main.visible = true
---[[  elseif self.subviews.equipmentView then
-   self.subviews.equipmentView = false
+  elseif self.subviews.thoughtsView.visible then
+   self.subviews.thoughtsView.visible = false
    self.subviews.main.visible = true
-  elseif self.subviews.interactionView.visible then
-   self.subviews.interactionView.visible = false
-   self.subviews.main.visible = true
-  elseif self.subviews.syndromeView.visible then
-   self.subviews.syndromeView.visible = false
-   self.subviews.main.visible = true
-  elseif self.subviews.spellbookView.visible then
-   self.subviews.spellbookView.visible = false
-   self.subviews.main.visible = true]]  
   else
    self:dismiss()
   end
