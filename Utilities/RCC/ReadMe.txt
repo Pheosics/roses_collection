@@ -1,3 +1,5 @@
+Note that any file that begins with templates_ will be read in and processed.
+
 Types of Templates:
 			ATTACK - All templates are able to add attacks, those attacks are stored here for easy reference
 			BIOME - Gives the creatures the [BIOME:<biome>] creature tokens
@@ -29,10 +31,10 @@ Types of Templates:
 Example Template:
 	All of the above templates will take the exact same list of inputs. The full list is as follows;
 	[TEMPLATE:-type-:-ID-]
+Basic Inputs
  		{DESCRIPTION:-desc-}
  		{NAME:-names-}
  		{ATTACKS:-attacks-}
- 		{ARGS:-args-}
  		{TOKENS:-tokens-}
  		{LINK:-tokens-}
  		{EXCEPT:-tokens-}
@@ -41,18 +43,24 @@ Example Template:
 		{WEIGHT:-weight-}
 		{BP_COLORS:-body part category-}
  		{BODY:-body parts-}
+Complex Inputs
+ 		{ARGS:-args-}
+		{REPLACEMENTS:-replace-}
+		{ITERATIONS:-iterate-}
+
  			-raws-
 
 	Each template can have as many or as few of the above entries as desired. Multiples in a single input are seperated by commas.
 	Raws should be included at the end of each template. The order of other inputs is not important
 
-Input Details:
+Basic Input Details:
 	The following describes in detail what each input does;
 	{DESCRIPTION:-desc-}
 		Tells the code what to include (if anything) in the creature's description. There are no special tokens associated with this input.
                 The exact format for creating the creature description is discussed below.
 			EXAMPLE:
 				{DESCRIPTION:two heads}
+
 	{NAME:-names-}
 		Is used in forming the creature's name, the special tokens associated with this input are ADJ, PREFIX, MAIN, SUFFIX
 			ADJ - Gives an adjective that can be used in the creatures name
@@ -62,58 +70,143 @@ Input Details:
 		The exact format for creating the creature name is discussed below.
 			EXAMPLE:
 				{NAME:ADJ:one eyed,MAIN:cyclops}
+
 	{ATTACKS:-attacks-}
 		The list of attacks that a specific template should add to a creature. All attacks from each template are added.
 			EXAMPLE:
 				{ATTACKS:ATTACK_PUNCH}
+
 	{TEMPLATES:-templates-}
 		A list of templates that are to be included (and therefore skipped).
 		Exact usage of this input will be discussed in the ordering section below.
 			EXAMPLE:
 				{TEMPLATES:HEAD,ARM,LEG,HAND,FOOT}
+
 	{WEIGHT:-weight-}
 		The numerical weight to assign the template. When templates are chosen, they are chosen randomly based on their weights.
 		Default weight (if the input is not included) is 100. All weights are relative.
 			EXAMPLE:
 				{WEIGHT:50}
+
 	{TOKENS:-tokens-}
 		A list of tokens that are added to the creature if the template is chosen.
 		Most tokens are user-defined, but there are a handful of built in tokens that will be discussed below. All built in tokens begin with #
 			EXAMPLE:
 				{TOKENS:SHEARABLE,TRADE_ANIMAL}
+
 	{LINK:-tokens-}
 		A list of tokens that the creature must have from previous templates in order to be chosen.
 		This is discussed in more detail in the ordering section.
 			EXAMPLE:
 				{LINK:WATER_ONLY,AQUATIC}
+
 	{EXCEPT:-tokens-}
 		A list of tokens that forbid a template from being chosen if the creature has.
 		This is discussed in more detail in the ordering section.
 			EXAMPLE:
 				{EXCEPT:WATER_ONLY}
+
 	{PERCENT:-tokens-}
 		A list of tokens that are chosen from a probability given at run time.
 		Each token present in each PERCENT input in each template is given as a list on the gui. These tokens are assigned before anything else.
 		This is discussed in more detail in the ordering section.
 			EXAMPLE:
 				{PERCENT:VENOM}
+
 	{BP_COLORS:-body part category-}
 		This input tells the code to generate a color for the specific body part category.
 		Colors and color definitions are discussed in detail below.
 			EXAMPLE:
 				{BP_COLORS:SKIN,HAIR}
+
 	{BODY:-body parts-}
 		A list of body parts that should be added to the creatures [BODY:--].
 		The order the body parts are added is the same as the order the templates are read. Discussed in the ordering section below.
 			EXAMPLE:
 				{BODY:TORSO_1PART,HEAD}
+
+Complex Input Details:
 	{ARGS:-args-}
 		A complex input, it is used to vary templates across creatures without needing multiple templates.
 		It allows for things such as varying strength of poisons, clutch sizes, pop ratios, etc... all using the same template.
 		Each argument in each ARGS input in each template is given a Min/Max entry on the gui.
-		This is discussed in more detail in the raws section.
 			EXAMPLE:
-				{ARGS:SEV,END}
+			[TEMPLATE:EXAMPLE_ARGS]
+				{ARGS:CLUTCH_MIN,CLUTCH_MAX}
+					[CLUTCH_SIZE:#ARG1:#ARG2]
+
+		If a creature were to get assigned this template then it would choose a value for the arguments and place them in the cooresponding slots.
+		This allows two creatures with the same template to have different numbers.
+
+	{REPLACEMENTS:-replace-}
+		This input will create multiple templates out of a single template. Any #REPLACE flags will get replaced with the declared variables
+		There must be the same number of variables (seperated by ,) as the number of #REPLACE flags (e.g. if you have a #REPLACE1 and #REPLACE2 you need two variables)
+		Each replacement you wish to make will be seperated by :, so for example
+			EXAMPLE:
+			[TEMPLATE:EXAMPLE_REPLACEMENTS_#REPLACE2]
+				{REPLACEMENTS:HOOF:PAW:STUMP,1:2:3}
+					[BODYGLOSS:#REPLACE1]
+
+		If this template were read in it would be read in as 3 seperate templates, namely;
+			[TEMPLATE:EXAMPLE_REPLACEMENTS_1]
+				[BODYGLOSS:HOOF]
+
+			[TEMPLATE:EXAMPLE_REPLACEMENTS_2]
+				[BODYGLOSS:PAW]
+
+			[TEMPLATE:EXAMPLE_REPLACEMENTS_3]
+				[BODYGLOSS:STUMP]
+
+		This allows you to create many many templates without cluttering up your template files.
+
+	{ITERATIONS:-iterate-}
+		This functions the exact same as REPLACEMENTS except it uses #ITERATE and is done AFTER the replacements are run.
+		This means that if you had a single template with 3 replacements and 3 iterations you would get 9 total templates.
+		Expanding on our above example
+			[TEMPLATE:EXAMPLE_ITERATIONS_#ITERATE1_#REPLACE1]
+				{REPLACEMENTS:HOOF:PAW:STUMP}
+				{ITERATIONS:SMALL:LARGE:GIANT,5:50:500}
+					[BODYGLOSS:#REPLACE1]
+					[RELSIZE:BY_CATEGORY:HAND:#ITERATE2]
+		This will give you
+			[TEMPLATE:EXAMPLE_ITERATIONS_SMALL_HOOF]
+				[BODYGLOSS:HOOF]
+				[RELSIZE:BY_CATEGORY:HAND:5]
+
+			[TEMPLATE:EXAMPLE_ITERATIONS_SMALL_PAW]
+				[BODYGLOSS:PAW]
+				[RELSIZE:BY_CATEGORY:HAND:5]
+
+			[TEMPLATE:EXAMPLE_ITERATIONS_SMALL_STUMP]
+				[BODYGLOSS:STUMP]
+				[RELSIZE:BY_CATEGORY:HAND:5]
+
+			[TEMPLATE:EXAMPLE_ITERATIONS_LARGE_HOOF]
+				[BODYGLOSS:HOOF]
+				[RELSIZE:BY_CATEGORY:HAND:50]
+
+			[TEMPLATE:EXAMPLE_ITERATIONS_LARGE_PAW]
+				[BODYGLOSS:PAW]
+				[RELSIZE:BY_CATEGORY:HAND:50]
+
+			[TEMPLATE:EXAMPLE_ITERATIONS_LARGE_STUMP]
+				[BODYGLOSS:STUMP]
+				[RELSIZE:BY_CATEGORY:HAND:50]
+
+			[TEMPLATE:EXAMPLE_ITERATIONS_GIANT_HOOF]
+				[BODYGLOSS:HOOF]
+				[RELSIZE:BY_CATEGORY:HAND:500]
+
+			[TEMPLATE:EXAMPLE_ITERATIONS_GIANT_PAW]
+				[BODYGLOSS:PAW]
+				[RELSIZE:BY_CATEGORY:HAND:500]
+
+			[TEMPLATE:EXAMPLE_ITERATIONS_GIANT_STUMP]
+				[BODYGLOSS:STUMP]
+				[RELSIZE:BY_CATEGORY:HAND:500]
+
+		The templates provided have several examples of all three of these complex inputs.
+
 	-raws-
 		All your raws (besides those in ATTACKS and BODY inputs} will go here. This input has three special tokens
 			#NAME - places the creature name here, useful for naming milk, honey, etc...

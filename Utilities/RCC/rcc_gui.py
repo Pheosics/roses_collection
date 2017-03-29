@@ -286,7 +286,7 @@ if __name__ == '__main__':
    self.t.destroy()
 
   def makelist(self):
-   stext = tix.ScrolledText(self.t)
+   stext = tix.ScrolledText(self.t,width=800,height=1000)
    stext.subwidget('text').insert(tix.INSERT,'\n'.join(rcc.creature['Raws']))
    stext.grid(row=0,column=0)
    self.bb = tix.ButtonBox(self.t, orientation = tix.VERTICAL)
