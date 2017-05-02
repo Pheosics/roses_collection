@@ -206,6 +206,7 @@ function checkInorganic(source,pos,argument,relation,verbose) -- not done
   return true
  end
 end
+
 function checkFlow(source,pos,argument,relation,verbose) -- checks for flow at given position
  flow,flowtype = dfhack.script_environment('functions/map').getFlow(pos)
  if not flow then
