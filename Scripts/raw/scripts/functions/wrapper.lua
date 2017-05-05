@@ -108,7 +108,7 @@ function checkTree(source,pos,argument,relation,verbose) -- checks for a tree at
     return false
    end   
   else
-   tree_mat = dfhack.script_environment('functions/map').getGrassMaterial(pos)
+   tree_mat = dfhack.script_environment('functions/map').getTreeMaterial(pos)
    if tree_mat.plant.id == arg then
     if relation == 'required' then
      return true
@@ -182,8 +182,8 @@ function checkGrass(source,pos,argument,relation,verbose) -- checks for grass at
     return false
    end   
   else
-   shrub_mat = dfhack.script_environment('functions/map').getShrubMaterial(pos)
-   if shrub_mat.plant.id == arg then
+   grass_mat = dfhack.script_environment('functions/map').getGrassMaterial(pos)
+   if grass_mat.plant.id == arg then
     if relation == 'required' then
      return true
     elseif relation == 'forbidden' then
@@ -281,46 +281,47 @@ end
 ---- base call for all position targeting checks
 function isSelectedLocation(source,pos,args)
  local selected = true
+ if args.test then test = true end
  
- if args.requiredTree and selected then
+ if args.requiredTree and (selected or test) then
   selected = checkTree(source,pos,args.requiredTree,'required',args.verbose)
  end
- if args.forbiddenTree and selected then
+ if args.forbiddenTree and (selected or test) then
   selected = checkTree(source,pos,args.forbiddenTree,'forbidden',args.verbose)
  end
  
- if args.requiredPlant and selected then
+ if args.requiredPlant and (selected or test) then
   selected = checkPlant(source,pos,args.requiredPlant,'required',args.verbose)
  end
- if args.forbiddenPlant and selected then
+ if args.forbiddenPlant and (selected or test) then
   selected = checkPlant(source,pos,args.forbiddenPlant,'forbidden',args.verbose)
  end
  
- if args.requiredGrass and selected then
+ if args.requiredGrass and (selected or test) then
   selected = checkTree(source,pos,args.requiredGrass,'required',args.verbose)
  end
- if args.forbiddenGrass and selected then
+ if args.forbiddenGrass and (selected or test) then
   selected = checkGrass(source,pos,args.forbiddenGrass,'forbidden',args.verbose)
  end
  
- if args.requiredInorganic and selected then
+ if args.requiredInorganic and (selected or test) then
   selected = checkInorganic(source,pos,args.requiredInorganic,'required',args.verbose)
  end
- if args.forbiddenInorganic and selected then
+ if args.forbiddenInorganic and (selected or test) then
   selected = checkInorganic(source,pos,args.forbiddenInorganic,'forbidden',args.verbose)
  end
 
- if args.requiredFlow and selected then
+ if args.requiredFlow and (selected or test) then
   selected = checkFlow(source,pos,args.requiredFlow,'required',args.verbose)
  end
- if args.forbiddenFlow and selected then
+ if args.forbiddenFlow and (selected or test) then
   selected = checkFlow(source,pos,args.forbiddenFlow,'forbidden',args.verbose)
  end
  
- if args.requiredLiquid and selected then
+ if args.requiredLiquid and (selected or test) then
   selected = checkLiquid(source,pos,args.requiredLiquid,'required',args.verbose)
  end
- if args.forbiddenLiquid and selected then
+ if args.forbiddenLiquid and (selected or test) then
   selected = checkLiquid(source,pos,args.forbiddenLiquid,'forbidden',args.verbose)
  end
  
@@ -443,8 +444,8 @@ function checkAttribute(source,target,argument,relation,verbose) -- checks attri
  for i,x in pairs(argument) do
   attribute = split(x,':')[1]
   value = tonumber(split(x,':')[2])
-  sattribute = dfhack.script_environment('functions/unit').trackAttribute(source,attribute,nil,nil,nil,nil,'get')
-  tattribute = dfhack.script_environment('functions/unit').trackAttribute(target,attribute,nil,nil,nil,nil,'get')
+  sattribute = dfhack.script_environment('functions/unit').getUnit(source,'Attributes',attribute)
+  tattribute = dfhack.script_environment('functions/unit').getUnit(target,'Attributes',attribute)
   if relation == 'max' then
    if tattribute > value then return false end
   elseif relation == 'min' then
@@ -588,8 +589,8 @@ function checkSkill(source,target,argument,relation,verbose) -- checks skills of
  for i,x in pairs(argument) do
   skill = split(x,':')[1]
   value = tonumber(split(x,':')[2])
-  sskill = dfhack.script_environment('functions/unit').trackSkill(source,skill,nil,nil,nil,nil,'get')
-  tskill = dfhack.script_environment('functions/unit').trackSkill(target,skill,nil,nil,nil,nil,'get')
+  sskill = dfhack.script_environment('functions/unit').getUnit(source,'Skills',skill)
+  tskill = dfhack.script_environment('functions/unit').getUnit(target,'Skills',skill)
   if relation == 'max' then
    if tskill > value then return false end
   elseif relation == 'min' then
@@ -660,8 +661,8 @@ function checkTrait(source,target,argument,relation,verbose) -- checks traits of
  for i,x in pairs(argument) do
   trait = split(x,':')[1]
   value = tonumber(split(x,':')[2])
-  strait = dfhack.script_environment('functions/unit').trackTrait(source,trait,nil,nil,nil,nil,'get')
-  ttrait = dfhack.script_environment('functions/unit').trackTrait(target,trait,nil,nil,nil,nil,'get')
+  strait = dfhack.script_environment('functions/unit').getUnit(source,'Traits',trait)
+  ttrait = dfhack.script_environment('functions/unit').getUnit(target,'Traits',trait)
   if relation == 'max' then
    if ttrait > value then return false end
   elseif relation == 'min' then
@@ -678,125 +679,126 @@ end
 ---- base call for all unit targeting checks
 function isSelectedUnit(source,unit,args)
  local selected = true
+ if args.test then test = true end
 
- if args.maxAttribute and selected then
+ if args.maxAttribute and (selected or test) then
   selected = checkAttribute(source,unit,args.maxAttribute,'max',args.verbose)
  end
- if args.minAttribute and selected then
+ if args.minAttribute and (selected or test) then
   selected = checkAttribute(source,unit,args.minAttribute,'min',args.verbose)
  end
- if args.gtAttribute and selected then
+ if args.gtAttribute and (selected or test) then
   selected = checkAttribute(source,unit,args.gtAttribute,'greater',args.verbose)
  end
- if args.ltAttribute and selected then
+ if args.ltAttribute and (selected or test) then
   selected = checkAttribute(source,unit,args.ltAttribute,'less',args.verbose)
  end
  
- if args.maxSkill and selected then
+ if args.maxSkill and (selected or test) then
   selected = checkSkill(source,unit,args.maxSkill,'max',args.verbose)
  end
- if args.minSkill and selected then
+ if args.minSkill and (selected or test) then
   selected = checkSkill(source,unit,args.minSkill,'min',args.verbose)
  end
- if args.gtSkill and selected then
+ if args.gtSkill and (selected or test) then
   selected = checkSkill(source,unit,args.gtSkill,'greater',args.verbose)
  end
- if args.ltSkill and selected then
+ if args.ltSkill and (selected or test) then
   selected = checkSkill(source,unit,args.ltSkill,'less',args.verbose)
  end
  
- if args.maxTrait and selected then
+ if args.maxTrait and (selected or test) then
   selected = checkTrait(source,unit,args.maxTrait,'max',args.verbose)
  end
- if args.mintrait and selected then
+ if args.mintrait and (selected or test) then
   selected = checkTrait(source,unit,args.minTrait,'min',args.verbose)
  end
- if args.gtTrait and selected then
+ if args.gtTrait and (selected or test) then
   selected = checkTrait(source,unit,args.gtTrait,'greater',args.verbose)
  end
- if args.ltTrait and selected then
+ if args.ltTrait and (selected or test) then
   selected = checkTrait(source,unit,args.ltTrait,'less',args.verbose)
  end
  
- if args.maxAge and selected then
+ if args.maxAge and (selected or test) then
   selected = checkAge(source,unit,args.maxAge,'max',args.verbose)
  end
- if args.minAge and selected then
+ if args.minAge and (selected or test) then
   selected = checkAge(source,unit,args.minAge,'min',args.verbose)
  end
- if args.gtAge and selected then
+ if args.gtAge and (selected or test) then
   selected = checkAge(source,unit,args.gtAge,'greater',args.verbose)
  end
- if args.ltAge and selected then
+ if args.ltAge and (selected or test) then
   selected = checkAge(source,unit,args.ltAge,'less',args.verbose)
  end
  
- if args.maxSpeed and selected then
+ if args.maxSpeed and (selected or test) then
   selected = checkSpeed(source,unit,args.maxSpeed,'max',args.verbose)
  end
- if args.minSpeed and selected then
+ if args.minSpeed and (selected or test) then
   selected = checkSpeed(source,unit,args.minSpeed,'min',args.verbose)
  end
- if args.gtSpeed and selected then
+ if args.gtSpeed and (selected or test) then
   selected = checkSpeed(source,unit,args.gtSpeed,'greater',args.verbose)
  end
- if args.ltSpeed and selected then
+ if args.ltSpeed and (selected or test) then
   selected = checkSpeed(source,unit,args.ltSpeed,'less',args.verbose)
  end
  
- if args.requiredClass and selected then
+ if args.requiredClass and (selected or test) then
   selected = checkClass(source,unit,args.requiredClass,'required',args.verbose)
  end 
- if args.immuneClass and selected then
+ if args.immuneClass and (selected or test) then
   selected = checkClass(source,unit,args.immuneClass,'immune',args.verbose)
  end 
  
- if args.requiredCreature and selected then
+ if args.requiredCreature and (selected or test) then
   selected = checkCreature(source,unit,args.requiredCreature,'required',args.verbose)
  end 
- if args.immuneCreature and selected then
+ if args.immuneCreature and (selected or test) then
   selected = checkCreature(source,unit,args.immuneCreature,'immune',args.verbose)
  end
  
- if args.requiredSyndrome and selected then
+ if args.requiredSyndrome and (selected or test) then
   selected = checkSyndrome(source,unit,args.requiredSyndrome,'required',args.verbose)
  end 
- if args.immuneSyndrome and selected then
+ if args.immuneSyndrome and (selected or test) then
   selected = checkSyndrome(source,unit,args.immuneSyndrome,'immune',args.verbose)
  end
 
- if args.requiredToken and selected then
+ if args.requiredToken and (selected or test) then
   selected = checkToken(source,unit,args.requiredToken,'required',args.verbose)
  end 
- if args.immuneToken and selected then
+ if args.immuneToken and (selected or test) then
   selected = checkToken(source,unit,args.immuneToken,'immune',args.verbose)
  end
  
- if args.requiredNoble and selected then
+ if args.requiredNoble and (selected or test) then
   selected = checkNoble(source,unit,args.requiredNoble,'required',args.verbose)
  end 
- if args.inoble and selected then
+ if args.inoble and (selected or test) then
   selected = checkNoble(source,unit,args.inoble,'immune',args.verbose)
  end
  
- if args.requiredProfesion and selected then
+ if args.requiredProfesion and (selected or test) then
   selected = checkProfession(source,unit,args.requiredProfesion,'required',args.verbose)
  end 
- if args.immuneProfession and selected then
+ if args.immuneProfession and (selected or test) then
   selected = checkProfession(source,unit,args.immuneProfession,'immune',args.verbose)
  end
  
- if args.requiredEntity and selected then
+ if args.requiredEntity and (selected or test) then
   selected = checkEntity(source,unit,args.requiredEntity,'required',args.verbose)
  end 
- if args.immuneEntity and selected then
+ if args.immuneEntity and (selected or test) then
   selected = checkEntity(source,unit,args.immuneEntity,'immune',args.verbose)
  end
 
- if args.requiredPathing and selected then
+ if args.requiredPathing and (selected or test) then
   selected = checkPathing(source,unit,args.requiredPathing,'required',args.verbose)
  end 
- if args.immunePathing and selected then
+ if args.immunePathing and (selected or test) then
   selected = checkPathing(source,unit,args.immunePathing,'immune',args.verbose)
  end 
  
@@ -985,25 +987,26 @@ end
 
 function isSelectedItem(source,item,args)
  local selected = true
+ if args.test then test = true end
  
- if args.requiredItem and selected then
+ if args.requiredItem and (selected or test) then
   selected = checkItemType(source,pos,args.requiredItem,'required',args.verbose)
  end
- if args.forbiddenItem and selected then
+ if args.forbiddenItem and (selected or test) then
   selected = checkItemType(source,pos,args.forbiddenItem,'forbidden',args.verbose)
  end
 
- if args.requiredMaterial and selected then
+ if args.requiredMaterial and (selected or test) then
   selected = checkMaterial(source,pos,args.requiredMaterial,'required',args.verbose)
  end
- if args.forbiddenMaterial and selected then
+ if args.forbiddenMaterial and (selected or test) then
   selected = checkMaterial(source,pos,args.forbiddenMaterial,'forbidden',args.verbose)
  end
 
- if args.requiredCorpse and selected then
+ if args.requiredCorpse and (selected or test) then
   selected = checkCorpse(source,pos,args.requiredCorpse,'required',args.verbose)
  end
- if args.forbiddenCorpse and selected then
+ if args.forbiddenCorpse and (selected or test) then
   selected = checkCorpse(source,pos,args.forbiddenCorpse,'forbidden',args.verbose)
  end
 

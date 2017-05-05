@@ -1,0 +1,570 @@
+roses
+-- Class System Tables
+	ClassTable
+		CLASS_TOKEN
+			Name										Class Name
+			Description									Class Description
+			Levels										#
+			AutoUpgrade									T/F
+			Experience
+				#									#
+			RequiredClass
+				CLASS_TOKEN								#
+			ForbiddenClass
+				CLASS_TOKEN								#
+			RequirementSkill
+				SKILL_TOKEN								#
+			RequirementTrait
+				TRAIT_TOKEN								#
+			RequirementAttribute
+				ATTRIBUTE_TOKEN								#
+			RequirementCounter
+				COUNTER									#
+			RequirementCreature
+				CREATURE_TOKEN								CASTE_TOKEN
+			LevelBonus
+				Attribute
+					ATTRIBUTE_TOKEN
+						#							#
+				Skill
+					SKILL_TOKEN
+						#							#
+				Resistance
+					RESISTANCE_TOKEN
+						#							#
+				Stat
+					STAT_TOKEN
+						#							#
+				Trait
+					TRAIT_TOKEN
+						#							#
+			BonusAttribute
+				ATTRIBUTE_TOKEN
+					#								#
+			BonusTrait
+				TRAIT_TOKEN
+					#								#
+			BonusSkill
+				SKILL_TOKEN
+					#								#
+			BonusStat
+				STAT_TOKEN
+					#								#
+			BonusResistance
+				RESISTANCE_TOKEN
+					#								#
+			Spells
+				SPELL_TOKEN
+					RequiredLevel							#
+					AutoLearn							T/F
+	FeatTable
+		FEAT_TOKEN
+			Name										Feat Name
+			Description									Feat Description
+			RequiredClass
+				CLASS_TOKEN								#
+			RequiredFeat
+				FEAT_TOKEN								FEAT_TOKEN
+			ForbiddenClass
+				CLASS_TOKEN								#
+			ForbiddenFeat
+				FEAT_TOKEN								FEAT_TOKEN
+			Cost										#
+			Effect
+				#									Effect Description
+			Script
+				#									SCRIPT
+	SpellTable
+		SPELL_TOKEN
+			Name										Spell Name
+			Description									Spell Description
+			Type										TYPE_TOKEN
+			Sphere										SPHERE_TOKEN
+			School										SCHOOL_TOKEN
+			Discipline									DISCIPLINE_TOKEN
+			SubDiscipline									SUBDISCIPLINE_TOKEN
+			Level										#
+			Effect										Effect Type
+			Announcement									Announcement
+			Resistable									T/F
+			CanCrit										T/F
+			Penetration									#
+			HitModifier									#
+			HitModifierPerc									#
+			SourcePrimaryAttribute
+				#									ATTRIBUTE_TOKEN
+			SourceSecondaryAttribute
+				#									ATTRIBUTE_TOKEN
+			TargetPrimaryAttribute
+				#									ATTRIBUTE_TOKEN
+			TargetSecondaryAttribute
+				#									ATTRIBUTE_TOKEN
+			ExperienceGain									#
+			SkillGain
+				SKILL_TOKEN								#
+			Upgrade										SPELL_TOKEN
+			Cost										#
+			CastTime									#
+			CastExhaustion									#
+			RequiredAttribute
+				ATTRIBUTE_TOKEN								#
+			ForbiddenClass
+				CLASS_TOKEN								#
+			ForbiddenSpell
+				SPELL_TOKEN								SPELL_TOKEN
+			Script
+				#									SCRIPT
+-- Civilization System Tables
+	CivilizationTable
+		CIVILIZATION_TOKEN
+			Name										Civ Name
+			Levels										#
+			LevelMethod									METHOD_TYPE
+			LevelPercent									#
+			Level
+				#
+					Name
+					Required
+						CounterMax
+							COUNTER						#
+						CounterMin
+							COUNTER						#
+						CounterEqual
+							COUNTER						#
+						Time							#
+						Population						#
+						Season							SEASON_TOKEN
+						TreeCut							#
+						Rank							#
+						ProgressPopulation					#
+						ProgressTrade						#
+						ProgressProduction					#
+						NumArtifacts						#
+						TotDeaths						#
+						TotInsanities						#
+						TotExecutions						#
+						MigrantWaves						#
+						Wealth
+							WEALTH_TYPE					#
+						Building
+							BUILDING_TOKEN					#
+						Skill
+							SKILL_TOKEN					#
+						Class
+							CLASS_TOKEN					#
+						EntityKills
+							ENTITY_TOKEN					#
+						CreatureKills
+							CREATURE_TOKEN
+								CASTE_TOKEN				#
+						EntityDeaths
+							ENTITY_TOKEN					#
+						CreatureDeaths
+							CREATURE_TOKEN
+								CASTE_TOKEN				#
+						Trades
+							ENTITY_TOKEN					#
+						Sieges
+							ENTITY_TOKEN					#
+						Diplomacy
+							X
+					Remove
+						Creature
+							CREATURE_TYPE
+								CREATURE_TOKEN				CASTE_TOKEN
+						Inorganic
+							INORGANIC_TYPE
+								INORGANIC_TOKEN				INORGANIC_TOKEN
+						Organic
+							ORGANIC_TYPE
+								MAT_TOKEN				SUBTYPE_TOKEN
+						Refuse
+							REFUSE_TYPE
+								MAT_TOKEN				SUBTYPE_TOKEN
+						Item
+							ITEM_TYPE
+								ITEM_SUBTYPE_TOKEN			ITEM_SUBTYPE_TOKEN
+						Product
+							PRODUCT_TYPE
+								MAT_TOKEN				SUBTYPE_TOKEN
+						Misc
+							MISC_TYPE
+								MAT_TOKEN				SUBTYPE_TOKEN
+					Add
+						<<<Remove>>>
+					Ethics
+						ETHIC_TOKEN						#
+					Values
+						VALUE_TOKEN						#
+					Skills
+						SKILL_TOKEN						#
+					Classes
+						CLASS_TOKEN						#
+					LevelMethod							METHOD_TYPE
+					LevelPercent							#
+					AddPosition
+						POSITION_TOKEN
+							<<<All Position Related RAW Tokens>>>			
+	DiplomacyTable
+-- Enhanced System Tables
+	EnhancedBuildingTable
+		BUILDING_TOKEN
+			Name										Building Name
+			Description									Building Description
+			MultiStory									#
+			TreeBuilding									#
+			Basement									#
+			Roof										ROOF_TYPE_TOKEN
+			Walls										WALL_TYPE_TOKEN
+			Stairs										DIRECTION_TOKEN
+			Upgrade										BUILDING_TOKEN
+			Spell
+				SPELL_TOKEN
+					Frequency							#
+			RequiredWater									#
+			RequiredMagma									#
+			MaxAmount									#
+			OutsideOnly									T/F
+			InsideOnly									T/F
+			RequiredBuilding
+				BUILDING_TOKEN								#
+			ForbiddenBuilding
+				BUILDING_TOKEN								#
+	EnhancedCreatureTable
+		CREATURE_TOKEN
+			CASTE_TOKEN
+				Name									Creature Name
+				Description								Creature Description
+				Size
+					Baby								#
+					Child								#
+					Adult								#
+					Max								#
+					Variance							#
+				Attributes
+					ATTRIBUTE_TOKEN
+						1-7							#
+				Skills
+					SKILL_TOKEN
+						Min							#
+						Max							#
+				Stats
+					STAT_TOKEN
+						Min							#
+						Max							#
+				Resistances
+					RESISTANCE_TOKEN						#
+				Classes
+					CLASS_TOKEN
+						Level							#
+						Interactions						#
+				Interactions
+					INTERACTION_TOKEN
+						Probability						#
+	EnhancedItemTable
+		ITEM_TOKEN
+			Name										Item Name
+			Description									Item Description
+			Class										Item Class
+			Rarity										Item Rarity
+			OnEquip
+				Script
+					#								SCRIPT
+				Attributes
+					ATTRIBUTE_TOKEN							#
+				Skills
+					SKILL_TOKEN							#
+				Traits
+					TRAIT_TOKEN							#
+				Stats
+					STAT_TOKEN							#
+				Resistances
+					RESISTANCE_TOKEN						#
+				Interactions
+					#								INTERACTION_TOKEN
+				Syndromes
+					#								SYNDROME_TOKEN
+			OnStrike
+				Script
+					#								SCRIPT
+				AttackerAttributes
+					ATTRIBUTE_TOKEN							#
+				AttackerSkills
+					SKILL_TOKEN							#
+				AttackerTraits
+					TRAIT_TOKEN							#
+				AttackerStats
+					STAT_TOKEN							#
+				AttackerResistances
+					RESISTANCE_TOKEN						#
+				AttackerInteractions
+					#								INTERACTION_TOKEN
+				AttackerSyndromes
+					#								SYNDROME_TOKEN
+				AttackerDur								#
+				DefenderAttributes
+                                        ATTRIBUTE_TOKEN							#
+                                DefenderSkills
+                                        SKILL_TOKEN							#
+                                DefenderTraits
+                                        TRAIT_TOKEN							#
+                                DefenderStats
+                                        STAT_TOKEN							#
+                                DefenderResistances
+                                        RESISTANCE_TOKEN						#
+                                DefenderInteractions
+                                        #								INTERACTION_TOKEN
+                                DefenderSyndromes
+                                        #								SYNDROME_TOKEN
+                                DefenderDur								#
+			OnParry
+				<<<OnStrike>>>
+			OnDodge
+				<<<OnStrike>>>
+			OnBlock
+				<<<OnStrike>>>
+	EnhancedMaterialTable
+		Inorganic
+			INORGANIC_TOKEN
+				<<<EnhancedItemTable>>>
+		Creature
+			CREATURE_TOKEN
+				MAT_TOKEN
+					<<<EnhancedItemTable>>>
+		Plant
+			PLANT_TOKEN
+				PLANT_MAT_TOKEN
+					<<<EnhancedItemTable>>>
+	EnhancedReactionTable
+		REACTION_TOKEN
+			Name										Reaction Name
+			Description									Reaction Description
+			BaseDur										#
+			Skill										SKILL_TOKEN
+			SkillDur
+				1-20									#
+			DurReduction
+				Increment								#
+				MaxReduction								#
+			Products
+				#
+					Chance								#
+					Number								#
+					MaterialType							MAT_TYPE_TOKEN
+					MaterialSubtype							MAT_INDEX_TOKEN
+					ItemType							ITEM_TYPE_TOKEN
+					ItemSubtype							ITEM_SUBTYPE_TOKEN
+			Frozen										T/F
+			Disappear									T/F
+-- Event System Tables
+	EventTable
+		EVENT_TOKEN
+			Name										Event Name
+			Description									Event Description
+			Check										CHECK_TOKEN
+			Chance										#
+			Delay
+				DELAY_TOKEN								#
+			Required
+				<<<CivilizationTable - Level - Required>>>
+			Effects										#
+			Effect
+				EFFECT_ID
+					Name								Event Effect Name
+					Description							Event Description Name
+					Chance								#
+					Contingent							EFFECT_ID
+					Delay
+						DELAY_TOKEN						#
+					Argument
+						#
+							Weighting					#
+							Equation					EQUATION
+							Variable					TOKEN
+					Arguments							#
+					Required
+						<<<Required>>>
+					Script
+						#							SCRIPT
+					Scripts								#
+					Unit								FIND_UNIT_TOKEN
+					Location							FIND_LOCATION_TOKEN
+					Building							FIND_BUILDING_TOKEN
+					Item								FIND_ITEM_TOKEN
+-- Base Tables
+	BaseTable
+		ExperienceRadius									#
+		FeatGains										#:#
+		CustomAttributes
+			#										CUSTOM_ATTRIBUTE_TOKEN
+		CustomSkills
+			#										CUSTOM_SKILL_TOKEN
+		CustomResistances
+			#										CUSTOM_RESISTANCE_TOKEN
+		CustomStats
+			#										CUSTOM_STAT_TOKEN
+		Types
+			#										TYPE_TOKEN
+		Spheres
+			#										SPHERE_TOKEN
+		Schools
+			#										SCHOOL_TOKEN
+		Disciplines
+			#										DISCIPLINE_TOKEN
+		SubDisciplines
+			#										SUBDISCIPLINE_TOKEN
+		Equations
+			EQUATION_TOKEN									EQUATION
+	WrapperTemplateTable
+		Name											Wrapper Template Name
+		Input											Wrapper Template Values
+	UnitTable
+		UNIT_ID
+			SyndromeTrack
+				SYNDROME_TOKEN
+					Attribute
+						ATTRIBUTE_TOKEN
+							Number						#
+							CallBack					#
+					Skill
+						SKILL_TOKEN
+							<<<Attribute>>>
+					Trait
+						TRAIT_TOKEN
+							<<<Attribute>>>
+					Stat
+						STAT_TOKEN
+							<<<Attribute>>>
+					Resistance
+						RESISTANCE_TOKEN
+							<<<Attribute>>>
+					General
+						Side
+							<<<Attribute>>>
+						Transform
+							<<<Attribute>>>
+						
+			Attributes
+				ATTRIBUTE_TOKEN
+					Base								#
+					Change								#
+					Class								#
+					Item								#
+					StatusEffects
+						End							#
+						Change							#
+						Linked							T/F
+			Skills
+				SKILL_TOKEN
+					<<<Attributes>>>
+			Traits
+				TRAIT_TOKEN
+					<<<Attributes>>>
+			Resistances
+				RESISTANCE_TOKEN
+					<<<Attributes>>>
+			Stats
+				STAT_TOKEN
+					<<<Attributes>>>
+			General
+				Kills									#
+				Deaths									#
+				Side
+					StatusEffects
+						End							#
+						Civ							#
+						Pop							#
+						Inv							#
+						Trn							#
+						Rgx							#
+						Rgy							#
+						Pid							#
+						Pet							#
+						Type							SIDE_TYPE_TOKEN
+						Linked							T/F
+				Transform
+					Race
+						Base							#
+						Current							#
+					Caste
+						Base							#
+						Current							#
+					StatusEffects
+						End							#
+						Race							#
+						Caste							#
+						Linked							T/F
+				Summoned
+					Creator								#
+					End								#
+					Syndrome							SYNDROME_TOKEN
+			Feats
+				FEAT_TOKEN								FEAT_TOKEN
+			Classes
+				Current
+					Name								Class Name
+					TotalExp							#
+					FeatPoints							#
+				CLASS_TOKEN
+					Level								#
+					Experience							#
+					SkillExp							#
+			Spells
+				Active
+					SPELL_TOKEN							SPELL_TOKEN
+				SPELL_TOKEN								0/1
+	EntityTable
+		ENTITY_ID
+			Kills
+				Total									#
+				CREATURE_TOKEN
+					CASTE_TOKEN							#
+			Deaths
+				Total									#
+				CREATURE_TOKEN
+					CASTE_TOKEN							#
+			Trades
+			Sieges
+			Civilization
+				Name									CIVILIZATION_TOKEN
+				Level									#
+				CurrentMethod								METHOD_TYPE
+				CurrentPercent								#
+				Classes
+					CLASS_TOKEN							#
+	ItemTable
+		ITEM_ID
+			Material
+				Base									#
+				Current									#
+				StatusEffects
+					End								#
+					Change								MATERIAL_TOKEN
+			Quality
+				Base									#
+				Current									#
+				StatusEffects
+					End								#
+					Change								#
+			Subtype
+				Base									#
+				Current									#
+				StatusEffects
+					End								#
+					Change								ITEM_SUBTYPE_TOKEN
+			Stats
+				Kills									#
+	GlobalTable
+		Kills
+			CREATURE_TOKEN
+				Total									#
+				CASTE_TOKEN								#
+			ENTITY_TOKEN									#
+		Deaths
+			CREATURE_TOKEN
+				Total									#
+				CASTE_TOKEN								#
+			ENTITY_TOKEN									#
+		Trades
+		Sieges	
+	

@@ -2043,7 +2043,8 @@ function makePlantOutput(info)
  return header, input, input2
 end
 
--- For UnitViewUi
+-- Functions for UnitViewUi
+
 function getUnitName(unit,translate)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
@@ -2411,4 +2412,936 @@ function getInfo(unit,length)
   end
  end
  return temp_info
+end
+function getBaseOutput(unit,w_frame)
+ name = getUnitName(unit)
+ caste = getCasteName(unit)
+ entity,civ,mem = getEntity(unit)
+
+ local insert = {}
+ insert = guiFunctions.insertWidgetInput(insert,'header',{header='Name',second=name},{width=w_frame})
+ insert = guiFunctions.insertWidgetInput(insert,'header',{header='Caste',second=caste},{width=w_frame})
+ insert = guiFunctions.insertWidgetInput(insert,'header',{header='Entity',second=entity},{width=w_frame})
+ insert = guiFunctions.insertWidgetInput(insert,'header',{header='Civilization',second=civ},{width=w_frame})
+ insert = guiFunctions.insertWidgetInput(insert,'header',{header='Membership',second=mem},{width=w_frame})
+
+ return insert
+end
+
+function getSkillsOutput(unit,w_frame)
+ skills = getSkills(unit)
+
+ local insert = {}
+ table.insert(insert,{text = { {text = center('Skills',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ for key,val in pairs(skills) do
+  insert = guiFunctions.insertWidgetInput(insert,'header',{header=key,second=tostring(val.level)..' '..tostring(val.experience)},{width=w_frame})
+ end
+
+ return insert
+end
+
+function getDescriptionOutput(info,w_frame)
+ local insert = {}
+ table.insert(insert,{text = {{text = center('Description',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.description.text,{width=w_frame})
+
+ return insert
+end
+
+function getAppearanceOutput(info,w_frame)
+ local insert = {}
+ table.insert(insert,{text = { {text = center('Appearance',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.appearance.text,{width=w_frame})
+
+ return insert
+end
+
+function getHealthOutput(info,w_frame)
+ local insert = {}
+ table.insert(insert,{text = {{text = center('Basic Health',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.wounds.text,{width=w_frame})
+
+ return insert
+end
+
+function getWorshipOutput(info,w_frame)
+ local insert = {}
+ table.insert(insert,{text = {{text = center('Membership and Worship',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.membership.text,{width=w_frame})
+ table.insert(insert,{text={{text='',width=w_frame}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.worship.text,{width=w_frame})
+
+ return insert
+end
+
+function getAttributesOutput(info,w_frame)
+ local insert = {}
+ table.insert(insert,{text = { {text = center('Attributes',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.attributes1.text,{width=w_frame})
+ table.insert(insert,{text={{text='',width=w_frame}}})
+ insert = guiFunctions.insertWidgetInput(insert,'second',info.attributes2.text,{width=w_frame})
+
+ return insert
+end
+
+function getClassOutput(unit,w_frame)
+ input = {}
+ local persistTable = require 'persist-table'
+ if safe_index(persistTable,'GlobalTable','roses','UnitTable',tostring(unit.id),'Classes','Current') then
+  name = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes.Current.Name
+  for _,x in pairs(persistTable.GlobalTable.roses.ClassTable._children) do
+   if persistTable.GlobalTable.roses.ClassTable[x].Name == name then
+    class = x
+    break
+   end
+  end
+  if class then
+   unitClasses = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes
+   unitSpells = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Spells
+   active = 0
+   known  = 0
+   for _,x in pairs(unitSpells._children) do
+    if x ~= 'Active' then
+     if unitSpells.Active[x] then active = active + 1 end
+     if unitSpells[x] == '1' then known  = known  + 1 end
+    end
+   end
+   totexp = unitClasses.Current.TotalExp
+   ftpnts = unitClasses.Current.FeatPoints
+   level = unitClasses[class].Level
+   clsexp = unitClasses[class].Experience
+   sklexp = unitClasses[class].SkillExp
+   input = insertWidgetInput(input,'header',{header='Current Class:', second=name})
+   input = insertWidgetInput(input,'header',{header='Level:', second=level})
+   input = insertWidgetInput(input,'header',{header='Total Experience:', second=totexp})
+   input = insertWidgetInput(input,'header',{header='Class Experience:', second=clsexp})
+   input = insertWidgetInput(input,'header',{header='Skill Expereince:', second=sklexp})
+   input = insertWidgetInput(input,'header',{header='Active Spells:', second=active})
+   input = insertWidgetInput(input,'header',{header='Known Spells:', second=known})
+   input = insertWidgetInput(input,'header',{header='Feat Points:', second=ftpnts})
+  else
+   input = insertWidgetInput(input,'header',{header='Current Class:', second=name})
+  end
+ end
+
+ return input
+end
+
+function getAttributesDetails(unit)
+ p_attributes, m_attributes = getAttributes(unit)
+ attributes = {}
+ a_len = 19
+ n_len = 5
+ table.insert(attributes, {text = {{text=center('Attributes',57), width = 57,pen=COLOR_LIGHTCYAN}}})
+ table.insert(attributes, {text = {{text=center('Physical',57), width = 57,pen=COLOR_LIGHTMAGENTA}}})
+ table.insert(attributes, {text = {
+                                   {text=center('',19),width=19},
+                                   {text='Current',rjustify=true,width=9,pen=COLOR_WHITE},
+                                   {text='Class',rjustify=true,width=7,pen=COLOR_WHITE},
+                                   {text='Item',rjustify=true,width=6,pen=COLOR_WHITE},
+                                   {text='Syndrome',rjustify=true,width=10,pen=COLOR_WHITE},
+                                   {text='Base',rjustify=true,width=6,pen=COLOR_WHITE}
+                                  }})
+ ttt = 0
+ for i,x in pairs(p_attributes) do
+  if ttt == 1 then
+   if p_attributes[i]['Current'] >= p_attributes[i]['Base'] then
+    fgc = COLOR_LIGHTGREEN
+   elseif p_attributes[i]['Current'] < p_attributes[i]['Base'] then
+    fgc = COLOR_LIGHTRED
+   end
+   ttt = 0
+  elseif ttt == 0 then
+   if p_attributes[i]['Current'] >= p_attributes[i]['Base'] then
+    fgc = COLOR_LIGHTGREEN
+   elseif p_attributes[i]['Current'] < p_attributes[i]['Base'] then
+    fgc = COLOR_LIGHTRED
+   end
+   ttt = 1
+  end
+  table.insert(attributes, {text = {
+                                    {text = i, width = a_len,pen = fgc},
+                                    {text = tostring(p_attributes[i]['Current']), rjustify=true,width=9,pen = fgc},
+                                    {text = tostring(p_attributes[i]['Class']), rjustify=true,width=7,pen = fgc},
+                                    {text = tostring(p_attributes[i]['Item']), rjustify=true,width=6,pen = fgc},
+                                    {text = tostring(p_attributes[i]['Syndrome']), rjustify=true,width=10,pen = fgc},
+                                    {text = tostring(p_attributes[i]['Base']), rjustify=true,width=6,pen = fgc}
+                                   }})
+ end
+ table.insert(attributes, {text = {{text=center('Mental',57), width = 57,pen=COLOR_LIGHTMAGENTA}}})
+ table.insert(attributes, {text = {
+                                   {text=center('',19),width=19},
+                                   {text='Current',rjustify=true,width=9,pen=COLOR_WHITE},
+                                   {text='Class',rjustify=true,width=7,pen=COLOR_WHITE},
+                                   {text='Item',rjustify=true,width=6,pen=COLOR_WHITE},
+                                   {text='Syndrome',rjustify=true,width=10,pen=COLOR_WHITE},
+                                   {text='Base',rjustify=true,width=6,pen=COLOR_WHITE}
+                                  }})
+ ttt = 0
+ for i,x in pairs(m_attributes) do
+  if ttt == 1 then
+   if m_attributes[i]['Current'] >= m_attributes[i]['Base'] then
+    fgc = COLOR_LIGHTGREEN
+   elseif m_attributes[i]['Current'] < m_attributes[i]['Base'] then
+    fgc = COLOR_LIGHTRED
+   end
+   ttt = 0
+  elseif ttt == 0 then
+   if m_attributes[i]['Current'] >= m_attributes[i]['Base'] then
+    fgc = COLOR_LIGHTGREEN
+   elseif m_attributes[i]['Current'] < m_attributes[i]['Base'] then
+    fgc = COLOR_LIGHTRED
+   end
+   ttt = 1
+  end
+  table.insert(attributes, {text = {
+                                    {text = i, width = a_len,pen = fgc},
+                                    {text = tostring(m_attributes[i]['Current']), rjustify=true,width=9,pen = fgc},
+                                    {text = tostring(m_attributes[i]['Class']), rjustify=true,width=7,pen = fgc},
+                                    {text = tostring(m_attributes[i]['Item']), rjustify=true,width=6,pen = fgc},
+                                    {text = tostring(m_attributes[i]['Syndrome']), rjustify=true,width=10,pen = fgc},
+                                    {text = tostring(m_attributes[i]['Base']), rjustify=true,width=6,pen = fgc}
+                                   }})
+ end
+
+ return attributes
+end
+
+function getSyndromesDetails(unit)
+ syndromes, details = getSyndromes(unit)
+ detail = {}
+ table.insert(detail, {
+     text = {
+             {text=center('Active Syndromes',20), pen=COLOR_LIGHTCYAN},
+                 {text=center('Start',6), pen=COLOR_LIGHTCYAN},
+                 {text=center('Peak',6), pen=COLOR_LIGHTCYAN},
+                 {text=center('Severity',10), pen=COLOR_LIGHTCYAN},
+                 {text=center('End',6), pen=COLOR_LIGHTCYAN},
+                 {text=center('Duration',10), pen=COLOR_LIGHTCYAN}
+     }
+   })
+ for i,x in pairs(syndromes) do
+  table.insert(detail, {
+      text = {
+              {text = x[1],width = 20,pen=fgc}
+      }
+  })
+  for j,y in pairs(details[i]) do
+   if pcall(function() return y.sev end) then
+    severity = y.sev
+   else
+    severity = 'NA'
+   end
+   effect = split(split(tostring(y._type),'creature_interaction_effect_')[2],'st>')[1]:gsub("(%a)([%w_']*)", tchelper)
+   if y['end'] == -1 then
+    ending = 'Permanent'
+    duration = x[3]
+   else
+    ending = y['end']
+    duration = x[3]
+   end
+   if y.start-x[3] <0 then
+    startcolor = COLOR_LIGHTGREEN
+   else
+    startcolor = COLOR_LIGHTRED
+   end
+   if y.peak-x[3] <0 then
+--  starting = 0
+    peakcolor = COLOR_LIGHTGREEN
+   else
+    peakcolor = COLOR_LIGHTRED
+   end
+   if y['end']-x[3] <0 then
+    endcolor = COLOR_LIGHTGREEN
+   else
+    endcolor = COLOR_LIGHTRED
+   end
+   table.insert(detail, {text = {
+                                 {text = "    "..effect, width = 20,pen=COLOR_WHITE},
+                                 {text = y.start, rjustify=true,width = 6,pen=startcolor},
+                                 {text = y.peak, rjustify=true,width = 6,pen=peakcolor},
+                                 {text = severity, rjustify=true,width = 10,pen=COLOR_WHITE},
+                                 {text = ending, rjustify=true,width = 6,pen=endcolor},
+                                 {text = duration, rjustify=true,width = 10,pen=COLOR_WHITE}
+                                }})
+  end
+ end
+
+ return detail
+end
+
+function getThoughtsDetails(info)
+ w_frame = 40
+
+ insert1 = {}
+ table.insert(insert1,{text = { {text = center('Thoughts',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert1 = guiFunctions.insertWidgetInput(insert1,'second',info.thoughts.text,{width=w_frame})
+ table.insert(insert1,{text={{text='',width=w_frame}}})
+ table.insert(insert1,{text = { {text = center('Traits',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert1 = guiFunctions.insertWidgetInput(insert1,'second',info.traits.text,{width=w_frame})
+ 
+ insert2 = {}
+ table.insert(insert2,{text = { {text = center('Preferences',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert2 = guiFunctions.insertWidgetInput(insert2,'second',info.preferences.text,{width=w_frame})
+ table.insert(insert,{text={{text='',width=w_frame}}})
+ table.insert(insert,{text = { {text = center('Values',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert2 = guiFunctions.insertWidgetInput(insert2,'second',info.values.text,{width=w_frame})
+
+ return insert1,insert2
+end
+
+function getClassList(unit,filter)
+ input = {}
+ if not filter then filter == 'All' end
+ local persistTable = require 'persist-table'
+ if safe_index(persistTable,'GlobalTable','roses','ClassTable') then
+  classTable = persistTable.GlobalTable.roses.ClassTable
+  unitTable = persistTable.GlobalTable.roses.UnitTable
+  if not unitTable[tostring(unit.id)] then
+   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
+  end
+  unitClasses = unitTable[tostring(unit.id)].Classes
+  for i,x in pairs(classTable._children) do
+   if filter == 'All' then
+    if unitClasses[x] then
+     pen = COLOR_LIGHTGREEN
+     table.insert(input,{text = {
+                                 {text=classTable[x].Name,width=21,pen=pen},
+                                 {text=tostring(unitClasses[x].Level),width=7,rjustify=true,pen=pen},
+                                 {text=tostring(unitClasses[x].Experience),width=12,rjustify=true,pen=pen},
+                                 }})
+    else
+     pen = COLOR_LIGHTRED
+     table.insert(input,{text = {
+                                 {text=classTable[x].Name,width=21,pen=pen},
+                                 {text='0',width=7,rjustify=true,pen=pen},
+                                 {text='0',width=12,rjustify=true,pen=pen},
+                                 }})
+    end
+   elseif filter == 'Available' then
+    if dfhack.script_environment('functions/class').checkRequirementsClass(unit,x) then
+     if unitClasses[x] then
+      pen = COLOR_LIGHTGREEN
+      table.insert(input,{text = {
+                                  {text=classTable[x].Name,width=21,pen=pen},
+                                  {text=tostring(unitClasses[x].Level),width=7,rjustify=true,pen=pen},
+                                  {text=tostring(unitClasses[x].Experience),width=12,rjustify=true,pen=pen},
+                                  }})
+     else
+      pen = COLOR_LIGHTRED
+      table.insert(input,{text = {
+                                  {text=classTable[x].Name,width=21,pen=pen},
+                                  {text='0',width=7,rjustify=true,pen=pen},
+                                  {text='0',width=12,rjustify=true,pen=pen},
+                                  }})
+     end
+    end 
+   elseif filter == 'Learned' then
+    if unitClasses[x] then
+     pen = COLOR_LIGHTGREEN
+     table.insert(input,{text = {
+                                 {text=classTable[x].Name,width=21,pen=pen},
+                                 {text=tostring(unitClasses[x].Level),width=7,rjustify=true,pen=pen},
+                                 {text=tostring(unitClasses[x].Experience),width=12,rjustify=true,pen=pen},
+                                 }})
+    end
+   elseif filter == 'Civ' then
+    if unitTable.Civilization then
+     if persistTable.GlobalTable.roses.EntityTable[tostring(unit.civ_id)].Civilization.Classes[x] then
+      if unitClasses[x] then
+       pen = COLOR_LIGHTGREEN
+       table.insert(input,{text = {
+                                   {text=classTable[x].Name,width=21,pen=pen},
+                                   {text=tostring(unitClasses[x].Level),width=7,rjustify=true,pen=pen},
+                                   {text=tostring(unitClasses[x].Experience),width=12,rjustify=true,pen=pen},
+                                   }})
+      else
+       pen = COLOR_LIGHTRED
+       table.insert(input,{text = {
+                                   {text=classTable[x].Name,width=21,pen=pen},
+                                   {text='0',width=7,rjustify=true,pen=pen},
+                                   {text='0',width=12,rjustify=true,pen=pen},
+                                   }})
+      end
+     end
+    end
+   end
+  end
+ else
+  table.insert(input,{text = {{text='No Class Table Loaded',width=22,pen=COLOR_WHITE}}})
+ end
+
+ return input
+end
+
+function getClassDetails(unit,choice)
+ input = {}
+ checkChange = true
+ local name = choice.text[1].text
+ local persistTable = require 'persist-table'
+ local classTable = persistTable.GlobalTable.roses.ClassTable
+ local unitClasses = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes
+ local unitSpells  = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Spells
+ for _,x in pairs(classTable._children) do
+  if classTable[x].Name == name then
+   class = x
+   break
+  end
+ end
+ local currentClass = unitClasses.Current.Name
+ if currentClass == 'NONE' then
+  currentName = 'None'
+ else
+  currentName = classTable[currentClass].Name
+ end
+ for _,x in pairs(classTable._children) do
+  if classTable[x].Name == unitClasses.Current.Name then
+   currentClass = x
+   break
+  end
+ end
+ if not class then return {}, {}, false end
+ table.insert(input,{text = {{text='Current Class = '..currentName,width=30,pen=COLOR_WHITE}}})
+ table.insert(input,{text = {{text='',width=30,pen=COLOR_WHITE}}})
+ table.insert(input,{text = {{text=center(name,30),width=30,pen=COLOR_LIGHTCYAN}}})
+ table.insert(input,{text = {{text='Requirements:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+
+ table.insert(input,{text = {{text='Classes:',width=30,pen=COLOR_YELLOW}}})
+ local test = true
+ if safe_index(classTable,class,"RequiredClass") then
+  for _,x in pairs(classTable[class].RequiredClass._children) do
+   local check = unitClasses[x].Level
+   local level = classTable[class].RequiredClass[x]
+   if tonumber(check) < tonumber(level) then
+    fgc = COLOR_LIGHTRED
+    checkChange = false
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   table.insert(input,{text = {{text='Level '..classTable[class].RequiredClass[x]..' '..classTable[x].Name,width=30,rjustify=true,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_LIGHTGREEN}}}) end
+
+ table.insert(input,{text = {{text='Attributes:',width=30,pen=COLOR_YELLOW}}})
+ local test = true
+ if safe_index(classTable,class,"RequiredAttribute") then
+  for _,x in pairs(classTable[class].RequiredAttribute._children) do
+   local total,base,change,classval,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',x)
+   local check = total-change-classval-syndrome
+   local value = classTable[class].RequiredAttribute[x]
+   if tonumber(check) < tonumber(value) then
+    fgc = COLOR_LIGHTRED
+    checkChange = false
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   table.insert(input,{text = {{text=classTable[class].RequiredAttribute[x]..' '..x,width=30,rjustify=true,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_LIGHTGREEN}}}) end
+
+ table.insert(input,{text = {{text='Skills:',width=30,pen=COLOR_YELLOW}}})
+ local test = true
+ if safe_index(classTable,class,"RequiredSkill") then
+  for _,x in pairs(classTable[class].RequiredSkill._children) do
+   local total,base,change,classval,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Skills',x)
+   local check = total-change-classval-syndrome
+   local value = classTable[class].RequiredSkill[x]
+   if tonumber(check) < tonumber(value) then
+    fgc = COLOR_LIGHTRED
+    checkChange = false
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   table.insert(input,{text = {{text='Level '..classTable[class].RequiredSkill[x]..' '..x,width=30,rjustify=true,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_LIGHTGREEN}}}) end
+
+ table.insert(input,{text = {{text='Traits:',width=30,pen=COLOR_YELLOW}}})
+ local test = true
+ if safe_index(classTable,class,"RequiredTrait") then
+  for _,x in pairs(classTable[class].RequiredTrait._children) do
+   local total,base,change,classval,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Traits',x)
+   local check = total-change-classval-syndrome
+   local value = classTable[class].RequiredTrait[x]
+   if tonumber(check) < tonumber(value) then
+    fgc = COLOR_LIGHTRED
+    checkChange = false
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   table.insert(input,{text = {{text=classTable[class].RequiredTrait[x]..' '..x,width=30,rjustify=true,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_LIGHTGREEN}}}) end
+
+ table.insert(input,{text = {{text='',width=30,pen=COLOR_WHITE}}})
+ table.insert(input,{text = {{text='Attribute Changes:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ local test = true
+ if safe_index(classTable,class,"BonusAttribute") then
+  current = {}
+  if currentClass and safe_index(classTable,currentClass,"BonusAttribute") then
+   for _,x in pairs(classTable[currentClass].BonusAttribute._children) do
+    current[x] = classTable[currentClass].BonusAttribute[x][tostring(unitClasses[currentClass].Level+1)]
+   end
+  end
+  nextto = {}
+  for _,x in pairs(classTable[class].BonusAttribute._children) do
+   if unitClasses[class] then
+    level = tostring(unitClasses[class].Level+1)
+   else
+    level = '1'
+   end
+   nextto[x] = classTable[class].BonusAttribute[x][level]
+  end
+  new = {}
+  for str,val in pairs(current) do
+   new[str] = -tonumber(val)
+  end
+  for str,val in pairs(nextto) do
+   if new[str] then
+    new[str] = new[str] + tonumber(val)
+   else
+    new[str] = tonumber(val)
+   end
+  end
+  for str,val in pairs(new) do
+   if val > 0 then
+    fgc = COLOR_LIGHTGREEN
+    val = '+'..tostring(val)
+   elseif val < 0 then
+    fgc = COLOR_LIGHTRED
+    val = tostring(val)
+   elseif val == 0 then
+    fgc = COLOR_WHITE
+    val = tostring(val)
+   end
+   table.insert(input,{text = {
+                              {text=str,width=20,pen=fgc},
+                              {text=val,width=10,rjustify=true,pen=fgc}
+                              }})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+
+ table.insert(input,{text = {{text='Skill Changes:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ local test = true
+ if safe_index(classTable,class,"BonusSkill") then
+  current = {}
+  if currentClass and safe_index(classTable,currentClass,"BonusSkill") then
+   for _,x in pairs(classTable[currentClass].BonusSkill._children) do
+    current[x] = classTable[currentClass].BonusSkill[x][tostring(unitClasses[currentClass].Level+1)]
+   end
+  end
+  nextto = {}
+  for _,x in pairs(classTable[class].BonusSkill._children) do
+   if unitClasses[class] then
+    level = tostring(unitClasses[class].Level+1)
+   else
+    level = '1'
+   end
+   nextto[x] = classTable[class].BonusSkill[x][level]
+  end
+  new = {}
+  for str,val in pairs(current) do
+   new[str] = -tonumber(val)
+  end
+  for str,val in pairs(nextto) do
+   if new[str] then
+    new[str] = new[str] + tonumber(val)
+   else
+    new[str] = tonumber(val)
+   end
+  end
+  for str,val in pairs(new) do
+   if val > 0 then
+    fgc = COLOR_LIGHTGREEN
+    val = '+'..tostring(val)
+   elseif val < 0 then
+    fgc = COLOR_LIGHTRED
+    val = tostring(val)
+   elseif val == 0 then
+    fgc = COLOR_WHITE
+    val = tostring(val)
+   end
+   table.insert(input,{text = {
+                              {text=str,width=20,pen=fgc},
+                              {text=val,width=10,rjustify=true,pen=fgc}
+                              }})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+
+ table.insert(input,{text = {{text='Trait Changes:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ local test = true
+ if safe_index(classTable,class,"BonusTrait") then
+  current = {}
+  if currentClass and safe_index(classTable,currentClass,"BonusTrait") then
+   for _,x in pairs(classTable[currentClass].BonusTrait._children) do
+    current[x] = classTable[currentClass].BonusTrait[x][tostring(unitClasses[currentClass].Level+1)]
+   end
+  end
+  nextto = {}
+  for _,x in pairs(classTable[class].BonusTrait._children) do
+   if unitClasses[class] then
+    level = tostring(unitClasses[class].Level+1)
+   else
+    level = '1'
+   end
+   nextto[x] = classTable[class].BonusTrait[x][level]
+  end
+  new = {}
+  for str,val in pairs(current) do
+   new[str] = -tonumber(val)
+  end
+  for str,val in pairs(nextto) do
+   if new[str] then
+    new[str] = new[str] + tonumber(val)
+   else
+    new[str] = tonumber(val)
+   end
+  end
+  for str,val in pairs(new) do
+   if val > 0 then
+    fgc = COLOR_LIGHTGREEN
+    val = '+'..tostring(val)
+   elseif val < 0 then
+    fgc = COLOR_LIGHTRED
+    val = tostring(val)
+   elseif val == 0 then
+    fgc = COLOR_WHITE
+    val = tostring(val)
+   end
+   table.insert(input,{text = {
+                              {text=str,width=20,pen=fgc},
+                              {text=val,width=10,rjustify=true,pen=fgc}
+                              }})
+   test = false
+  end
+ end
+ if test then table.insert(input,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+
+ input2 = {}
+ table.insert(input2,{text = {{text='Leveling Bonuses:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ table.insert(input2,{text = {{text='Attributes:',width=30,pen=COLOR_YELLOW}}})
+ test = true
+ if safe_index(classTable,class,"LevelBonus","Attribute") then
+  if unitClasses[class] then
+   level = tostring(unitClasses[class].Level+1)
+  else
+   level = '1'
+  end
+  for _,x in pairs(classTable[class].LevelBonus.Attribute._children) do
+   table.insert(input2,{text = {
+                               {text=x,width=20,pen=COLOR_WHITE},
+                               {text=classTable[class].LevelBonus.Attribute[x][level],width=10,rjustify=true,pen=COLOR_WHITE}
+                               }})
+   test=false
+  end
+ end
+ if test then table.insert(input2,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+
+ table.insert(input2,{text = {{text='Skills:',width=30,pen=COLOR_YELLOW}}})
+ test = true
+ if safe_index(classTable,class,"LevelBonus","Skill") then
+  if unitClasses[class] then
+   level = tostring(unitClasses[class].Level+1)
+  else
+   level = '1'
+  end
+  for _,x in pairs(classTable[class].LevelBonus.Skill._children) do
+   table.insert(input2,{text = {
+                               {text=x,width=20,pen=COLOR_WHITE},
+                               {text=classTable[class].LevelBonus.Skill[x][level],width=10,rjustify=true,pen=COLOR_WHITE}
+                               }})
+   test=false
+  end
+ end
+ if test then table.insert(input2,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+
+ table.insert(input2,{text = {{text='Traits:',width=30,pen=COLOR_YELLOW}}})
+ test = true
+ if safe_index(classTable,class,"LevelBonus","Trait") then
+  if unitClasses[class] then
+   level = tostring(unitClasses[class].Level+1)
+  else
+   level = '1'
+  end
+  for _,x in pairs(classTable[class].LevelBonus.Trait._children) do
+   table.insert(input2,{text = {
+                               {text=x,width=20,pen=COLOR_WHITE},
+                               {text=classTable[class].LevelBonus.Trait[x][level],width=10,rjustify=true,pen=COLOR_WHITE}
+                               }})
+   test=false
+  end
+ end
+ if test then table.insert(input2,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+
+ table.insert(input2,{text = {{text='',width=30,pen=COLOR_WHITE}}})
+ table.insert(input2,{text = {{text='Spells and Abilities:',width=30,pen=COLOR_LIGHTMAGENTA}}})
+ test = true
+ if safe_index(classTable,class,"Spells") then
+  for _,x in pairs(classTable[class].Spells._children) do
+   if unitSpells[x] == '1' then
+    fgc = COLOR_WHITE
+   else
+    fgc = COLOR_GREY
+   end
+   if persistTable.GlobalTable.roses.SpellTable[x] then
+    name = persistTable.GlobalTable.roses.SpellTable[x].Name
+   else
+    name = 'Unknown'
+   end
+   table.insert(input2,{text = {{text=name,width=30,pen=fgc}}})
+   test = false
+  end
+ end
+ if test then table.insert(input2,{text = {{text='None',width=30,rjustify=true,pen=COLOR_WHITE}}}) end
+
+ return input, input2, checkChange
+end
+
+function getSpellList(unit,filter)
+ input = {}
+ numSpells = 0
+ if not filter then filter = 'All' end
+ local persistTable = require 'persist-table'
+ if safe_index(persistTable,'GlobalTable','roses','ClassTable') then
+  roses = persistTable.GlobalTable.roses
+  classTable = roses.ClassTable
+  spellTable = roses.SpellTable
+  unitTable = roses.UnitTable
+  if not unitTable[tostring(unit.id)] then
+   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
+  end
+  unitSpells = unitTable[tostring(unit.id)].Spells
+  className = unitTable.Classes.Current.Name
+  if className ~= 'NONE' then
+   for _,x in pairs(classTable._children) do
+    if classTable[x].Name == className then
+     currentClass = x
+     break
+    end
+   end
+  end
+  for _,spell in pairs(spellTable._children) do
+   name = spellTable[spell].Name
+   sphere = spellTable[spell].Sphere or 'None'
+   school = spellTable[spell].School or 'None'
+   if unitSpells.Active[spell] then
+    pen = COLOR_LIGHTGREEN
+    numSpells = numSpells + 1
+   elseif unitSpells.Spells[spell] then
+    pen = COLOR_YELLOW
+   else
+    pen = COLOR_LIGHTRED
+   end
+   if filter == 'All' then
+    table.insert(input,{text = {
+                                {text=name, width=20, pen=pen},
+                                {text=sphere, width=10, rjustify=true, pen=pen},
+                                {text=school, width=10, rjustify=true, pen=pen}
+                               }})
+   elseif filter == 'Class' then
+    if currentClass then
+     if classTable[currentClass].Spells[spell] then
+      table.insert(input,{text = {
+                                  {text=name, width=20, pen=pen},
+                                  {text=sphere, width=10, rjustify=true, pen=pen},
+                                  {text=school, width=10, rjustify=true, pen=pen}
+                                 }})
+     end
+    else
+     table.insert(input,{text = {{text=center('No Class',40), width=40, pen=COLOR_WHITE}}})
+    end
+   elseif filter == 'Active' then
+    if pen == COLOR_LIGHTGREEN then
+     table.insert(input,{text = {
+                                 {text=name, width=20, pen=pen},
+                                 {text=sphere, width=10, rjustify=true, pen=pen},
+                                 {text=school, width=10, rjustify=true, pen=pen}
+                                }})
+    end
+   elseif filter == 'Learned' then
+    if pen == COLOR_LIGHTGREEN or pen == COLOR_YELLOW then
+     table.insert(input,{text = {
+                                 {text=name, width=20, pen=pen},
+                                 {text=sphere, width=10, rjustify=true, pen=pen},
+                                 {text=school, width=10, rjustify=true, pen=pen}
+                                }})
+    end
+   elseif filter == 'Available' then
+    if dfhack.script_environment('functions/class').checkRequirementsSpell(unit,spell) then
+     table.insert(input,{text = {
+                                 {text=name, width=20, pen=pen},
+                                 {text=sphere, width=10, rjustify=true, pen=pen},
+                                 {text=school, width=10, rjustify=true, pen=pen}
+                                }})
+    end
+   end
+  end
+ else
+  table.insert(input,{text = {{text=center('Class System Not Loaded',40), width=40, pen=COLOR_WHITE}}})
+ end
+ return input, numSpells
+end
+
+function getSpellDetails(unit,choice)
+ input = {}
+ input2 = {}
+ local persistTable = require 'persist-table'
+ local name = choice.text[1].text
+ unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
+ spellTable = persistTable.GlobalTable.roses.SpellTable
+ for _,spell in pairs(spellTable._children) do
+  if spell.Name == name then
+   spellTable = spellTable[spell]
+   break
+  end
+ end
+
+ table.insert(input, {text = {{text=center('Spell Details',40), width=40, pen=COLOR_LIGHTCYAN}}})
+ input = insertWidgetInput(input,'header',{header='Name:',second=spellTable.Name})
+ input = insertWidgetInput(input,'header',{header='Type:',second=spellTable.Type})
+ input = insertWidgetInput(input,'header',{header='Sphere:',second=spellTable.Sphere})
+ input = insertWidgetInput(input,'header',{header='School:',second=spellTable.School})
+ input = insertWidgetInput(input,'header',{header='Discipline:',second=spellTable.Discipline})
+ input = insertWidgetInput(input,'header',{header='SubDiscipline:',second=spellTable.SubDiscipline})
+ input = insertWidgetInput(input,'header',{header='Level:',second=spellTable.Level})
+ table.insert(input, {text = {{text=center('Spell Casting',40), width=40}}})
+ input = insertWidgetInput(input,'header',{header='Casting Time:',second=spellTable.CastTime})
+ input = insertWidgetInput(input,'header',{header='Casting Exhaustion:',second=spellTable.CastExhaustion})
+ input = insertWidgetInput(input,'header',{header='Hit Modifier:',second=spellTable.HitModifier})
+ input = insertWidgetInput(input,'header',{header='Hit Modifier Perc:',second=spellTable.HitModifierPerc})
+ input = insertWidgetInput(input,'header',{header='Penetration:',second=spellTable.Penetration})
+ input = insertWidgetInput(input,'header',{header='Resistable:',second=spellTable.Resistable})
+ input = insertWidgetInput(input,'header',{header='Can Crit:',second=spellTable.CanCrit})
+ input = insertWidgetInput(input,'header',{header='Experience Gain:',second=spellTable.ExperienceGain})
+ if spellTable.SkillGain then
+  table.insert(input, {text = {{text='Skill Gains:', width=40}}})
+  for _,x in pairs(spellTable.SkillGain._children) do
+   input = insertWidgetInput(input,'header',{header=x..':',second=spellTable.SkillGain[x]})
+  end
+ end
+
+ table.insert(input2,{text = {{text=center('Spell Requirements',40), width=40, pen=COLOR_LIGHTCYAN}}})
+ input2 = insertWidgetInput(input2,'header',{header='Upgrades Spell:',second=spellTable.Upgrade})
+ input2 = insertWidgetInput(input2,'header',{header='Learning Cost:',second=spellTable.Cost})
+ if spellTable.RequiredAttribute then
+  table.insert(input2,{text = {{text='Required Attributes:', width=40}}})
+  for _,x in pairs(spellTable.RequiredAttribute._children) do
+   local total,base,change,classval,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',x)
+   local check = total-change-classval-syndrome
+   local value = spellTable.RequiredAttribute[x]
+   if tonumber(check) < tonumber(value) then
+    fgc = COLOR_LIGHTRED
+   else
+    fgc = COLOR_LIGHTGREEN
+   end
+   input2 = insertWidgetInput(input2,'header',{header=x..':',second=spellTable.RequiredAttribute[x]},{pen=fgc})
+  end
+ end
+ if spellTable.ForbiddenClass then
+  table.insert(input2,{text = {{text='Forbidden Classes:', width=40}}})
+  for _,x in pairs(spellTable.ForbiddenClass._children) do
+   input2 = insertWidgetInput(input2,'header',{header=x..':',second=spellTable.ForbiddenClass[x]})
+  end
+ end
+ if spellTable.ForbiddenSpell then
+  input2 = insertWidgetInput(input2,'header',{header='Forbidden Spells:',second=spellTable.ForbiddenSpells})
+ end
+ table.insert(input2,{text = {{text=center('Spell Attributes',40), width=40}}})
+ input2 = insertWidgetInput(input2,'header',{header='Source Primary Attributes:', second=spellTable.SourcePrimaryAttribute})
+ input2 = insertWidgetInput(input2,'header',{header='Source Secondary Attributes:', second=spellTable.SourceSecondaryAttribute})
+ input2 = insertWidgetInput(input2,'header',{header='Target Primary Attributes:', second=spellTable.TargetPrimaryAttribute})
+ input2 = insertWidgetInput(input2,'header',{header='Target Secondary Attributes:', second=spellTable.TargetSecondaryAttribute})
+
+ return input, input2, false
+end
+
+function getFeatList(unit,filter)
+ input = {}
+ if not filter then filter == 'All' end
+ local persistTable = require 'persist-table'
+ if safe_index(persistTable,'GlobalTable','roses','FeatTable') then
+  featTable = persistTable.GlobalTable.roses.FeatTable
+  unitTable = persistTable.GlobalTable.roses.UnitTable
+  if not unitTable[tostring(unit.id)] then
+   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
+  end
+  unitFeats = unitTable[tostring(unit.id)].Feats
+  for _,feat in pairs(featTable._children) do
+   if unitFeats[feat] then
+    pen = COLOR_LIGHTGREEN
+   else
+    pen = COLOR_LIGHTRED
+   end
+   if filter == 'All' then
+    table.insert(input,{text = {{text=featTable[feat].Name, width=40, pen=pen}}})
+   elseif filter == 'Available' then
+    if dfhack.script_environment('functions/class').checkRequirementsFeat(unit,feat) then
+     table.insert(input,{text = {{text=featTable[feat].Name, width=40, pen=pen}}})
+    end
+   elseif filter == 'Learned' then
+    if pen == COLOR_LIGHTGREEN then
+     table.insert(input,{text = {{text=featTable[feat].Name, width=40, pen=pen}}})
+    end
+   end
+  end
+ else
+  table.insert(input,{text = {{text='Feat SubSystem Not Loaded',width=30,pen=COLOR_WHITE}}})
+ end
+
+ return input
+end
+
+function getFeatDetails(unit)
+ input = {}
+ input2 = {}
+ local persistTable = require 'persist-table'
+ local name = choice.text[1].text
+ unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
+ featTable = persistTable.GlobalTable.roses.FeatTable
+ for _,feat in pairs(featTable._children) do
+  if feat.Name == name then
+   featTable = featTable[feat]
+   break
+  end
+ end
+ 
+ table.insert(input, {text = {{text=center('Feat Details',40), width=40, pen=COLOR_LIGHTCYAN}}})
+ input = insertWidgetInput(input,'header',{header='Name:',second=featTable.Name})
+ table.insert(input, {text = {{text=center('Feat Effects',40), width=40}}})
+ input = insertWidgetInput(input,'second',featTable.Effect)
+
+ table.insert(input2,{text = {{text=center('Feat Requirements',40), width=40, pen=COLOR_LIGHTCYAN}}})
+ input2 = insertWidgetInput(input2,'header',{header='Learning Cost:',second=featTable.Cost})
+ if featTable.ForbiddenClass then
+  table.insert(input2,{text = {{text='Required Classes:', width=40}}})
+  for _,x in pairs(featTable.RequiredClass._children) do
+   input2 = insertWidgetInput(input2,'header',{header=x..':',second=featTable.RequiredClass[x]})
+  end
+ end
+ if featTable.ForbiddenClass then
+  table.insert(input2,{text = {{text='Forbidden Classes:', width=40}}})
+  for _,x in pairs(featTable.ForbiddenClass._children) do
+   input2 = insertWidgetInput(input2,'header',{header=x..':',second=featTable.ForbiddenClass[x]})
+  end
+ end
+ if featTable.RequiredFeat then
+  input2 = insertWidgetInput(input2,'header',{header='Required Feats:',second=featTable.RequiredFeat})
+ end
+ if featTable.ForbiddenFeat then
+  input2 = insertWidgetInput(input2,'header',{header='Forbidden Feats:',second=featTable.ForbiddenFeat})
+ end
+
+ return input,input2,false
 end

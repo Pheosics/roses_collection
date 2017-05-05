@@ -5,6 +5,7 @@ input = {...}
 validArgs = validArgs or utils.invert({
  'help',
  'verbose',
+ 'test',
  -- basic inputs
  'sourceUnit',
  'sourceLocation',
@@ -70,11 +71,13 @@ validArgs = validArgs or utils.invert({
  'requiredGrass',
  'requiredInorganic',
  'requiredFlow',
+ 'requiredLiquid',
  'forbiddenTree',
  'forbiddenPlant',
  'forbiddenGrass',
  'forbiddenInorganic',
  'forbiddenFlow',
+ 'forbiddenLiquid',
  -- item based inputs
  'checkItem',
  'requiredItem',

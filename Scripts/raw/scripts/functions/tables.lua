@@ -885,7 +885,7 @@ function makeSpellTable(test,verbose)
      spell.ForbiddenClass[array[2]] = array[3]
     elseif test == '[FORBIDDEN_SPELL' then
      spell.ForbiddenSpell = spell.ForbiddenSpell or {}
-     spell.ForbiddenSpell[array[2]] = array[3]
+     spell.ForbiddenSpell[array[2]] = array[2]
     end
    end
   end
@@ -917,6 +917,7 @@ function makeFeatTable(test,verbose)
    feat = feats[featToken]
    feat.Cost = '1'
    feat.Effect = {}
+   feat.Script = {}
    num = 0
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
@@ -944,14 +945,16 @@ function makeFeatTable(test,verbose)
     elseif test == '[COST' then
      feat.Cost = array[2]
     elseif test == '[EFFECT' then
+     feat.Effect[#feat.Effect+1] = array[2]
+    elseif test == '[SCRIPT' then
      script = data[j]:gsub("%s+","")
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
-     feat.Effect[num] = script
+     feat.Script[num] = script
      num = num + 1
     end
    end
-   feat.Effects = tostring(num)
+   feat.Scripts = tostring(num)
   end
  end
  return true
@@ -2027,6 +2030,11 @@ function makeUnitTable(unit,verbose)
  local persistTable = require 'persist-table'
  persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] = {}
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
+ if unit.civ_id >= 0 then
+  if safe_index(persistTable,'GlobalTable','roses','EntityTable',tostring(unit.civ_id),'Civilization') then
+   unitTable.Civilization = persistTable.GlobalTable.roses.EntityTable[tostring(unit.civ_id)].Civilization.Name
+  end
+ end
  unitTable.SyndromeTrack = {}
  unitTable.Attributes = {}
  unitTable.Skills = {}

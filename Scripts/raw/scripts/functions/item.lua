@@ -182,7 +182,7 @@ function create(item,material,options) --from modtools/create-item
  options = options or {}
  quality = options.quality or 0
  creatorID = options.creator or -1
- if tonumber(creatorID) and tonumber(creatorID) >= 0then
+ if tonumber(creatorID) and tonumber(creatorID) >= 0 then
   creator = df.unit.find(creatorID)
  else
   creator = creatorID

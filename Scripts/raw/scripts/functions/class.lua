@@ -557,8 +557,8 @@ function addFeat(unit,feat,verbose)
   unitTable[key].Feats[feat] = feat
   currentClass = persistTable.GlobalTable.roses.ClassTable.Current
   currentClass.FeatPoints = tostring(tonumber(currentClass.FeatPoints) - tonumber(featTable.Cost))
-  for _,x in pairs(featTable.Effect,_children) do
-   effect = featTable.Effect[x]
+  for _,x in pairs(featTable.Script._children) do
+   effect = featTable.Script[x]
    effect = effect:gsub('UNIT_ID',key)
    dfhack.run_command(effect)
   end

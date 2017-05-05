@@ -20,9 +20,6 @@ end
 buildingVanilla =
 buildingCustom =
 
--- Get all items for scripts
-itemBuilding = 
-
 -- Get all units for scripts
 civ = {}
 non = {}
@@ -37,6 +34,15 @@ for _,unit in pairs(df.global.world.creatures.active) do
   inon = inon + 1
  end
 end
+
+-- Get all items for scripts
+dfhack.run_command_silent('modtools/create-item -creator 0 -material INORGANIC:IRON -item WEAPON:ITEM_WEAPON_AXE_BATTLE')
+buildingitem = df.item.find(df.global.item_next_id - 1)
+function mostRecentItem()
+ local item = df.item.find(df.global.item_next_id - 1)
+ return item
+end
+   
 
 -- Open external file
 file = io.open('run_test_output.txt','w')
@@ -65,26 +71,26 @@ buildingCheck = {}
      io.write('building/subtype-change -building '..tostring(buildingVanilla.id)..' -type TEST_BUILDING_2 (Should fail and print "Changing vanilla buildings not currently supported")')
 output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingVanilla.id)..' -type TEST_BUILDING_2')
 writeall(output)
- if buildingVanilla.custom_type > 0 then 
-  buildingCheck[#buildingCheck+1] = 'Vanilla building incorrectly changed to a custom building'
- end
+if buildingVanilla.custom_type > 0 then 
+ buildingCheck[#buildingCheck+1] = 'Vanilla building incorrectly changed to a custom building'
+end
 ---- Check that the script succeeds in changing the subtype from TEST_BUILDING_1 to TEST_BUILDING_2
      io.write('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_2 (Should succeed and change building subtype)')
 output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_2')
 writeall(output)
- if buildingCustom.custom_type ~= 2 then
-  buildingCheck[#buildingCheck+1] = 'Test Building 1 did not correctly change to Test Building 2'
- end
+if buildingCustom.custom_type ~= 2 then
+ buildingCheck[#buildingCheck+1] = 'Test Building 1 did not correctly change to Test Building 2'
+end
 ---- Check that the script succeeds in changing the subtype from TEST_BUILDING_2 to TEST_BUILDING_3 and adding a handaxe to the building item list
-     io.write('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(item.id)..' (Should succeed, change building subtype, and add a handaxe to the building item list)')
-output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(item.id))
+     io.write('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(buildingitem.id)..' (Should succeed, change building subtype, and add a battle axe to the building item list)')
+output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(buildingitem.id))
 writeall(output)
- if buildingCustom.custom_type ~= 3 then 
-  buildingCheck[#buildingCheck+1] = 'Test Building 2 did not correctly change to Test Building 3'
- end
- if not item.flags.in_building then 
-  buildingCheck[#buildingCheck+1] = 'Item not correctly added to building list'
- end
+if buildingCustom.custom_type ~= 3 then 
+ buildingCheck[#buildingCheck+1] = 'Test Building 2 did not correctly change to Test Building 3'
+end
+if not buildingitem.flags.in_building then 
+ buildingCheck[#buildingCheck+1] = 'Item not correctly added to building list'
+end
 ---- Print PASS/FAIL
 if #buildingCheck == 0 then
  printplus('PASSED: building/subtype-change')
@@ -277,7 +283,7 @@ itemCheck = {}
      io.write('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL (Should succeed and create a steel short sword)')
 output = dfhack.run_command_silent('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL')
 writeall(output)
-item = 'MOST_RECENT_ITEM'
+item = mostRecentItem()
 if dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_SHORT' then
  itemCheck[#itemCheck+1] = 'Failed to create short sword'
 end
@@ -285,7 +291,7 @@ end
 ---- Checks that the script succeeds and creates a ruby short sword and then removes it 50 ticks later
 output = dfhack.run_command_silent('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:RUBY -dur 50')
 writeall(output)
-item = 'MOST_RECENT_ITEM'
+item = mostRecentItem()
      io.write('Pausing run_test.lua for 75 in-game ticks')
    script.sleep(75,'ticks')
      io.write('Resuming run_test.lua')
@@ -307,7 +313,7 @@ scriptCheck['item_create'] = itemCheck
 itemCheck = {}
 unit = civ[1]
 dfhack.run_command('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -creator '..tostring(unit.id))
-item = 'MOST_RECENT_ITEM'
+item = mostRecentItem()
      io.write('')
      io.write('item/equip and item/unequip checks starting')
 ---- Check that the script succeeds and moves the item into the inventory of the unit
@@ -365,24 +371,46 @@ scriptCheck['item_equip'] = itemCheck
 itemCheck = {}
 unit = civ[2]
 dfhack.run_command('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -creator '..tostring(unit.id))
-item = 'MOST_RECENT_ITEM'
+item = mostRecentItem()
      io.write('')
      io.write('item/material-change checks starting')
 ---- Check that the script succeeds and changes the steel short sword into a brain short sword
      io.write('item/material-change -item '..tostring(item.id)..' -mat CREATURE_MAT:DWARF:BRAIN (Should succeed and change the material of item to dwarf brain)')
 output = dfhack.run_command_silent('item/material-change -item '..tostring(item.id)..' -mat CREATURE_MAT:DWARF:BRAIN')
 writeall(output)
+mat = dfhack.matinfo.find('CREATURE_MAT:DWARF:BRAIN')
+if mat.type ~= item.mat_type or mat.index ~= item.mat_index then
+ itemCheck[#itemCheck+1] = 'Failed to change short sword material from INORGANIC:STEEL to CREATURE_MAT:DWARF:BRAIN'
+end
 ---- Check that the script succeeds and changed the entire units inventory into adamantine for 50 ticks
      io.write('item/material-change -unit '..tostring(unit.id)..' -equipment ALL -mat INORGANIC:ADAMANTINE -dur 50 (Should succeed and change the material of all units inventory to adamantine for 50 ticks)')
 output = dfhack.run_command_silent('item/material-change -unit '..tostring(unit.id)..' -equipment ALL -mat INORGANIC:ADAMANTINE -dur 50')
 writeall(output)
+mat = dfhack.matinfo.find('INORGANIC:ADAMANTINE')
+for _,inv in pairs(unit.inventory) do
+ if inv.mat_type ~= mat.type or inv.mat_index ~= mat.index then
+  itemCheck[#itemCheck+1] = 'Failed to change an inventory item material to INORGANIC:ADAMANTINE'
+ end
+end
      io.write('Pausing run_test.lua for 75 in-game ticks')
    script.sleep(75,'ticks')
      io.write('Resuming run_test.lua')
+for _,inv in pairs(unit.inventory) do
+ if inv.mat_type == mat.type or inv.mat_index == mat.index then
+  itemCheck[#itemCheck+1] = 'Failed to reset an inventory item material from INORGANIC:ADAMANTINE'
+ end
+end
 ---- Check that the script succeeds and changes the brain short sword to steel and creates a tracking table
      io.write('item/material-change -item '..tostring(item.id)..' -mat INORGANIC:STEEL -track (Should succeed and change the material of item to steel and create a persistent table for the item to track changes)') 
 output = dfhack.run_command_silent('item/material-change -item '..tostring(item.id)..' -mat INORGANIC:STEEL -track')
 writeall(output)
+mat = dfhack.matinfo.find('INORGANIC:STEEL')
+if mat.type ~= item.mat_type or mat.index ~= item.mat_index then
+ itemCheck[#itemCheck+1] = 'Failed to change short sword material from CREATURE_MAT:DWARF:BRAIN to INORGANIC:STEEL'
+end
+if not roses.ItemTable[tostring(item.id)] then
+ itemCheck[#itemCheck+1] = 'Failed to create an ItemTable entry for short sword'
+end
 ---- Print PASS/FAIL
 if #itemCheck == 0 then
  printplus('PASSED: item/material-change')
@@ -398,24 +426,57 @@ scriptCheck['item_material_change'] = itemCheck
 itemCheck = {}
 unit = civ[2]
 dfhack.run_command('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -creator '..tostring(unit.id))
-item = 'MOST_RECENT_ITEM'
+item = mostRecentItem()
      io.write('')
      io.write('item/quality-change checks starting')
 ---- Check that the script succeeds and changes the quality of the item to masterwork and creates a tracking table
      io.write('item/quality-change -item '..tostring(item.id)..' -quality 7 -track (Should succeed and change the quality of the item to masterwork and track the change in the persistent item table)')
 output = dfhack.run_command_silent('item/quality-change -item '..tostring(item.id)..' -quality 7 -track')
 writeall(output)
+if item.quality ~= 7 then
+ itemCheck[#itemCheck+1] = 'Failed to increase item quality to 7'
+end
+if not roses.ItemTable[tostring(item.id)] then
+ itemCheck[#itemCheck+1] = 'Failed to create an ItemTable entry for short sword'
+end
 ---- Check that the script succeeds and changes the quality of the entire units inventory to masterwork for 50 ticks
      io.write('item/quality-change -unit '..tostring(unit.id)..' -equipment ALL -quality 7 -dur 50 (Should succeed and change the quality of all units inventory to masterwork for 50 ticks)')
 output = dfhack.run_command_silent('item/quality-change -unit '..tostring(unit.id)..' -equipment ALL -quality 7 -dur 50')
 writeall(output)
+for _,inv in pairs(unit.inventory) do
+ if inv.quality ~= 7 then
+  itemCheck[#itemCheck+1] = 'Failed to set inventory item quality to 7'
+ end
+end
      io.write('Pausing run_test.lua for 75 in-game ticks')
    script.sleep(75,'ticks')
      io.write('Resuming run_test.lua')
+for _,inv in pairs(unit.inventory) do
+ if inv.quality == 7 then
+  itemCheck[#itemCheck+1] = 'Failed to reset inventory item quality'
+ end
+end
 ---- Check that the script lowers the quality of all short swords on the map by 1
-     io.write('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -downgrade (Should succeed and lower the quality of all short swords on the map by 1)') 
-output = dfhack.run_command_silent('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -downgrade')
+     io.write('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -upgrade (Should succeed and increase the quality of all short swords on the map by 1)') 
+prequality = 0
+number = 0
+for _,itm in pairs(df.global.world.items.all) do
+ if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_SWORD_SHORT' then
+  if itm.quality < 7 then number = number + 1 end
+  prequaltiy = prequality + itm.quality
+ end
+end
+output = dfhack.run_command_silent('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -upgrade')
 writeall(output)
+postquality = 0
+for _,itm in pairs(df.global.world.items.other.WEAPONS) do
+ if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_SWORD_SHORT' then
+  postquality = postquality + itm.quality
+ end
+end
+if postquality ~= (prequality + number) then
+ itemCheck[#itemCheck+1] = 'Not all short swords increased in quality'
+end
 ---- Print PASS/FAIL
 if #itemCheck == 0 then
  printplus('PASSED: item/quality-change')
@@ -431,24 +492,49 @@ scriptCheck['item_quality_change'] = itemCheck
 itemCheck = {}
 unit = civ[2]
 dfhack.run_command('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -creator '..tostring(unit.id))
-item = 'MOST_RECENT_ITEM'
+item = mostRecentItem()
     io.write('')
     io.write('item/subtype-change checks starting')
 ---- Check that the script succeeds and changes short sword to long sword and creates a tracking table
     io.write('item/subtype-change -item '..tostring(item.id)..' -subtype ITEM_WEAPON_SWORD_LONG -track (Should succeed and change the short sword to a long sword and track the change in the persistent item table)')
 output = dfhack.run_command_silent('item/subtype-change -item '..tostring(item.id)..' -subtype ITEM_WEAPON_SWORD_LONG -track')
 writeall(output)
+if dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_LONG' then
+ itemCheck[#itemCheck+1] = 'Failed to change the short sword into a long sword'
+end
+if not roses.ItemTable[tostring(item.id)] then
+ itemCheck[#itemCheck+1] = 'Failed to create ItemTable for short sword'
+end
 ---- Check that the script succeeds and changes the pants unit is wearing into greaves for 50 ticks
     io.write('item/subtype-change -unit '..tostring(unit.id)..' -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50 (Should succeed and change the pants the unit is wearing into greaves for 50 ticks)')
+pants = dfhack.script_environment('functions/unit').getInventoryType(unit,'PANTS')[1]
+presubtype = dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()).id
 output = dfhack.run_command_silent('item/subtype-change -unit '..tostring(unit.id)..' -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50')
 writeall(output)
+if dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()).id ~= 'ITEM_PANTS_GREAVES' then
+ itemCheck[itemCheck+1] = 'Failed to change pants equipment to ITEM_PANTS_GREAVES'
+end
     io.write('Pausing run_test.lua for 75 in-game ticks')
    script.sleep(75,'ticks')
     io.write('Resuming run_test.lua')
+if dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()).id ~= presubtype then
+ itemCheck[#itemCheck+1] = 'Failed to reset pants equipment subtype'
+end
 ---- Check that the script succeeds and changes all picks on the map into short sword
-    io.write('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT (Should succeed and change all picks on the map into short swords)') 
+    io.write('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT (Should succeed and change all picks on the map into short swords)')
+picks = {}
+for _,itm in pairs(df.global.world.items.all) do
+ if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_PICK' then
+  picks[#picks+1] = itm
+ end
+end
 output = dfhack.run_command_silent('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT')
 writeall(output)
+for _,itm in pairs(picks) do
+ if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_SHORT' then
+  itemCheck[#itemCheck+1] = 'Failed to turn all picks into short swords'
+ end
+end
 ---- Print PASS/FAIL
 if #itemCheck == 0 then
  printplus('PASSED: item/subtype-change')
@@ -471,12 +557,22 @@ unitSource.pos.z = unitTarget.pos.z
     io.write('item/projectile checks starting')
 ---- Check that the script succeeds and creates an iron bolt shooting from source to target
     io.write('item/projectile -unitSource '..tostring(unitSource.id)..' -unitTarget '..tostring(unitTarget.id)..' -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON (Should succeed and create an iron bolt shooting from source to target)')
+projid = df.global.proj_next_id
+itemid = df.global.item_next_id
 output = dfhack.run_command_silent('item/projectile -unitSource '..tostring(unitSource.id)..' -unitTarget '..tostring(unitTarget.id)..' -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON')
 writeall(output)
+if df.global.proj_next_id ~= projid + 1 and df.global.item_next_id ~= itemid + 1 then
+ itemCheck[#itemCheck+1] = 'Failed to create 1 shooting projectile'
+end
 ---- Check that the script succeeds and creates 10 iron bolts falling from 5 z levels above the source
     io.write('item/projectile -unitSource '..tostring(unitSource.id)..' -type Falling -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON -height 5 -number 10 (Should succeed and create 10 iron bolt falling from 5 above the source)')
+projid = df.global.proj_next_id
+itemid = df.global.item_next_id
 output = dfhack.run_command_silent('item/projectile -unitSource '..tostring(unitSource.id)..' -type Falling -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON -height 5 -number 10')
 writeall(output)
+if df.global.proj_next_id ~= projid + 10 and df.global.item_next_id ~= itemid + 10 then
+ itemCheck[#itemCheck+1] = 'Failed to create 10 falling projectiles'
+end
 ---- Print PASS/FAIL
 if #itemCheck == 0 then
  printplus('PASSED: item/projectile')
@@ -1170,17 +1266,103 @@ printplus('Unit script checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('')
 printplus('Wrapper script checks starting')
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- START Unit Based Targeting
+    io.write('Unit Based Targeting Starting')
 wrapCheck = {}
 unit = civ[1]
 targ = civ[2]
+----
     io.write('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ print-args TARGET_UNIT_ID ]')
-
+output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ print-args TARGET_UNIT_ID ]')
+writeall(output)
+----
     io.write('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ print-args TARGET_UNIT_LOCATION ]')
-
-    io.write('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit ANY -requiredCreature DWARF:MALE -script [ print-args TARGET_UNIT_DESTINATION ]')
-
-    io.write('wrapper -sourceUnit '..tostring(unit.id)..'
-
+output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ print-args TARGET_UNIT_LOCATION ]')
+writeall(output)
+----
+    io.write('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ print-args TARGET_UNIT_DESTINATION ]')
+output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ print-args TARGET_UNIT_DESTINATION ]')
+writeall(output)
+----
+checks = '-checkUnit ANY -radius 100 '
+checks = checks..'-requiredClass GENERAL_POISON -immuneClass [ TEST_CLASS_1 TEST_SYNCLASS_1 ] '
+checks = checks..'-requiredCreature DWARF:ALL -immuneCreature [ DONKEY:FEMALE HORSE:MALE ] '
+checks = checks..'-requiredSyndrome "test syndrome" -immuneSyndrome [ syndromeOne syndromeTwo ] '
+checks = checks..'-requiredToken COMMON_DOMESTIC -immuneToken [ FLIER MEGABEAST ] '
+checks = checks..'-requiredNoble MONARCH -immuneNoble [ BARON DUKE ] '
+checks = checks..'-requiredProfession MINER -immuneProfession [ FARMER GROWER ] '
+checks = checks..'-requiredEntity MOUNTAIN -immuneEntity [ FOREST PLAIN ] '
+checks = checks..'-requiredPathing FLEEING -immunePathing [ PATROL IDLE ] '
+checks = checks..'-maxAttribute STRENGTH:5000 -minAttribute [ TOUGHNESS:500 ENDURANCE:500 ] -gtAttribute WILLPOWER:2 -ltAttribute AGILITY:1 '
+checks = checks..'-maxSkill MINING:5 -minSkill [ BUTCHER:2 TANNER:2 ] -gtSkill MASONRY:1 -ltSkill CARPENTRY:1 '
+checks = checks..'-maxTrait ANGER_PROPENSITY:50 -minTrait [ LOVE_PROPENSITY:10 HATE_PROPENSITY:10 ] -gtTrait LUST_PROPENSITY:1 -ltTrait ENVY_PROPENSITY:1 '
+checks = checks..'-maxAge 100 -minAge 1 -gtAge 1 -ltAge 1 '
+checks = checks..'-maxSpeed 500 -minSpeed 1 -gtSpeed 1 -ltSpeed 1'
+    io.write('wrapper -sourceUnit '..tostring(unit.id)..' '..checks..' -test -script [ print-args TARGET_UNIT_ID ]')
+output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ print-args TARGET_UNIT_ID ]')
+writeall(output)
+---- Print PASS/FAIL
+if #wrapCheck == 0 then
+ printplus('PASSED: Unit Based Targeting')
+else
+ printplus('FAILED: Unit Based Targeting')
+ writeall(wrapCheck)
+end
+-- FINISH Unit Based Targeting
+    io.write('Unit Based Targeting Finished')
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- START Location Based Targeting
+    io.write('Location Based Targeting Starting')
+wrapCheck = {}
+pos = civ[3].pos
+loc = '[ '..tostring(pos.x)..' '..tostring(pos.y)..' '..tostring(pos.z)..' ]'
+pos = civ[2].pos
+tar = '[ '..tostring(pos.x)..' '..tostring(pos.y)..' '..tostring(pos.z)..' ]'
+----
+----
+----
+----
+checks = '-checkLocation ANY -radius 100 '
+checks = checks..'-requiredTree CEDAR -forbiddenTree [ MAPLE OAK ] '
+checks = checks..'-requiredGrass GRASS_1 -forbiddenGrass [ GRASS_2 GRASS_3 ] '
+checks = checks..'-requiredPlant STRAWBERRY -forbiddenPlant [ BLUEBERRY BLACKBERRY ] '
+checks = checks..'-requiredLiquid WATER -forbiddenLiquid MAGMA '
+checks = checks..'-requiredInorganic OBSIDIAN -forbiddenInorganic [ SLADE MARBLE ] '
+checks = checks..'-requiredFlow MIST -forbiddenFlow [ MIASMA DRAGONFIRE ] '
+    io.write('wrapper -sourceLocation '..loc..' -center '..checks..' -test -script [ print-args TARGET_POSITION ]')
+---- Print PASS/FAIL
+if #wrapCheck == 0 then
+ printplus('PASSED: Location Based Targeting')
+else
+ printplus('FAILED: Location Based Targeting')
+ writeall(wrapCheck)
+end
+-- FINISH Location Based Targeting
+    io.write('Location Based Targeting Finished')
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- START Item Based Targeting
+    io.write('Item Based Targeting Starting')
+wrapCheck = {}
+----
+----
+----
+----
+checks = '-checkItem ANY -radius 100 '
+checks = checks..'-requiredItem STATUE -forbiddenItem [ WEAPON:ITEM_WEAPON_LONGSWORD AMMO:ITEM_AMMO_BOLT ] '
+checks = checks..'-requiredMaterial STEEL -forbiddenMaterial [ SILVER GOLD ] '
+checks = checks..'-requiredCorpse DWARF -forbiddenCorpse [ HUMAN:MALE ELF:FEMALE ] '
+    io.write('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ print-args TARGET_ITEM_ID ]')
+---- Print PASS/FAIL
+if #wrapCheck == 0 then
+ printplus('PASSED: Item Based Targeting')
+else
+ printplus('FAILED: Item Based Targeting')
+ writeall(wrapCheck)
+end
+-- FINISH Item Based Targeting
+    io.write('Item Based Targeting Finished')
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Wrapper script checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
