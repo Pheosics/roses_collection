@@ -2010,8 +2010,8 @@ function makeItemTable(item,verbose)
  itemTable.Material.StatusEffects = {}
 
  itemTable.Quality = {}
- itemTable.Quality.Base = item.quality
- itemTable.Quality.Current = item.quality
+ itemTable.Quality.Base = tostring(item.quality)
+ itemTable.Quality.Current = tostring(item.quality)
  itemTable.Quality.StatusEffects = {}
 
  itemTable.Subtype = {}

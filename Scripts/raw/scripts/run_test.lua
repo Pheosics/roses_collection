@@ -1,31 +1,40 @@
-gui = require 'gui'
-script = gui.script
+script = require 'gui.script'
+persistTable = require 'persist-table'
 
 function center(pos)
-
+ return
 end
 
 function printplus(text)
  print(text)
- io.write(text)
+ io.write(text..'\n')
 end
 
 function writeall(tbl)
- for _,text in pairs(tbl) do
-  io.write(text)
+ if not tbl then return end
+ if type(tbl) == 'table' then
+  for _,text in pairs(tbl) do
+   io.write(text..'\n')
+  end
+ else
+  io.write(tbl..'\n')
  end
 end
 
 -- Get all buildings for scripts
-buildingVanilla =
-buildingCustom =
+buildingVanilla = {}
+buildingVanilla.id = 0
+buildingVanilla.custom_type = -1
+buildingCustom = {}
+buildingCustom.id = 0
+buildingCustom.custom_type = -1
 
 -- Get all units for scripts
 civ = {}
 non = {}
 iciv = 1
 inon = 1
-for _,unit in pairs(df.global.world.creatures.active) do
+for _,unit in pairs(df.global.world.units.active) do
  if dfhack.units.isCitizen(unit) then
   civ[iciv] = unit
   iciv = iciv + 1
@@ -36,7 +45,7 @@ for _,unit in pairs(df.global.world.creatures.active) do
 end
 
 -- Get all items for scripts
-dfhack.run_command_silent('modtools/create-item -creator 0 -material INORGANIC:IRON -item WEAPON:ITEM_WEAPON_AXE_BATTLE')
+dfhack.run_command('modtools/create-item -creator '..tostring(civ[1].id)..' -material INORGANIC:IRON -item WEAPON:ITEM_WEAPON_AXE_BATTLE')
 buildingitem = df.item.find(df.global.item_next_id - 1)
 function mostRecentItem()
  local item = df.item.find(df.global.item_next_id - 1)
@@ -51,13 +60,16 @@ io.output(file)
 printplus('Running base/roses-init with no systems loaded')
 printplus('base/roses-init -verbose -testRun')
 dfhack.run_command('base/roses-init -verbose -testRun')
+roses = persistTable.GlobalTable.roses
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ROSES SCRIPT CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+function script_checks()
 printplus('Beginning Roses Script Checks')
 printplus('All scripts will be run multiple times, with both correct and incorrect arguments')
 scriptCheck = {}
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- BUILDING SCRIPT CHECKS ----------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -66,24 +78,24 @@ printplus('Building script checks starting')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START building/subtype-change
 buildingCheck = {}
-     io.write('building/subtype-change checks starting')
+     writeall('building/subtype-change checks starting')
 ---- Check that script fails to change vanilla building
-     io.write('building/subtype-change -building '..tostring(buildingVanilla.id)..' -type TEST_BUILDING_2 (Should fail and print "Changing vanilla buildings not currently supported")')
-output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingVanilla.id)..' -type TEST_BUILDING_2')
+     writeall('building/subtype-change -building '..tostring(buildingVanilla.id)..' -type TEST_BUILDING_2 (Should fail and print "Changing vanilla buildings not currently supported")')
+output = dfhack.run_command('building/subtype-change -building '..tostring(buildingVanilla.id)..' -type TEST_BUILDING_2')
 writeall(output)
 if buildingVanilla.custom_type > 0 then 
  buildingCheck[#buildingCheck+1] = 'Vanilla building incorrectly changed to a custom building'
 end
 ---- Check that the script succeeds in changing the subtype from TEST_BUILDING_1 to TEST_BUILDING_2
-     io.write('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_2 (Should succeed and change building subtype)')
-output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_2')
+     writeall('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_2 (Should succeed and change building subtype)')
+output = dfhack.run_command('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_2')
 writeall(output)
 if buildingCustom.custom_type ~= 2 then
  buildingCheck[#buildingCheck+1] = 'Test Building 1 did not correctly change to Test Building 2'
 end
 ---- Check that the script succeeds in changing the subtype from TEST_BUILDING_2 to TEST_BUILDING_3 and adding a handaxe to the building item list
-     io.write('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(buildingitem.id)..' (Should succeed, change building subtype, and add a battle axe to the building item list)')
-output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(buildingitem.id))
+     writeall('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(buildingitem.id)..' (Should succeed, change building subtype, and add a battle axe to the building item list)')
+output = dfhack.run_command('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(buildingitem.id))
 writeall(output)
 if buildingCustom.custom_type ~= 3 then 
  buildingCheck[#buildingCheck+1] = 'Test Building 2 did not correctly change to Test Building 3'
@@ -100,7 +112,7 @@ else
 end
 -- FINISH building/subtype-change
 scriptCheck['building_subtype_change'] = buildingCheck
-     io.write('building/subtype-change checks finished')
+     writeall('building/subtype-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Building script checks finished')
 
@@ -115,10 +127,10 @@ printplus('Flow script checks starting')
 flowCheck = {}
 unit = civ[1]
 center(unit)
-     io.write('flow/random-plan checks starting')
+     writeall('flow/random-plan checks starting')
 ---- Check that the script succeeds in creating water of depth 3 in a 5x5 X centered on unit
-     io.write('flow/random-plan -plan test_plan_5x5_X.txt -unit '..tostring(unit.id)..' -liquid water -depth 3 (Should succeed and create water of depth 3 in a 5x5 X centered on unit)')
-output = dfhack.run_command_silent('flow/random-plan -plan test_plan_5x5_X.txt -unit '..tostring(unit.id)..' -liquid water -depth 3')
+     writeall('flow/random-plan -plan test_plan_5x5_X.txt -unit '..tostring(unit.id)..' -liquid water -depth 3 (Should succeed and create water of depth 3 in a 5x5 X centered on unit)')
+output = dfhack.run_command('flow/random-plan -plan test_plan_5x5_X.txt -unit '..tostring(unit.id)..' -liquid water -depth 3')
 writeall(output)
 locations = dfhack.script_environment('functions/map').getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
 for _,pos in pairs(locations) do
@@ -128,8 +140,8 @@ for _,pos in pairs(locations) do
  end
 end
 ---- Check that the script succeeds in creating obsidian dust in a 5x5 plus centered on unit
-     io.write('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow dust -inorganic OBSIDIAN -density 100 -static (Should succeed and create obsidian dust in a 5x5 plus centered on unit, dust should not expand)')
-output = dfhack.run_command_silent('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow dust -inorganic OBSIDIAN -density 100 -static')
+     writeall('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow dust -inorganic OBSIDIAN -density 100 -static (Should succeed and create obsidian dust in a 5x5 plus centered on unit, dust should not expand)')
+output = dfhack.run_command('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow dust -inorganic OBSIDIAN -density 100 -static')
 writeall(output)
 locations = dfhack.script_environment('functions/map').getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_P.txt',unit.pos,nil)
 for _,pos in pairs(locations) do
@@ -147,24 +159,24 @@ else
 end
 -- FINISH flow/random-plan
 scriptCheck['flow_random_plan'] = flowCheck
-     io.write('flow/random-plan checks finished')
+     writeall('flow/random-plan checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START flow/random-pos
 flowCheck = {}
 unit = civ[2]
 center(unit)
-     io.write('')
-     io.write('flow/random-pos checks starting')
+     writeall('')
+     writeall('flow/random-pos checks starting')
 ---- Check that the script succeeds and creates a circle of water of radius 5 with a depth of 7 in the middle and tapers out
-     io.write('flow/random-pos -unit '..tostring(unit.id)..' -liquid water -depth 7 -radius [ 5 5 0 ] -circle -taper (Should succeed and create a circle of water of radius 5 with a depth of 7 in the middle and tapering out)')
-output = dfhack.run_command_silent('flow/random-pos -unit '..tostring(unit.id)..' -liquid water -depth 7 -radius [ 5 5 0 ] -circle -taper')
+     writeall('flow/random-pos -unit '..tostring(unit.id)..' -liquid water -depth 7 -radius [ 5 5 0 ] -circle -taper (Should succeed and create a circle of water of radius 5 with a depth of 7 in the middle and tapering out)')
+output = dfhack.run_command('flow/random-pos -unit '..tostring(unit.id)..' -liquid water -depth 7 -radius [ 5 5 0 ] -circle -taper')
 writeall(output)
 if dfhack.maps.ensureTileBlock(unit.pos.x,unit.pos.y,unit.pos.z).designation[unit.pos.x%16][unit.pos.y%16].flow_size < 7 then 
  flowCheck[#flowCheck+1] = 'Water was not spawned correctly'
 end
 ---- Check that the script succeeds and creates 10 dragon fires in a 10x10 block around the unit
-     io.write('flow/random-pos -unit '..tostring(unit.id)..' -flow dragonfire -density 50 -static -radius [ 10 10 0 ] -number 10 (Should succeed and create 10 50 density dragon fires in a 10x10 block around the unit, fire should not spread)')
-output = dfhack.run_command_silent('flow/random-pos -unit '..tostring(unit.id)..' -flow dragonfire -density 50 -static -radius [ 10 10 0 ] -number 10')
+     writeall('flow/random-pos -unit '..tostring(unit.id)..' -flow dragonfire -density 50 -static -radius [ 10 10 0 ] -number 10 (Should succeed and create 10 50 density dragon fires in a 10x10 block around the unit, fire should not spread)')
+output = dfhack.run_command('flow/random-pos -unit '..tostring(unit.id)..' -flow dragonfire -density 50 -static -radius [ 10 10 0 ] -number 10')
 writeall(output)
 locations = dfhack.script_environment('functions/map').getFillPosition(unit.pos,{10,10,0})
 n = 0
@@ -185,28 +197,28 @@ else
 end
 -- FINISH flow/random-pos
 scriptCheck['flow_random_pos'] = flowCheck
-     io.write('flow/random-pos checks finished')
+     writeall('flow/random-pos checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START flow/random-surface
 flowCheck = {}
-     io.write('')
-     io.write('flow/random-surface checks starting')
+     writeall('')
+     writeall('flow/random-surface checks starting')
 ---- Check that the script succeeds and creates 50 depth 5 magma spots every 100 ticks for 500 ticks
-     io.write('flow/random-surface -liquid magma -depth 5 -dur 500 -frequency 100 -number 50 (Should succeed and create 50 depth 5 magma spots every 100 ticks for 500 ticks, 250 total)')
-output = dfhack.run_command_silent('flow/random-surface -liquid magma -depth 5 -dur 500 -frequency 100 -number 50')
+     writeall('flow/random-surface -liquid magma -depth 5 -dur 500 -frequency 100 -number 50 (Should succeed and create 50 depth 5 magma spots every 100 ticks for 500 ticks, 250 total)')
+output = dfhack.run_command('flow/random-surface -liquid magma -depth 5 -dur 500 -frequency 100 -number 50')
 writeall(output)
 ---- Pause script for 500 ticks
-     io.write('Pausing run_test.lua for 500 in-game ticks')
+     writeall('Pausing run_test.lua for 500 in-game ticks')
    script.sleep(500,'ticks')
-     io.write('Resuming run_test.lua')
+     writeall('Resuming run_test.lua')
 ---- Check that the script succeeds amd creates 200 density 100 miasma spots every 100 ticks for 250 ticks
-     io.write('flow/random-surface -flow miasma -density 100 -dur 250 -frequency 100 -number 200 (Should succeed and create 200 density 100 miasma spots that spread every 100 ticks for 250 ticks, 400 total)')
-output = dfhack.run_command_silent('flow/random-surface -flow miasma -density 100 -dur 250 -frequency 100 -number 200')
+     writeall('flow/random-surface -flow miasma -density 100 -dur 250 -frequency 100 -number 200 (Should succeed and create 200 density 100 miasma spots that spread every 100 ticks for 250 ticks, 400 total)')
+output = dfhack.run_command('flow/random-surface -flow miasma -density 100 -dur 250 -frequency 100 -number 200')
 writeall(output)
 ---- Pause script for 250 ticks
-     io.write('Pausing run_test.lua for 250 in-game ticks')
+     writeall('Pausing run_test.lua for 250 in-game ticks')
    script.sleep(250,'ticks')
-     io.write('Resuming run_test.lua')
+     writeall('Resuming run_test.lua')
 ---- Print PASS/FAIL
 if #flowCheck == 0 then
  printplus('PASSED: flow/random-surface')
@@ -216,34 +228,34 @@ else
 end
 -- FINISH flow/random-surface
 scriptCheck['flow_random_surface'] = flowCheck
-     io.write('flow/random-surface checks finished')
+     writeall('flow/random-surface checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START flow/source
 flowCheck = {}
 unit = civ[3]
 center(unit)
-     io.write('')
-     io.write('flow/source checks starting')
+     writeall('')
+     writeall('flow/source checks starting')
 ---- Check that the script succeeds and creates a source that creates a depth 3 water at the unit
-     io.write('flow/source -unit '..tostring(unit.id)..' -source 3 (Should succeed and create a source that creates a depth 3 water at unit)')
-output = dfhack.run_command_silent('flow/source -unit '..tostring(unit.id)..' -source 3')
+     writeall('flow/source -unit '..tostring(unit.id)..' -source 3 (Should succeed and create a source that creates a depth 3 water at unit)')
+output = dfhack.run_command('flow/source -unit '..tostring(unit.id)..' -source 3')
 writeall(output)
 ---- Check that the script succeeds and creates a sink that removes all water one tile right of unit
-     io.write('flow/source -unit '..tostring(unit.id)..' -offset [ 1 0 0 ] -sink 0 (Should succeed and create a sink the removes all water one tile right of unit)')
-output = dfhack.run_command_silent('flow/source -unit '..tostring(unit.id)..' -offset [ 1 0 0 ] -sink 0')
+     writeall('flow/source -unit '..tostring(unit.id)..' -offset [ 1 0 0 ] -sink 0 (Should succeed and create a sink the removes all water one tile right of unit)')
+output = dfhack.run_command('flow/source -unit '..tostring(unit.id)..' -offset [ 1 0 0 ] -sink 0')
 writeall(output)
 ---- Check that the script succeeds and creates a source that creates 100 density mist 5 tiles below unit
-     io.write('flow/source -unit '..tostring(unit.id)..' -offset [ 0 5 0 ] -source 100 -flow MIST (Should succeed and create a source that creates 100 density mist 5 tiles below unit)') 
-output = dfhack.run_command_silent('flow/source -unit '..tostring(unit.id)..' -offset [ 0 5 0 ] -source 100 -flow MIST')
+     writeall('flow/source -unit '..tostring(unit.id)..' -offset [ 0 5 0 ] -source 100 -flow MIST (Should succeed and create a source that creates 100 density mist 5 tiles below unit)') 
+output = dfhack.run_command('flow/source -unit '..tostring(unit.id)..' -offset [ 0 5 0 ] -source 100 -flow MIST')
 writeall(output)
 ---- Check that the script succeeds and creates a sink that removes all mist 4 tiles below unit
-     io.write('flow/source -unit '..tostring(unit.id)..' -offset [ 0 4 0 ] -sink 0 -flow MIST (Should succeed and create a sink that removes all mist flow four tiles below unit)')
-output = dfhack.run_command_silent('flow/source -unit '..tostring(unit.id)..' -offset [ 0 4 0 ] -sink 0 -flow MIST')
+     writeall('flow/source -unit '..tostring(unit.id)..' -offset [ 0 4 0 ] -sink 0 -flow MIST (Should succeed and create a sink that removes all mist flow four tiles below unit)')
+output = dfhack.run_command('flow/source -unit '..tostring(unit.id)..' -offset [ 0 4 0 ] -sink 0 -flow MIST')
 writeall(output)
 ---- Pause script for 240 ticks
-     io.write('Pausing run_test.lua for 240 in-game ticks')
+     writeall('Pausing run_test.lua for 240 in-game ticks')
    script.sleep(240,'ticks')
-     io.write('Resuming run_test.lua')
+     writeall('Resuming run_test.lua')
 ---- Resume script and check that sources and sinks are working correctly
 if dfhack.maps.ensureTileBlock(unit.pos.x,unit.pos.y,unit.pos.z).designation[unit.pos.x%16][unit.pos.y%16].flow_size ~= 3 then
  flowCheck[#flowCheck+1] = 'Water source was not created correctly'
@@ -257,6 +269,7 @@ end
 if dfhack.script_environment('functions/map').getFlow({x=unit.pos.x,y=unit.pos.y+4,z=unit.pos.z}) then
  flowCheck[#flowCheck+1] = 'Mist sink was not created correctly'
 end
+dfhack.run_command('flow/source -unit '..tostring(unit.id)..' -removeAll')
 ---- Print PASS/FAIL
 if #flowCheck == 0 then
  printplus('PASSED: flow/source')
@@ -266,7 +279,7 @@ else
 end
 -- FINISH flow/source
 scriptCheck['flow_source'] = flowCheck
-     io.write('flow/source checks finished')
+     writeall('flow/source checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Flow script checks finished')
 
@@ -278,24 +291,25 @@ printplus('Item script checks starting')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START item/create
 itemCheck = {}
-     io.write('item/create checks starting')
+     writeall('item/create checks starting')
 ---- Checks that the script succeeds and creates a steel short sword
-     io.write('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL (Should succeed and create a steel short sword)')
-output = dfhack.run_command_silent('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL')
+     writeall('item/create -creator '..tostring(civ[1].id)..' -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL (Should succeed and create a steel short sword)')
+output = dfhack.run_command('item/create -creator '..tostring(civ[1].id)..' -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL')
 writeall(output)
 item = mostRecentItem()
 if dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_SHORT' then
  itemCheck[#itemCheck+1] = 'Failed to create short sword'
 end
-     io.write('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:RUBY -dur 50 (Should succeed and create a ruby short sword and then remove it 50 ticks later)')
+     writeall('item/create -creator '..tostring(civ[1].id)..' -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:RUBY -dur 50 (Should succeed and create a ruby short sword and then remove it 50 ticks later)')
 ---- Checks that the script succeeds and creates a ruby short sword and then removes it 50 ticks later
-output = dfhack.run_command_silent('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:RUBY -dur 50')
+output = dfhack.run_command('item/create -creator '..tostring(civ[1].id)..' -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:RUBY -dur 20')
 writeall(output)
 item = mostRecentItem()
-     io.write('Pausing run_test.lua for 75 in-game ticks')
+id = item.id
+     writeall('Pausing run_test.lua for 75 in-game ticks')
    script.sleep(75,'ticks')
-     io.write('Resuming run_test.lua')
-if dfhack.item.find(item.id) then
+     writeall('Resuming run_test.lua')
+if df.item.find(id) then
  itemCheck[#itemCheck+1] = 'Ruby short sword was not correctly removed'
 end
 ---- Print PASS/FAIL
@@ -303,22 +317,23 @@ if #itemCheck == 0 then
  printplus('PASSED: item/create')
 else
  printplus('FAILED: item/create')
+ printall(itemCheck)
  writeall(itemCheck)
 end
 -- FINISH item/create
 scriptCheck['item_create'] = itemCheck
-     io.write('item/create checks finished')
+     writeall('item/create checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START item/equip and item/unequip
 itemCheck = {}
 unit = civ[1]
 dfhack.run_command('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -creator '..tostring(unit.id))
 item = mostRecentItem()
-     io.write('')
-     io.write('item/equip and item/unequip checks starting')
+     writeall('')
+     writeall('item/equip and item/unequip checks starting')
 ---- Check that the script succeeds and moves the item into the inventory of the unit
-     io.write('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPartFlag GRASP (Should succeed and move item into inventory of unit carrying in hand)')
-output = dfhack.run_command_silent('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPartFlag GRASP')
+     writeall('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPartFlag GRASP (Should succeed and move item into inventory of unit carrying in hand)')
+output = dfhack.run_command('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPartFlag GRASP')
 writeall(output)
 for _,itemID in pairs(dfhack.script_environment('functions/unit').getInventoryType(unit,'WEAPON')) do
  if item.id == itemID then
@@ -330,15 +345,15 @@ if not yes then
  itemCheck[#itemCheck+1] = 'Short sword not equipped on unit'
 end
 ---- Check that the script succeeds and moves item from inventory to the ground at units location
-     io.write('item/unequip -item '..tostring(item.id)..' -ground (Should succeed and move item from inventory to ground at unit location)')
-output = dfhack.run_command_silent('item/unequip -item '..tostring(item.id)..' -ground')
+     writeall('item/unequip -item '..tostring(item.id)..' -ground (Should succeed and move item from inventory to ground at unit location)')
+output = dfhack.run_command('item/unequip -item '..tostring(item.id)..' -ground')
 writeall(output)
 if not same_xyz(item.pos,unit.pos) or not item.flags.on_ground or item.flags.in_inventory then
  itemCheck[#itemCheck+1] = 'Short sword not unequipped and placed on ground'
 end
 ---- Check that the script succeeds and moves item from location at feet to inventory
-     io.write('item/equip -item STANDING -unit '..tostring(unit.id)..' -bodyPartCategory HEAD -mode 0 (Should succeed and move item into inventory of unit weilding it on head)')
-output = dfhack.run_command_silent('item/equip -item STANDING -unit '..tostring(unit.id)..' -bodyPartCategory HEAD -mode 0')
+     writeall('item/equip -item STANDING -unit '..tostring(unit.id)..' -bodyPartCategory HEAD -mode 0 (Should succeed and move item into inventory of unit weilding it on head)')
+output = dfhack.run_command('item/equip -item STANDING -unit '..tostring(unit.id)..' -bodyPartCategory HEAD -mode 0')
 writeall(output)
 for _,itemID in pairs(dfhack.script_environment('functions/unit').getInventoryType(unit,'WEAPON')) do
  if item.id == itemID then
@@ -350,8 +365,8 @@ if not yes then
  itemCheck[#itemCheck+1] = 'Short sword not equipped on unit off of ground'
 end
 ---- Check that the script succeeds and removes units entire inventory
-     io.write('item/unequip -item ALL -unit '..tostring(unit.id)..' -destroy (Should succeed and destroy all items that unit has in inventory)')
-output = dfhack.run_command_silent('item/unequip -item ALL -unit '..tostring(unit.id)..' -destroy')
+     writeall('item/unequip -item ALL -unit '..tostring(unit.id)..' -destroy (Should succeed and destroy all items that unit has in inventory)')
+output = dfhack.run_command('item/unequip -item ALL -unit '..tostring(unit.id)..' -destroy')
 writeall(output)
 if #unit.inventory > 0 then
  itemCheck[#itemCheck+1] = 'Entire inventory was not correctly unequipped'
@@ -365,44 +380,46 @@ else
 end
 -- FINISH item/equip and item/unequip
 scriptCheck['item_equip'] = itemCheck
-     io.write('item/equip and item/unequip checks finished')
+     writeall('item/equip and item/unequip checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START item/material-change
 itemCheck = {}
 unit = civ[2]
 dfhack.run_command('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -creator '..tostring(unit.id))
 item = mostRecentItem()
-     io.write('')
-     io.write('item/material-change checks starting')
+     writeall('')
+     writeall('item/material-change checks starting')
 ---- Check that the script succeeds and changes the steel short sword into a brain short sword
-     io.write('item/material-change -item '..tostring(item.id)..' -mat CREATURE_MAT:DWARF:BRAIN (Should succeed and change the material of item to dwarf brain)')
-output = dfhack.run_command_silent('item/material-change -item '..tostring(item.id)..' -mat CREATURE_MAT:DWARF:BRAIN')
+     writeall('item/material-change -item '..tostring(item.id)..' -mat CREATURE_MAT:DWARF:BRAIN (Should succeed and change the material of item to dwarf brain)')
+output = dfhack.run_command('item/material-change -item '..tostring(item.id)..' -mat CREATURE_MAT:DWARF:BRAIN')
 writeall(output)
 mat = dfhack.matinfo.find('CREATURE_MAT:DWARF:BRAIN')
 if mat.type ~= item.mat_type or mat.index ~= item.mat_index then
  itemCheck[#itemCheck+1] = 'Failed to change short sword material from INORGANIC:STEEL to CREATURE_MAT:DWARF:BRAIN'
 end
 ---- Check that the script succeeds and changed the entire units inventory into adamantine for 50 ticks
-     io.write('item/material-change -unit '..tostring(unit.id)..' -equipment ALL -mat INORGANIC:ADAMANTINE -dur 50 (Should succeed and change the material of all units inventory to adamantine for 50 ticks)')
-output = dfhack.run_command_silent('item/material-change -unit '..tostring(unit.id)..' -equipment ALL -mat INORGANIC:ADAMANTINE -dur 50')
+     writeall('item/material-change -unit '..tostring(unit.id)..' -equipment ALL -mat INORGANIC:ADAMANTINE -dur 50 (Should succeed and change the material of all units inventory to adamantine for 50 ticks)')
+output = dfhack.run_command('item/material-change -unit '..tostring(unit.id)..' -equipment ALL -mat INORGANIC:ADAMANTINE -dur 50')
 writeall(output)
 mat = dfhack.matinfo.find('INORGANIC:ADAMANTINE')
-for _,inv in pairs(unit.inventory) do
+for _,itm in pairs(unit.inventory) do
+ inv = itm.item
  if inv.mat_type ~= mat.type or inv.mat_index ~= mat.index then
   itemCheck[#itemCheck+1] = 'Failed to change an inventory item material to INORGANIC:ADAMANTINE'
  end
 end
-     io.write('Pausing run_test.lua for 75 in-game ticks')
+     writeall('Pausing run_test.lua for 75 in-game ticks')
    script.sleep(75,'ticks')
-     io.write('Resuming run_test.lua')
-for _,inv in pairs(unit.inventory) do
+     writeall('Resuming run_test.lua')
+for _,itm in pairs(unit.inventory) do
+ inv = itm.item
  if inv.mat_type == mat.type or inv.mat_index == mat.index then
   itemCheck[#itemCheck+1] = 'Failed to reset an inventory item material from INORGANIC:ADAMANTINE'
  end
 end
 ---- Check that the script succeeds and changes the brain short sword to steel and creates a tracking table
-     io.write('item/material-change -item '..tostring(item.id)..' -mat INORGANIC:STEEL -track (Should succeed and change the material of item to steel and create a persistent table for the item to track changes)') 
-output = dfhack.run_command_silent('item/material-change -item '..tostring(item.id)..' -mat INORGANIC:STEEL -track')
+     writeall('item/material-change -item '..tostring(item.id)..' -mat INORGANIC:STEEL -track (Should succeed and change the material of item to steel and create a persistent table for the item to track changes)') 
+output = dfhack.run_command('item/material-change -item '..tostring(item.id)..' -mat INORGANIC:STEEL -track')
 writeall(output)
 mat = dfhack.matinfo.find('INORGANIC:STEEL')
 if mat.type ~= item.mat_type or mat.index ~= item.mat_index then
@@ -420,58 +437,64 @@ else
 end
 -- FINISH item/material-change
 scriptCheck['item_material_change'] = itemCheck
-     io.write('item/material-change checks finished')
+     writeall('item/material-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START item/quality-change
 itemCheck = {}
 unit = civ[2]
 dfhack.run_command('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -creator '..tostring(unit.id))
 item = mostRecentItem()
-     io.write('')
-     io.write('item/quality-change checks starting')
+     writeall('')
+     writeall('item/quality-change checks starting')
 ---- Check that the script succeeds and changes the quality of the item to masterwork and creates a tracking table
-     io.write('item/quality-change -item '..tostring(item.id)..' -quality 7 -track (Should succeed and change the quality of the item to masterwork and track the change in the persistent item table)')
-output = dfhack.run_command_silent('item/quality-change -item '..tostring(item.id)..' -quality 7 -track')
+     writeall('item/quality-change -item '..tostring(item.id)..' -quality 5 -track (Should succeed and change the quality of the item to masterwork and track the change in the persistent item table)')
+output = dfhack.run_command('item/quality-change -item '..tostring(item.id)..' -quality 5 -track')
 writeall(output)
-if item.quality ~= 7 then
- itemCheck[#itemCheck+1] = 'Failed to increase item quality to 7'
+if item.quality ~= 5 then
+ itemCheck[#itemCheck+1] = 'Failed to increase item quality to 5'
 end
 if not roses.ItemTable[tostring(item.id)] then
  itemCheck[#itemCheck+1] = 'Failed to create an ItemTable entry for short sword'
 end
 ---- Check that the script succeeds and changes the quality of the entire units inventory to masterwork for 50 ticks
-     io.write('item/quality-change -unit '..tostring(unit.id)..' -equipment ALL -quality 7 -dur 50 (Should succeed and change the quality of all units inventory to masterwork for 50 ticks)')
-output = dfhack.run_command_silent('item/quality-change -unit '..tostring(unit.id)..' -equipment ALL -quality 7 -dur 50')
+     writeall('item/quality-change -unit '..tostring(unit.id)..' -equipment ALL -quality 5 -dur 50 (Should succeed and change the quality of all units inventory to masterwork for 50 ticks)')
+output = dfhack.run_command('item/quality-change -unit '..tostring(unit.id)..' -equipment ALL -quality 5 -dur 50')
 writeall(output)
-for _,inv in pairs(unit.inventory) do
- if inv.quality ~= 7 then
-  itemCheck[#itemCheck+1] = 'Failed to set inventory item quality to 7'
+for _,itm in pairs(unit.inventory) do
+ inv = itm.item
+ if inv.quality ~= 5 then
+  itemCheck[#itemCheck+1] = 'Failed to set inventory item quality to 5'
  end
 end
-     io.write('Pausing run_test.lua for 75 in-game ticks')
+     writeall('Pausing run_test.lua for 75 in-game ticks')
    script.sleep(75,'ticks')
-     io.write('Resuming run_test.lua')
-for _,inv in pairs(unit.inventory) do
- if inv.quality == 7 then
+     writeall('Resuming run_test.lua')
+for _,itm in pairs(unit.inventory) do
+ inv = itm.item
+ if inv.quality == 5 then
   itemCheck[#itemCheck+1] = 'Failed to reset inventory item quality'
  end
 end
 ---- Check that the script lowers the quality of all short swords on the map by 1
-     io.write('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -upgrade (Should succeed and increase the quality of all short swords on the map by 1)') 
+     writeall('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -upgrade (Should succeed and increase the quality of all short swords on the map by 1)') 
 prequality = 0
 number = 0
 for _,itm in pairs(df.global.world.items.all) do
- if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_SWORD_SHORT' then
-  if itm.quality < 7 then number = number + 1 end
-  prequaltiy = prequality + itm.quality
+ if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()) then
+  if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_SWORD_SHORT' then
+   if itm.quality < 5 then number = number + 1 end
+   prequality = prequality + itm.quality
+  end
  end
 end
-output = dfhack.run_command_silent('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -upgrade')
+output = dfhack.run_command('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -upgrade')
 writeall(output)
 postquality = 0
-for _,itm in pairs(df.global.world.items.other.WEAPONS) do
- if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_SWORD_SHORT' then
-  postquality = postquality + itm.quality
+for _,itm in pairs(df.global.world.items.other.WEAPON) do
+ if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()) then
+  if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_SWORD_SHORT' then
+   postquality = postquality + itm.quality
+  end
  end
 end
 if postquality ~= (prequality + number) then
@@ -486,53 +509,62 @@ else
 end
 -- FINISH item/quality-change
 scriptCheck['item_quality_change'] = itemCheck
-     io.write('item/quality-change checks finished')
+     writeall('item/quality-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START item/subtype-change
 itemCheck = {}
 unit = civ[2]
 dfhack.run_command('item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -creator '..tostring(unit.id))
 item = mostRecentItem()
-    io.write('')
-    io.write('item/subtype-change checks starting')
+    writeall('')
+    writeall('item/subtype-change checks starting')
 ---- Check that the script succeeds and changes short sword to long sword and creates a tracking table
-    io.write('item/subtype-change -item '..tostring(item.id)..' -subtype ITEM_WEAPON_SWORD_LONG -track (Should succeed and change the short sword to a long sword and track the change in the persistent item table)')
-output = dfhack.run_command_silent('item/subtype-change -item '..tostring(item.id)..' -subtype ITEM_WEAPON_SWORD_LONG -track')
+    writeall('item/subtype-change -item '..tostring(item.id)..' -subtype ITEM_WEAPON_SWORD_LONG -track (Should succeed and change the short sword to a long sword and track the change in the persistent item table)')
+output = dfhack.run_command('item/subtype-change -item '..tostring(item.id)..' -subtype ITEM_WEAPON_SWORD_LONG -track')
 writeall(output)
-if dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_LONG' then
- itemCheck[#itemCheck+1] = 'Failed to change the short sword into a long sword'
+if dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()) then
+ if dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_LONG' then
+  itemCheck[#itemCheck+1] = 'Failed to change the short sword into a long sword'
+ end
 end
 if not roses.ItemTable[tostring(item.id)] then
  itemCheck[#itemCheck+1] = 'Failed to create ItemTable for short sword'
 end
 ---- Check that the script succeeds and changes the pants unit is wearing into greaves for 50 ticks
-    io.write('item/subtype-change -unit '..tostring(unit.id)..' -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50 (Should succeed and change the pants the unit is wearing into greaves for 50 ticks)')
+    writeall('item/subtype-change -unit '..tostring(unit.id)..' -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50 (Should succeed and change the pants the unit is wearing into greaves for 50 ticks)')
 pants = dfhack.script_environment('functions/unit').getInventoryType(unit,'PANTS')[1]
+pants = df.item.find(pants)
 presubtype = dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()).id
-output = dfhack.run_command_silent('item/subtype-change -unit '..tostring(unit.id)..' -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50')
+output = dfhack.run_command('item/subtype-change -unit '..tostring(unit.id)..' -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50')
 writeall(output)
-if dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()).id ~= 'ITEM_PANTS_GREAVES' then
- itemCheck[itemCheck+1] = 'Failed to change pants equipment to ITEM_PANTS_GREAVES'
+if dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()) then
+ if dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()).id ~= 'ITEM_PANTS_GREAVES' then
+  itemCheck[itemCheck+1] = 'Failed to change pants equipment to ITEM_PANTS_GREAVES'
+ end
 end
-    io.write('Pausing run_test.lua for 75 in-game ticks')
+    writeall('Pausing run_test.lua for 75 in-game ticks')
    script.sleep(75,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 if dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()).id ~= presubtype then
  itemCheck[#itemCheck+1] = 'Failed to reset pants equipment subtype'
 end
 ---- Check that the script succeeds and changes all picks on the map into short sword
-    io.write('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT (Should succeed and change all picks on the map into short swords)')
+    writeall('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT (Should succeed and change all picks on the map into short swords)')
 picks = {}
 for _,itm in pairs(df.global.world.items.all) do
- if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_PICK' then
-  picks[#picks+1] = itm
+ if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()) then
+  if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_PICK' then
+   picks[#picks+1] = itm
+  end
  end
 end
-output = dfhack.run_command_silent('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT')
+output = dfhack.run_command('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT')
 writeall(output)
 for _,itm in pairs(picks) do
- if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_SHORT' then
-  itemCheck[#itemCheck+1] = 'Failed to turn all picks into short swords'
+ if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()) then
+  if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_SHORT' then
+   itemCheck[#itemCheck+1] = 'Failed to turn all picks into short swords'
+  end
  end
 end
 ---- Print PASS/FAIL
@@ -544,7 +576,7 @@ else
 end
 -- FINISH item/subtype-change
 scriptCheck['item_subtype_change'] = itemCheck
-    io.write('item/subtype-change checks finished')
+    writeall('item/subtype-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START item/projectile
 itemCheck = {}
@@ -553,22 +585,22 @@ unitTarget = civ[2]
 unitSource.pos.x = unitTarget.pos.x + 3
 unitSource.pos.y = unitTarget.pos.y + 3
 unitSource.pos.z = unitTarget.pos.z
-    io.write('')
-    io.write('item/projectile checks starting')
+    writeall('')
+    writeall('item/projectile checks starting')
 ---- Check that the script succeeds and creates an iron bolt shooting from source to target
-    io.write('item/projectile -unitSource '..tostring(unitSource.id)..' -unitTarget '..tostring(unitTarget.id)..' -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON (Should succeed and create an iron bolt shooting from source to target)')
+    writeall('item/projectile -unitSource '..tostring(unitSource.id)..' -unitTarget '..tostring(unitTarget.id)..' -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON (Should succeed and create an iron bolt shooting from source to target)')
 projid = df.global.proj_next_id
 itemid = df.global.item_next_id
-output = dfhack.run_command_silent('item/projectile -unitSource '..tostring(unitSource.id)..' -unitTarget '..tostring(unitTarget.id)..' -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON')
+output = dfhack.run_command('item/projectile -unitSource '..tostring(unitSource.id)..' -unitTarget '..tostring(unitTarget.id)..' -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON')
 writeall(output)
 if df.global.proj_next_id ~= projid + 1 and df.global.item_next_id ~= itemid + 1 then
  itemCheck[#itemCheck+1] = 'Failed to create 1 shooting projectile'
 end
 ---- Check that the script succeeds and creates 10 iron bolts falling from 5 z levels above the source
-    io.write('item/projectile -unitSource '..tostring(unitSource.id)..' -type Falling -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON -height 5 -number 10 (Should succeed and create 10 iron bolt falling from 5 above the source)')
+    writeall('item/projectile -unitSource '..tostring(unitSource.id)..' -type Falling -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON -height 5 -number 10 (Should succeed and create 10 iron bolt falling from 5 above the source)')
 projid = df.global.proj_next_id
 itemid = df.global.item_next_id
-output = dfhack.run_command_silent('item/projectile -unitSource '..tostring(unitSource.id)..' -type Falling -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON -height 5 -number 10')
+output = dfhack.run_command('item/projectile -unitSource '..tostring(unitSource.id)..' -type Falling -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON -height 5 -number 10')
 writeall(output)
 if df.global.proj_next_id ~= projid + 10 and df.global.item_next_id ~= itemid + 10 then
  itemCheck[#itemCheck+1] = 'Failed to create 10 falling projectiles'
@@ -582,7 +614,7 @@ else
 end
 -- FINISH item/projectile
 scriptCheck['item_projectile'] = itemCheck
-    io.write('item/projectile checks finished')
+    writeall('item/projectile checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Item script checks finished')
 
@@ -595,18 +627,18 @@ printplus('Tile script checks starting')
 -- START tile/material-change
 tileCheck = {}
 unit = civ[3]
-    io.write('tile/material-change checks starting')
+    writeall('tile/material-change checks starting')
 ---- Check that the script succeeds and changed the material of the floor at unit location to obsidian
-    io.write('tile/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor (Should succeed and change the material of the floor at unit location to obsidian)')
-output = dfhack.run_command_silent('tile/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor')
+    writeall('tile/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor (Should succeed and change the material of the floor at unit location to obsidian)')
+output = dfhack.run_command('tile/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor')
 writeall(output)
 ---- Check that the script succeeds and changes the material of floor in a 5x5 X centered on unit to slade for 50 ticks
-    io.write('tile/material-change -material INORGANIC:SLADE -unit '..tostring(unit.id)..' -floor -plan test_plan_5x5_X.txt -dur 50 (Should succeed and change the material of floor in a 5x5 X centered at the unit to slade)')
-output = dfhack.run_command_silent('tile/material-change -material INORGANIC:SLADE -unit '..tostring(unit.id)..' -floor -plan test_plan_5x5_X.txt -dur 50')
+    writeall('tile/material-change -material INORGANIC:SLADE -unit '..tostring(unit.id)..' -floor -plan test_plan_5x5_X.txt -dur 50 (Should succeed and change the material of floor in a 5x5 X centered at the unit to slade)')
+output = dfhack.run_command('tile/material-change -material INORGANIC:SLADE -unit '..tostring(unit.id)..' -floor -plan test_plan_5x5_X.txt -dur 50')
 writeall(output)
-    io.write('Pausing run_test.lua for 75 in-game ticks')
+    writeall('Pausing run_test.lua for 75 in-game ticks')
  script.sleep(75,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 ---- Print PASS/FAIL
 if #tileCheck == 0 then
  printplus('PASSED: tile/material-change')
@@ -616,24 +648,24 @@ else
 end
 -- FINISH tile/material-change
 scriptCheck['tile_material_change'] = tileCheck
-    io.write('tile/material-change checks finished')
+    writeall('tile/material-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START tile/temperature-change
 tileCheck = {}
 unit = civ[3]
-    io.write('')
-    io.write('tile/temperature-change checks starting')
+    writeall('')
+    writeall('tile/temperature-change checks starting')
 ---- Check that the script succeeds and set the temperature at units location to 9000
-    io.write('tile/temperature-change -unit '..tostring(unit.id)..' -temperature 9000 (Should succeed and set the temperature at the units location to 9000)')
-output = dfhack.run_command_silent('tile/temperature-change -unit '..tostring(unit.id)..' -temperature 9000')
+    writeall('tile/temperature-change -unit '..tostring(unit.id)..' -temperature 9000 (Should succeed and set the temperature at the units location to 9000)')
+output = dfhack.run_command('tile/temperature-change -unit '..tostring(unit.id)..' -temperature 9000')
 writeall(output)
 ---- Check that the script succeeds and sets the temerpature in a 5x5 plus centered on the unit to 15000 for 50 ticks
-    io.write('tile/temperature-change -unit '..tostring(unit.id)..' -plan test_plan_5x5_P.txt -temperature 15000 -dur 50 (Should succeed and set the temperature in a 5x5 plus centered at the unit to 15000 for 50 ticks)')
-output = dfhack.run_command_silent('tile/temperature-change -unit '..tostring(unit.id)..' -plan test_plan_5x5_P.txt -temperature 15000 -dur 50')
+    writeall('tile/temperature-change -unit '..tostring(unit.id)..' -plan test_plan_5x5_P.txt -temperature 15000 -dur 50 (Should succeed and set the temperature in a 5x5 plus centered at the unit to 15000 for 50 ticks)')
+output = dfhack.run_command('tile/temperature-change -unit '..tostring(unit.id)..' -plan test_plan_5x5_P.txt -temperature 15000 -dur 50')
 writeall(output)
-    io.write('Pausing run_test.lua for 75 in-game ticks')
+    writeall('Pausing run_test.lua for 75 in-game ticks')
  script.sleep(75,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 ---- Print PASS/FAIL
 if #tileCheck == 0 then
  printplus('PASSED: tile/temperature-change')
@@ -643,7 +675,7 @@ else
 end
 -- FINISH tile/temperature-change
 scriptCheck['tile_temperature_change'] = tileCheck
-    io.write('tile/temperature-change checks finished')
+    writeall('tile/temperature-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Tile script checks finished')
 
@@ -656,18 +688,18 @@ printplus('Unit script checks starting')
 -- START unit/action-change
 unitCheck = {}
 unit = civ[1]
-    io.write('unit/action-change checks starting')
+    writeall('unit/action-change checks starting')
 ---- Check that the script succeeds and adds an action of every type with a 500 tick cooldown
-    io.write('unit/action-change -unit '..tostring(unit.id)..' -timer 500 -action All (Should succeed and add an action for every type with a 500 tick cooldown)')
-output = dfhack.run_command_silent('unit/action-change -unit '..tostring(unit.id)..' -timer 500 -action All')
+    writeall('unit/action-change -unit '..tostring(unit.id)..' -timer 500 -action All (Should succeed and add an action for every type with a 500 tick cooldown)')
+output = dfhack.run_command('unit/action-change -unit '..tostring(unit.id)..' -timer 500 -action All')
 writeall(output)
 ---- Check that the script succeeds and removes all actions from unit
-    io.write('unit/action-change -unit '..tostring(unit.id)..' -timer clearAll (Should succeed and remove all actions from unit)')
-output = dfhack.run_command_silent('unit/action-change -unit '..tostring(unit.id)..' -timer clearAll')
+    writeall('unit/action-change -unit '..tostring(unit.id)..' -timer clearAll (Should succeed and remove all actions from unit)')
+output = dfhack.run_command('unit/action-change -unit '..tostring(unit.id)..' -timer clearAll')
 writeall(output)
 ---- Check that the script succeeds and adds an attack action with a 100 tick-cooldown and 100 ticks to all interaction cooldowns
-    io.write('unit/action-change -unit '..tostring(unit.id)..' -timer 100 -action Attack -interaction All (Should succeed and add an attack action with a 100 tick cooldown and add 100 ticks to all interaction cooldowns)')
-output = dfhack.run_command_silent('unit/action-change -unit '..tostring(unit.id)..' -timer 100 -action Attack -interaction All')
+    writeall('unit/action-change -unit '..tostring(unit.id)..' -timer 100 -action Attack -interaction All (Should succeed and add an attack action with a 100 tick cooldown and add 100 ticks to all interaction cooldowns)')
+output = dfhack.run_command('unit/action-change -unit '..tostring(unit.id)..' -timer 100 -action Attack -interaction All')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -678,7 +710,7 @@ else
 end
 -- FINISH unit/action-change
 scriptCheck['unit_action_change'] = unitCheck
-    io.write('unit/action-change checks finished')
+    writeall('unit/action-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/attack
 unitCheck = {}
@@ -687,15 +719,15 @@ defender = non[1]
 defender.pos.x = attacker.pos.x + 1
 defender.pos.y = attacker.pos.y
 defender.pos.z = attacker.pos.z
-    io.write('')
-    io.write('unit/attack checks starting')
+    writeall('')
+    writeall('unit/attack checks starting')
 ---- Check that the script succeeds and adds an attack action with the calculated velocity, hit chance, and body part target
-    io.write('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' (Should succeed and add an attack action to the attacker unit, with calculated velocity, hit chance, and body part target)')
-output = dfhack.run_command_silent('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id))
+    writeall('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' (Should succeed and add an attack action to the attacker unit, with calculated velocity, hit chance, and body part target)')
+output = dfhack.run_command('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id))
 writeall(output)
 ---- Check that the script succeeds and adds 10 punch attacks against defenders head
-    io.write('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' -attack PUNCH -target HEAD -number 10 -velocity 100 (Should succeed and add 10 punch attacks targeting defender head with velocity 100 and calculated hit chance)')
-output = dfhack.run_command_silent('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' -attack PUNCH -target HEAD -number 10 -velocity 100')
+    writeall('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' -attack PUNCH -target HEAD -number 10 -velocity 100 (Should succeed and add 10 punch attacks targeting defender head with velocity 100 and calculated hit chance)')
+output = dfhack.run_command('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' -attack PUNCH -target HEAD -number 10 -velocity 100')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -706,35 +738,35 @@ else
 end
 -- FINISH unit/attack
 scriptCheck['unit_attack'] = unitCheck
-    io.write('unit/attack checks finished')
+    writeall('unit/attack checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/attribute-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/attribute-change checks starting')
+    writeall('')
+    writeall('unit/attribute-change checks starting')
 ---- Check that the script fails because of an attribute and value mismatch
-    io.write('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ STRENGTH AGILITY ] -amount 50 (Should fail and print "Mismatch between number of attributes declared and number of changes declared")')
-output = dfhack.run_command_silent('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ STRENGTH AGILITY ] -amount 50')
+    writeall('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ STRENGTH AGILITY ] -amount 50 (Should fail and print "Mismatch between number of attributes declared and number of changes declared")')
+output = dfhack.run_command('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ STRENGTH AGILITY ] -amount 50')
 writeall(output)
 ---- Check that the script fails because of an invalid attribute token
-    io.write('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGHT -amount 50 (Should fail and print "Invalid attribute id")')
-output = dfhack.run_command_silent('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGHT -amount 50')
+    writeall('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGHT -amount 50 (Should fail and print "Invalid attribute id")')
+output = dfhack.run_command('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGHT -amount 50')
 writeall(output)
 ---- Check that the script succeeds and adds 50 strength to the unit for 50 ticks
-    io.write('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGTH -amount 50 -mode fixed -dur 50 (Should succeed and add 50 strength to the unit for 50 ticks)')
-output = dfhack.run_command_silent('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGTH -amount 50 -mode fixed -dur 50')
+    writeall('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGTH -amount 50 -mode fixed -dur 50 (Should succeed and add 50 strength to the unit for 50 ticks)')
+output = dfhack.run_command('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGTH -amount 50 -mode fixed -dur 50')
 writeall(output)
-    io.write('Pausing run_test.lua for 75 in-game ticks')
+    writeall('Pausing run_test.lua for 75 in-game ticks')
   script.sleep(75,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 ---- Check that the script succeeds and sets units toughness and endurance to 5000 for 50 ticks and creates a tracking table
-    io.write('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50 -track (Should succeed and set units toughness and endurance to 5000 for 50 ticks and create a persistent unit table)')
-output = dfhack.run_command_silent('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50 -track')
+    writeall('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50 -track (Should succeed and set units toughness and endurance to 5000 for 50 ticks and create a persistent unit table)')
+output = dfhack.run_command('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50 -track')
 writeall(output)
-    io.write('Pausing run_test.lua for 75 in-game ticks')
+    writeall('Pausing run_test.lua for 75 in-game ticks')
   script.sleep(75,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
  printplus('PASSED: unit/attribute-change')
@@ -744,27 +776,27 @@ else
 end
 -- FINISH unit/attribute-change
 scriptCheck['unit_attribute_change'] = unitCheck
-    io.write('unit/attribute-change checks finished')
+    writeall('unit/attribute-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/body-change
 unitCheck = {}
 unit = non[2]
-    io.write('')
-    io.write('unit/body-change checks starting')
+    writeall('')
+    writeall('unit/body-change checks starting')
 ---- Check that the script succeeds and set the eyes of unit on fire for 50 ticks
-    io.write('unit/body-change -unit '..tostring(unit.id)..' -flag SIGHT -temperature Fire -dur 50 (Should succeed and set the eyes on fire for 50 ticks)')
-output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -flag SIGHT -temperature Fire -dur 50')
+    writeall('unit/body-change -unit '..tostring(unit.id)..' -flag SIGHT -temperature Fire -dur 50 (Should succeed and set the eyes on fire for 50 ticks)')
+output = dfhack.run_command('unit/body-change -unit '..tostring(unit.id)..' -flag SIGHT -temperature Fire -dur 50')
 writeall(output)
-    io.write('Pausing run_test.lua for 75 in-game ticks')
+    writeall('Pausing run_test.lua for 75 in-game ticks')
   script.sleep(75,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 ---- Check that the script succeeds and sets the size of unit to half of the current
-    io.write('unit/body-change -unit '..tostring(unit.id)..' -size All -amount 50 -mode percent (Should succeed and set all sizes, size, length, and area, of the unit to 50 percent of the current)')
-output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -size All -amount 50 -mode percent')
+    writeall('unit/body-change -unit '..tostring(unit.id)..' -size All -amount 50 -mode percent (Should succeed and set all sizes, size, length, and area, of the unit to 50 percent of the current)')
+output = dfhack.run_command('unit/body-change -unit '..tostring(unit.id)..' -size All -amount 50 -mode percent')
 writeall(output)
 ---- Check that the script succeeds and sets the temperature of the upper body to 9000
-    io.write('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature 9000 (Should succeed and set the upper body temperature to 9000)')
-output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature 9000')
+    writeall('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature 9000 (Should succeed and set the upper body temperature to 9000)')
+output = dfhack.run_command('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature 9000')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -775,20 +807,20 @@ else
 end
 -- FINISH unit/body-change
 scriptCheck['unit_body_change'] = unitCheck
-    io.write('unit/body-change checks finished')
+    writeall('unit/body-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/butcher
 unitCheck = {}
 unit = non[3]
-    io.write('')
-    io.write('unit/butcher checks starting')
+    writeall('')
+    writeall('unit/butcher checks starting')
 ---- Check that the script fails because unit is still alive
-    io.write('unit/butcher -unit '..tostring(unit.id)..' (Should fail and print "Unit is still alive and has not been ordered -kill")')
-output = dfhack.run_command_silent('unit/butcher -unit '..tostring(unit.id))
+    writeall('unit/butcher -unit '..tostring(unit.id)..' (Should fail and print "Unit is still alive and has not been ordered -kill")')
+output = dfhack.run_command('unit/butcher -unit '..tostring(unit.id))
 writeall(output)
 ---- Check that the script succeeds in killing and then butchering the unit
-    io.write('unit/butcher -unit '..tostring(unit.id)..' -kill (Should succeed and kill unit then butcher it)')
-output = dfhack.run_command_silent('unit/butcher -unit '..tostring(unit.id)..' -kill')
+    writeall('unit/butcher -unit '..tostring(unit.id)..' -kill (Should succeed and kill unit then butcher it)')
+output = dfhack.run_command('unit/butcher -unit '..tostring(unit.id)..' -kill')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -799,25 +831,25 @@ else
 end
 -- FINISH unit/butcher
 scriptCheck['unit_butcher'] = unitCheck
-    io.write('unit/butcher checks finished')
+    writeall('unit/butcher checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/convert
 unitCheck = {}
 unit = non[4]
 side = civ[1]
-    io.write('')
-    io.write('unit/convert checks starting')
+    writeall('')
+    writeall('unit/convert checks starting')
 ---- Check that the script succeeds and changes the unit to a neutral
-    io.write('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Neutral (Should succeed and change the unit to a neutral)')
-output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Neutral')
+    writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Neutral (Should succeed and change the unit to a neutral)')
+output = dfhack.run_command('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Neutral')
 writeall(output)
 ---- Check that the script succeeds and changes the unit to a civilian
-    io.write('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Civilian (Should succeed and change the unit to a civilian)')
-output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Civilian')
+    writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Civilian (Should succeed and change the unit to a civilian)')
+output = dfhack.run_command('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Civilian')
 writeall(output)
 ---- Check that the script succeeds and changes the unit to a pet
-    io.write('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Pet (Should succeed and change the unit to a pet of side)')
-output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Pet')
+    writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Pet (Should succeed and change the unit to a pet of side)')
+output = dfhack.run_command('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Pet')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -828,28 +860,28 @@ else
 end
 -- FINISH unit/convert
 scriptCheck['unit_convert'] = unitCheck
-    io.write('unit/convert checks finished')
+    writeall('unit/convert checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/counter-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/counter-change checks starting')
+    writeall('')
+    writeall('unit/counter-change checks starting')
 ---- Check that the script fails because of mismatch between counters and values
-    io.write('unit/counter-change -unit '..tostring(unit.id)..' -counter [ nausea dizziness ] -amount 1000 (Should fail and print "Mismatch between number of counters declared and number of changes declared")')
-output = dfhack.run_command_silent('unit/counter-change -unit '..tostring(unit.id)..' -counter [ nausea dizziness ] -amount 1000')
+    writeall('unit/counter-change -unit '..tostring(unit.id)..' -counter [ nausea dizziness ] -amount 1000 (Should fail and print "Mismatch between number of counters declared and number of changes declared")')
+output = dfhack.run_command('unit/counter-change -unit '..tostring(unit.id)..' -counter [ nausea dizziness ] -amount 1000')
 writeall(output)
 ---- Check that the script fails because of an invalid counter
-    io.write('unit/counter-change -unit '..tostring(unit.id)..' -counter nausae -amount 1000 (Should fail and print "Invalid counter token declared")')
-output = dfhack.run_command_silent('unit/counter-change -unit '..tostring(unit.id)..' -counter nausae -amount 1000')
+    writeall('unit/counter-change -unit '..tostring(unit.id)..' -counter nausae -amount 1000 (Should fail and print "Invalid counter token declared")')
+output = dfhack.run_command('unit/counter-change -unit '..tostring(unit.id)..' -counter nausae -amount 1000')
 writeall(output)
 ---- Check that the script succeeds and increases nausea counter by 1000
-    io.write('unit/counter-change -unit '..tostring(unit.id)..' -counter nausea -amount 1000 -mode fixed (Should succeed and incread the nausea counter by 1000)')
-output = dfhack.run_command_silent('unit/counter-change -unit '..tostring(unit.id)..' -counter nausea -amount 1000 -mode fixed')
+    writeall('unit/counter-change -unit '..tostring(unit.id)..' -counter nausea -amount 1000 -mode fixed (Should succeed and incread the nausea counter by 1000)')
+output = dfhack.run_command('unit/counter-change -unit '..tostring(unit.id)..' -counter nausea -amount 1000 -mode fixed')
 writeall(output)
 ---- Check that the script succeeds and sets hunger, thirst, and sleepiness timer to 0
-    io.write('unit/counter-change -unit '..tostring(unit.id)..' -counter [ hunger thirst sleepiness ] -amount 0 -mode set (Should succeed and set hunger_timer, thirst_timer, and sleepiness_timer to 0)')
-output = dfhack.run_command_silent('unit/counter-change -unit '..tostring(unit.id)..' -counter [ hunger thirst sleepiness ] -amount 0 -mode set')
+    writeall('unit/counter-change -unit '..tostring(unit.id)..' -counter [ hunger thirst sleepiness ] -amount 0 -mode set (Should succeed and set hunger_timer, thirst_timer, and sleepiness_timer to 0)')
+output = dfhack.run_command('unit/counter-change -unit '..tostring(unit.id)..' -counter [ hunger thirst sleepiness ] -amount 0 -mode set')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -860,26 +892,27 @@ else
 end
 -- FINISH unit/counter-change
 scriptCheck['unit_counter_change'] = unitCheck
-    io.write('unit/counter-change checks finished')
+    writeall('unit/counter-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/create
 unitCheck = {}
-location = civ[2].pos
+loc = {pos2xyz(civ[2].pos)}
+location = tostring(loc[1])..' '..tostring(loc[2])..' '..tostring(loc[3])
 side = civ[2]
 center(location)
-    io.write('')
-    io.write('unit/create checks starting')
+    writeall('')
+    writeall('unit/create checks starting')
 ---- Check that the script succeeds and creates a neutral male dwarf at given location
-    io.write('unit/create -creature DWARF:MALE -loc [ '..table.unpack(location)..' ] (Should succeed and create a neutral male dwarf at given location)')
-output = dfhack.run_command_silent('unit/create -creature DWARF:MALE -loc [ '..table.unpack(location)..' ]')
+    writeall('unit/create -creature DWARF:MALE -loc [ '..location..' ] (Should succeed and create a neutral male dwarf at given location)')
+output = dfhack.run_command('unit/create -creature DWARF:MALE -loc [ '..location..' ]')
 writeall(output)
 ---- Check that the script succeeds and creates a civilian male dwarf at the given location
-    io.write('unit/create -creature DWARF:MALE -reference '..tostring(side.id)..' -side Civilian -loc [ '..table.unpack(location)..' ] (Should succeed and create a civilian male dwarf at the reference units location)')
-output = dfhack.run_command_silent('unit/create -creature DWARF:MALE -reference '..tostring(side.id)..' -side Civilian -loc [ '..table.unpack(location)..' ]')
+    writeall('unit/create -creature DWARF:MALE -reference '..tostring(side.id)..' -side Civilian -loc [ '..location..' ] (Should succeed and create a civilian male dwarf at the reference units location)')
+output = dfhack.run_command('unit/create -creature DWARF:MALE -reference '..tostring(side.id)..' -side Civilian -loc [ '..location..' ]')
 writeall(output)
 ---- Check that the script succeeds and creates a domestic dog (male or female) named Clifford
-    io.write('unit/create -creature DOG:RANDOM -reference '..tostring(side.id)..' -side Domestic -name Clifford -loc [ '..table.unpack(location)..' ] (Should succeed and create a domestic dog, male or female, named clifford at the reference units location)')
-output = dfhack.run_command_silent('unit/create -creature DOG:RANDOM -reference '..tostring(side.id)..' -side Domestic -name Clifford -loc [ '..table.unpack(location)..' ]')
+    writeall('unit/create -creature DOG:RANDOM -reference '..tostring(side.id)..' -side Domestic -name Clifford -loc [ '..location..' ] (Should succeed and create a domestic dog, male or female, named clifford at the reference units location)')
+output = dfhack.run_command('unit/create -creature DOG:RANDOM -reference '..tostring(side.id)..' -side Domestic -name Clifford -loc [ '..location..' ]')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -890,26 +923,26 @@ else
 end
 -- FINISH unit/create
 scriptCheck['unit_create'] = unitCheck
-    io.write('unit/create checks finished')
+    writeall('unit/create checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/destory
 unitCheck = {}
-unit1 = 
-unit2 =
-unit3 =
-    io.write('')
-    io.write('unit/destroy checks starting')
+unit1 = df.unit.find(df.global.unit_next_id - 1)
+unit2 = df.unit.find(df.global.unit_next_id - 2)
+unit3 = df.unit.find(df.global.unit_next_id - 3)
+    writeall('')
+    writeall('unit/destroy checks starting')
 ---- Check that the script succeeds and removes Clifford the dog
-    io.write('unit/destroy -unit '..tostring(unit3.id)..' -type Created (Should succeed and remove Clifford the dog and all references formed in the creation)')
-output = dfhack.run_command_silent('unit/destroy -unit '..tostring(unit3.id)..' -type Created')
+    writeall('unit/destroy -unit '..tostring(unit3.id)..' -type Created (Should succeed and remove Clifford the dog and all references formed in the creation)')
+output = dfhack.run_command('unit/destroy -unit '..tostring(unit3.id)..' -type Created')
 writeall(output)
 ---- Check that the script succeeds and kills the civilian dwarf as a normal kill
-    io.write('unit/destory -unit '..tostring(unit2.id)..' -type Kill (Should succeed and kill the civilian dwarf as a normal kill)')
-output = dfhack.run_command_silent('unit/destory -unit '..tostring(unit2.id)..' -type Kill')
+    writeall('unit/destory -unit '..tostring(unit2.id)..' -type Kill (Should succeed and kill the civilian dwarf as a normal kill)')
+output = dfhack.run_command('unit/destory -unit '..tostring(unit2.id)..' -type Kill')
 writeall(output)
 ---- Check that the script succeeds and kills the neutral dwarf as a resurrected kill
-    io.write('unit/destroy -unit '..tostring(unit1.id)..' -type Resurrected (Should succeed and kill the netural dwarf as if it were a resurrected unit)')
-output = dfhack.run_command_silent('unit/destroy -unit '..tostring(unit1.id)..' -type Resurrected')
+    writeall('unit/destroy -unit '..tostring(unit1.id)..' -type Resurrected (Should succeed and kill the netural dwarf as if it were a resurrected unit)')
+output = dfhack.run_command('unit/destroy -unit '..tostring(unit1.id)..' -type Resurrected')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -920,24 +953,24 @@ else
 end
 -- FINISH unit/destroy
 scriptCheck['unit_destroy'] = unitCheck
-    io.write('unit/destroy checks finished')
+    writeall('unit/destroy checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/emotion-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/emotion-change checks starting')
+    writeall('')
+    writeall('unit/emotion-change checks starting')
 ---- Check that the script succeeds and adds emotion XXXX with thought WWWW and severity and strength 0 to unit
-    io.write('unit/emotion-change -unit '..tostring(unit.id)..' -emotion XXXX (Should succeed and add emotion XXXX with thought WWWW and severity and strength 0 to unit)')
-output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion XXXX')
+    writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion XXXX (Should succeed and add emotion XXXX with thought WWWW and severity and strength 0 to unit)')
+output = dfhack.run_command('unit/emotion-change -unit '..tostring(unit.id)..' -emotion XXXX')
 writeall(output)
 ---- Check that the script succeeds and adds emotion XXXX with thought ZZZZ and severity and strength 1000 to unit
-    io.write('unit/emotion-change -unit '..tostring(unit.id)..' -emotion XXXX -thought ZZZZ -severity 100 -strength 100 -add (Should succeed and add emotion XXXX with thought ZZZZ and severity and strength 100 to unit)')
-output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion XXXX -thought ZZZZ -severity 100 -strength 100 -add')
+    writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion XXXX -thought ZZZZ -severity 100 -strength 100 -add (Should succeed and add emotion XXXX with thought ZZZZ and severity and strength 100 to unit)')
+output = dfhack.run_command('unit/emotion-change -unit '..tostring(unit.id)..' -emotion XXXX -thought ZZZZ -severity 100 -strength 100 -add')
 writeall(output)
 ---- Check that the script succeeds and removes all negative emotions from the unit
-    io.write('unit/emotion-change -unit '..tostring(unit.id)..' -emotion Negative -remove All (Should succeed and remove all negative emotions from unit)')
-output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion Negative -remove All')
+    writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion Negative -remove All (Should succeed and remove all negative emotions from unit)')
+output = dfhack.run_command('unit/emotion-change -unit '..tostring(unit.id)..' -emotion Negative -remove All')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -948,24 +981,24 @@ else
 end
 -- FINISH unit/emotion-change
 scriptCheck['unit_emotion_change'] = unitCheck
-    io.write('unit/emotion-change checks finished')
+    writeall('unit/emotion-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/flag-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/flag-change checks starting')
+    writeall('')
+    writeall('unit/flag-change checks starting')
 ---- Check that the script fails because of a bad flag
-    io.write('unit/flag-change -unit '..tostring(unit.id)..' -flag BAD_FLAG (Should fail and print "No valid flag declared")')
-output = dfhack.run_command_silent('unit/flag-change -unit '..tostring(unit.id)..' -flag BAD_FLAG')
+    writeall('unit/flag-change -unit '..tostring(unit.id)..' -flag BAD_FLAG (Should fail and print "No valid flag declared")')
+output = dfhack.run_command('unit/flag-change -unit '..tostring(unit.id)..' -flag BAD_FLAG')
 writeall(output)
 ---- Check that the script succeeds and hides the unit
-    io.write('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden -True (Should succeed and hide unit)')
-output = dfhack.run_command_silent('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden -True')
+    writeall('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden -True (Should succeed and hide unit)')
+output = dfhack.run_command('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden -True')
 writeall(output)
 ---- Check that the script succeeds and revealse the hidden unit
-    io.write('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden -reverse (Should succeed and reveal hidden unit)')
-output = dfhack.run_command_silent('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden -reverse')
+    writeall('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden -reverse (Should succeed and reveal hidden unit)')
+output = dfhack.run_command('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden -reverse')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -976,26 +1009,26 @@ else
 end
 -- FINISH unit/flag-change
 scriptCheck['unit_flag_change'] = unitCheck
-    io.write('unit/flag-change checks finished')
+    writeall('unit/flag-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/move
 unitCheck = {}
 unit = civ[1]
 center(unit)
-    io.write('')
-    io.write('unit/move checks starting')
+    writeall('')
+    writeall('unit/move checks starting')
 ---- Check that the script succeeds and moves the unit to a random position within a 5x5 square
-    io.write('unit/move -unit '..tostring(unit.id)..' -random [ 5 5 0 ] (Should succeed and move the unit to a random position within a 5x5 square)')
-output = dfhack.run_command_silent('unit/move -unit '..tostring(unit.id)..' -random [ 5 5 0 ]')
+    writeall('unit/move -unit '..tostring(unit.id)..' -random [ 5 5 0 ] (Should succeed and move the unit to a random position within a 5x5 square)')
+output = dfhack.run_command('unit/move -unit '..tostring(unit.id)..' -random [ 5 5 0 ]')
 writeall(output)
 ---- Check that the script succeeds and moves the unit to the test building
-    io.write('unit/move -unit '..tostring(unit.id)..' -building TEST_BUILDING_3 (Should succeed and move the unit to the test building from earlier)')
-output = dfhack.run_command_silent('unit/move -unit '..tostring(unit.id)..' -building TEST_BUILDING_3')
+    writeall('unit/move -unit '..tostring(unit.id)..' -building TEST_BUILDING_3 (Should succeed and move the unit to the test building from earlier)')
+output = dfhack.run_command('unit/move -unit '..tostring(unit.id)..' -building TEST_BUILDING_3')
 writeall(output)
 center(unit)
 ---- Check that the script succeeds and moves the unit to it's idle position
-    io.write('unit/move -unit '..tostring(unit.id)..' -area Idle (Should succeed and move the unit to its idle position)')
-output = dfhack.run_command_silent('unit/move -unit '..tostring(unit.id)..' -area Idle')
+    writeall('unit/move -unit '..tostring(unit.id)..' -area Idle (Should succeed and move the unit to its idle position)')
+output = dfhack.run_command('unit/move -unit '..tostring(unit.id)..' -area Idle')
 writeall(output)
 center(unit)
 ---- Print PASS/FAIL
@@ -1007,20 +1040,20 @@ else
 end
 -- FINISH unit/move
 scriptCheck['unit_move'] = unitCheck
-    io.write('unit/move checks finished')
+    writeall('unit/move checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/propel
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/propel checks starting')
+    writeall('')
+    writeall('unit/propel checks starting')
 ---- Check that the script fails because no source declared in relative mode
-    io.write('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Relative (Should fail and print "Relative velocity selected, but no source declared")')
-output = dfhack.run_command_silent('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Relative')
+    writeall('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Relative (Should fail and print "Relative velocity selected, but no source declared")')
+output = dfhack.run_command('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Relative')
 writeall(output)
 ---- Check that the script succeeds and turns the unit into a projectile
-    io.write('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Fixed (Should succeed and turn the unitTarget into a projectile with velocity 100 in the z direction)')
-output = dfhack.run_command_silent('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Fixed')
+    writeall('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Fixed (Should succeed and turn the unitTarget into a projectile with velocity 100 in the z direction)')
+output = dfhack.run_command('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Fixed')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -1031,20 +1064,20 @@ else
 end
 -- FINISH unit/propel
 scriptCheck['unit_propel'] = unitCheck
-    io.write('unit/propel checks finished')
+    writeall('unit/propel checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/resistance-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/resistance-change checks starting')
+    writeall('')
+    writeall('unit/resistance-change checks starting')
 ---- Check that the script fails because of a mismatch between resistances and values
-    io.write('unit/resistance-change -unit '..tostring(unit.id)..' -resistance [ FIRE ICE ] -amount 50 (Should fail and print "Mismatch between number of resistances declared and number of changes declared")')
-output = dfhack.run_command_silent('unit/resistance-change -unit '..tostring(unit.id)..' -resistance [ FIRE ICE ] -amount 50')
+    writeall('unit/resistance-change -unit '..tostring(unit.id)..' -resistance [ FIRE ICE ] -amount 50 (Should fail and print "Mismatch between number of resistances declared and number of changes declared")')
+output = dfhack.run_command('unit/resistance-change -unit '..tostring(unit.id)..' -resistance [ FIRE ICE ] -amount 50')
 writeall(output)
 ---- Check that the script succeeds and increases units fire resistance by 50 and creates tracking table
-    io.write('unit/resistance-change -unit '..tostring(unit.id)..' -resistance FIRE -amount 50 -mode fixed (Should succeed and increase units fire resistance by 50, will also create unit persist table since there is no vanilla resistances)')
-output = dfhack.run_command_silent('unit/resistance-change -unit '..tostring(unit.id)..' -resistance FIRE -amount 50 -mode fixed')
+    writeall('unit/resistance-change -unit '..tostring(unit.id)..' -resistance FIRE -amount 50 -mode fixed (Should succeed and increase units fire resistance by 50, will also create unit persist table since there is no vanilla resistances)')
+output = dfhack.run_command('unit/resistance-change -unit '..tostring(unit.id)..' -resistance FIRE -amount 50 -mode fixed')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -1055,32 +1088,32 @@ else
 end
 -- FINISH unit/resistance-change
 scriptCheck['unit_resistance_change'] = unitCheck
-    io.write('unit/resistance-change checks finished')
+    writeall('unit/resistance-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/skill-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/skill-change checks starting')
+    writeall('')
+    writeall('unit/skill-change checks starting')
 ---- Check that the script fails because of a mismatch between skills and values
-    io.write('unit/skill-change -unit '..tostring(unit.id)..' -skill [ DODGER ARMOR_USER ] -amount 50 (Should fail and print "Mismatch between number of skills declared and number of changes declared")')
-output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill [ DODGER ARMOR_USER ] -amount 50')
+    writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill [ DODGER ARMOR_USER ] -amount 50 (Should fail and print "Mismatch between number of skills declared and number of changes declared")')
+output = dfhack.run_command('unit/skill-change -unit '..tostring(unit.id)..' -skill [ DODGER ARMOR_USER ] -amount 50')
 writeall(output)
 ---- Check that the script fails because of an invalid skill token
-    io.write('unit/skill-change -unit '..tostring(unit.id)..' -skill DOGDER -amount 50 (Should fail and print "Invalid skill token")')
-output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill DOGDER -amount 50')
+    writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill DOGDER -amount 50 (Should fail and print "Invalid skill token")')
+output = dfhack.run_command('unit/skill-change -unit '..tostring(unit.id)..' -skill DOGDER -amount 50')
 writeall(output)
 ---- Check that the script succeeds and increases units dodging skill by 5 levels
-    io.write('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGER -amount 5 -mode Fixed (Should succeed and increase units dodging skill by 5 levels)')
-output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGER -amount 5 -mode Fixed')
+    writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGER -amount 5 -mode Fixed (Should succeed and increase units dodging skill by 5 levels)')
+output = dfhack.run_command('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGER -amount 5 -mode Fixed')
 writeall(output)
 ---- Check that the script succeeds and doubles units dodging skill and creates tracking table
-    io.write('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGER -amount 200 -mode Percent -track (Should succeed and double units dodging skill, will also create unit persist table)')
-output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGER -amount 200 -mode Percent -track')
+    writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGER -amount 200 -mode Percent -track (Should succeed and double units dodging skill, will also create unit persist table)')
+output = dfhack.run_command('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGER -amount 200 -mode Percent -track')
 writeall(output)
 ---- Check that the script succeeds and adds 500 experience to the units mining skill
-    io.write('unit/skill-change -unit '..tostring(unit.id)..' -skill MINING -amount 500 -mode Experience (Should succeed and add 500 experience to the units mining skill)')
-output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill MINING -amount 500 -mode Experience')
+    writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill MINING -amount 500 -mode Experience (Should succeed and add 500 experience to the units mining skill)')
+output = dfhack.run_command('unit/skill-change -unit '..tostring(unit.id)..' -skill MINING -amount 500 -mode Experience')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -1091,20 +1124,20 @@ else
 end
 -- FINISH unit/skill-change
 scriptCheck['unit_skill_change'] = unitCheck
-    io.write('unit/skill-change checks finished')
+    writeall('unit/skill-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/stat-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/stat-change checks starting')
+    writeall('')
+    writeall('unit/stat-change checks starting')
 ---- Check that the script fails because of a mismatch between stats and values
-    io.write('unit/stat-change -unit '..tostring(unit.id)..' -stat [ MAGICAL_HIT_CHANCE PHYSICAL_HIT_CHANCE ] -amount 50 (Should fail and print "Mismatch between number of stats declared and number of changes declared")')
-output = dfhack.run_command_silent('unit/stat-change -unit '..tostring(unit.id)..' -stat [ MAGICAL_HIT_CHANCE PHYSICAL_HIT_CHANCE ] -amount 50')
+    writeall('unit/stat-change -unit '..tostring(unit.id)..' -stat [ MAGICAL_HIT_CHANCE PHYSICAL_HIT_CHANCE ] -amount 50 (Should fail and print "Mismatch between number of stats declared and number of changes declared")')
+output = dfhack.run_command('unit/stat-change -unit '..tostring(unit.id)..' -stat [ MAGICAL_HIT_CHANCE PHYSICAL_HIT_CHANCE ] -amount 50')
 writeall(output)
 ---- Check that the script succeeds and increases unit magical hit chance stat by 50 and creates tracking table
-    io.write('unit/stat-change -unit '..tostring(unit.id)..' -stat MAGICAL_HIT_CHANCE -amount 50 -mode fixed (Should succeed and increase units magical hit chance by 50, will also create unit persist table since there is no vanilla stats)')
-output = dfhack.run_command_silent('unit/stat-change -unit '..tostring(unit.id)..' -stat MAGICAL_HIT_CHANCE -amount 50 -mode fixed')
+    writeall('unit/stat-change -unit '..tostring(unit.id)..' -stat MAGICAL_HIT_CHANCE -amount 50 -mode fixed (Should succeed and increase units magical hit chance by 50, will also create unit persist table since there is no vanilla stats)')
+output = dfhack.run_command('unit/stat-change -unit '..tostring(unit.id)..' -stat MAGICAL_HIT_CHANCE -amount 50 -mode fixed')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -1115,32 +1148,32 @@ else
 end
 -- FINISH unit/stat-change
 scriptCheck['unit_stat_change'] = unitCheck
-    io.write('unit/stat-change checks finished')
+    writeall('unit/stat-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/syndrome-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/syndrome-change checks starting')
+    writeall('')
+    writeall('unit/syndrome-change checks starting')
 ---- Check that the script succeeds and adds TEST_SYNDROME_1 to the unit
-    io.write('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -add (Should succeed and add TEST_SYNDROME_1 to the unit)')
-output = dfhack.run_command_silent('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -add')
+    writeall('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -add (Should succeed and add TEST_SYNDROME_1 to the unit)')
+output = dfhack.run_command('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -add')
 writeall(output)
 ---- Check that the script succeeds and adds 500 ticks to TEST_SYNDROME_1
-    io.write('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -alterDuration 500 (Should succeed and add 500 ticks to TEST_SYNDROME_1 on the unit)')
-output = dfhack.run_command_silent('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -alterDuration 500')
+    writeall('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -alterDuration 500 (Should succeed and add 500 ticks to TEST_SYNDROME_1 on the unit)')
+output = dfhack.run_command('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -alterDuration 500')
 writeall(output)
 ---- Check that the script succeeds and removes all syndromes with a TEST_SYNDROME_CLASS from the unit
-    io.write('unit/syndrome-change -unit '..tostring(unit.id)..' -class TEST_SYNDROME_CLASS -erase (Should succeed and remove all syndromes with a TEST_SYNDROME_CLASS class from unit)')
-output = dfhack.run_command_silent('unit/syndrome-change -unit '..tostring(unit.id)..' -class TEST_SYNDROME_CLASS -erase')
+    writeall('unit/syndrome-change -unit '..tostring(unit.id)..' -class TEST_SYNDROME_CLASS -erase (Should succeed and remove all syndromes with a TEST_SYNDROME_CLASS class from unit)')
+output = dfhack.run_command('unit/syndrome-change -unit '..tostring(unit.id)..' -class TEST_SYNDROME_CLASS -erase')
 writeall(output)
 ---- Check that the script succeeds and adds TEST_SYNDROME_2 to the unit for 50 ticks
-    io.write('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_2 -add -dur 50 (Should succeed and add TEST_SYNDROME_2 to the unit for 50 ticks)')
-output = dfhack.run_command_silent('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_2 -add -dur 50')
+    writeall('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_2 -add -dur 50 (Should succeed and add TEST_SYNDROME_2 to the unit for 50 ticks)')
+output = dfhack.run_command('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_2 -add -dur 50')
 writeall(output)
-    io.write('Pausing run_test.lua for 75 in-game ticks')
+    writeall('Pausing run_test.lua for 75 in-game ticks')
   script.sleep(75,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
  printplus('PASSED: unit/syndrome-change')
@@ -1150,28 +1183,28 @@ else
 end
 -- FINISH unit/syndrome-change
 scriptCheck['unit_syndrome_change'] = unitCheck
-    io.write('unit/syndrome-change checks finished')
+    writeall('unit/syndrome-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/trait-change
 unitCheck = {}
 unit = civ[1]
-    io.write('')
-    io.write('unit/trait-change checks starting')
+    writeall('')
+    writeall('unit/trait-change checks starting')
 ---- Check that the script fails because of a mismatch between traits and values
-    io.write('unit/trait-change -unit '..tostring(unit.id)..' -trait [ ANGER DEPRESSION ] -amount 50 (Should fail and print "Mismatch between number of traits declared and number of changes declared")')
-output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait [ ANGER DEPRESSION ] -amount 50')
+    writeall('unit/trait-change -unit '..tostring(unit.id)..' -trait [ ANGER DEPRESSION ] -amount 50 (Should fail and print "Mismatch between number of traits declared and number of changes declared")')
+output = dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait [ ANGER DEPRESSION ] -amount 50')
 writeall(output)
 ---- Check that the script fails because of an invalid trait token
-    io.write('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGR -amount 50 (Should fail and print "Invalid trait token")')
-output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGR -amount 50')
+    writeall('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGR -amount 50 (Should fail and print "Invalid trait token")')
+output = dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGR -amount 50')
 writeall(output)
 ---- Check that the script succeeds and lowers the units anger trait by 5
-    io.write('unit/trait-change -unit '..tostring(unit.id).." -trait ANGER -amount \\-5 -mode Fixed (Should succeed and lower units anger trait by 5)'")
-output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGER -amount \\-5 -mode Fixed')
+    writeall('unit/trait-change -unit '..tostring(unit.id).." -trait ANGER -amount \\-5 -mode Fixed (Should succeed and lower units anger trait by 5)'")
+output = dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait ANGER -amount \\-5 -mode Fixed')
 writeall(output)
 ---- Check that the script succeeds and quarters the units depression trait, also creates a tracking table
-    io.write('unit/trait-change -unit '..tostring(unit.id)..' -trait DEPRESSION -amount 25 -mode Percent -track (Should succeed and quarter units depression trait, will also create unit persist table)')
-output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait DEPRESSION -amount 25 -mode Percent -track')
+    writeall('unit/trait-change -unit '..tostring(unit.id)..' -trait DEPRESSION -amount 25 -mode Percent -track (Should succeed and quarter units depression trait, will also create unit persist table)')
+output = dfhack.run_command('unit/trait-change -unit '..tostring(unit.id)..' -trait DEPRESSION -amount 25 -mode Percent -track')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -1182,28 +1215,28 @@ else
 end
 -- FINISH unit/trait-change
 scriptCheck['unit_trait_change'] = unitCheck
-    io.write('unit/trait-change checks finished')
+    writeall('unit/trait-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/transform
 unitCheck = {}
 unit = civ[2]
-    io.write('')
-    io.write('unit/transform checks starting')
+    writeall('')
+    writeall('unit/transform checks starting')
 ---- Check that the script fails because the unit is already the declared creature
-    io.write('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:MALE (Should fail and print "Unit already the desired creature")')
-output = dfhack.run_command_silent('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:MALE')
+    writeall('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:MALE (Should fail and print "Unit already the desired creature")')
+output = dfhack.run_command('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:MALE')
 writeall(output)
 ---- Check that the script succeeds and changes the unit into a male elf
-    io.write('unit/transform -unit '..tostring(unit.id)..' -creature ELF:MALE (Should succeed and change the unit to a male elf)')
-output = dfhack.run_command_silent('unit/transform -unit '..tostring(unit.id)..' -creature ELF:MALE')
+    writeall('unit/transform -unit '..tostring(unit.id)..' -creature ELF:MALE (Should succeed and change the unit to a male elf)')
+output = dfhack.run_command('unit/transform -unit '..tostring(unit.id)..' -creature ELF:MALE')
 writeall(output)
 ---- Check that the script succeeds and changes the unit into a female dwarf for 50 ticks
-    io.write('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:FEMALE -dur 50 -track (Should succeed and change the unit to a female dwarf for 50 ticks and create a unit persist table)')
-output = dfhack.run_command_silent('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:FEMALE -dur 50 -track')
+    writeall('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:FEMALE -dur 50 -track (Should succeed and change the unit to a female dwarf for 50 ticks and create a unit persist table)')
+output = dfhack.run_command('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:FEMALE -dur 50 -track')
 writeall(output)
-    io.write('Pausing run_test.lua for 75 in-game ticks')
+    writeall('Pausing run_test.lua for 75 in-game ticks')
   script.sleep(75,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
  printplus('PASSED: unit/transform')
@@ -1213,40 +1246,40 @@ else
 end
 -- FINISH unit/transform
 scriptCheck['unit_transform'] = unitCheck
-    io.write('unit/transform checks finished')
+    writeall('unit/transform checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/wound-change
 unitCheck = {}
 unit = non[1]
-    io.write('')
-    io.write('unit/wound-change checks starting')
+    writeall('')
+    writeall('unit/wound-change checks starting')
 ---- Check that the script succeeds and removes the most recent wound
-    io.write('unit/wound-change -unit '..tostring(unit.id)..' -remove 1 -recent (Should succeed and remove the most recent wounds)')
-output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -remove 1 -recent')
+    writeall('unit/wound-change -unit '..tostring(unit.id)..' -remove 1 -recent (Should succeed and remove the most recent wounds)')
+output = dfhack.run_command('unit/wound-change -unit '..tostring(unit.id)..' -remove 1 -recent')
 writeall(output)
 ---- Check that the script succeeds and regrows any lost limbs
-    io.write('unit/wound-change -unit '..tostring(unit.id)..' -remove All -regrow (Should succeed and remove all wounds and return any lost limbs)')
-output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -remove All -regrow')
+    writeall('unit/wound-change -unit '..tostring(unit.id)..' -remove All -regrow (Should succeed and remove all wounds and return any lost limbs)')
+output = dfhack.run_command('unit/wound-change -unit '..tostring(unit.id)..' -remove All -regrow')
 writeall(output)
 ---- Checks that the unit fails to resurrect because it is not dead
-    io.write('unit/wound-change -unit '..tostring(unit.id)..' -resurrect -fitForResurrect -regrow (Should fail and print "No corpse parts found for resurrection/animation")')
-output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -resurrect -fitForResurrect -regrow')
+    writeall('unit/wound-change -unit '..tostring(unit.id)..' -resurrect -fitForResurrect -regrow (Should fail and print "No corpse parts found for resurrection/animation")')
+output = dfhack.run_command('unit/wound-change -unit '..tostring(unit.id)..' -resurrect -fitForResurrect -regrow')
 writeall(output)
 ---- Kills the unit
-    io.write('Killing unit')
-output = dfhack.run_command_silent('unit/counter-change -unit '..tostring(unit.id)..' -counter blood -amount 0 -mode set')
+    writeall('Killing unit')
+output = dfhack.run_command('unit/counter-change -unit '..tostring(unit.id)..' -counter blood -amount 0 -mode set')
 writeall(output)
 ---- Checks that the script succeeds and brings the unit back to life
-    io.write('unit/wound-change -unit '..tostring(unit.id)..' -resurrect (Should succeed and bring unit back to life)')
-output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -resurrect')
+    writeall('unit/wound-change -unit '..tostring(unit.id)..' -resurrect (Should succeed and bring unit back to life)')
+output = dfhack.run_command('unit/wound-change -unit '..tostring(unit.id)..' -resurrect')
 writeall(output)
 ---- Kills and butchers the unit
-    io.write('Killing and Butcher unit')
-output = dfhack.run_command_silent('unit/butcher -unit '..tostring(unit.id)..' -kill')
+    writeall('Killing and Butcher unit')
+output = dfhack.run_command('unit/butcher -unit '..tostring(unit.id)..' -kill')
 writeall(output)
 ---- Check that the script succeeds and brings back all corpse parts as zombies
-    io.write('unit/wound-change -unit '..tostring(unit.id)..' -animate (Should succeed and bring all corpse parts back as zombies)')
-output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -animate')
+    writeall('unit/wound-change -unit '..tostring(unit.id)..' -animate (Should succeed and bring all corpse parts back as zombies)')
+output = dfhack.run_command('unit/wound-change -unit '..tostring(unit.id)..' -animate')
 writeall(output)
 ---- Print PASS/FAIL
 if #unitCheck == 0 then
@@ -1257,7 +1290,7 @@ else
 end
 -- FINISH unit/wound-change
 scriptCheck['unit_wound_change'] = unitCheck
-    io.write('unit/wound-change checks finished')
+    writeall('unit/wound-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Unit script checks finished')
 
@@ -1268,21 +1301,21 @@ printplus('')
 printplus('Wrapper script checks starting')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Unit Based Targeting
-    io.write('Unit Based Targeting Starting')
+    writeall('Unit Based Targeting Starting')
 wrapCheck = {}
 unit = civ[1]
 targ = civ[2]
 ----
-    io.write('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ print-args TARGET_UNIT_ID ]')
-output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ print-args TARGET_UNIT_ID ]')
+    writeall('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ print-args TARGET_UNIT_ID ]')
+output = dfhack.run_command('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ print-args TARGET_UNIT_ID ]')
 writeall(output)
 ----
-    io.write('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ print-args TARGET_UNIT_LOCATION ]')
-output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ print-args TARGET_UNIT_LOCATION ]')
+    writeall('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ print-args TARGET_UNIT_LOCATION ]')
+output = dfhack.run_command('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ print-args TARGET_UNIT_LOCATION ]')
 writeall(output)
 ----
-    io.write('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ print-args TARGET_UNIT_DESTINATION ]')
-output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ print-args TARGET_UNIT_DESTINATION ]')
+    writeall('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ print-args TARGET_UNIT_DESTINATION ]')
+output = dfhack.run_command('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ print-args TARGET_UNIT_DESTINATION ]')
 writeall(output)
 ----
 checks = '-checkUnit ANY -radius 100 '
@@ -1299,8 +1332,8 @@ checks = checks..'-maxSkill MINING:5 -minSkill [ BUTCHER:2 TANNER:2 ] -gtSkill M
 checks = checks..'-maxTrait ANGER_PROPENSITY:50 -minTrait [ LOVE_PROPENSITY:10 HATE_PROPENSITY:10 ] -gtTrait LUST_PROPENSITY:1 -ltTrait ENVY_PROPENSITY:1 '
 checks = checks..'-maxAge 100 -minAge 1 -gtAge 1 -ltAge 1 '
 checks = checks..'-maxSpeed 500 -minSpeed 1 -gtSpeed 1 -ltSpeed 1'
-    io.write('wrapper -sourceUnit '..tostring(unit.id)..' '..checks..' -test -script [ print-args TARGET_UNIT_ID ]')
-output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ print-args TARGET_UNIT_ID ]')
+    writeall('wrapper -sourceUnit '..tostring(unit.id)..' '..checks..' -test -script [ print-args TARGET_UNIT_ID ]')
+output = dfhack.run_command('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ print-args TARGET_UNIT_ID ]')
 writeall(output)
 ---- Print PASS/FAIL
 if #wrapCheck == 0 then
@@ -1310,10 +1343,10 @@ else
  writeall(wrapCheck)
 end
 -- FINISH Unit Based Targeting
-    io.write('Unit Based Targeting Finished')
+    writeall('Unit Based Targeting Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Location Based Targeting
-    io.write('Location Based Targeting Starting')
+    writeall('Location Based Targeting Starting')
 wrapCheck = {}
 pos = civ[3].pos
 loc = '[ '..tostring(pos.x)..' '..tostring(pos.y)..' '..tostring(pos.z)..' ]'
@@ -1330,7 +1363,7 @@ checks = checks..'-requiredPlant STRAWBERRY -forbiddenPlant [ BLUEBERRY BLACKBER
 checks = checks..'-requiredLiquid WATER -forbiddenLiquid MAGMA '
 checks = checks..'-requiredInorganic OBSIDIAN -forbiddenInorganic [ SLADE MARBLE ] '
 checks = checks..'-requiredFlow MIST -forbiddenFlow [ MIASMA DRAGONFIRE ] '
-    io.write('wrapper -sourceLocation '..loc..' -center '..checks..' -test -script [ print-args TARGET_POSITION ]')
+    writeall('wrapper -sourceLocation '..loc..' -center '..checks..' -test -script [ print-args TARGET_POSITION ]')
 ---- Print PASS/FAIL
 if #wrapCheck == 0 then
  printplus('PASSED: Location Based Targeting')
@@ -1339,10 +1372,10 @@ else
  writeall(wrapCheck)
 end
 -- FINISH Location Based Targeting
-    io.write('Location Based Targeting Finished')
+    writeall('Location Based Targeting Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Item Based Targeting
-    io.write('Item Based Targeting Starting')
+    writeall('Item Based Targeting Starting')
 wrapCheck = {}
 ----
 ----
@@ -1352,7 +1385,7 @@ checks = '-checkItem ANY -radius 100 '
 checks = checks..'-requiredItem STATUE -forbiddenItem [ WEAPON:ITEM_WEAPON_LONGSWORD AMMO:ITEM_AMMO_BOLT ] '
 checks = checks..'-requiredMaterial STEEL -forbiddenMaterial [ SILVER GOLD ] '
 checks = checks..'-requiredCorpse DWARF -forbiddenCorpse [ HUMAN:MALE ELF:FEMALE ] '
-    io.write('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ print-args TARGET_ITEM_ID ]')
+    writeall('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ print-args TARGET_ITEM_ID ]')
 ---- Print PASS/FAIL
 if #wrapCheck == 0 then
  printplus('PASSED: Item Based Targeting')
@@ -1361,7 +1394,7 @@ else
  writeall(wrapCheck)
 end
 -- FINISH Item Based Targeting
-    io.write('Item Based Targeting Finished')
+    writeall('Item Based Targeting Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Wrapper script checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1381,7 +1414,7 @@ local eventCheck = ' -eventSystem'
 local enhCheck = ' -enhancedSystem [ Buildings Creatures Items Materials Reactions ]'
 local verbose = true
 printplus('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
-output = dfhack.run_command_silent('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
+output = dfhack.run_command('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
 printall(output)
 writeall(output)
 local persistTable = require 'persist-table'
@@ -1391,88 +1424,88 @@ printplus('')
 printplus('Running Base commands:')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Running base/persist-delay')
-output = dfhack.run_command_silent('base/persist-delay -verbose')
+output = dfhack.run_command('base/persist-delay -verbose')
 printall(output)
 writeall(output)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Running base/liquids-update')
-output = dfhack.run_command_silent('base/liquids-update -verbose')
+output = dfhack.run_command('base/liquids-update -verbose')
 printall(output)
 writeall(output)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Running base/flows-update')
-output = dfhack.run_command_silent('base/flows-update -verbose')
+output = dfhack.run_command('base/flows-update -verbose')
 printall(output)
 writeall(output)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Running base/on-death')
-output = dfhack.run_command_silent('base/on-death -verbose')
+output = dfhack.run_command('base/on-death -verbose')
 printall(output)
 writeall(output)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Running base/on-time')
-output = dfhack.run_command_silent('base/on-time -verbose')
+output = dfhack.run_command('base/on-time -verbose')
 printall(output)
 writeall(output)
 
 --print('Running base/periodic-check')
 -- dfhack.run_command('base/periodic-check -verbose')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    io.write('Begin System Read Checks')
+    writeall('Begin System Read Checks')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local classTable = roses.ClassTable
-    io.write('Class System:')
-    io.write('--Test Class 1')
+    writeall('Class System:')
+    writeall('--Test Class 1')
     writeall(classTable.TEST_CLASS_1._children)
-    io.write('--Test Class 2')
+    writeall('--Test Class 2')
     writeall(classTable.TEST_CLASS_2._children)
-    io.write('--Test Class 3')
+    writeall('--Test Class 3')
     writeall(classTable.TEST_CLASS_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local featTable = roses.FeatTable
-    io.write('')
-    io.write('Class System - Feat SubSystem:')
-    io.write('--Test Feat 1')
+    writeall('')
+    writeall('Class System - Feat SubSystem:')
+    writeall('--Test Feat 1')
     writeall(featTable.TEST_FEAT_1._children)
-    io.write('--Test Feat 2')
+    writeall('--Test Feat 2')
     writeall(featTable.TEST_FEAT_2._children)
-    io.write('--Test Feat 3')
+    writeall('--Test Feat 3')
     writeall(featTable.TEST_FEAT_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local spellTable = roses.SpellTable
-    io.write('')
-    io.write('Class System - Spell SubSystem:')
-    io.write('--Test Spell 1')
+    writeall('')
+    writeall('Class System - Spell SubSystem:')
+    writeall('--Test Spell 1')
     writeall(spellTable.TEST_SPELL_1._children)
-    io.write('--Test Spell 2')
+    writeall('--Test Spell 2')
     writeall(spellTable.TEST_SPELL_2._children)
-    io.write('--Test Spell 3')
+    writeall('--Test Spell 3')
     writeall(spellTable.TEST_SPELL_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local civTable = roses.CivilizationTable
-    io.write('')
-    io.write('Civilization System:')
-    io.write('--Test Dwarf Civ')
+    writeall('')
+    writeall('Civilization System:')
+    writeall('--Test Dwarf Civ')
     writeall(civTable.MOUNTAIN._children)
-    io.write('--Test Elf Civ')
+    writeall('--Test Elf Civ')
     writeall(civTable.FOREST._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local eventTable = roses.EventTable
-    io.write('')
-    io.write('Event System:')
-    io.write('--Test Event 1')
+    writeall('')
+    writeall('Event System:')
+    writeall('--Test Event 1')
     writeall(eventTable.TEST_EVENT_1._children)
-    io.write('--Test Event 2')
+    writeall('--Test Event 2')
     writeall(eventTable.TEST_EVENT_2._children)
-    io.write('--Test Event 3')
+    writeall('--Test Event 3')
     writeall(eventTable.TEST_EVENT_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    io.write('')
-    io.write('Enhanced System:')
+    writeall('')
+    writeall('Enhanced System:')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --[[print('Enhanced System - Buldings')
  local EBTable = roses.EnhancedBuildingTable
@@ -1484,21 +1517,21 @@ print('--Test Enhanced Building 3')
  printall(EBTable.TEST_BUILDING_3._children)]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local ECTable = roses.EnhancedCreatureTable
-    io.write('')
-    io.write('Enhanced System - Creatures:')
-    io.write('--Test Enhanced Creature 1')
+    writeall('')
+    writeall('Enhanced System - Creatures:')
+    writeall('--Test Enhanced Creature 1')
     writeall(ECTable.DWARF._children)
-    io.write('--Test Enhanced Creature 2')
+    writeall('--Test Enhanced Creature 2')
     writeall(ECTable.ELF._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local EITable = roses.EnhancedItemTable
-    io.write('')
-    io.write('Enhanced System - Items:')
-    io.write('--Test Enhanced Item 1')
+    writeall('')
+    writeall('Enhanced System - Items:')
+    writeall('--Test Enhanced Item 1')
     writeall(EITable.ITEM_WEAPON_PICK._children)
-    io.write('--Test Enhanced Item 2')
+    writeall('--Test Enhanced Item 2')
     writeall(EITable.ITEM_WEAPON_HANDAXE._children)
-    io.write('--Test Enhanced Item 3')
+    writeall('--Test Enhanced Item 3')
     writeall(EITable.ITEM_WEAPON_SWORD_SHORT._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --[[print('')
@@ -1518,11 +1551,11 @@ print('--Test Enhanced Reaction 2')
  printall(ERTable.TEST_REACTION_2._children)]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    io.write('')
-    io.write('All System Read Checks Finished')
+    writeall('')
+    writeall('All System Read Checks Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    io.write('Beginning System Run Checks')
+    writeall('Beginning System Run Checks')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CLASS SYSTEM CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1533,10 +1566,10 @@ classCheck = {}
 unit = civ[4]
 unitTable = roses.UnitTable[tostring(unit.id)]
 ----
-    io.write('Attempting to assign Test Class 1 to unit')
-output = dfhack.run_command_silent('classes/change-class -unit '..tostring(unit.id)..' -class TEST_CLASS_1 -verbose')
+    writeall('Attempting to assign Test Class 1 to unit')
+output = dfhack.run_command('classes/change-class -unit '..tostring(unit.id)..' -class TEST_CLASS_1 -verbose')
 writeall(output)
-    io.write('Class/Unit details:')
+    writeall('Class/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Classes.TEST_CLASS_1)
     writeall(unitTable.Classes.TEST_CLASS_2)
@@ -1546,11 +1579,11 @@ if unitTable.Classes.Current.Name ~= 'TEST_CLASS_1' then
  classCheck[#classCheck+1] = 'Test Class 1 was not assigned to the Unit'
 end
 ----
-    io.write('Adding experience to unit - Will level up Test Class 1 to level 1 and assign Test Spell 1')
-    io.write('Mining and Woodcutting skill will increase')
-output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
+    writeall('Adding experience to unit - Will level up Test Class 1 to level 1 and assign Test Spell 1')
+    writeall('Mining and Woodcutting skill will increase')
+output = dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 writeall(output)
-    io.write('Class/Unit details:')
+    writeall('Class/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Classes.TEST_CLASS_1)
     writeall(unitTable.Classes.TEST_CLASS_2)
@@ -1566,11 +1599,11 @@ if unitTable.Spells.TEST_SPELL_1 ~= 1 or not unitTable.Spells.Active.TEST_SPELL_
  classCheck[#classCheck+1] = 'Test Class 1 level 1 did not add Test Spell 1'
 end
 ----
-    io.write('Adding experience to unit - Will level up Test Class 1 to level 2')
-    io.write('Mining and Woodcutting skill will increase')
-output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
+    writeall('Adding experience to unit - Will level up Test Class 1 to level 2')
+    writeall('Mining and Woodcutting skill will increase')
+output = dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 writeall(output)
-    io.write('Class/Unit details:')
+    writeall('Class/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Classes.TEST_CLASS_1)
     writeall(unitTable.Classes.TEST_CLASS_2)
@@ -1583,10 +1616,10 @@ if unitTable.Skills.MINING.Class ~= 5 or unitTable.Skills.WOODCUTTING ~= 4 then
  classCheck[#classCheck+1] = 'Test Class 1 level 2 skills were not applied correctly'
 end
 ----
-    io.write('Assigning Test Spell 2 to unit')
-output = dfhack.run_command_silent('classes/learn-skill -unit '..tostring(unit.id)..' -spell TEST_SPELL_2 -verbose')
+    writeall('Assigning Test Spell 2 to unit')
+output = dfhack.run_command('classes/learn-skill -unit '..tostring(unit.id)..' -spell TEST_SPELL_2 -verbose')
 writeall(output)
-    io.write('Class/Unit details:')
+    writeall('Class/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Classes.TEST_CLASS_1)
     writeall(unitTable.Classes.TEST_CLASS_2)
@@ -1596,11 +1629,11 @@ if unitTable.Spells.TEST_CLASS_2 ~= 1 or not unitTable.Spells.Active.TEST_SPELL_
  classCheck[#classCheck+1] = 'Test Class 1 level 2 unable to add Test Spell 2'
 end
 ----
-    io.write('Adding experience to unit - Will level up Test Class 1 to level 3 and auto change class to Test Class 2')
-    io.write('Mining skill will increase, Woodcutting skill will reset')
-output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
+    writeall('Adding experience to unit - Will level up Test Class 1 to level 3 and auto change class to Test Class 2')
+    writeall('Mining skill will increase, Woodcutting skill will reset')
+output = dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 writeall(output)
-    io.write('Class/Unit details:')
+    writeall('Class/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Classes.TEST_CLASS_1)
     writeall(unitTable.Classes.TEST_CLASS_2)
@@ -1619,11 +1652,11 @@ if unitTable.Skills.WOODCUTTING.Class ~= 0 then
  classCheck[#classCheck+1] = 'Test Class 2 level 0 skills did not reset'
 end
 ----
-    io.write('Adding experience to unit - Will level up Test Class 2 to level 1 and replace Test Spell 1 with Test Spell 3')
-    io.write('Mining skill will remain the same, Carpentry skill will increase')
-output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
+    writeall('Adding experience to unit - Will level up Test Class 2 to level 1 and replace Test Spell 1 with Test Spell 3')
+    writeall('Mining skill will remain the same, Carpentry skill will increase')
+output = dfhack.run_command('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 writeall(output)
-    io.write('Class/Unit details:')
+    writeall('Class/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Classes.TEST_CLASS_1)
     writeall(unitTable.Classes.TEST_CLASS_2)
@@ -1648,36 +1681,36 @@ end
 -- FINISH Class System Checks
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Feat SubSystem Checks
-    io.write('Feat SubSystem Checks Starting')
-    io.write('Feat/Unit details:')
+    writeall('Feat SubSystem Checks Starting')
+    writeall('Feat/Unit details:')
 featCheck = {}
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Feats)
 ----
-    io.write('Attempting to assign Test Feat 2 to unit, this should fail')
-output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
+    writeall('Attempting to assign Test Feat 2 to unit, this should fail')
+output = dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 writeall(output)
-    io.write('Feat/Unit details:')
+    writeall('Feat/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Feats)
 if unitTable.Feats.TEST_FEAT_2 then
  featCheck[#featCheck+1] = 'Test Feat 2 was applied when it should not have been'
 end
 ----
-    io.write('Attempting to assign Test Feat 1 to unit, this should work')
-output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_1 -verbose')
+    writeall('Attempting to assign Test Feat 1 to unit, this should work')
+output = dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_1 -verbose')
 writeall(output)
-    io.write('Feat/Unit details:')
+    writeall('Feat/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Feats)
 if not unitTable.Feats.TEST_FEAT_1 then
  featCheck[#featCheck+1] = 'Test Feat 1 was not correctly applied'
 end
 ----
-    io.write('Attempting to assign Test Feat 2 to unit, now this should work')
-output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
+    writeall('Attempting to assign Test Feat 2 to unit, now this should work')
+output = dfhack.run_command('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 writeall(output)
-    io.write('Feat/Unit details:')
+    writeall('Feat/Unit details:')
     writeall(unitTable.Classes.Current)
     writeall(unitTable.Feats)
 if unitTable.Feats.TEST_FEAT_2 then
@@ -1712,29 +1745,29 @@ printplus('')
 printplus('Civilization System Checks Starting')
 civCheck = {}
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    io.write('')
-    io.write('Creating Entity Table for MOUNTAIN entity')
+    writeall('')
+    writeall('Creating Entity Table for MOUNTAIN entity')
 civID = df.global.ui
 dfhack.script_environment('functions/tables').makeEntityTable(civID,verbose)
 entityTable = roses.EntityTable[tostring(civID)]
 if not entityTable.Civilization then
  civCheck[#civCheck+1] = 'Test Civilization 1 was not correctly assigned to the entity'
 end
-    io.write('Entity details')
+    writeall('Entity details')
     writeall(df.global.world.entities.all[civID].resources.animals.mount_races)
     writeall(df.global.world.entities.all[civID].resources.animals.mount_castes)
-    io.write('Assigning Civlization to Entity, should clear available mounts')
-    io.write('Entity details')
+    writeall('Assigning Civlization to Entity, should clear available mounts')
+    writeall('Entity details')
     writeall(entityTable.Civilization)
     writeall(df.global.world.entities.all[civID].resources.animals.mount_races)
     writeall(df.global.world.entities.all[civID].resources.animals.mount_castes)
 if #df.global.world.entities.all[civID].resources.animals.mount_races ~= 0 then
  civCheck[#civCheck+1] = 'Test Civilization 1 level 0 mount creatures were not removed'
 end
-    io.write('Force level increase, should add dragons to available mounts and change level method')
-output = dfhack.run_command_silent('civilizations/level-up -civ '..tostring(civID)..' -amount 1 -verbose')
+    writeall('Force level increase, should add dragons to available mounts and change level method')
+output = dfhack.run_command('civilizations/level-up -civ '..tostring(civID)..' -amount 1 -verbose')
 writeall(output)
-    io.write('Entity details')
+    writeall('Entity details')
     writeall(entityTable.Civilization)
     writeall(df.global.world.entities.all[civID].resources.animals.mount_races)
     writeall(df.global.world.entities.all[civID].resources.animals.mount_castes)
@@ -1744,11 +1777,11 @@ end
 if #df.global.world.entities.all[civID].resources.animals.mount_races ~= 2 then
  civCheck[#civCheck+1] = 'Test Civilization 1 level 1 mount creatures were not added'
 end
-    io.write('Next level increase should occur within 1 in-game day, will add humans as available mounts')
-    io.write('Pausing run_test.lua for 3200 in-game ticks')
+    writeall('Next level increase should occur within 1 in-game day, will add humans as available mounts')
+    writeall('Pausing run_test.lua for 3200 in-game ticks')
  script.sleep(3200,'ticks')
-    io.write('Resuming run_test.lua')
-    io.write('Entity details')
+    writeall('Resuming run_test.lua')
+    writeall('Entity details')
     writeall(entityTable.Civilization)
     writeall(df.global.world.entities.all[civID].resources.animals.mount_races)
     writeall(df.global.world.entities.all[civID].resources.animals.mount_castes)
@@ -1758,15 +1791,15 @@ if #df.global.world.entities.all[civID].resources.animals.mount_races ~= 3 then
  civCheck[#civCheck+1] = 'Test Civilization 1 level 2 mount creatures were not added'
 end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    io.write('')
-    io.write('Testing full removal and addition with Test Civ 2')
-    io.write('Finding entity id for a FOREST entity')
+    writeall('')
+    writeall('Testing full removal and addition with Test Civ 2')
+    writeall('Finding entity id for a FOREST entity')
 for _,entity in pairs(df.global.world.entities.all) do
  if entity.entity_raw.code == 'FOREST' then
   break
  end
 end
-    io.write('Creating Entity Table for FOREST entity')
+    writeall('Creating Entity Table for FOREST entity')
 dfhack.script_environment('functions/tables').makeEntityTable(entity.id,verbose)
  nCheck = {
            pets = {'animals','pet_races'},
@@ -1827,7 +1860,7 @@ dfhack.script_environment('functions/tables').makeEntityTable(entity.id,verbose)
            extracts = {'misc_mat','extracts','mat_type'},
            meat = {'misc_mat','meat','mat_type'}
           }
-    io.write('Assigning Civlization to Entity, should clear all resources') 
+    writeall('Assigning Civlization to Entity, should clear all resources') 
 for xCheck,aCheck in pairs(nCheck) do
  resources = entity.resources
  for _,tables in pairs(aCheck) do
@@ -1838,8 +1871,8 @@ for xCheck,aCheck in pairs(nCheck) do
   civCheck[#civCheck+1] = 'Test Civilization 2 level 0 '..table.unpack(aCheck)..' not correctly removed from'
  end
 end
-    io.write('Force level increase, should add a single item to each resource category')
-output = dfhack.run_command_silent('civilizations/level-up -civ '..tostring(entity.id)..' -amount 1 -verbose')
+    writeall('Force level increase, should add a single item to each resource category')
+output = dfhack.run_command('civilizations/level-up -civ '..tostring(entity.id)..' -amount 1 -verbose')
 writeall(output)
 for xCheck,aCheck in pairs(nCheck) do
  resources = entity.resources
@@ -1851,8 +1884,8 @@ for xCheck,aCheck in pairs(nCheck) do
   civCheck[#civCheck+1] = 'Test Civilization 2 level 1 '..table.unpack(aCheck)..' not correctly added to'
  end
 end
-    io.write('Force level increase, should fail to level up for many different reasons')
-output = dfhack.run_command_silent('civilizations/level-up -civ '..tostring(entity.id)..' -amount 1 -verbose')
+    writeall('Force level increase, should fail to level up for many different reasons')
+output = dfhack.run_command('civilizations/level-up -civ '..tostring(entity.id)..' -amount 1 -verbose')
 writeall(output)
 if roses.EntityTable[tostring(entity.id)].Civilization.Level == 3 then
  civCheck[#civCheck+1] = 'Test Civilization 2 level 2 incorrectly applied, should have failed'
@@ -1875,8 +1908,8 @@ printplus('Enhanced System Checks Starting')
 enhCheck = {}
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Enhanced System - Buildings
-    io.write('')
-    io.write('Enhanced System - Buildings Starting')
+    writeall('')
+    writeall('Enhanced System - Buildings Starting')
 EBCheck = {}
 ---- Print PASS/FAIL
 if #EBCheck == 0 then
@@ -1886,17 +1919,17 @@ else
  writeall(EBCheck)
 end
 -- FINISH Enhanced System - Buildings
-    io.write('Enhanced System - Buildings Finished')
+    writeall('Enhanced System - Buildings Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Enhanced System - Creatures
-    io.write('')
-    io.write('Enhanced System - Creatures Starting')
-    io.write('Enhancing all dwarf creatures')
-    io.write('Agility should be increased to between 5000 and 8000 and GROWER skill to between 5 and 15')
+    writeall('')
+    writeall('Enhanced System - Creatures Starting')
+    writeall('Enhancing all dwarf creatures')
+    writeall('Agility should be increased to between 5000 and 8000 and GROWER skill to between 5 and 15')
 ECCheck = {}
 unit = civ[5]
 unitTable = roses.UnitTable[tostring(unit.id)]
-    io.write('Before:')
+    writeall('Before:')
     writeall(unit.body.physical_attrs.AGILITY)
     writeall(unitTable.Skills)
 for _,unit in pairs(df.global.world.creatures.active) do
@@ -1904,7 +1937,7 @@ for _,unit in pairs(df.global.world.creatures.active) do
   dfhack.script_environment('functions/enahnced').enhanceCreature(unit)
  end
 end
-    io.write('After:')
+    writeall('After:')
     writeall(unit.body.physical_attrs.AGILITY)
     writeall(unitTable.Skills)
 if unit.body.physical_attrs.AGILITY.current < 5000 or unitTable.Skills.GROWER.Base < 5 then
@@ -1917,80 +1950,80 @@ else
  writeall(ECCheck)
 end
 -- FINISH Enhanced System - Creatures
-    io.write('Enhanced System - Creatures Finished')
+    writeall('Enhanced System - Creatures Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Enhanced System - Items
-    io.write('')
-    io.write('Enhanced System - Items Starting')
-    io.write('When the pick is equipped the units Axe skill should increase to legendary')
-    io.write('When the hand axe is equipped the unit should learn the Test Spell 1 spell')
-    io.write('Both effects should revert when the item is unequipped')
-    io.write('Running modtools/item-trigger')
+    writeall('')
+    writeall('Enhanced System - Items Starting')
+    writeall('When the pick is equipped the units Axe skill should increase to legendary')
+    writeall('When the hand axe is equipped the unit should learn the Test Spell 1 spell')
+    writeall('Both effects should revert when the item is unequipped')
+    writeall('Running modtools/item-trigger')
 EICheck = {}
 base = 'modtools/item-trigger -itemType ITEM_WEAPON_PICK -onEquip -command'
-output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
+output = dfhack.run_command(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
 writeall(output)
-output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
+output = dfhack.run_command(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
 writeall(output)
 base = 'modtools/item-trigger -itemType ITEM_WEAPON_PICK -onUnequip -command'
-output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
+output = dfhack.run_command(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
 writeall(output)
-output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
+output = dfhack.run_command(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
 writeall(output)
 ----
-    io.write('')
-    io.write('Testing Enhanced Item 1 - ITEM_WEAPON_PICK')
-output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_PICK -material INORGANIC:STEEL -verbose')
+    writeall('')
+    writeall('Testing Enhanced Item 1 - ITEM_WEAPON_PICK')
+output = dfhack.run_command('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_PICK -material INORGANIC:STEEL -verbose')
 writeall(output)
-    io.write('Before Equipping the pick')
+    writeall('Before Equipping the pick')
     writeall(unitTable.Skills)
 ----
-output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -verbose')
+output = dfhack.run_command('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -verbose')
 writeall(output)
-    io.write('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
+    writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
-    io.write('Resuming run_test.lua')
-    io.write('After Equipping the pick')
+    writeall('Resuming run_test.lua')
+    writeall('After Equipping the pick')
     writeall(unitTable.Skills)
 if unitTable.Skills.AXE.Item < 15 then
  EICheck[#EICheck+1] = 'Enhanced System - Item 1 equip skill change not correctly applied'
 end
 ----
-output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -item WEAPONS -verbose')
+output = dfhack.run_command('item/unequip -unit '..tostring(unit.id)..' -item WEAPONS -verbose')
 writeall(output)
-    io.write('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
+    writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
  script.sleep(50,'ticks')
-    io.write('Resuming run_test.lua')
-    io.write('After UnEquipping the pick')
+    writeall('Resuming run_test.lua')
+    writeall('After UnEquipping the pick')
     writeall(unitTable.Skills)
 if unitTable.Skills.AXE.Item > 0 then
  EICheck[#EICheck+1] = 'Enhanced System - Item 1 unequip skill change not correctly applied'
 end
 ----
-    io.write('')
-    io.write('Testing Enhanced Item 2 - ITEM_WEAPON_HANDAXE')
-output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_HANDAXE -material INORGANIC:STEEL -verbose')
+    writeall('')
+    writeall('Testing Enhanced Item 2 - ITEM_WEAPON_HANDAXE')
+output = dfhack.run_command('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_HANDAXE -material INORGANIC:STEEL -verbose')
 writeall(output)
-    io.write('Before Equipping the hand axe')
+    writeall('Before Equipping the hand axe')
     writeall(unitTable.Spells.Active)
 ----
-output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -verbose')
+output = dfhack.run_command('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -verbose')
 writeall(output)
-    io.write('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
+    writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
-    io.write('Resuming run_test.lua')
-    io.write('After Equipping the hand axe')
+    writeall('Resuming run_test.lua')
+    writeall('After Equipping the hand axe')
     writeall(unitTable.Spells.Active)
 if not unitTable.Spells.Active.TEST_SPELL_1 then
  EICheck[#EICheck+1] = 'Enhanced System - Item 2 equip spell change not correctly applied'
 end
 ----
-output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -item WEAPONS -verbose')
+output = dfhack.run_command('item/unequip -unit '..tostring(unit.id)..' -item WEAPONS -verbose')
 writeall(output)
-    io.write('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
+    writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
-    io.write('Resuming run_test.lua')
-    io.write('After UnEquipping the hand axe')
+    writeall('Resuming run_test.lua')
+    writeall('After UnEquipping the hand axe')
     writeall(unitTable.Spells.Active)
 if unitTable.Spells.Active.TEST_SPELL_1 then
  EICheck[#EICheck+1] = 'Enhanced System - Item 2 unequip spell change not correctly applied'
@@ -2003,12 +2036,12 @@ else
  writeall(EICheck)
 end
 -- FINISH Enhanced System - Items
-    io.write('Enhanced System - Items check finished')
+    writeall('Enhanced System - Items check finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Enhanced System - Materials
-    io.write('')
-    io.write('Enhanced System - Materials Starting')
+    writeall('')
+    writeall('Enhanced System - Materials Starting')
 EMCheck = {}
 ---- Print PASS/FAIL
 if #EICheck == 0 then
@@ -2018,12 +2051,12 @@ else
  writeall(EICheck)
 end
 -- FINISH Enhanced System - Materials
-    io.write('Enhanced System - Materials Finished')
+    writeall('Enhanced System - Materials Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START Enhanced System - Reactions
-    io.write('')
-    io.write('Enhanced System - Reactions Starting')
+    writeall('')
+    writeall('Enhanced System - Reactions Starting')
 ERCheck = {}
 ---- Print PASS/FAIL
 if #EICheck == 0 then
@@ -2033,7 +2066,7 @@ else
  writeall(EICheck)
 end
 -- FINISH Enhanced System - Reactions
-    io.write('Enhanced System - Reactions Finished')
+    writeall('Enhanced System - Reactions Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Enhanced System Checks Finished')
 
@@ -2043,16 +2076,16 @@ printplus('Enhanced System Checks Finished')
 printplus('')
 printplus('Event System Checks Starting')
 eventCheck = {}
-    io.write('Forcing Test Event 1 to trigger, both effects should fail')
-output = dfhack.run_command_silent('events/trigger -event TEST_EVENT_1 -force -verbose')
+    writeall('Forcing Test Event 1 to trigger, both effects should fail')
+output = dfhack.run_command('events/trigger -event TEST_EVENT_1 -force -verbose')
 writeall(output)
 if roses.CounterTable.TEST_EVENT_1 then
  eventCheck[#eventCheck + 1] = 'Test Event 1 incorrectly triggered'
 end
-    io.write('Test Event 2 should occur within 1 in-game day, if successful a random location and random unit id will be printed')
-    io.write('Pausing run_test.lua for 3200 in-game ticks')
+    writeall('Test Event 2 should occur within 1 in-game day, if successful a random location and random unit id will be printed')
+    writeall('Pausing run_test.lua for 3200 in-game ticks')
   script.sleep(3200,'ticks')
-    io.write('Resuming run_test.lua')
+    writeall('Resuming run_test.lua')
 if not roses.CounterTable.TEST_EVENT_2 then
  eventCheck[#eventCheck + 1] = 'Test Event 2 failed to triggered'
 end
@@ -2074,8 +2107,11 @@ printplus('System Checks Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('')
 printplus('Starting External Scripts Checks')
-printplus('Not Currently Supported)
+printplus('Not Currently Supported')
 
+end
+
+script.start(script_checks)
 -- These checks are for external scripts (scripts not included in the Roses Collection)
 --[[
 print('Now starting external script checks')

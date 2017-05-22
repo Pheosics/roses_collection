@@ -71,6 +71,7 @@ location.y = pos.y + offset[2] or pos[2] + offset[2]
 location.z = pos.z + offset[3] or pos[3] + offset[3]
 
 if args.plan then
+ file = dfhack.getDFPath()..'/raw/files/'..args.plan
  locations,n = dfhack.script_environment('functions/map').getPositionPlan(file,location)
  for i,loc in ipairs(locations) do
   if args.floor then

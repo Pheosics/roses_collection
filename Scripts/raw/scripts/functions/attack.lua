@@ -31,9 +31,9 @@ function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchanc
  attack_action.attack_item_id = item_id
  attack_action.target_body_part_id = target_id
  attack_action.attack_body_part_id = body_id
- attack_action.unk_30 = velocity
+ attack_action.attack_velocity = velocity
  attack_action.attack_id = attack_id
- attack_action.unk_3c = hitchance
+ attack_action.attack_accuracy = hitchance
  attack_action.timer1 = delay
  attack_action.timer2 = delay
  -- Unknown values

@@ -89,6 +89,9 @@ track = nil
 if args.track then track = 'track' end
 
 for _,item in pairs(items) do
+ if tonumber(item) then
+  item = df.item.find(item)
+ end
  if args.upgrade then
   quality = item.quality + 1
  elseif args.downgrade then

@@ -26,18 +26,18 @@ function trackMaterial(itemID,change,dur,alter)
    local statusTable = materialTable.StatusEffects
    local number = #statusTable._children
    statusTable[tostring(number+1)] = {}
-   statusTable[tostring(number+1)].End = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur
-   statusTable[tostring(number+1)].Change = change
+   statusTable[tostring(number+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
+   statusTable[tostring(number+1)].Change = tostring(change)
   else
    materialTable.Base = change
   end
  elseif alter == 'end' then
   local materialTable = itemTable[tostring(itemID)].Material
-  materialTable.Current = change
+  materialTable.Current = tostring(change)
   local statusTable = materialTable.StatusEffects
   for i = #statusTable._children,1,-1 do
    if statusTable[i] then
-    if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
      statusTable[i] = nil
     end
    end
@@ -56,7 +56,7 @@ function trackQuality(itemID,change,dur,alter)
    local statusTable = qualityTable.StatusEffects
    local number = #statusTable._children
    statusTable[tostring(number+1)] = {}
-   statusTable[tostring(number+1)].End = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur
+   statusTable[tostring(number+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
    statusTable[tostring(number+1)].Change = tostring(change)
   else
    qualityTable.Base = tostring(change)
@@ -67,7 +67,7 @@ function trackQuality(itemID,change,dur,alter)
   local statusTable = qualityTable.StatusEffects
   for i = #statusTable._children,1,-1 do
    if statusTable[i] then
-    if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
      statusTable[i] = nil
     end
    end
@@ -86,7 +86,7 @@ function trackSubtype(itemID,change,dur,alter)
    local statusTable = subtypeTable.StatusEffects
    local number = #statusTable._children
    statusTable[tostring(number+1)] = {}
-   statusTable[tostring(number+1)].End = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur
+   statusTable[tostring(number+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
    statusTable[tostring(number+1)].Change = tostring(change)
   else
    subtypeTable.Base = tostring(change)
@@ -97,7 +97,7 @@ function trackSubtype(itemID,change,dur,alter)
   local statusTable = subtypeTable.StatusEffects
   for i = #statusTable._children,1,-1 do
    if statusTable[i] then
-    if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
      statusTable[i] = nil
     end
    end
@@ -178,17 +178,18 @@ function checkAttack(item,attack)
  return attackID
 end
 
-function create(item,material,options) --from modtools/create-item
- options = options or {}
- quality = options.quality or 0
- creatorID = options.creator or -1
- if tonumber(creatorID) and tonumber(creatorID) >= 0 then
-  creator = df.unit.find(creatorID)
+function create(item,material,a,b,c) --from modtools/create-item
+ quality = b or 0
+ creatorID = a or -1
+ if creatorID == -1 then
+  creator = df.unit.find(df.global.world.units.active[0])
+  creatorID = creator.id
  else
-  creator = creatorID
+  creator = df.unit.find(tonumber(creatorID))
   creatorID = creator.id
  end
- dur = options.dur or 0
+ dur = c or 0
+ dur = tonumber(dur)
  itemType = dfhack.items.findType(item)
  if itemType == -1 then
   error 'Invalid item.'
@@ -200,12 +201,6 @@ function create(item,material,options) --from modtools/create-item
  end
  if tonumber(creatorID) >= 0 then
   item = dfhack.items.createItem(itemType, itemSubtype, material.type, material.index, creator)
- else
-  item = dfhack.items.createItem(itemType, itemSubtype, material.type, material.index, df.unit.find(0))
-  item = df.item.find(item)
-  item.maker_race = -1
-  item.maker = -1
-  item = item.id
  end
  if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','removal',{item}) end
  return item

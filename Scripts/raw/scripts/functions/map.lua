@@ -85,7 +85,7 @@ function changeTemperature(x,y,z,temperature,dur)
   block.temperature_2[pos.x%16][pos.y%16] = temperature
   block.flags.update_temperature = false
 -- end
- if dur > 0 then dfhack.script_environment('persistDelay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) end
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) end
 end
 
 function checkBounds(pos)
