@@ -1,18 +1,18 @@
 -- Item based functions, version 42.06a
 --[[
- trackMaterial(itemID,change,dur,alter) - Tracks the changes to an items material, can track multiple changes
- trackQuality(itemID,change,dur,alter) - Tracks the changes to an items quality, can track multiple changes
- trackSubtype(itemID,change,dur,alter) - Tracks the changes to an items subtype, can track multiple changes
- changeMaterial(item,material,dur,track) - Changes the items material
- changeQuality(item,quality,dur,track) - Changes the items quality
- changeSubtype(item,subtype,dur,track) - Changes the items subtype
- checkAttack(item,attack) - Checks if an item has a specified attack, will return false if no attack is found, will return the attack id if found
- create(item,material,options) - Creates an item of the given material in format ITEM_TYPE:ITEM_SUBTYPE, MATERIAL_TYPE:MATERIAL_SUBTYPE
- equip(item,unit,bodyPart,mode) - Equips an item to a units body
- makeProjectileFall(item,origin,velocity) - Turns an item into a falling projectile
- makeProjectileShoot(item,origin,target,options) - Turns an item into a shooting projectile
- removal(item) - Removes an item from the game
- findItem(search) - Find an item based on the search parameters. See the find functions ReadMe for more information regarding search strings.
+ trackMaterial(itemID,change,dur,alter)
+ trackQuality(itemID,change,dur,alter)
+ trackSubtype(itemID,change,dur,alter)
+ changeMaterial(item,material,dur,track)
+ changeQuality(item,quality,dur,track)
+ changeSubtype(item,subtype,dur,track)
+ checkAttack(item,attack)
+ create(item,material,options)
+ equip(item,unit,bodyPart,mode)
+ makeProjectileFall(item,origin,velocity)
+ makeProjectileShoot(item,origin,target,options)
+ removal(item)
+ findItem(search)
 ]]
 ---------------------------------------------------------------------------------------
 function trackMaterial(itemID,change,dur,alter)

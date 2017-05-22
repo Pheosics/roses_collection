@@ -1,14 +1,14 @@
 --Functions for use in the Class System, v42.06a
 --[[
- addExperience(unit,amount,verbose) - Adds a given amount of experience to a units class, then checks for leveling up
- changeClass(unit,change,verbose) - Change the class of the unit, returns true if successful
- changeLevel(unit,amount,verbose) - Change the level of the class of the unit (up or down)
- changeName(unit,name,direction,verbose) - Change the name of the unit through syndromes (this is how the unit's class name is displayed)
- changeSpell(unit,spell,direction,verbose) - Change the spells (interactions) available to the unit
- checkRequirementsClass(unit,class,verbose) - Check if the unit meets the requirements for the class, returns true if yes, false if no
- checkRequirementsSpell(unit,spell,verbose) - Check if the unit meets the requirements for the spell, returns true if yes, false if no
- addFeat(unit,feat,verbose) - Adds a feat to the unit
- checkRequirementsFeat(unit,feat,verbose) - Checks if the unit meets the requirements for the feet, returns true if yes, false if no
+ addExperience(unit,amount,verbose)
+ changeClass(unit,change,verbose)
+ changeLevel(unit,amount,verbose)
+ changeName(unit,name,direction,verbose)
+ changeSpell(unit,spell,direction,verbose)
+ checkRequirementsClass(unit,class,verbose)
+ checkRequirementsSpell(unit,spell,verbose)
+ addFeat(unit,feat,verbose)
+ checkRequirementsFeat(unit,feat,verbose)
 ]]
 -- CLASS FUNCTIONS
 function addExperience(unit,amount,verbose)

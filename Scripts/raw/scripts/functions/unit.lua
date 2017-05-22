@@ -1,56 +1,56 @@
 --unit based functions, version 42.06a
 --[[
- trackCore(unit,strname,kind,Table,func,change,value,syndrome,alter) - Base tracking script that is called by all the other tracking scripts and does the actual heavy lifting
- trackAttribute(unit,kind,current,change,value,dur,alter,syndrome,cb_id) - Track changes in the units attributes. Multpile changes can be tracked at the same time
- trackResistance(unit,kind,current,change,value,dur,alter,syndrome,cb_id) - Track changes in the units resistances. Multpile changes can be tracked at the same time
- trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id) - Track changes in the units skills. Multpile changes can be tracked at the same time
- trackStat(unit,kind,current,change,value,dur,alter,syndrome,cb_id) - Track changes in the units stats. Multpile changes can be tracked at the same time
- trackTrait(unit,kind,current,change,value,dur,alter,syndrome,cb_id) - Track changes in the units traits. Multpile changes can be tracked at the same time
- trackCreate(unit,summoner,dur,alter,syndrome,cb_id) - Track and link any created units with their "summoner"
- trackSide(unit,civ_id,pop_id,inv_id,trn,regx,regy,regp,pet,stype,dur,alter,syndrome,cb_id) - Track the allegiance of a unit
- trackTransform(unit,race,caste,dur,alter,syndrome,cb_id) - Track the transformations undergone by a unit
+ trackCore(unit,strname,kind,Table,func,change,value,syndrome,alter)
+ trackAttribute(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
+ trackResistance(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
+ trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
+ trackStat(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
+ trackTrait(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
+ trackCreate(unit,summoner,dur,alter,syndrome,cb_id)
+ trackSide(unit,civ_id,pop_id,inv_id,trn,regx,regy,regp,pet,stype,dur,alter,syndrome,cb_id)
+ trackTransform(unit,race,caste,dur,alter,syndrome,cb_id)
 
- changeAttribute(unit,attribute,change,dur,track,syndrome,cb_id) - Change the attributes of a unit and allow tracking and linking to a syndrome
- changeCounter(unit,counter,change,dur) - Change the counters of a unit (i.e. pain, stunned, hunger, etc...)
- changeResistance(unit,resistance,change,dur,track,syndrome,cb_id) - Change the resistances of a unit and allow tracking and linking to a syndrome
- changeSkill(unit,skill,change,dur,track,syndrome,cb_id) - Change the skills of a unit and allow tracking and linking to a syndrome
- changeStat(unit,stat,change,dur,track,syndrome,cb_id) - Change the stats of a unit and allow tracking and linking to a syndrome
- changeTrait(unit,trait,change,dur,track,syndrome,cb_id) - Change the traits of a unit and allow tracking and linking to a syndrome
- changeBody(unit,part,changeType,change,dur) - Alter the body parts of a unit, note that because most body information is stored by creature and not unit there is very little you can actual change
- changeLife(unit,corpsepart,change,reference,regrow,syndrome,dur) - Brings a unit back to life, either fully or as a zombie
- changeWound(unit,bp_id,gl_id,regrow) - Remove and add wounds to a unit, regrow lost body parts
- changeEmotion(unit,thought,subthought,emotion,strength,severity,task,number,dur,syndrome,cb_id) - Change the thoughts and emotions of a unit
- changeFlag(unit,flag,clear) - Change the various boolean flags of a unit. NOTE: Changing these flags will cause crashes frequently if you don't know what you are doing
- changeSide(unit,side,side_type,dur,track,syndrome,civ_id,pop_id,inv_id,trn,regx,regy,regp,cb_id) - Change the allegiance of a unit
- changeSyndrome(unit,syndromes,change,dur) - Remove/Add syndromes to a unit, relies heavily on modtools/add-syndrome, but provides additional functionality
- transform(unit,race,caste,dur,track,syndrome,cb_id) - Transform a unit's caste and creature
- move(unit,location) - Move a unit
- removal(unit,remType) - Remove a unit based on certain criteria
+ changeAttribute(unit,attribute,change,dur,track,syndrome,cb_id)
+ changeCounter(unit,counter,change,dur)
+ changeResistance(unit,resistance,change,dur,track,syndrome,cb_id)
+ changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
+ changeStat(unit,stat,change,dur,track,syndrome,cb_id)
+ changeTrait(unit,trait,change,dur,track,syndrome,cb_id)
+ changeBody(unit,part,changeType,change,dur)
+ changeLife(unit,corpsepart,change,reference,regrow,syndrome,dur)
+ changeWound(unit,bp_id,gl_id,regrow)
+ changeEmotion(unit,thought,subthought,emotion,strength,severity,task,number,dur,syndrome,cb_id)
+ changeFlag(unit,flag,clear)
+ changeSide(unit,side,side_type,dur,track,syndrome,civ_id,pop_id,inv_id,trn,regx,regy,regp,cb_id)
+ changeSyndrome(unit,syndromes,change,dur)
+ transform(unit,race,caste,dur,track,syndrome,cb_id)
+ move(unit,location)
+ removal(unit,remType)
 
- checkClass(unit,class) - Check if the unit has either the SYN_CLASS or CREATURE_CLASS class, returns true/false
- checkClassCreature(unit,class) - Check if the unit has the CREATURE_CLASS class, returns true/false
- checkClassSyndrome(unit,class) - Check if the unit has the SYN_CLASS class, returns true/false
- checkCreatureRace(unit,creature) - Checks if the unit is the correct CREATURE:CASTE or CREATURE:ALL combo, returns true/false
- checkCreatureToken(unit,token) - Checks if the unit has the desired token (e.g. AMPHIBIOUS, MEGABEAST, etc...), returns true/false
- checkDistance(unit,location,distance) - Checks if the unit is with a certain distance of desired location, returns true/false
+ checkClass(unit,class)
+ checkClassCreature(unit,class)
+ checkClassSyndrome(unit,class)
+ checkCreatureRace(unit,creature)
+ checkCreatureToken(unit,token)
+ checkDistance(unit,location,distance)
 
- getUnit(unit,strType,strKind) - Get a unit's attributes, resistances, skills, stats, or traits. The values are split into their type of change, returns five numbers (total, base, class_change, item_change, syndrome_change)
- getAttack(unit,attack_type) - Get a unit's attack id, either with attack_type RANDOM or a specific attack token (e.g. BITE), returns a number (attack id)
- getBodyRandom(unit) - Get a random body part weighted for relative size, returns a number (body part id)
- getBodyCategory(unit,category) - Get all body parts with the specified category, returns a table of numbers (body part ids)
- getBodyFlag(unit,flag) - Get all body parts with the specified flag, returns a table of numbers (body part ids)
- getBodyToken(unit,token) - Get all body parts with the specified token, returns a table of numbers (body part ids)
- getBodyConnectedParts(unit,parts) - Get all body parts connected to the specified part, returns a table of numbers (body part ids)
- getBodyPartGlobalLayers(unit,part) - Get all the global layer ids of the specified part, returns a table of numbers (global layer id)
- getBodyCorpseParts(unit) - Get all the corpseparts belonging to the unit, returns a table with three components, the unit id, the corpse id, and a list of corpsepart ids
- getEmotion(unit,emotion,thought) - Get the thought and emotion ids associted with the thought/emotion combo, returns a table of numbers (emotion ids)
- getSyndrome(unit,class,what) - Get the syndrome name and ids of syndromes based on their SYN_NAME or SYN_CLASS, returns two tables, one of strings (syndrome names) and one of numbers (syndrome ids)
- getInventoryType(unit,item_type) - Get all items in the units inventory that match the item_type, returns a table of numbers (item ids)
- getCounter(unit,counter) - Get the counter (i.e. pain, stunned, hunger, etc...) of the unit, returns a number
+ getUnit(unit,strType,strKind)
+ getAttack(unit,attack_type)
+ getBodyRandom(unit)
+ getBodyCategory(unit,category)
+ getBodyFlag(unit,flag)
+ getBodyToken(unit,token)
+ getBodyConnectedParts(unit,parts)
+ getBodyPartGlobalLayers(unit,part)
+ getBodyCorpseParts(unit)
+ getEmotion(unit,emotion,thought)
+ getSyndrome(unit,class,what)
+ getInventoryType(unit,item_type)
+ getCounter(unit,counter)
 
- create(location,raceID,casteID,refUnit,side,name,dur,track,syndrome,cb_id) - Create a unit, relies heavily on modtools/create-unit, but provides additional functionality
- makeProjectile(unit,velocity) - Turns a unit into a projectile with the given velocity
- findUnit(search) - Find a unit on the map from the declared search parameters. See the find functions ReadMe for more information regarding search strings.
+ create(location,raceID,casteID,refUnit,side,name,dur,track,syndrome,cb_id)
+ makeProjectile(unit,velocity)
+ findUnit(search)
 ]]
 ---------------------------------------------------------------------------------------
 ----------- Track changes in the persist-table and handle termination -----------------
@@ -1451,6 +1451,22 @@ function checkCreatureRace(unit,creature) -- Returns true if unit is given creat
  return false
 end
 
+function checkCreatureSyndrome(unit,syndrome)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if type(syndrome) ~= 'table' then syndrome = {syndrome} end
+ 
+ local actives = unit.syndromes.active
+ local syndromes = df.global.world.raws.syndromes.all
+ for _,x in ipairs(actives) do
+  for _,y in ipairs(syndrome) do
+   if syndromes[x.type].syn_name == y then
+    return true
+   end
+  end
+ end
+ return false
+end
+
 function checkCreatureToken(unit,token) -- Returns true if unit has the given token (e.g. AMPHIBIOUS, LARGE_PREDATOR, MEGABEAST, etc...)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(token) ~= 'table' then token = {token} end
@@ -1857,22 +1873,35 @@ function checkSyndrome(unit,class,what) -- Returns table of syndrome names and i
  local syndromes = df.global.world.raws.syndromes.all
  local names = {}
  local ids = {}
+ local ida = {}
  i = 0
  if what == 'class' then
-  for _,x in ipairs(actives) do
+  for j,x in pairs(actives) do
    local synclass=syndromes[x.type].syn_class
    for _,y in ipairs(synclass) do
     for _,z in ipairs(class) do
      if z == y.value then
       i = i + 1
       names[i] = syndromes[x.type].syn_name
-      id[i] = syndromes[x.type].id
+      ids[i] = syndromes[x.type].id
+      ida[i] = j
      end
     end
    end
   end
-  return names,ids
+ elseif what == 'name' then
+  for j,x in pairs(actives) do
+   for _,y in ipairs(class) do
+    if syndromes[x.type].syn_name == y then
+     i = i + 1
+     names[i] = y
+     ids[i] = syndromes[x.type].id
+     ida[i] = j
+    end
+   end
+  end
  end
+ return names, ids, ida
 end
 
 function getInventoryType(unit,item_type)

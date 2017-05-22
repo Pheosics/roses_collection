@@ -1,9 +1,9 @@
 -- Functions for the Event System
 --[[
- checkRequirements(event,effect,verbose) - Checks if the requirements for a specific event/effect combo have been reached
- triggerEvent(event,effect,verbose) - Triggers an event/effect combo
- checkEvent(event,method,verbose) - Checks an event and all of it's effects to see if they should be triggered
- queueCheck(event,method,verbose) - Sets up the callback to check the event again after a certain time
+ checkRequirements(event,effect,verbose)
+ triggerEvent(event,effect,verbose)
+ checkEvent(event,method,verbose)
+ queueCheck(event,method,verbose)
 ]]
 ------------------------------------------------------------------------
 function checkRequirements(event,effect,verbose)

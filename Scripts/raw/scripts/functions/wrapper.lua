@@ -1,38 +1,38 @@
 -- Functions used in the wrapper script, v42.06a
 --[[
- checkPosition(source,targetList,target,verbose) - Base check for location based checks, compares the relative positions between the source and target (e.g. ABOVE, BELOW, etc...), returns a table of target locations
- checkTree(source,pos,argument,relation,verbose) - Various checks for whether there is a tree at the specified position, returns true/false
- checkPlant(source,pos,argument,relation,verbose) - Various checks for whether there is a plant at the specified position, returns true/false
- checkGrass(source,pos,argument,relation,verbose) - Various checks for whether there is grass at the specified position, returns true/false
- checkInorganic(source,pos,argument,relation,verbose) - Various checks for whether there is an inorganic at the specified position, returns true/false
- checkLiquid(source,pos,argument,relation,verbose) - Various checks for whether there is liquid at the specified position, returns true/false
- isSelectedLocation(source,pos,args) - The wrapper function for location based checks, calls all the various checks (not the base)
+ checkPosition(source,targetList,target,verbose)
+ checkTree(source,pos,argument,relation,verbose)
+ checkPlant(source,pos,argument,relation,verbose)
+ checkGrass(source,pos,argument,relation,verbose)
+ checkInorganic(source,pos,argument,relation,verbose)
+ checkLiquid(source,pos,argument,relation,verbose)
+ isSelectedLocation(source,pos,args)
 
- checkTarget(source,targetList,target,verbose) - Base check for unit based checks, compares the relative relationship between the source and target (e.g. ENEMY, PET, etc...), returns a table of target units
- checkUnitLocation(source,radius,verbose) - Checks if the unit is within a specified distance of the source unit
- checkAttribute(source,unit,args.maxAttribute,relation,args.verbose) - Various checks for a units attributes, returns true/false
- checkSkill(source,unit,args.maxSkill,relation,args.verbose) - Various checks for a units skill, returns true/false
- checkTrait(source,unit,args.maxTrait,relation,args.verbose) - Various checks for a units trait, returns true/false
- checkAge(source,unit,args.maxAge,relation,args.verbose) - Various checks for a units age, returns true/false
- checkSpeed(source,unit,args.gtSpeed,relation,args.verbose) - Various checks for a units speed, returns true/false
- checkClass(source,unit,args.requiredClass,relation,args.verbose) - Various checks for a units SYN_CLASS and CREATURE_CLASS, returns true/false
- checkCreature(source,unit,args.requiredCreature,relation,args.verbose) - Various checks for a units race and caste, returns true/false
- checkSyndrome(source,unit,args.requiredSyndrome,relation,args.verbose) - Various checks for a units syndromes, returns true/false
- checkToken(source,unit,args.requiredToken,relation,args.verbose) - Various checks for a units tokens, returns true/false
- checkNoble(source,unit,args.requiredNoble,relation,args.verbose) - Various checks for a units noble position, returns true/false
- checkProfession(source,unit,args.requiredProfesion,relation,args.verbose) - Various checks for a units profession, returns true/false
- checkEntity(source,unit,args.requiredEntity,relation,args.verbose) - Various checks for a units entity, returns true/false
- checkPathing(source,unit,args.requiredPathing,relation,args.verbose) - Various checks for a units pathing, returns true/false
- isSelectedUnit(source,target,args) - The wrapper function for unit based checks, calls all the various checks (not the base)
+ checkTarget(source,targetList,target,verbose)
+ checkUnitLocation(source,radius,verbose)
+ checkAttribute(source,unit,args.maxAttribute,relation,args.verbose)
+ checkSkill(source,unit,args.maxSkill,relation,args.verbose)
+ checkTrait(source,unit,args.maxTrait,relation,args.verbose)
+ checkAge(source,unit,args.maxAge,relation,args.verbose)
+ checkSpeed(source,unit,args.gtSpeed,relation,args.verbose)
+ checkClass(source,unit,args.requiredClass,relation,args.verbose)
+ checkCreature(source,unit,args.requiredCreature,relation,args.verbose)
+ checkSyndrome(source,unit,args.requiredSyndrome,relation,args.verbose)
+ checkToken(source,unit,args.requiredToken,relation,args.verbose)
+ checkNoble(source,unit,args.requiredNoble,relation,args.verbose)
+ checkProfession(source,unit,args.requiredProfesion,relation,args.verbose)
+ checkEntity(source,unit,args.requiredEntity,relation,args.verbose)
+ checkPathing(source,unit,args.requiredPathing,relation,args.verbose)
+ isSelectedUnit(source,target,args)
  
- checkItem(source,targetList,target,verbose) - Base check for item based checks, compares the items to various targets (e.g. ARTIFACT, PROJECTILE, etc...), returns a table of target items
- checkItemLocation(center,radius,verbose) - Checks if the item is within a specified distance of the center location
- checkItemType(source,pos,args.requiredItem,relation,args.verbose) - Various checks for an items type, returns true/false
- checkMaterial(source,pos,args.requiredMaterial,relation,args.verbose) - Various checks for an items material, returns true/false
- checkCorpse(source,pos,args.requiredCorpse,relation,args.verbose) - Various checks for if an item is a corpse, returns true/false
- isSelectedItem(source,item,args) - The wrapper function for item based checks, calls all the various checks (not the base)
+ checkItem(source,targetList,target,verbose)
+ checkItemLocation(center,radius,verbose)
+ checkItemType(source,pos,args.requiredItem,relation,args.verbose)
+ checkMaterial(source,pos,args.requiredMaterial,relation,args.verbose)
+ checkCorpse(source,pos,args.requiredCorpse,relation,args.verbose)
+ isSelectedItem(source,item,args)
 
- getValue(equation,target,source,center,targetList,selected,verbose) - Get the value of an equation, this function is old and will be replaced by functions/misc.fillEquation
+ getValue(equation,target,source,center,targetList,selected,verbose)
 ]]
 ---------------------------------------------------------------------------------------------
 -- position based checks and conditions

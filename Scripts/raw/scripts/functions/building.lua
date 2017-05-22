@@ -1,9 +1,9 @@
 --building based functions, version 42.06a
 --[[
- addItem(building,item,dur) - Move the item into the building as if it were used in construction. Will return item if builidng is removed
- removeItem(building,item,dur) - Remove the item from the building, will be placed at the work location
- changeSubtype(building,subtype,dur) - Change the subtype of the building, effectively changing the building. Note that you should only change between buildings of the same size. Returns true if successful, false if unsuccessful
- findBuilding(search) - Find a building on the map from the declared search parameters. See the find functions ReadMe for more information regarding search strings.
+ addItem(building,item,dur)
+ removeItem(building,item,dur)
+ changeSubtype(building,subtype,dur)
+ findBuilding(search)
 ]]
 ---------------------------------------------------------------------------------------
 function addItem(building,item,dur)

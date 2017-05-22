@@ -1,39 +1,51 @@
 --map based functions, version 42.06a
 --[[
- changeInorganic(x,y,z,inorganic,dur) - Changes the inorganic of the specified position
- changeTemperature(x,y,z,temperature,dur) - Changes the temperature of the specified position (doesn't really work well since the game constantly reupdates temperatures)
- checkBounds(pos) - Checks if a position is within the map bounds, returns the closest position to the input that is within the bounds
- getEdgesPosition(pos,radius) - Get all the x,y,z positions along the edge of a pos + radius
- getFillPosition(pos,radius) - Get all the x,y,z positions within a pos + radius
- getPositionPlan(file,target,origin) - Get the x,y,z positions from an external text file
- getPositionCenter(radius) - Get a random position with a center radius of the center of the map
- getPositionEdge() - Get a random position along the edge of the map
- getPositionRandom() - Get a random position on the map
- getPositionCavern(number) - Get a random position in a specified cavern layer
- getPositionSurface(pos) - Return the surface z position given an x and y
- getPositionSky(pos) - Return a random z position in the sky given an x and y
- getPositionUnderground(pos) - Return a random z position underground given an x and y
- getPositionLocationRandom(pos,radius) - Get a random position within a certain radius of the given x,y,z
- getPositionUnitRandom(unit,radius) - Get a random position within a certain radius of the given unit
- spawnFlow(edges,offset,flowType,inorganic,density,static) - Spawn a flow using a number of variables
- spawnLiquid(edges,offset,depth,magma,circle,taper) - Spawn a liquid using a number of variables
- getFlow(pos) - Get any flows at the given position
- getTree(pos,array) - Get any tree (or a tree in a specific array) at a given position
- getShrub(pos,array) - Get any shrub (or a shrub in a specific array) at a given position
- removeTree(pos) - Remove the tree at the given position
- removeShrub(pos) - Remove the shrub at the given position
- getTreeMaterial(pos) - Get the material of the tree at the given position
- getShrubMaterial(pos) - Get the material of the shrub at the given position
- getGrassMaterial(pos) - Get the material of the grass at the given position
- getTreePositions(tree) - Get all x,y,z positions of a given tree
- flowSource(n) - Create a flow source (continually creates the flow)
- liquidSource(n) - Create a liquid source (continually creates liquid)
- liquidSink(n) - Create a liquid sink (continually removes liquid)
- findLocation(search) - Find a location on the map from the declared search parameters. See the find functions ReadMe for more information regarding search strings.
+ changeInorganic(x,y,z,inorganic,dur)
+ changeTemperature(x,y,z,temperature,dur)
+ checkBounds(x,y,z)
+ getEdgesPosition(pos,radius)
+ getFillPosition(pos,radius)
+ getPositionPlan(file,target,origin)
+ getPositionCenter(radius)
+ getPositionEdge()
+ getPositionRandom()
+ getPositionCavern(number)
+ getPositionSurface(pos)
+ getPositionSky(pos)
+ getPositionUnderground(pos)
+ getPositionLocationRandom(pos,radius)
+ getPositionUnitRandom(unit,radius)
+ spawnFlow(edges,offset,flowType,inorganic,density,static)
+ spawnLiquid(edges,offset,depth,magma,circle,taper)
+ getFlow(pos)
+ getTree(pos,array)
+ getShrub(pos,array)
+ removeTree(pos)
+ removeShrub(pos)
+ getTreeMaterial(pos)
+ getShrubMaterial(pos)
+ getGrassMaterial(pos)
+ getInorganicMaterial(pos,floor)
+ getTreePositions(tree)
+ flowSource(n)
+ liquidSource(n)
+ liquidSink(n)
+ findLocation(search)
 ]]
 ---------------------------------------------------------------------------------------
 function changeInorganic(x,y,z,inorganic,dur)
+-- Changes the inorganic at specified position
+-- Returns true/false if the change was successful/unsuccessful and the Callback ID if dur is present
+-- Inputs:
+---- x = # or {#,#,#} or {x=#,y=#,z=#}
+---- y = # or nil
+---- z = # or nil
+---- inorganic = INORGANIC_ID or clear
+---- dur = # or nil
  pos = {}
+ change = false
+ cb_id = -1
+ dur = dur or 0
  if y == nil and z == nil then
   pos.x = x.x or x[1]
   pos.y = x.y or x[2]
@@ -49,6 +61,7 @@ function changeInorganic(x,y,z,inorganic,dur)
   for k = #block.block_events-1,0,-1 do
    if df.block_square_event_mineralst:is_instance(block.block_events[k]) then
     block.block_events:erase(k)
+    change = true
    end
   end
   return
@@ -58,17 +71,32 @@ function changeInorganic(x,y,z,inorganic,dur)
   else
    inorganic = dfhack.matinfo.find(inorganic).index
   end
-  ev=df.block_square_event_mineralst:new()
-  ev.inorganic_mat=inorganic
-  ev.flags.cluster_one=true
-  block.block_events:insert("#",ev)
-  dfhack.maps.setTileAssignment(ev.tile_bitmask,pos.x%16,pos.y%16,true)
+  if inorganic then
+   ev=df.block_square_event_mineralst:new()
+   ev.inorganic_mat=inorganic
+   ev.flags.cluster_one=true
+   block.block_events:insert("#",ev)
+   dfhack.maps.setTileAssignment(ev.tile_bitmask,pos.x%16,pos.y%16,true)
+   change = true
+  end
  end
- if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeInorganic',{pos.x,pos.y,pos.z,current_inorganic,0}) end
+ if dur > 0 then 
+  cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeInorganic',{pos.x,pos.y,pos.z,current_inorganic,0})
+ end
+ return change, cb_id
 end
 
 function changeTemperature(x,y,z,temperature,dur)
+-- Changes the temperature at specified position (doesn't really work well since the game constantly reupdates temperatures)
+-- -- Returns true/false if the change was successful/unsuccessful and the Callback ID if dur is present
+-- -- Inputs:
+-- ---- x = # or {#,#,#} or {x=#,y=#,z=#}
+-- ---- y = # or nil
+-- ---- z = # or nil
+-- ---- temperature = #
+-- ---- dur = # or nil
  pos = {}
+ change = true
  if y == nil and z == nil then
   pos.x = x.x or x[1]
   pos.y = x.y or x[2]
@@ -85,10 +113,29 @@ function changeTemperature(x,y,z,temperature,dur)
   block.temperature_2[pos.x%16][pos.y%16] = temperature
   block.flags.update_temperature = false
 -- end
- if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) end
+ if dur > 0 then 
+  cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) 
+ end
+ return change, cb_id
 end
 
-function checkBounds(pos)
+function checkBounds(x,y,z)
+-- Checks if the position is within the map bounds
+-- Returns the closest position to the input that is within the bounds
+-- Inputs:
+---- x = # or {#,#,#} or {x=#,y=#,z=#}
+---- y = # or nil
+---- z = # or nil
+ pos = {}
+ if y == nil and z == nil then
+  pos.x = x.x or x[1]
+  pos.y = x.y or x[2]
+  pos.z = x.z or x[3]
+ else
+  pos.x = x
+  pos.y = y
+  pos.z = z
+ end
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
  if pos.x < 1 then pos.x = 1 end
  if pos.x > mapx-1 then pos.x = mapx-1 end
@@ -100,10 +147,15 @@ function checkBounds(pos)
 end
 
 function getEdgesPosition(pos,radius)
+-- Get the positions of the edges from a certain radius
+-- Returns list of positions
+-- Inputs:
+---- pos = {#,#,#} or {x=#,y=#,z=#}
+---- radius = # or {#,#,#} or {x=#,y=#,z=#}
  local edges = {}
  local rx = radius.x or radius[1] or 0
- local ry = radius.y or radius[2] or 0
- local rz = radius.z or radius[3] or 0
+ local ry = radius.y or radius[2] or rx
+ local rz = radius.z or radius[3] or rx
  local xpos = pos.x or pos[1]
  local ypos = pos.y or pos[2]
  local zpos = pos.z or pos[3]
@@ -696,13 +748,21 @@ end
 function getTreeMaterial(pos)
  _,tree = getTree(pos)
  material = dfhack.matinfo.decode(419, tree.material)
- return material
+ if material then
+  return material
+ else
+  return 'NONE'
+ end
 end
 
 function getShrubMaterial(pos)
  _,shrub = getShrub(pos)
  material = dfhack.matinfo.decode(419, shrub.material)
- return material
+ if material then
+  return material
+ else
+  return 'NONE'
+ end
 end
 
 function getGrassMaterial(pos)
@@ -710,10 +770,20 @@ function getGrassMaterial(pos)
  for _,event in ipairs(events) do
   if df.block_square_event_grassst:is_instance(event) then
    if event.amount[pos.x%16][pos.y%16] > 0 then
-    return dfhack.matinfo.decode(419,event.plant_index)
+    material = dfhack.matinfo.decode(419,event.plant_index)
+    break
    end
   end
  end
+ if material then
+  return material
+ else
+  return 'NONE'
+ end
+end
+
+function getInorganicMaterial(pos,floor)
+ return 
 end
 
 function getTreePositions(tree)

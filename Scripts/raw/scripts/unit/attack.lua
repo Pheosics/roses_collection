@@ -40,11 +40,14 @@ target = nil
 delay = tonumber(args.delay) or 1
 number = tonumber(args.number) or 1
 hitchance = tonumber(args.hitchance) or 100
+unitFunctions = dfhack.script_environment('functions/unit')
+attackFunctions = dfhack.script_environment('functions/attack')
+itemFunctions = dfhack.script_environment('functions/item')
 
 if not args.target then
- target = dfhack.script_environment('functions/unit').checkBodyRandom(defender)
+ target = unitFunctions.checkBodyRandom(defender)
 else
- target = dfhack.script_environment('functions/unit').checkBodyCategory(defender,args.target)[1]
+ target = unitFunctions.checkBodyCategory(defender,args.target)[1]
 end
  
 if not target then
@@ -57,16 +60,16 @@ if args.weapon then
  local item = nil
  args.weapon = 'Equipped'
  if args.weapon == 'Equipped' then
-  item = dfhack.script_environment('functions/unit').checkInventoryType(attacker,'WEAPON')[1]
+  item = unitFunctions.checkInventoryType(attacker,'WEAPON')[1]
   if not item then
    print('No Equipped Weapon')
    return
   end
  end
  if not args.attack then
-  attack = dfhack.script_environment('functions/item').checkAttack(item,'Random')
+  attack = itemFunctions.checkAttack(item,'Random')
  else
-  attack = dfhack.script_environment('functions/item').checkAttack(item,args.attack)
+  attack = itemFunctions.checkAttack(item,args.attack)
  end
  if not attack then
   print('No appropriate attack found')
@@ -76,14 +79,14 @@ if args.weapon then
  if args.velocity then
   velocity = tonumber(args.velocity)
  else
-  velocity = dfhack.script_environment('functions/attack').getAttackItemVelocity(attacker,item,attack)
+  velocity = attackFunctions.getAttackItemVelocity(attacker,item,attack)
  end
 else
  item_id = -1 
  if not args.attack then
-  attack = dfhack.script_environment('functions/unit').checkAttack(attacker,'Random')
+  attack = unitFunctions.checkAttack(attacker,'Random')
  else
-  attack = dfhack.script_environment('functions/unit').checkAttack(attacker,args.attack)
+  attack = unitFunctions.checkAttack(attacker,args.attack)
  end
  if not attack then
   print('No appropriate attack found')
@@ -93,12 +96,12 @@ else
  if args.velocity then
   velocity = tonumber(args.velocity)
  else
-  velocity = dfhack.script_environment('functions/attack').getAttackUnitVelocity(attacker,attack)
+  velocity = attackFunctions.getAttackUnitVelocity(attacker,attack)
  end
 end
 
 j = 0
 while j < number do
- dfhack.script_environment('functions/attack').addAttack(attacker,defender.id,attack_id,target,item_id,attack,hitchance,velocity,delay)
+ attackFunctions.addAttack(attacker,defender.id,attack_id,target,item_id,attack,hitchance,velocity,delay)
  j = j + 1
 end

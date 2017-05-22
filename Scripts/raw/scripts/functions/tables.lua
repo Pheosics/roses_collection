@@ -1,31 +1,31 @@
 --[[ List of Functions
-getData(table,dirLocation,filename,tokenCheck) -- Used for getting data from text files and splitting into chunks
-makeTable(array,pos,fill) -- A shortcut function for making a table out of an array
+getData(table,dirLocation,filename,tokenCheck)
+makeTable(array,pos,fill)
 
-makeBaseTable() -- Base information used in all systems
-makeWrapperTemplateTable() -- Wrapper Templates
-makeCivilzationTable() -- Civilzation System
-makeClassTable(spellcheck) -- Class System
-makeFeatTable() -- Class System | Feat SubSystem
-makeSpellTable() -- Class System | Spell SubSystem
-makeEnhancedBuildingTable() -- Enhanced System
-makeEnhancedCreatureTable() -- Enhanced System
-makeEnhancedItemTable() -- Enhanced System
+makeBaseTable()
+makeWrapperTemplateTable()
+makeCivilzationTable()
+makeClassTable(spellcheck)
+makeFeatTable()
+makeSpellTable()
+makeEnhancedBuildingTable()
+makeEnhancedCreatureTable()
+makeEnhancedItemTable()
 makeEnhancedMaterialTable()
 makeEnhancedReactionTable()
-makeEventTable() -- Event System
+makeEventTable()
 
-makeDiplomacyTable() -- Civilization System | Diplomacy SubSystem
-makeEntityTable(entity) -- Make a persistent table for the declared entity
-makeGlobalTable() -- Make a global persistent table used in all systems
-makeItemTable(item) -- Make a persistent table for the declared item
-makeUnitTable(unit) -- Make a persistent table for the declared unit
-makeUnitTableSecondary(unit,secondary) -- Add a secondary (attribute/skill/etc) table for the declared unit
-makeUnitTableClass(unit,class) -- Add a class table for the declared unit
-makeUnitTableSpell(unit,spell) -- Add a spell table for the declared unit
-makeUnitTableSide(unit) -- Add a table tracking allegiance information for the declared unit
-makeUnitTableSummon(unit) -- Add a table tracking summoning information for the declared unit
-makeUnitTableTransform(unit) -- Add a table tracking transformation information for the declared unit
+makeDiplomacyTable()
+makeEntityTable(entity)
+makeGlobalTable()
+makeItemTable(item)
+makeUnitTable(unit)
+makeUnitTableSecondary(unit,secondary)
+makeUnitTableClass(unit,class)
+makeUnitTableSpell(unit,spell)
+makeUnitTableSide(unit)
+makeUnitTableSummon(unit)
+makeUnitTableTransform(unit)
 ]]
 
 ---------------------------------------------------------------------------------------------

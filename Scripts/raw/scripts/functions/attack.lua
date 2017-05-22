@@ -1,22 +1,22 @@
 --attack based functions, version 42.06a
 --[[
- addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchance,velocity,delay) - Add an attack to unit targeting defender_id's target_id body part. If a body part attack will use body_id, if an item attack will use item_id.
- getAttack(unit,main_type,sub_type) - Get attack information (material, momentum, contact area, penetration, and sharpness)
- checkCoverage(unit,bp_id,inventory_item) - Checks if a given item provides coverage for the specified body part. Returns true if it does, false if it does not.
- getDefense(unit,main_type,sub_type) - Get defense information (layers, tissues, items, materials, and body part)
- getAttackItem(unit,item,attack) - Called by getAttack for handling item attacks
- getAttackItemMaterial(item) - Called by getAttackItem, returns the item material
- getAttackItemMomentum(unit,velocity,weight) - Called by getAttackItem, returns the attack momentum
- getAttackItemVelocity(unit,attack,weight) - Called by getAttackItem, returns the attack velocity
- getAttacKItemWeight(unit,item,material) - Called by getAttackItem, returns the items actual and effective weights
- getAttackUnit(unit,bp_id,attack) - Called by getAttack for handling unit body part attacks
- getAttackUnitMaterial(unit,bp_id) - Called by getAttackUnit, returns the body part material
- getAttackUnitMomentum(unit,velocity,weight) - Called by getAttackUnit, returns the attack momentum
- getAttackUnitVelocity(unit,attack) - Called by getAttackUnit, returns the attack velocity
- getAttackUnitWeight(unit,bp_id,material) - Called by getAttackUnit, returns the body parts actual and effective weights
- computeAttackValues(attacker,defender,attack_type,attack_subtype,defense_type,defense_subtype) - Calculates momentum deduction for items and layers, returns two momentum deduction values
- computeAttackValuesItems(attacker,defender,attack,target) - Called by computeAttackValues, returns momentum deduction for passing through items
- computeAttackValuesLayers(attacker,defender,attack,target) - Called by computeAttackValues, returns momentum deduction for passing through tissue layers
+ addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchance,velocity,delay)
+ getAttack(unit,main_type,sub_type)
+ checkCoverage(unit,bp_id,inventory_item)
+ getDefense(unit,main_type,sub_type)
+ getAttackItem(unit,item,attack)
+ getAttackItemMaterial(item)
+ getAttackItemMomentum(unit,velocity,weight)
+ getAttackItemVelocity(unit,attack,weight)
+ getAttacKItemWeight(unit,item,material)
+ getAttackUnit(unit,bp_id,attack)
+ getAttackUnitMaterial(unit,bp_id)
+ getAttackUnitMomentum(unit,velocity,weight)
+ getAttackUnitVelocity(unit,attack)
+ getAttackUnitWeight(unit,bp_id,material)
+ computeAttackValues(attacker,defender,attack_type,attack_subtype,defense_type,defense_subtype)
+ computeAttackValuesItems(attacker,defender,attack,target)
+ computeAttackValuesLayers(attacker,defender,attack,target)
  NOTE: All computed values are based on Urist DaVinci's work.
 ]]
 ---------------------------------------------------------------------------------------

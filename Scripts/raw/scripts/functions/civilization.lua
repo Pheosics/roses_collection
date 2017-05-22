@@ -1,10 +1,10 @@
 -- Functions to be used with the Civilization System, v42.06a
 --[[
- changeLevel(entity,amount,verbose) - Changes the level of the entity
- changeStanding(civ1,civ2,amount,verbose) - Changes the diplomacy standing of the two entities
- checkEntity(id,method,verbose) - Checks if the entity has leveled up
- checkRequirements(entityID,verbose) - Called by checkEntity, returns true if the entity meets the conditions for leveling up
- queueCheck(id,method,verbose) - Sets up the next time check to see if an entity has leveled up
+ changeLevel(entity,amount,verbose)
+ changeStanding(civ1,civ2,amount,verbose)
+ checkEntity(id,method,verbose)
+ checkRequirements(entityID,verbose)
+ queueCheck(id,method,verbose)
 ]]
 function changeLevel(entity,amount,verbose)
  if tonumber(entity) then civ = df.global.world.entities.all[civid] end

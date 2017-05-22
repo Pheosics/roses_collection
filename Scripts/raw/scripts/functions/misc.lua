@@ -1,10 +1,10 @@
 -- Miscellanious functions, v42.06a
 --[[
- getChange(current,value,mode) - Get the amount changed from the current depending on value and mode, returns a number
- permute(tahle) - Takes a table and randomly permutes it, returns the permuted table
- changeCounter(counter,amount,extra) - Change the counter by a certain amount, returns the ending value of the counter
- checkCounter(counter,extra) - Checks if a counter exists, returns true/false
- getCounter(counter,extra) - Get the value of a certain counter, returns a number
+ getChange(current,value,mode)
+ permute(tahle)
+ changeCounter(counter,amount,extra)
+ checkCounter(counter,extra)
+ getCounter(counter,extra)
 ]]
 function fillEquation(source,target,spell,equation)
  local utils = require 'utils'

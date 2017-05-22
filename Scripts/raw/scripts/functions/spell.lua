@@ -4,9 +4,9 @@
  calculateAttribute(unit,spell,base,check,verbose)
  calculateSkill(unit,spell,base,verbose)
  calculateStat(unit,spell,base,verbose)
- calculateResistance(target,spell,verbose) -- Calculates the resistances for a given spell/target combo
- Spell(source,target,spell,verbose) -- Sets up the spell, calculates various needed parameters, then calls castSpell to run the actual script
- castSpell(source,target,spell,verbose) -- Runs the scripts associated with the spell, replacing certain key strings with the appropriate numbers
+ calculateResistance(target,spell,verbose)
+ Spell(source,target,spell,verbose)
+ castSpell(source,target,spell,verbose)
 ]]
 ------------------------------------------------------------------------
 function calculateAttribute(unit,spell,base,check,verbose)

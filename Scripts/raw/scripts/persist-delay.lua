@@ -7,11 +7,12 @@ function commandDelay(ticks,script)
  persistDelay[tostring(number+1)] = {}
  persistDelay[tostring(number+1)].Tick = tostring(runTick)
  persistDelay[tostring(number+1)].Command = script
- dfhack.timeout(ticks,'ticks',
-                function () 
-				 dfhack.run_command(script) 
-				end
-			   )
+ id = dfhack.timeout(ticks,'ticks',
+                     function () 
+                       dfhack.run_command(script) 
+                     end
+                    )
+ return id
 end
 
 function environmentDelay(ticks,environment,functions,arguments)

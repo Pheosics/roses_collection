@@ -1,16 +1,17 @@
 --entity based functions, version 42.06a
 --[[
- changeCreature(entity,stype,mobj,sobj,direction,verbose) - Changes the creatures available to the entity
- changeInorganic(entity,stype,mobj,sobj,direction,verbose) - Changes the inorganics available to the entity
- changeItem(entity,stype,mobj,sobj,direction,verbose) - Changes the items available to the entity
- changeMisc(entity,stype,mobj,sobj,direction,verbose) - Changes the misc objects available to the entity
- changeOrganic(entity,stype,mobj,sobj,direction,verbose) - Changes the organic materials available to the entity
- changeRefuse(entity,stype,mobj,sobj,direction,verbose) - Changes the refuse objects available to the entity
- changeProduct(entity,stype,mobj,sobj,direction,verbose) - Changes the end products available to the entity
- changeSkill(entity,stype,mobj,sobj,direction,verbose) - Changes the permitted skills for the entity
- changeEthic(entity,stype,mobj,sobj,direction,verbose) - Changes the entities ethics (unsure if this has any effect after world generation)
- changeValue(entity,stype,mobj,sobj,direction,verbose) - Changes the entities values (unsure if this has any effect after world generattion)
- changeResource(entity,mtype,stype,mobj,sobj,direction,verbose) - Wrapper for all of the above functions
+ changeCreature(entity,stype,mobj,sobj,direction,verbose)
+ changeInorganic(entity,stype,mobj,sobj,direction,verbose)
+ changeItem(entity,stype,mobj,sobj,direction,verbose)
+ changeMisc(entity,stype,mobj,sobj,direction,verbose)
+ changeNoble(entity,position,direction,verbose)
+ changeOrganic(entity,stype,mobj,sobj,direction,verbose)
+ changeRefuse(entity,stype,mobj,sobj,direction,verbose)
+ changeProduct(entity,stype,mobj,sobj,direction,verbose)
+ changeSkill(entity,stype,mobj,sobj,direction,verbose)
+ changeEthic(entity,stype,mobj,sobj,direction,verbose)
+ changeValue(entity,stype,mobj,sobj,direction,verbose)
+ changeResources(entity,mtype,stype,mobj,sobj,direction,verbose)
  NOTE: For a complete list of acceptable values for mtype, stype, mobj, and sobj see the Entity ReadMe
 ]]
 ---------------------------------------------------------------------------------------
