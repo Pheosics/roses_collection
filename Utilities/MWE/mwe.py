@@ -6,15 +6,18 @@ from mwe_code.plants import plants
 from mwe_code.items import items
 from mwe_code.buildings import buildings
 from mwe_code.reactions import reactions
-dir = '/u/mengel/Desktop/roses_collection/Utilities/MWE/raws/'
-Type = 'Inorganics'
+from mwe_code.creatures import creatures
+
+dir = 'raws/'
+#Type = 'Inorganics'
 #Type = 'Plants'
 #Type = 'Items'
 #Type = 'Buildings'
 #Type = 'Reactions'
-#Directions = 'RAWtoMWE'
+Type = 'Creatures'
+Directions = 'RAWtoMWE'
 #Directions = 'MWEtoRAW'
-Directions = 'RAWtoRAW'
+#Directions = 'RAWtoRAW'
 
 if Type == 'Inorganics':
  func = inorganics()
@@ -26,6 +29,8 @@ elif Type == 'Buildings':
  func = buildings()
 elif Type == 'Reactions':
  func = reactions()
+elif Type == 'Creatures':
+ func = creatures()
 elif Type == 'All':
  print('NYI')
 

@@ -69,20 +69,25 @@ bodyDTypes = ['SELECT_TISSUE_LAYER','BODY_APPEARANCE_MODIFIER','SET_BP_GROUP','S
 dualTypes  = ['CAN_DO_INTERACTION','ATTACK','APPLY_CREATURE_VARIATION','HABIT_NUM']
 
 ########
-wtf = ['SELECT_CASTE','SELECT_ADDITIONAL_CASTE','USE_CASTE','GO_TO_END','GO_TO_START','GO_TO_TAG']
+wtf = ['USE_CASTE','GO_TO_END','GO_TO_START','GO_TO_TAG']
 ########
-multiTokens =
-dualTokens  =
-boolTokens  =
-inputTokens =
+multiTokens = baseMTypes + moveMTypes + dietMTypes + typeMTypes + intMTypes + senseMTypes + bodyMTypes + attMTypes + sklMTypes
+dualTokens  = bodyDTypes + dualTypes
+boolTokens  = (casteTTypes + activeTypes + immuneTypes + verminTTypes + nightTTypes + genTTypes + petTTypes + moveTTypes + dietTTypes + typeTTypes + intTTypes +
+               senseTTypes + prodTTypes + behavTTypes + habttTTypes + tokenTypes + cntrlTypes + bodyTTypes + sklTTypes)
+inputTokens = baseSTypes + casteSTypes + verminSTypes + prodSTypes + bodySTypes + dietSTypes + petSTypes + senseSTypes + sklSTypes + miscSTypes + infoSTypes
 ########
-tokenGroups =
+tokenGroups = {'ACTIVE': ['b',activeTypes], 'MOVEMENT': ['b',moveTTypes], 'BASIC': ['b',typeTTypes], 'BEHAVIOR': ['b',behavTTypes], 'BODYTOKENS': ['b',bodyTTypes],
+               'VERMIN': ['b',verminTTypes], 'NIGHT': ['b',nightTTypes], 'IMMUNE': ['b',immuneTypes], 'GENERATED': ['b',genTTypes], 'PETTOKENS': ['b',petTTypes],
+               'DIETTOKENS': ['b',dietTTypes], 'INTELLECT': ['b',intTTypes], 'SENSES': ['b',senseTTypes],'PRODUCTION': ['b',prodTTypes],'HABITAT': ['b',habttTTypes],
+               'SKILLTOKENS': ['b',sklTTypes], 'CONTROL': ['b',cntrlTypes], 'TOKENS': ['b',tokenTypes]}
+tokenOrder = ['ACTIVE','MOVEMENT','BASIC','BEHAVIOR','BODYTOKENS','VERMIN','NIGHT','IMMUNE','GENERATED','PETTOKENS','DIETTOKENS','INTELLECT','SENSES','PRODUCTION',
+              'HABITAT','SKILLTOKENS','CONTROL','TOKENS']
 ########
-rawOrder =
-rawOrder =
-mweOrder =
+rawOrder = []
+mweOrder = inputTokens + casteTTypes + tokenOrder + multiTokens # + dualTokens
 ########
-fileTypes =
+fileTypes = ['ALL']
 
 class creatures:
  def getRAW(self,dir):
@@ -121,15 +126,13 @@ class creatures:
     rawData[entry[0]] = {}
     creatureData = rawData[entry[0]]
     rawData[entry[0]]['ALL'] = {}
-    casteData = rawData[entry[0]]['ALL']
     numbers = {}
     flags = {}
     numbers['ALL'] = {}
     flags['ALL'] = {}
-    numData = numbers['ALL']
-    flgData = flags['ALL']
+    castes = ['ALL']
     for x in multiTokens:
-     casteData[x] = []
+     creatureData['ALL'][x] = []
     for x in dualTokens:
      numbers['ALL'][x] = 0
      flags['ALL'][x] = False
@@ -142,41 +145,57 @@ class creatures:
       aCheck = check.partition(':')
 ### Check if applied to creature or caste
       if aCheck[0] == 'CASTE' or aCheck[0] == 'SELECT_CASTE':
-       if not creatureData.keys().count(aCheck[0]):
+       castes = [aCheck[2]]
+       if not creatureData.keys().count(aCheck[2]):
         rawData[entry[0]][aCheck[2]] = {}
         numbers[aCheck[2]] = {}
         flags[aCheck[2]] = {}
-        for x in multiTokens: rawData[entry[0]][aCheck[2]][x] = []
+        for x in multiTokens:
+         rawData[entry[0]][aCheck[2]][x] = []
         for x in dualTokens:
          numbers[aCheck[2]][x] = 0
          flags[aCheck[2]][x] = False
-       casteData = rawData[entry[0]][aCheck[2]]
-       numData = numbers[aCheck[2]]
-       flgData = flags[aCheck[2]]
+       continue
+### Any additional castes?
+      if aCheck[0] == 'SELECT_ADDITIONAL_CASTE':
+       castes.append(aCheck[2])
+       if not creatureData.keys().count(aCheck[2]):
+        rawData[entry[0]][aCheck[2]] = {}
+        numbers[aCheck[2]] = {}
+        flags[aCheck[2]] = {}
+        for x in multiTokens:
+         rawData[entry[0]][aCheck[2]][x] = []
+        for x in dualTokens:
+         numbers[aCheck[2]][x] = 0
+         flags[aCheck[2]][x] = False
        continue
 ### Checks
-      if boolTokens.count(aCheck[0]):
-       casteData[aCheck[0]] = 'Y'
-       for y in dualTokens: flgData[y] = False
-      elif inputTokens.count(aCheck[0]):
-       casteData[aCheck[0]] = aCheck[2]
-       for y in dualTokens: flgData[y] = False
-      elif multiTokens.count(aCheck[0]):
-       casteData[aCheck[0]].append(aCheck[2])
-       for y in dualTokens: flgData[y] = False
-      elif dualTokens.count(aCheck[0]):
-       for y in dualTokens: flgData[y] = False
-       flgData[aCheck[0]] = True
-       numData[aCheck[0]] += 1
-       casteData[aCheck[0]+'_'+str(numData[aCheck[0]])] = [check]
-      else:
-       for x in dualTokens:
-        if flags[x]:
-         casteData[x+'_'+str(numbers[x])].append(check)
+      for caste in castes:
+       casteData = creatureData[caste]
+       numData = numbers[caste]
+       flgData = flags[caste]
+       if boolTokens.count(aCheck[0]):
+        casteData[aCheck[0]] = 'Y'
+        for y in dualTokens: flgData[y] = False
+       elif inputTokens.count(aCheck[0]):
+        casteData[aCheck[0]] = aCheck[2]
+        for y in dualTokens: flgData[y] = False
+       elif multiTokens.count(aCheck[0]):
+        casteData[aCheck[0]].append(aCheck[2])
+        for y in dualTokens: flgData[y] = False
+       elif dualTokens.count(aCheck[0]):
+        for y in dualTokens: flgData[y] = False
+        flgData[aCheck[0]] = True
+        numData[aCheck[0]] += 1
+        casteData[aCheck[0]+'_'+str(numData[aCheck[0]])] = [check]
+       else:
+        for x in dualTokens:
+         if flgData[x]:
+          casteData[x+'_'+str(numData[x])].append(check)
     rawData[entry[0]]['numbers'] = {}
     for x in dualTokens:
-     rawData[entry[0]]['numbers'][x] = numbers[x]
-     if numbers[x] > maxval[x]: maxval[x] = numbers[x]
+     rawData[entry[0]]['numbers'][x] = numbers['ALL'][x]
+     if numbers['ALL'][x] > maxval[x]: maxval[x] = numbers['ALL'][x]
     if True:
      rawData[entry[0]]['TYPE'] = 'ALL'
   rawData['numbers'] = {}
@@ -278,7 +297,7 @@ class creatures:
   csvfile = open('creatures.csv','w')
   writer  = csv.writer(csvfile)
 
-  header = ['BASE','TYPE']
+  header = ['BASE','TYPE','SUBTYPE']
   dualList = []
   for x in dualTokens:
    dualList = dualList + [x]*data['numbers'][x]
@@ -287,34 +306,37 @@ class creatures:
 
   writer.writerow(header)
   for entry in data.keys():
-   row = []
-   output = data[entry]
+   base = data[entry]
    numbers = {}
    for x in dualTokens:
     numbers[x] = 0
    if entry != 'numbers':
-    row = row + [output['TYPE']]
-    row = row + [entry]
+    for caste in base.keys():
+     if caste == 'TYPE' or caste == 'numbers': continue
+     row = []
+     row = row + [base['TYPE']]
+     row = row + [entry]
+     row = row + [caste]
+     output = base[caste]
+     for c in columns:
+      line = ''
+      if dualTokens.count(c) == 1:
+       numbers[c] += 1
+       key = c + '_' + str(numbers[c])
+       if output.keys().count(key) == 1: line = '\n'.join(output[key])
+      elif boolTokens.count(c) == 1:
+       if output.keys().count(c) == 1: line = 'Y'
+      elif inputTokens.count(c) == 1:
+       if output.keys().count(c) == 1: line = output[c]
+      elif multiTokens.count(c) == 1:
+       if output.keys().count(c) == 1: line = '\n'.join(output[c])
+      elif tokenGroups.keys().count(c) == 1:
+       for x in tokenGroups[c][1]:
+        if tokenGroups[c][0] == 'a':
+         if output.keys().count(x) == 1: line = line + x + ':' + output[x] + '\n'
+        elif tokenGroups[c][0] == 'b':
+         if output.keys().count(x) == 1: line = line + x + '\n'
+      row = row + [line.rstrip()]
 
-    for c in columns:
-     line = ''
-     if dualTokens.count(c) == 1:
-      numbers[c] += 1
-      key = c + '_' + str(numbers[c])
-      if output.keys().count(key) == 1: line = '\n'.join(output[key])
-     elif boolTokens.count(c) == 1:
-      if output.keys().count(c) == 1: line = 'Y'
-     elif inputTokens.count(c) == 1:
-      if output.keys().count(c) == 1: line = output[c]
-     elif multiTokens.count(c) == 1:
-      if output.keys().count(c) == 1: line = '\n'.join(output[c])
-     elif tokenGroups.keys().count(c) == 1:
-      for x in tokenGroups[c][1]:
-       if tokenGroups[c][0] == 'a':
-        if output.keys().count(x) == 1: line = line + x + ':' + output[x] + '\n'
-       elif tokenGroups[c][0] == 'b':
-        if output.keys().count(x) == 1: line = line + x + '\n'
-     row = row + [line.rstrip()]
-
-    writer.writerow(row)
+     writer.writerow(row)
   csvfile.close()

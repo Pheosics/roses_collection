@@ -1,5 +1,6 @@
 [TEMPLATE:TYPE:MUNDANE]
 	{DESCRIPTION:mundane animal}
+	{WEIGHT:100}
 	{TOKENS:MUNDANE,PET}
 	        [NATURAL]
         	[MUNDANE]
@@ -8,6 +9,7 @@
 [TEMPLATE:TYPE:SAVAGE]
 	{DESCRIPTION:savage animal}
 	{NAME:ADJ:savage,ADJ:fierce,ADJ:vicious,PREFIX:dire,PREFIX:feral,PREFIX:cruel}
+        {WEIGHT:25}
 	{TOKENS:SAVAGE,PET_EXOTIC}
         	[NATURAL]
         	[SAVAGE]
