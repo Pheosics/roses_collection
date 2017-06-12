@@ -40,7 +40,7 @@ events.onUnitDeath.mainFunction=function(target_id)
   target_civ_name = 'NONE'
  end
  
- killer_id = tonumber(target.relations.last_attacker_id)
+ killer_id = tonumber(target.relationship_ids.LastAttacker)
  if killer_id >= 0 then
   killer = df.unit.find(killer_id)
   killer_civ = killer.civ_id

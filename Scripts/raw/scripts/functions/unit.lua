@@ -1155,7 +1155,7 @@ function changeSide(unit,side,side_type,dur,track,syndrome,civ_id,pop_id,inv_id,
  save_civ = unit.civ_id
  save_pop = unit.population_id
  save_inv = unit.invasion_id
- save_id = unit.relations.pet_owner_id
+ save_id = unit.relationship_ids.Pet
  save_trn = unit.training_level
  save_regx = unit.animal.population.region_x
  save_regy = unit.animal.population.region_y
@@ -1179,7 +1179,7 @@ function changeSide(unit,side,side_type,dur,track,syndrome,civ_id,pop_id,inv_id,
  unit.animal.population.region_x = regx
  unit.animal.population.region_y = regy
  unit.animal.population.population_idx = regp
- unit.relations.pet_owner_id = -1
+ unit.relationship_ids.Pet = -1
  unit.flags1.tame = false 
  if side_type == 'Civilian' then
 -- Civilian Changes
@@ -1203,7 +1203,7 @@ function changeSide(unit,side,side_type,dur,track,syndrome,civ_id,pop_id,inv_id,
   unit.population_id = -1
   unit.flags1.tame = true
   unit.training_level = 7
-  unit.relations.pet_owner_id = side_id
+  unit.relationship_ids.Pet = side_id
  elseif side_type == 'Domestic' then
   unit.population_id = -1
   unit.flags1.tame = true
@@ -1612,6 +1612,7 @@ function getUnit(unit,strType,strKind,initialize)
   --
   if not typeTable[strKind] then
 --   dfhack.script_environment('functions/table').makeUnitTableSecondary(unit,strTable,strKind)
+   if total == 'ADD' then total = 0 end
    base = total-syndrome
    change = change
    class = class

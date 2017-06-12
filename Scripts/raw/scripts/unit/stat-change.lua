@@ -65,10 +65,9 @@ track = nil
 if args.track then track = 'track' end
 
 for i,stat in ipairs(args.stat) do
-  _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Stats',x)
-  change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
-  dfhack.script_environment('functions/unit').changeStat(unit,x,change,dur,track,args.syndrome)
- end
+ _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Stats',x)
+ change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
+ dfhack.script_environment('functions/unit').changeStat(unit,x,change,dur,track,args.syndrome)
 end
 if args.announcement then
 --add announcement information

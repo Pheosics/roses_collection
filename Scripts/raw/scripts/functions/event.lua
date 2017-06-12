@@ -21,9 +21,11 @@ function checkRequirements(event,effect,verbose)
  else
   check = event.Effect[tostring(effect)].Required
   chance = tonumber(event.Effect[tostring(effect)].Chance)
+  if not chance then chance = tonumber(event.Chance) end
  end
  if not check then return false end
 -- Check for chance occurance
+ if not chance then chance = 0 end
  local rand = dfhack.random.new()
  local rnum = rand:random(100)
  if rnum > chance then

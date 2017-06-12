@@ -1,3 +1,6 @@
+local utils = require 'utils'
+local split = utils.split_string
+
 -- Creature Tokens
 ---- Biomes
 biomeTokens = { 
@@ -663,6 +666,21 @@ function insertWidgetInput(input,method,list,options)
    else
     table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text=list.second,rjustify=true,width=width-#list.header,pen=pen}}})
    end
+  end
+ elseif method == 'headerpt' then
+  if list.second then
+   local check = true
+   for _,x in pairs(list.second._children) do
+    fill = list.second[x]
+    if check then
+     table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text=fill,rjustify=true,width=width-#list.header,pen=pen}}})
+     check = false
+    else
+     table.insert(input,{text={{text='',width=#list.header,pen=pen},{text=fill,rjustify=true,width=width-#list.header,pen=pen}}})
+    end
+   end
+  else
+   return input
   end
  end
  return input
@@ -2419,11 +2437,11 @@ function getBaseOutput(unit,w_frame)
  entity,civ,mem = getEntity(unit)
 
  local insert = {}
- insert = guiFunctions.insertWidgetInput(insert,'header',{header='Name',second=name},{width=w_frame})
- insert = guiFunctions.insertWidgetInput(insert,'header',{header='Caste',second=caste},{width=w_frame})
- insert = guiFunctions.insertWidgetInput(insert,'header',{header='Entity',second=entity},{width=w_frame})
- insert = guiFunctions.insertWidgetInput(insert,'header',{header='Civilization',second=civ},{width=w_frame})
- insert = guiFunctions.insertWidgetInput(insert,'header',{header='Membership',second=mem},{width=w_frame})
+ insert = insertWidgetInput(insert,'header',{header='Name',second=name},{width=w_frame})
+ insert = insertWidgetInput(insert,'header',{header='Caste',second=caste},{width=w_frame})
+ insert = insertWidgetInput(insert,'header',{header='Entity',second=entity},{width=w_frame})
+ insert = insertWidgetInput(insert,'header',{header='Civilization',second=civ},{width=w_frame})
+ insert = insertWidgetInput(insert,'header',{header='Membership',second=mem},{width=w_frame})
 
  return insert
 end
@@ -2434,7 +2452,7 @@ function getSkillsOutput(unit,w_frame)
  local insert = {}
  table.insert(insert,{text = { {text = center('Skills',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
  for key,val in pairs(skills) do
-  insert = guiFunctions.insertWidgetInput(insert,'header',{header=key,second=tostring(val.level)..' '..tostring(val.experience)},{width=w_frame})
+  insert = insertWidgetInput(insert,'header',{header=key,second=tostring(val.level)..' '..tostring(val.experience)},{width=w_frame})
  end
 
  return insert
@@ -2443,7 +2461,7 @@ end
 function getDescriptionOutput(info,w_frame)
  local insert = {}
  table.insert(insert,{text = {{text = center('Description',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.description.text,{width=w_frame})
+ insert = insertWidgetInput(insert,'second',info.description.text,{width=w_frame})
 
  return insert
 end
@@ -2451,7 +2469,7 @@ end
 function getAppearanceOutput(info,w_frame)
  local insert = {}
  table.insert(insert,{text = { {text = center('Appearance',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.appearance.text,{width=w_frame})
+ insert = insertWidgetInput(insert,'second',info.appearance.text,{width=w_frame})
 
  return insert
 end
@@ -2459,7 +2477,7 @@ end
 function getHealthOutput(info,w_frame)
  local insert = {}
  table.insert(insert,{text = {{text = center('Basic Health',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.wounds.text,{width=w_frame})
+ insert = insertWidgetInput(insert,'second',info.wounds.text,{width=w_frame})
 
  return insert
 end
@@ -2467,9 +2485,9 @@ end
 function getWorshipOutput(info,w_frame)
  local insert = {}
  table.insert(insert,{text = {{text = center('Membership and Worship',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.membership.text,{width=w_frame})
+ insert = insertWidgetInput(insert,'second',info.membership.text,{width=w_frame})
  table.insert(insert,{text={{text='',width=w_frame}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.worship.text,{width=w_frame})
+ insert = insertWidgetInput(insert,'second',info.worship.text,{width=w_frame})
 
  return insert
 end
@@ -2477,9 +2495,9 @@ end
 function getAttributesOutput(info,w_frame)
  local insert = {}
  table.insert(insert,{text = { {text = center('Attributes',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.attributes1.text,{width=w_frame})
+ insert = insertWidgetInput(insert,'second',info.attributes1.text,{width=w_frame})
  table.insert(insert,{text={{text='',width=w_frame}}})
- insert = guiFunctions.insertWidgetInput(insert,'second',info.attributes2.text,{width=w_frame})
+ insert = insertWidgetInput(insert,'second',info.attributes2.text,{width=w_frame})
 
  return insert
 end
@@ -2508,7 +2526,7 @@ function getClassOutput(unit,w_frame)
    end
    totexp = unitClasses.Current.TotalExp
    ftpnts = unitClasses.Current.FeatPoints
-   level = unitClasses[class].Level
+   level  = unitClasses[class].Level
    clsexp = unitClasses[class].Experience
    sklexp = unitClasses[class].SkillExp
    input = insertWidgetInput(input,'header',{header='Current Class:', second=name})
@@ -2632,7 +2650,12 @@ function getSyndromesDetails(unit)
    else
     severity = 'NA'
    end
-   effect = split(split(tostring(y._type),'creature_interaction_effect_')[2],'st>')[1]:gsub("(%a)([%w_']*)", tchelper)
+   effect = split(tostring(y._type),'creature_interaction_effect_')[2]
+   if not effect then
+    effect = 'NA'
+   else
+    effect = split(effect,'st>')[1]:gsub("(%a)([%w_']*)", tchelper)
+   end
    if y['end'] == -1 then
     ending = 'Permanent'
     duration = x[3]
@@ -2675,24 +2698,24 @@ function getThoughtsDetails(info)
 
  insert1 = {}
  table.insert(insert1,{text = { {text = center('Thoughts',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert1 = guiFunctions.insertWidgetInput(insert1,'second',info.thoughts.text,{width=w_frame})
+ insert1 = insertWidgetInput(insert1,'second',info.thoughts.text,{width=w_frame})
  table.insert(insert1,{text={{text='',width=w_frame}}})
  table.insert(insert1,{text = { {text = center('Traits',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert1 = guiFunctions.insertWidgetInput(insert1,'second',info.traits.text,{width=w_frame})
+ insert1 = insertWidgetInput(insert1,'second',info.traits.text,{width=w_frame})
  
  insert2 = {}
  table.insert(insert2,{text = { {text = center('Preferences',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert2 = guiFunctions.insertWidgetInput(insert2,'second',info.preferences.text,{width=w_frame})
- table.insert(insert,{text={{text='',width=w_frame}}})
- table.insert(insert,{text = { {text = center('Values',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
- insert2 = guiFunctions.insertWidgetInput(insert2,'second',info.values.text,{width=w_frame})
+ insert2 = insertWidgetInput(insert2,'second',info.preferences.text,{width=w_frame})
+ table.insert(insert2,{text={{text='',width=w_frame}}})
+ table.insert(insert2,{text = { {text = center('Values',w_frame),width = w_frame,pen=COLOR_LIGHTCYAN}}})
+ insert2 = insertWidgetInput(insert2,'second',info.values.text,{width=w_frame})
 
  return insert1,insert2
 end
 
 function getClassList(unit,filter)
  input = {}
- if not filter then filter == 'All' end
+ if not filter then filter = 'All' end
  local persistTable = require 'persist-table'
  if safe_index(persistTable,'GlobalTable','roses','ClassTable') then
   classTable = persistTable.GlobalTable.roses.ClassTable
@@ -3123,7 +3146,7 @@ function getSpellList(unit,filter)
    dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
   end
   unitSpells = unitTable[tostring(unit.id)].Spells
-  className = unitTable.Classes.Current.Name
+  className = unitTable[tostring(unit.id)].Classes.Current.Name
   if className ~= 'NONE' then
    for _,x in pairs(classTable._children) do
     if classTable[x].Name == className then
@@ -3139,7 +3162,7 @@ function getSpellList(unit,filter)
    if unitSpells.Active[spell] then
     pen = COLOR_LIGHTGREEN
     numSpells = numSpells + 1
-   elseif unitSpells.Spells[spell] then
+   elseif unitSpells[spell] then
     pen = COLOR_YELLOW
    else
     pen = COLOR_LIGHTRED
@@ -3202,7 +3225,7 @@ function getSpellDetails(unit,choice)
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  spellTable = persistTable.GlobalTable.roses.SpellTable
  for _,spell in pairs(spellTable._children) do
-  if spell.Name == name then
+  if spellTable[spell].Name == name then
    spellTable = spellTable[spell]
    break
   end
@@ -3259,17 +3282,17 @@ function getSpellDetails(unit,choice)
   input2 = insertWidgetInput(input2,'header',{header='Forbidden Spells:',second=spellTable.ForbiddenSpells})
  end
  table.insert(input2,{text = {{text=center('Spell Attributes',40), width=40}}})
- input2 = insertWidgetInput(input2,'header',{header='Source Primary Attributes:', second=spellTable.SourcePrimaryAttribute})
- input2 = insertWidgetInput(input2,'header',{header='Source Secondary Attributes:', second=spellTable.SourceSecondaryAttribute})
- input2 = insertWidgetInput(input2,'header',{header='Target Primary Attributes:', second=spellTable.TargetPrimaryAttribute})
- input2 = insertWidgetInput(input2,'header',{header='Target Secondary Attributes:', second=spellTable.TargetSecondaryAttribute})
+ input2 = insertWidgetInput(input2,'headerpt',{header='Source Primary Attributes:', second=spellTable.SourcePrimaryAttribute})
+ input2 = insertWidgetInput(input2,'headerpt',{header='Source Secondary Attributes:', second=spellTable.SourceSecondaryAttribute})
+ input2 = insertWidgetInput(input2,'headerpt',{header='Target Primary Attributes:', second=spellTable.TargetPrimaryAttribute})
+ input2 = insertWidgetInput(input2,'headerpt',{header='Target Secondary Attributes:', second=spellTable.TargetSecondaryAttribute})
 
  return input, input2, false
 end
 
 function getFeatList(unit,filter)
  input = {}
- if not filter then filter == 'All' end
+ if not filter then filter = 'All' end
  local persistTable = require 'persist-table'
  if safe_index(persistTable,'GlobalTable','roses','FeatTable') then
   featTable = persistTable.GlobalTable.roses.FeatTable
@@ -3303,7 +3326,7 @@ function getFeatList(unit,filter)
  return input
 end
 
-function getFeatDetails(unit)
+function getFeatDetails(unit,choice)
  input = {}
  input2 = {}
  local persistTable = require 'persist-table'
@@ -3311,16 +3334,16 @@ function getFeatDetails(unit)
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  featTable = persistTable.GlobalTable.roses.FeatTable
  for _,feat in pairs(featTable._children) do
-  if feat.Name == name then
+  if featTable[feat].Name == name then
    featTable = featTable[feat]
    break
   end
  end
- 
+
  table.insert(input, {text = {{text=center('Feat Details',40), width=40, pen=COLOR_LIGHTCYAN}}})
  input = insertWidgetInput(input,'header',{header='Name:',second=featTable.Name})
  table.insert(input, {text = {{text=center('Feat Effects',40), width=40}}})
- input = insertWidgetInput(input,'second',featTable.Effect)
+ input = insertWidgetInput(input,'headerpt',{header='Effects:',second=featTable.Effect})
 
  table.insert(input2,{text = {{text=center('Feat Requirements',40), width=40, pen=COLOR_LIGHTCYAN}}})
  input2 = insertWidgetInput(input2,'header',{header='Learning Cost:',second=featTable.Cost})
@@ -3337,10 +3360,10 @@ function getFeatDetails(unit)
   end
  end
  if featTable.RequiredFeat then
-  input2 = insertWidgetInput(input2,'header',{header='Required Feats:',second=featTable.RequiredFeat})
+  input2 = insertWidgetInput(input2,'headerpt',{header='Required Feats:',second=featTable.RequiredFeat})
  end
  if featTable.ForbiddenFeat then
-  input2 = insertWidgetInput(input2,'header',{header='Forbidden Feats:',second=featTable.ForbiddenFeat})
+  input2 = insertWidgetInput(input2,'headerpt',{header='Forbidden Feats:',second=featTable.ForbiddenFeat})
  end
 
  return input,input2,false

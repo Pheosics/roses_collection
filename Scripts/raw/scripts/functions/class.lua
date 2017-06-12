@@ -414,7 +414,7 @@ function checkRequirementsClass(unit,class,verbose)
 -- Check for Required Attributes
  if classTable.RequiredAttribute then
   for _,attr in pairs(classTable.RequiredAttribute._children) do
-   local total,base,change,class,syndrome = dfhack.script_environment('functions/unit').trackAttribute(unit,attr,0,0,0,0,'get')
+   local total,base,change,class,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',attr)
    local check = total-change-class-syndrome
    local value = classTable.RequiredAttribute[attr]
    if check < tonumber(value) then
@@ -426,10 +426,10 @@ function checkRequirementsClass(unit,class,verbose)
 -- Check for Required Skills
  if classTable.RequiredSkill then
   for _,skill in pairs(classTable.RequiredSkill._children) do
-   local total,base,change,class,syndrome = dfhack.script_environment('functions/unit').trackSkill(unit,skill,0,0,0,0,'get')
+   local total,base,change,class,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Skills',skill)
    local check = total-change-class-syndrome
    local value = classTable.RequiredSkill[skill]
-   if currentSkill < tonumber(value) then
+   if check < tonumber(value) then
     if verbose then print('Skill requirements not met. '..value..' '..skill..' needed. Current amount is '..tostring(check)) end
     return false
    end
@@ -438,10 +438,10 @@ function checkRequirementsClass(unit,class,verbose)
 -- Check for Required Traits
  if classTable.RequiredTrait then
   for _,trait in pairs(classTable.RequiredTrait._children) do
-   local total,base,change,class,syndrome = dfhack.script_environment('functions/unit').trackTrait(unit,trait,0,0,0,0,'get')
+   local total,base,change,class,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Traits',trait)
    local check = total-change-class-syndrome
    local value = classTable.RequiredTrait[trait]
-   if currentTrait < tonumber(value) then
+   if check < tonumber(value) then
     if verbose then print('Trait requirements not met. '..value..' '..trait..' needed. Current amount is '..tostring(check)) end
     return false
    end
@@ -475,7 +475,7 @@ function checkRequirementsSpell(unit,spell,verbose)
  local found = false
  local upgrade = false
  local classSpellTable = classTable.Spells[spell]
- if spellTable then
+ if spellTable and classSpellTable then
 -- Check for Required Class
   if tonumber(currentClassLevel) < tonumber(classSpellTable.RequiredLevel) then
    if verbose then print('Class requirements not met. '..currentClassName..' level '..classSpellTable.RequiredLevel..' needed. Current level is '..tostring(currentClassLevel)) end
@@ -514,10 +514,10 @@ function checkRequirementsSpell(unit,spell,verbose)
 -- Check for Required Attributes
   if spellTable.RequiredAttribute then
    for _,attr in pairs(spellTable.RequiredAttribute._children) do
-    local total,base,change,class,syndrome = dfhack.script_environment('functions/unit').trackAttribute(unit,attr,0,0,0,0,'get')
+    local total,base,change,class,syndrome = dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',attr)
     local check = total-change-class-syndrome
     local value = spellTable.RequiredAttribute[attr]
-    if currentStat < tonumber(value) then
+    if check < tonumber(value) then
      if verbose then print('Stat requirements not met. '..value..' '..attr..' needed. Current amount is '..tostring(check)) end
      return false
     end
@@ -555,7 +555,7 @@ function addFeat(unit,feat,verbose)
  test = checkRequirementsFeat(unit,feat,verbose)
  if test then
   unitTable[key].Feats[feat] = feat
-  currentClass = persistTable.GlobalTable.roses.ClassTable.Current
+  currentClass = unitTable[key].Classes.Current
   currentClass.FeatPoints = tostring(tonumber(currentClass.FeatPoints) - tonumber(featTable.Cost))
   for _,x in pairs(featTable.Script._children) do
    effect = featTable.Script[x]

@@ -152,7 +152,7 @@ Classes		Spells		Traits
    subviews = {
                widgets.Label{
                 view_id = 'bottom_ui',
-                frame = { l = 0, t = 0}
+                frame = { l = 0, t = 0},
                 text = 'filled by updateBottom()'
                }}}}
  
@@ -218,7 +218,7 @@ Classes		Spells		Traits
 	     view_id = 'classViewDetailedTop',
              frame = { l = 0, t = 0},
             },
-	    widgets.FilteredList{
+	    widgets.List{
 	     view_id = 'classViewDetailedClasses',
              on_select = self:callback('checkClass'),
              on_submit = self:callback('changeClass'),
@@ -241,7 +241,7 @@ Classes		Spells		Traits
             },
             widgets.List{
              view_id = 'featViewDetailedDetails2',
-             frame = { l = 40, t = 2},
+             frame = { l = 45, t = 2},
             }
    }
   },
@@ -254,7 +254,7 @@ Classes		Spells		Traits
              view_id = 'featViewDetailedTop',
              frame = { l = 0, t = 0},
             },
-            widgets.FilteredList{
+            widgets.List{
              view_id = 'featViewDetailedFeats',
              on_select = self:callback('checkFeat'),
              on_submit = self:callback('changeFeat'),
@@ -277,7 +277,7 @@ Classes		Spells		Traits
             },
             widgets.List{
              view_id = 'spellViewDetailedDetails2',
-             frame = { l = 40, t = 2},
+             frame = { l = 45, t = 2},
             }
    }
   },
@@ -290,7 +290,7 @@ Classes		Spells		Traits
              view_id = 'spellViewDetailedTop',
              frame = { l = 0, t = 0},
             },
-            widgets.FilteredList{
+            widgets.List{
              view_id = 'spellViewDetailedSpells',
              on_select = self:callback('checkSpell'),
              on_submit = self:callback('changeSpell'),
@@ -321,9 +321,9 @@ Classes		Spells		Traits
  self:detailsSyndromes()
  self:detailsThoughts()
 
- self:classList('Available')
- self:spellList('Available')
- self:featList('Available')
+ self:classList('All')
+ self:spellList('All')
+ self:featList('All')
 end
 
 function UnitViewUi:updateBottom()
@@ -498,8 +498,8 @@ function UnitViewUi:spellList(filter)
                            {text='Sphere',width=10,rjustify=true,pen=COLOR_LIGHTMAGENTA},
                            {text='School',width=10,rjustify=true,pen=COLOR_LIGHTMAGENTA},
                           }})
- self.subviews.classViewDetailedSpells:setChoices(spellList)
- self.subviews.classViewDetailedTop:setChoices(in2)
+ self.subviews.spellViewDetailedSpells:setChoices(spellList)
+ self.subviews.spellViewDetailedTop:setChoices(in2)
 end
 
 function UnitViewUi:checkSpell(index,choice)
@@ -531,14 +531,14 @@ end
 
 function UnitViewUi:featList(filter)
  unit = self.target
- featList = guiFunctions.getClassList(unit,filter)
+ featList = guiFunctions.getFeatList(unit,filter)
  in2 = {}
  table.insert(in2,{text = {{text=center('Feats',40),width=40,pen=COLOR_LIGHTCYAN}}})
  table.insert(in2,{text = {
                            {text='Feat',width=40,pen=COLOR_LIGHTMAGENTA}
                           }})
- self.subviews.classViewDetailedClasses:setChoices(featList)
- self.subviews.classViewDetailedTop:setChoices(in2)
+ self.subviews.featViewDetailedFeats:setChoices(featList)
+ self.subviews.featViewDetailedTop:setChoices(in2)
 end
 
 function UnitViewUi:checkFeat(index,choice)

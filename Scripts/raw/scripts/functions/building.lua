@@ -7,6 +7,8 @@
 ]]
 ---------------------------------------------------------------------------------------
 function addItem(building,item,dur)
+ dur = dur or '0'
+ dur = tonumber(dur)
  if tonumber(building) then building = df.building.find(tonumber(building)) end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  dfhack.items.moveToBuilding(item,building,2)
@@ -15,6 +17,8 @@ function addItem(building,item,dur)
 end
 
 function removeItem(building,item,dur)
+ dur = dur or '0'
+ dur = tonumber(dur)
  if tonumber(building) then building = df.building.find(tonumber(building)) end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  item.flags.in_building = false
@@ -22,6 +26,8 @@ function removeItem(building,item,dur)
 end
 
 function changeSubtype(building,subtype,dur)
+ dur = dur or '0'
+ dur = tonumber(dur)
  if tonumber(building) then building = df.building.find(tonumber(building)) end
  save = df.global.world.raws.buildings.all[building.custom_type].code
  for _,x in ipairs(df.global.world.raws.buildings.all) do

@@ -158,23 +158,25 @@ function changeInorganic(civ,stype,mobj,sobj,direction,verbose)
    end
   end
  else
-  mat_id = dfhack.matinfo.find(mobj).index
+  matinfo = dfhack.matinfo.find(mobj)
+  if matinfo then
+   mat_id = dfhack.matinfo.find(mobj).index
 --  if dfhack.matinfo.decode(0,mat_id).material.flags[check] then
-   if direction == -1 or direction == 'Remove' then
-    for i=#inorganic-1,0,-1 do
-     if inorganic[i] == mat_id then
-      inorganic:erase(i)
-      if verbose then print('Removing inorganic TYPE:SUBTYPE'..stype..':'..mat_id) end
-      break
+    if direction == -1 or direction == 'Remove' then
+     for i=#inorganic-1,0,-1 do
+      if inorganic[i] == mat_id then
+       inorganic:erase(i)
+       if verbose then print('Removing inorganic TYPE:SUBTYPE'..stype..':'..mat_id) end
+       break
+      end
      end
+    elseif direction == 1 or direction == 'Add' then
+     inorganic:insert('#',mat_id)
+     if verbose then print('Adding inorganic TYPE:SUBTYPE'..stype..':'..mat_id) end
     end
-   elseif direction == 1 or direction == 'Add' then
-    inorganic:insert('#',mat_id)
-    if verbose then print('Adding inorganic TYPE:SUBTYPE'..stype..':'..mat_id) end
-   end
---  else
---   if verbose then print('Material not valid ['..check..'] material') end
---  end
+  else
+   if verbose then print('Material not valid ['..mobj..':'..sobj..'] material') end
+  end
  end
 end
 
@@ -322,27 +324,29 @@ function changeMisc(civ,stype,mobj,sobj,direction,verbose)
    return
   end
  else
-  mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
-  mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
+  matinfo = dfhack.matinfo.find(mobj..':'..sobj)
+  if matinfo then
+   mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
+   mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
 --  if dfhack.matinfo.decode(mat_type,mat_index).material.flags[check] then
-   if direction == -1 or direction == 'Remove' then
-    for i=#refuse.mat_type-1,0,-1 do
-     if misc.mat_type[i] == mat_type then
-      if misc.mat_index[i] == mat_index then
-       misc.mat_type:erase(i)
-       misc.mat_index:erase(i)
-       if verbose then print('Removing misc '..stype..' TYPE:SUBTYPE '..mat_type..':'..mat_index) end
+    if direction == -1 or direction == 'Remove' then
+     for i=#refuse.mat_type-1,0,-1 do
+      if misc.mat_type[i] == mat_type then
+       if misc.mat_index[i] == mat_index then
+        misc.mat_type:erase(i)
+        misc.mat_index:erase(i)
+        if verbose then print('Removing misc '..stype..' TYPE:SUBTYPE '..mat_type..':'..mat_index) end
+       end
       end
      end
+    elseif direction == 1 or direction == 'Add' then
+     misc.mat_type:insert('#',mat_type)
+     misc.mat_index:insert('#',mat_index)
+     if verbose then print('Adding misc '..stype..' TYPE:SUBTYPE '..mat_type..':'..mat_index) end
     end
-   elseif direction == 1 or direction == 'Add' then
-    misc.mat_type:insert('#',mat_type)
-    misc.mat_index:insert('#',mat_index)
-    if verbose then print('Adding misc '..stype..' TYPE:SUBTYPE '..mat_type..':'..mat_index) end
-   end
---  else
---   if verbose then print('Material not valid ['..check..'] material') end
---  end
+  else
+   if verbose then print('Material not valid ['..mobj..':'..sobj..'] material') end
+  end
  end
 end
 
@@ -737,27 +741,29 @@ function changeOrganic(civ,stype,mobj,sobj,direction,verbose)
    end
   end
  else
-  mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
-  mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
+  matinfo = dfhack.matinfo.find(mobj..':'..sobj)
+  if matinfo then
+   mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
+   mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
 --  if dfhack.matinfo.decode(mat_type,mat_index).material.flags[check] then
-   if direction == -1 or direction == 'Remove' then
-    for i=#organic.mat_type-1,0,-1 do
-     if organic.mat_type[i] == mat_type then
-      if organic.mat_index[i] == mat_index then
-       organic.mat_type:erase(i)
-       organic.mat_index:erase(i)
-       if verbose then print('Removing organic '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
+    if direction == -1 or direction == 'Remove' then
+     for i=#organic.mat_type-1,0,-1 do
+      if organic.mat_type[i] == mat_type then
+       if organic.mat_index[i] == mat_index then
+        organic.mat_type:erase(i)
+        organic.mat_index:erase(i)
+        if verbose then print('Removing organic '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
+       end
       end
      end
+    elseif direction == 1 or direction == 'Add' then
+     organic.mat_type:insert('#',mat_type)
+     organic.mat_index:insert('#',mat_index)
+     if verbose then print('Adding organic '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
     end
-   elseif direction == 1 or direction == 'Add' then
-    organic.mat_type:insert('#',mat_type)
-    organic.mat_index:insert('#',mat_index)
-    if verbose then print('Adding organic '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
-   end
---  else
---   if verbose then print('Material not valid ['..check..'] material') end
---  end
+  else
+   if verbose then print('Material not valid ['..mobj..':'..sobj..'] material') end
+  end
  end
 end
 
@@ -785,17 +791,17 @@ function changeProduct(civ,stype,mobj,sobj,direction,verbose)
  elseif stype == 'ANVIL' then
   product = resources.metal.anvil
  elseif stype == 'CRAFTS' then
-  product = resource.misc_mat.crafts
+  product = resources.misc_mat.crafts
  elseif stype == 'BARRELS' then
-  product = resource.misc_mat.barrels
+  product = resources.misc_mat.barrels
  elseif stype == 'FLASKS' then
-  product = resource.misc_mat.flasks
+  product = resources.misc_mat.flasks
  elseif stype == 'QUIVERS' then
-  product = resource.misc_mat.quivers
+  product = resources.misc_mat.quivers
  elseif stype == 'BACKPACKS' then
-  product = resource.misc_mat.backpacks
+  product = resources.misc_mat.backpacks
  elseif stype == 'CAGES' then
-  product = resource.misc_mat.cages  
+  product = resources.misc_mat.cages  
  else
   if verbose then print('Not a valid type') end
   return
@@ -813,27 +819,29 @@ function changeProduct(civ,stype,mobj,sobj,direction,verbose)
    return
   end
  else
-  mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
-  mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
+  matinfo = dfhack.matinfo.find(mobj..':'..sobj)
+  if matinfo then
+   mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
+   mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
 --  if dfhack.matinfo.decode(mat_type,mat_index).material.flags[check] then
-   if direction == -1 or direction == 'Remove' then
-    for i=#product.mat_type-1,0,-1 do
-     if product.mat_type[i] == mat_type then
-      if product.mat_index[i] == mat_index then
-       product.mat_type:erase(i)
-       product.mat_index:erase(i)
-       if verbose then print('Removing product '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
+    if direction == -1 or direction == 'Remove' then
+     for i=#product.mat_type-1,0,-1 do
+      if product.mat_type[i] == mat_type then
+       if product.mat_index[i] == mat_index then
+        product.mat_type:erase(i)
+        product.mat_index:erase(i)
+        if verbose then print('Removing product '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
+       end
       end
      end
+    elseif direction == 1 or direction == 'Add' then
+     product.mat_type:insert('#',mat_type)
+     product.mat_index:insert('#',mat_index)
+     if verbose then print('Adding product '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
     end
-   elseif direction == 1 or direction == 'Add' then
-    product.mat_type:insert('#',mat_type)
-    product.mat_index:insert('#',mat_index)
-    if verbose then print('Adding product '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
-   end
---  else
---   if verbose then print('Material not valid ['..check..'] material') end
---  end
+  else
+   if verbose then print('Material not valid ['..mobj..':'..sobj..'] material') end
+  end
  end
 end
 
@@ -884,27 +892,29 @@ function changeRefuse(civ,stype,mobj,sobj,direction,verbose)
    end
   end
  else
-  mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
-  mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
+  matinfo = dfhack.matinfo.find(mobj..':'..sobj)
+  if matinfo then
+   mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
+   mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
 --  if dfhack.matinfo.decode(mat_type,mat_index).material.flags[check] then
-   if direction == -1 or direction == 'Remove' then
-    for i=#refuse.mat_type-1,0,-1 do
-     if refuse.mat_type[i] == mat_type then
-      if refuse.mat_index[i] == mat_index then
-       refuse.mat_type:erase(i)
-       refuse.mat_index:erase(i)
-       if verbose then print('Removing refuse '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
+    if direction == -1 or direction == 'Remove' then
+     for i=#refuse.mat_type-1,0,-1 do
+      if refuse.mat_type[i] == mat_type then
+       if refuse.mat_index[i] == mat_index then
+        refuse.mat_type:erase(i)
+        refuse.mat_index:erase(i)
+        if verbose then print('Removing refuse '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
+       end
       end
      end
+    elseif direction == 1 or direction == 'Add' then
+     refuse.mat_type:insert('#',mat_type)
+     refuse.mat_index:insert('#',mat_index)
+     if verbose then print('Adding refuse '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
     end
-   elseif direction == 1 or direction == 'Add' then
-    refuse.mat_type:insert('#',mat_type)
-    refuse.mat_index:insert('#',mat_index)
-    if verbose then print('Adding refuse '..stype..' TYPE:SUBTYPE '..mobj..':'..sobj) end
-   end
---  else
---   if verbose then print('Material not valid ['..check..'] material') end
---  end
+  else
+   if verbose then print('Material not valid ['..mobj..':'..sobj..'] material') end
+  end
  end
 end
 
@@ -947,7 +957,7 @@ function changeEthic(civ,stype,mobj,sobj,direction,verbose)
   end
  else
   if resources.ethic[stype] then
-   resource.ethic[stype] = mobj
+   resources.ethic[stype] = mobj
   else
    if verbose then print('Not a valid ethic') end
    return
@@ -969,9 +979,9 @@ function changeValue(civ,stype,mobj,sobj,direction,verbose)
   end
  else
   if resources.values[stype] then
-   resource.values[stype] = mobj
-  elseif resource.values_2[stype] then
-   resource.values_2[stype] = mobj
+   resources.values[stype] = mobj
+  elseif resources.values_2[stype] then
+   resources.values_2[stype] = mobj
   else
    if verbose then print('Not a valid value') end
    return

@@ -446,8 +446,28 @@ function getPositionSurface(location)
  while dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z-j).designation[pos.x%16][pos.y%16].outside do
   j = j + 1
  end
- pos.z = pos.z - j
+ pos.z = pos.z - j + 1
  pos = checkBounds(pos)
+ return pos
+end
+
+function getPositionSurfaceFree()
+ free = false
+ location = getPositionRandom()
+ while not free do
+  pos = getPositionSurface(location)
+  x = pos.x%16
+  y = pos.y%16
+  block = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z)
+  d = block.designation[x][y]
+  o = block.occupancy[x][y]
+  tt = block.tiletype[x][y]
+  if d.flow_size == 0 and not o.unit and o.building == 0 and string.match(df.tiletype[tt],'Floor') then
+   free = true
+  else
+   location = getPositionRandom()
+  end
+ end
  return pos
 end
 
@@ -847,7 +867,8 @@ function flowSource(n)
   inorganic = tonumber(flow.Inorganic)
   flowType = tonumber(flow.FlowType)
   check = tonumber(flow.Check)
-  dfhack.maps.spawnFlow({x,y,z},flowType,0,inorganic,density)
+  pos = xyz2pos(x,y,z)
+  dfhack.maps.spawnFlow(pos,flowType,0,inorganic,density)
   dfhack.timeout(check,'ticks',
                  function ()
                   dfhack.script_environment('functions/map').flowSource(n)

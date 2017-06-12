@@ -3,14 +3,14 @@
   [DESCRIPTION:This is a testing feat, checks REQUIRED_CLASS and COST]
   [REQUIRED_CLASS:TEST_CLASS_1:2]
   [COST:1]
-  [EFFECT:devel/printargs UNIT_ID]
+  [EFFECT:devel/print-args UNIT_ID]
   
 [FEAT:TEST_FEAT_2]
   [NAME:Test Feat 2]
   [DESCRIPTION:This is a testing feat, checks REQUIRED_FEAT and no COST]
   [REQUIRED_FEAT:TEST_FEAT_1]
-  [COST:0]
-  [EFFECT:devel/printargs UNIT_ID]
+  [COST:1]
+  [EFFECT:devel/print-args UNIT_ID]
   
 [FEAT:TEST_FEAT_3]
   [NAME:Test Feat 3]
@@ -20,4 +20,4 @@
   [REQUIRED_FEAT:TEST_FEAT_1]
   [FORBIDDEN_FEAT:TEST_FEAT_2]
   [COST:10]
-  [EFFECT:devel/printargs UNIT_ID]
+  [EFFECT:devel/print-args UNIT_ID]

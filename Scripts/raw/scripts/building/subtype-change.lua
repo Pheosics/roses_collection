@@ -56,6 +56,8 @@ if building.custom_type < 0 then print('Changing vanilla buildings not currently
 if not args.type then print('No specified subtype chosen') return end
 
 dur = args.dur or 0
+if type(args.reagent) == 'string' then args.reagent = {args.reagent} end
+if type(args.item) == 'string' then args.item = {args.item} end
 
 check = dfhack.script_environment('functions/building').changeSubtype(building,args.type,dur)
 

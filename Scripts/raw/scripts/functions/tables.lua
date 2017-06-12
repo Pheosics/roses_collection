@@ -39,7 +39,10 @@ function getData(table,dirLocation,filename,tokenCheck,test,verbose)
  local dir = dfhack.getDFPath()
  local locations = {'/raw/objects/',dirLocation..'/','/raw/scripts/'}
  local n = 1
- if test then filename = filename..'_test' end
+ if test then 
+  filename = filename..'_test'
+  locations = {'/raw/systems/Test/'}
+ end
  for _,location in ipairs(locations) do
   local path = dir..location
   if verbose then print('Looking in '..location) end
@@ -1885,7 +1888,7 @@ function makeEventTable(test,verbose)
     argument.Variable = array[2]
    elseif test == '[EFFECT_SCRIPT' then
     effect.Scripts = tostring(effect.Scripts + 1)
-    script = data[j]:gsub("%s+","")
+    script = data[j]:gsub("%s+"," ")
     script = table.concat({select(2,table.unpack(split(script,':')))},':')
     script = string.sub(script,1,-2)
     effect.Script[effect.Scripts] = script
@@ -1947,36 +1950,36 @@ function makeEntityTable(entity,verbose)
     entityTable.Civilization.CurrentMethod = civilizations[entity].LevelMethod
     entityTable.Civilization.CurrentPercent = civilizations[entity].LevelPercent
     entityTable.Civilization.Classes = {}
-    if civilizations[entity].Level then
-     if civilizations[entity].Level['0'] then
-      for _,mtype in pairs(civilizations[entity].Level['0'].Remove._children) do
-       local depth1 = civilizations[entity].Level['0'].Remove[mtype]
-       for _,stype in pairs(depth1._children) do
-        local depth2 = depth1[stype]
-        for _,mobj in pairs(depth2._children) do
-         local sobj = depth2[mobj]
-         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,true)
-        end
+    if safe_index(civilizations,entity,'Level','0','Remove') then
+     for _,mtype in pairs(civilizations[entity].Level['0'].Remove._children) do
+      local depth1 = civilizations[entity].Level['0'].Remove[mtype]
+      for _,stype in pairs(depth1._children) do
+       local depth2 = depth1[stype]
+       for _,mobj in pairs(depth2._children) do
+        local sobj = depth2[mobj]
+        dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,true)
        end
       end
-      for _,mtype in pairs(civilizations[entity].Level['0'].Add._children) do
-       local depth1 = civilizations[entity].Level['0'].Add[mtype]
-       for _,stype in pairs(depth1._children) do
-        local depth2 = depth1[stype]
-        for _,mobj in pairs(depth2._children) do
-         local sobj = depth2[mobj]
-         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,true)
-        end
+     end
+    end
+    if safe_index(civilizations,entity,'Level','0','Add') then
+     for _,mtype in pairs(civilizations[entity].Level['0'].Add._children) do
+      local depth1 = civilizations[entity].Level['0'].Add[mtype]
+      for _,stype in pairs(depth1._children) do
+       local depth2 = depth1[stype]
+       for _,mobj in pairs(depth2._children) do
+        local sobj = depth2[mobj]
+        dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,true)
        end
       end
-      if civilizations[entity].Level['0'].Classes then
-       for _,class in pairs(civilizations[entity].Level['0'].Classes._children) do
-        level = tonumber(civilizations[entity].Level['0'].Classes[class])
-        if level > 0 then
-         entityTable.Civilization.Classes[class] = tostring(level)
-        else
-         entityTable.Civilization.Classes[class] = nil
-        end
+     end
+     if safe_index(civilizations,entity,'Level','0','Classes') then
+      for _,class in pairs(civilizations[entity].Level['0'].Classes._children) do
+       level = tonumber(civilizations[entity].Level['0'].Classes[class])
+       if level > 0 then
+        entityTable.Civilization.Classes[class] = tostring(level)
+       else
+        entityTable.Civilization.Classes[class] = nil
        end
       end
      end

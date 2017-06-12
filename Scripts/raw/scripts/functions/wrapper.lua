@@ -368,7 +368,7 @@ function checkTarget(source,targetList,target,verbose) -- checks list of units f
  if not target then target = 'all' end
  n = 0
  list = {}
- target == string.upper(target)
+ target = string.upper(target)
  for i,unit in pairs(targetList) do
   if target == 'ENEMY' then
    if unit.invasion_id > 0 then
