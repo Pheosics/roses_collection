@@ -1,4 +1,4 @@
---entity/resource-change.lua version 42.06a
+--entity/resource-change.lua v0.8 | DFHack 43.05
 
 local utils = require 'utils'
 local split = utils.split_string

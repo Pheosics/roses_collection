@@ -1,3 +1,5 @@
+--base/periodic-check v1.0 | DFHack 43.05
+
 local period = 100
 local persistTable = require 'persist-table'
 local roses = persistTable.GlobalTable.roses

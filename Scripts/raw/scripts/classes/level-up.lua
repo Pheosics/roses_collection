@@ -1,3 +1,5 @@
+-- classes/level-up.lua v0.8 | DFHack 43.05
+
 local utils = require 'utils'
 
 validArgs = validArgs or utils.invert({

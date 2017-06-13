@@ -1,4 +1,4 @@
---tile/material-change.lua version 42.06a
+--tile/material-change.lua v1.0 | DFHack 43.05
 
 local utils = require 'utils'
 

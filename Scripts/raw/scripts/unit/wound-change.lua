@@ -1,4 +1,4 @@
---unit/wound-change.lua v2.0
+--unit/wound-change.lua v2.0 | DFHack 43.05
 
 local utils = require 'utils'
 

@@ -1,4 +1,4 @@
---spells/trigger.lua
+--spells/trigger.lua v0.8 | DFHack 43.05
 
 local utils = require 'utils'
 local split = utils.split_string

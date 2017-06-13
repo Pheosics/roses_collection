@@ -1,4 +1,4 @@
---base/on-time.lua v1.0
+--base/on-time.lua v1.0 | DFHack 43.05
 
 local persistTable = require 'persist-table'
 

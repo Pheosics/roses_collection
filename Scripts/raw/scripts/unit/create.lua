@@ -1,4 +1,4 @@
---unit/create.lua version 42.06a
+--unit/create.lua v1.0 | DFHack 43.05
 
 local utils = require 'utils'
 local split = utils.split_string

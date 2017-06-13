@@ -1,4 +1,4 @@
---item/quality-change.lua version 42.06a
+--item/quality-change.lua v1.0 | DFHack 43.05
 
 local utils = require 'utils'
 

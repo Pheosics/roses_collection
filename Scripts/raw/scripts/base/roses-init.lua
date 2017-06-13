@@ -1,4 +1,5 @@
---MUST BE LOADED IN DFHACK.INIT
+-- base/roses-init.lua v1.0 | DFHack 43.05
+--MUST BE LOADED IN ONLOAD.INIT
 
 local utils = require 'utils'
 local split = utils.split_string

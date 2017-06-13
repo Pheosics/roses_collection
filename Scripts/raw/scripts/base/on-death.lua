@@ -1,4 +1,4 @@
---base/classes.lua v1.0
+--base/classes.lua v1.0 | DFHack 43.05
 
 local persistTable = require 'persist-table'
 local utils = require 'utils'

@@ -1,4 +1,4 @@
---unit/attack.lua version 42.06a
+--unit/attack.lua v0.8 | DFHack 43.05
 
 local utils = require 'utils'
 

@@ -1,4 +1,4 @@
---item/projectile.lua version 42.06a
+--item/projectile.lua v1.0 | DFHack 43.05
 
 local utils = require 'utils'
 

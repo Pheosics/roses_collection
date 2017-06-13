@@ -1,3 +1,5 @@
+-- events/trigger.lua v0.8 | DFHack 43.05
+
 local utils = require 'utils'
 local persistTable = require 'persist-table'
 

@@ -1,3 +1,5 @@
+-- base/persist-delay v1.0 | DFHack 43.05
+
 local persistTable = require 'persist-table'
 
 local delayTable = persistTable.GlobalTable.roses.CommandDelay

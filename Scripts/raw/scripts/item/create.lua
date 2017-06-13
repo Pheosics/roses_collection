@@ -1,5 +1,5 @@
---item/create.lua v1.0
---author expwnent, modified by roses
+--item/create.lua v1.0 | DFHack 43.05
+--author expwnent, modified by roses (added item duration)
 --creates an item of a given type and material
 
 local utils = require 'utils'
