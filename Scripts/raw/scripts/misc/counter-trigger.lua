@@ -1,50 +1,40 @@
---special/counters.lua v1.0
+--special/counter-trigger.lua v1.0 | DFHack 43.05
    
 local utils = require 'utils'
 local persistTable = require 'persist-table'
 
-function counters(types,unit,counter,increase,style,cap)
+function counters(types,unit,counter,increase,style,cap,script,reset)
+ trigger = false
  if types == 'GLOBAL' then
-  tables = persistTable.GlobalTable.roses.GlobalTable.Counters
+  val = dfhack.script_environment('functions/misc').changeCounter(counter,increase)
  elseif types == 'UNIT' then
-  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
-  if unitTable then
-   if unitTable.Counters then
-    tables = unitTable.Counters
-   else
-    unitTable.Counters = {}
-	tables = unitTable.Counters
-   end
-  else
-   persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] = {}
-   unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
-   unitTable.Counters = {}
-   tables = unitTable.Counters
-  end
- end
- if tables[counter] then
-  tables[counter] = tostring(tables[counter] + tonumber(increase))
- else
-  tables[counter] = tostring(increase)
- end
+  val = dfhack.script_environment('functions/misc').changeCounter('!UNIT:'..counter,increase,unit.id)
+
  if style == 'minimum' then
-  if tables[counter] >= cap and cap >= 0 then
-   return true
-  else
-   return false
+  if val >= cap and cap >= 0 then
+   trigger = true
   end
  elseif style == 'percent' then
   rando = dfhack.random.new()
   roll = rando:drandom()
-  if roll <= tables[counter]/cap and cap >=1 then
-   return true
-  else
-   return false
+  if roll <= val/cap and cap >=1 then
+   trigger = true
   end
- else
-  return false
  end
- return false
+
+ if trigger and script then
+  if reset then
+   if types == 'GLOBAL' then
+    dfhack.script_environment('functions/misc').changeCounter(counter,-val)
+   elseif types == 'UNIT' then
+    dfhack.script_environment('functions/misc').changeCounter('!UNIT:'..counter,-val,unit.id)
+   end
+  end
+
+  dfhack.run_command(script)
+ end
+
+ return trigger
 end
 
 validArgs = validArgs or utils.invert({
@@ -56,6 +46,7 @@ validArgs = validArgs or utils.invert({
  'increment',
  'cap',
  'script',
+ 'no_reset',
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -82,7 +73,7 @@ if args.help then -- Help declaration
       POISON
    -increment #
      amount for the counter to change
-     DEFAULT 0
+     DEFAULT 1
    -cap #
      level of triggering for the counter
      once it hits the cap (or is triggered earlier by percentage) the counter will reset to 0
@@ -95,16 +86,24 @@ if args.help then -- Help declaration
  return
 end
 
-if args.counter == nil or args.type == nil then -- Check for counter declaration !REQUIRED
+if not args.counter then -- Check for counter declaration !REQUIRED
  print('No counter selected')
  return
 end
-if args.unit then unit = df.unit.find(tonumber(args.unit)) end
-increment = args.increment or 0
+
+if not args.type then
+ args.type = 'GLOBAL'
+elseif args.type == 'UNIT' and not args.unit then
+ print('No unit selected for -type UNIT couner')
+ return
+elseif args.type == 'UNIT' and args.unit then
+ unit = df.unit.find(tonumber(args.unit))
+end
+
+reset = true
+if args.no_reset then reset = false end
+increment = args.increment or 1
 cap = args.cap or -1
 style = args.style or nil
 
-trigger = counters(args.type,unit,args.counter,increment,style,cap)
-if trigger and args.script then
- dfhack.run_command(args.script[1],select(2,table.unpack(args.script)))
-end
+counters(args.type,unit,args.counter,increment,style,cap,script,reset)

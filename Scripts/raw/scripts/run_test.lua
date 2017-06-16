@@ -31,15 +31,15 @@ end
 -- Get all units for scripts
 civ = {}
 non = {}
-iciv = 1
-inon = 1
+iciv = 0
+inon = 0
 for _,unit in pairs(df.global.world.units.active) do
  if dfhack.units.isCitizen(unit) then
-  civ[iciv] = unit
   iciv = iciv + 1
+  civ[iciv] = unit
  else
-  non[inon] = unit
   inon = inon + 1
+  non[inon] = unit
  end
 end
 
@@ -50,28 +50,6 @@ function mostRecentItem()
  local item = df.item.find(df.global.item_next_id - 1)
  return item
 end
-
--- Get/Create all buildings for scripts
-require('dfhack.buildings')
-loc = mapFunctions.getPositionSurfaceFree()
-buildingVanilla = dfhack.buildings.constructBuilding({pos=loc,type=df.building_type.Workshop,subtype=17,custom=-1})
-buildingVanilla.construction_stage = 1
-buildingVanilla.jobs:erase(0)
-
-for i,bldg in pairs(df.global.world.raws.buildings.all) do
- if bldg.code == 'TEST_BUILDING_1' then
-  mtype = bldg.building_type
-  stype = bldg.building_subtype
-  ctype1 = i
- elseif bldg.code == 'TEST_BUILDING_2' then
-  ctype2 = i
- elseif bldg.code == 'TEST_BUILDING_3' then
-  ctype3 = i
- end
-end
-loc = mapFunctions.getPositionSurfaceFree()
-buildingCustom = dfhack.buildings.constructBuilding({pos=loc,type=mtype,subtype=stype,custom=ctype1})
-buildingCustom.construction_stage = 1
 
 -- Open external output file
 file = io.open('run_test_output.txt','w')
@@ -87,7 +65,7 @@ roses = persistTable.GlobalTable.roses
 -- ROSES SCRIPT CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function script_checks()
---[[
+
 --df.global.pause_state = false
   script.sleep(1,'ticks')
 --df.global.pause_state = true
@@ -101,7 +79,42 @@ scriptCheck = {}
 printplus('')
 printplus('Building script checks starting')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---- START building/subtype-change
+buildingCheck = {}
+     writeall('building/create checks starting')
+---- Check that the script creates a quern (only vanilla building it can make
+location = mapFunctions.getPositionSurfaceFree()
+     writeall('building/create -location [ '..table.unpack(location)..' ] -type Workshop -subtype 17')
+output = dfhack.run_command_silent('building/create -location [ '..table.unpack(location)..' ] -type Workshop -subtype 17')
+writeall(output)
+if not dfhack.buildings.findAtTile(location) then
+ buildingCheck[#buildingCheck+1] = 'Failed to create Quern'
+else
+ buildingVanilla = dfhack.buildings.findAtTile(location)
+end
+---- Check that the script creates TEST_BUILDING_1 with an iron short sword inside it
+location = mapFunctions.getPositionSurfaceFree()
+     writeall('building/create -location [ '..table.unpack(location)..' ] -type Workshop -subtype TEST_BUILDING_1 -custom -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:IRON')
+output = dfhack.run_command_silent('building/create -location [ '..table.unpack(location)..' ] -type Workshop -subtype TEST_BUILDING_1 -custom -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:IRON')
+writeall(output)
+if not dfhack.buildings.findAtTile(location) then
+ buildingCheck[#buildingCheck+1] = 'Failed to create TEST_BUILDING_1'
+else
+ buildingCustom = dfhack.buildings.findAtTile(location)
+end
+---- Print PASS/FAIL
+if #buildingCheck == 0 then
+ printplus('PASSED: building/create')
+else
+ printplus('FAILED: building/create')
+ writeall(buildingCheck)
+end
+-- FINISH building/subtype-change
+scriptCheck['building_create'] = buildingCheck
+     writeall('building/create checks finished')
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START building/subtype-change
+if buildingVanilla and buildingCustom then
 buildingCheck = {}
      writeall('building/subtype-change checks starting')
 ---- Check that script fails to change vanilla building
@@ -147,9 +160,11 @@ end
 -- FINISH building/subtype-change
 scriptCheck['building_subtype_change'] = buildingCheck
      writeall('building/subtype-change checks finished')
+else
+  printplus('NOCHECK: building/subtype-change (building/create failed)')
+end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Building script checks finished')
-
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- FLOW SCRIPT CHECKS --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -361,6 +376,7 @@ end
 scriptCheck['item_create'] = itemCheck
      writeall('item/create checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 -- START item/equip and item/unequip
 itemCheck = {}
 unit = civ[1]
@@ -418,6 +434,8 @@ end
 -- FINISH item/equip and item/unequip
 scriptCheck['item_equip'] = itemCheck
      writeall('item/equip and item/unequip checks finished')
+]]
+ printplus('NOCHECK: item/equip and item/unequip')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START item/material-change
 itemCheck = {}
@@ -874,6 +892,7 @@ end
 scriptCheck['unit_body_change'] = unitCheck
     writeall('unit/body-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 -- START unit/butcher
 unitCheck = {}
 unit = non[3]
@@ -963,6 +982,7 @@ end
 scriptCheck['unit_counter_change'] = unitCheck
     writeall('unit/counter-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 -- START unit/create
 unitCheck = {}
 loc = {pos2xyz(civ[2].pos)}
@@ -992,8 +1012,10 @@ end
 -- FINISH unit/create
 scriptCheck['unit_create'] = unitCheck
     writeall('unit/create checks finished')
+]]
  printplus('NOCHECK: unit/create')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 -- START unit/destory
 unitCheck = {}
 unit1 = df.unit.find(df.global.unit_next_id - 1)
@@ -1023,8 +1045,10 @@ end
 -- FINISH unit/destroy
 scriptCheck['unit_destroy'] = unitCheck
     writeall('unit/destroy checks finished')
+]]
  printplus('NOCHECK: unit/destroy')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 -- START unit/emotion-change
 unitCheck = {}
 unit = civ[1]
@@ -1052,6 +1076,7 @@ end
 -- FINISH unit/emotion-change
 scriptCheck['unit_emotion_change'] = unitCheck
     writeall('unit/emotion-change checks finished')
+]]
  printplus('NOCHECK: unit/emotion-change')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/flag-change
@@ -1299,6 +1324,7 @@ end
 scriptCheck['unit_syndrome_change'] = unitCheck
     writeall('unit/syndrome-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 -- START unit/trait-change
 unitCheck = {}
 unit = civ[1]
@@ -1322,7 +1348,8 @@ end
 -- FINISH unit/trait-change
 scriptCheck['unit_trait_change'] = unitCheck
     writeall('unit/trait-change checks finished')
- printplus('NOCHECK: unit/trait-change')
+]]
+ printplus('NOCHECK: unit/trait-change') -- (Trait names have changed, in the last couple of versions, need to double check script still works manually)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/transform
 unitCheck = {}
@@ -1362,6 +1389,7 @@ end
 scriptCheck['unit_transform'] = unitCheck
     writeall('unit/transform checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 -- START unit/wound-change
 unitCheck = {}
 unit = non[1]
@@ -1402,7 +1430,8 @@ end
 -- FINISH unit/wound-change
 scriptCheck['unit_wound_change'] = unitCheck
     writeall('unit/wound-change checks finished')
- printplus('NOCHECK: unit/wound-change (Need to add ability to add wounds before taking away wounds)')
+]]
+ printplus('NOCHECK: unit/wound-change') -- (Need to add ability to add wounds before taking away wounds)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Unit script checks finished')
 
@@ -1457,6 +1486,7 @@ end
 -- FINISH Unit Based Targeting
     writeall('Unit Based Targeting Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 -- START Location Based Targeting
     writeall('Location Based Targeting Starting')
 wrapCheck = {}
@@ -1485,7 +1515,10 @@ else
 end
 -- FINISH Location Based Targeting
     writeall('Location Based Targeting Finished')
+]]
+ printplus('NOCHECK: Location Based Targeting')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 -- START Item Based Targeting
     writeall('Item Based Targeting Starting')
 wrapCheck = {}
@@ -1507,12 +1540,14 @@ else
 end
 -- FINISH Item Based Targeting
     writeall('Item Based Targeting Finished')
+]]
+ printplus('NOCHECK: Item Based Targeting')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Wrapper script checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Finished Roses Script Checks')
---]]
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- SYSTEM CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1560,6 +1595,7 @@ writeall(output)
     writeall('Begin System Read Checks')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
 local classTable = roses.ClassTable
     writeall('Class System:')
     writeall('--Test Class 1')
@@ -1613,14 +1649,14 @@ local eventTable = roses.EventTable
     writeall('')
     writeall('Enhanced System:')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[print('Enhanced System - Buldings')
+ print('Enhanced System - Buldings')
  local EBTable = roses.EnhancedBuildingTable
-print('--Test Enhanced Building 1')
+ print('--Test Enhanced Building 1')
  printall(EBTable.TEST_BUILDING_1._children)
-print('--Test Enhanced Building 2')
+ print('--Test Enhanced Building 2')
  printall(EBTable.TEST_BUILDING_2._children)
-print('--Test Enhanced Building 3')
- printall(EBTable.TEST_BUILDING_3._children)]]
+ print('--Test Enhanced Building 3')
+ printall(EBTable.TEST_BUILDING_3._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local ECTable = roses.EnhancedCreatureTable
     writeall('')
@@ -1640,21 +1676,22 @@ local EITable = roses.EnhancedItemTable
     writeall('--Test Enhanced Item 3')
     writeall(EITable.ITEM_WEAPON_SWORD_SHORT._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[print('')
-print('Enhanced System - Materials')
+ print('')
+ print('Enhanced System - Materials')
  local EMTable = roses.EnhancedMaterialTable
-print('--Test Enhanced Material 1')
+ print('--Test Enhanced Material 1')
  printall(EMTable.INORGANIC.SAPPHIRE._children)
-print('--Test Enhanced Material 2')
- printall(EMTable.CREATURE_MAT.DRAGON.SCALE._children)]]
+ print('--Test Enhanced Material 2')
+ printall(EMTable.CREATURE_MAT.DRAGON.SCALE._children)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[print('')
-print('Enhanced System - Reactions')
+ print('')
+ print('Enhanced System - Reactions')
  local ERTable = roses.EnhancedReactionTable
-print('--Test Enhanced Reaction 1')
+ print('--Test Enhanced Reaction 1')
  printall(ERTable.TEST_REACTION_1._children)
-print('--Test Enhanced Reaction 2')
- printall(ERTable.TEST_REACTION_2._children)]]
+ print('--Test Enhanced Reaction 2')
+ printall(ERTable.TEST_REACTION_2._children)
+]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     writeall('')
@@ -1679,12 +1716,6 @@ unitTable = roses.UnitTable[tostring(unit.id)]
     writeall('Attempting to assign Test Class 1 to unit')
 output = dfhack.run_command_silent('classes/change-class -unit '..tostring(unit.id)..' -class TEST_CLASS_1 -verbose')
 writeall(output)
---    writeall('Class/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Classes.TEST_CLASS_1)
---    writeall(unitTable.Classes.TEST_CLASS_2)
---    writeall(unitTable.Spells)
---    writeall(unitTable.Skills)
 if unitTable.Classes.Current.Name ~= 'TEST_CLASS_1' then 
  classCheck[#classCheck+1] = 'Test Class 1 was not assigned to the Unit'
 end
@@ -1693,12 +1724,6 @@ end
     writeall('Mining and Woodcutting skill will increase')
 output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 writeall(output)
---    writeall('Class/Unit details:')
---   writeall(unitTable.Classes.Current)
---    writeall(unitTable.Classes.TEST_CLASS_1)
---    writeall(unitTable.Classes.TEST_CLASS_2)
---    writeall(unitTable.Spells)
---    writeall(unitTable.Skills)
 if unitTable.Classes.TEST_CLASS_1.Level ~= '1' then 
  classCheck[#classCheck+1] = 'Test Class 1 did not level from 0 to 1'
 end
@@ -1713,12 +1738,6 @@ end
     writeall('Mining and Woodcutting skill will increase')
 output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 writeall(output)
---    writeall('Class/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Classes.TEST_CLASS_1)
---    writeall(unitTable.Classes.TEST_CLASS_2)
---    writeall(unitTable.Spells)
---    writeall(unitTable.Skills)
 if unitTable.Classes.TEST_CLASS_1.Level ~= '2' then
  classCheck[#classCheck+1] = 'Test Class 1 did not level from 1 to 2'
 end
@@ -1729,12 +1748,6 @@ end
     writeall('Assigning Test Spell 2 to unit')
 output = dfhack.run_command_silent('classes/learn-skill -unit '..tostring(unit.id)..' -spell TEST_SPELL_2 -verbose')
 writeall(output)
---    writeall('Class/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Classes.TEST_CLASS_1)
---    writeall(unitTable.Classes.TEST_CLASS_2)
---    writeall(unitTable.Spells)
---    writeall(unitTable.Skills)
 --if unitTable.Spells.TEST_SPELL_2 ~= '1' or not unitTable.Spells.Active.TEST_SPELL_2 then
 -- classCheck[#classCheck+1] = 'Test Class 1 level 2 unable to add Test Spell 2'
 --end
@@ -1743,12 +1756,6 @@ writeall(output)
     writeall('Mining skill will increase, Woodcutting skill will reset')
 output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 writeall(output)
---    writeall('Class/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Classes.TEST_CLASS_1)
---    writeall(unitTable.Classes.TEST_CLASS_2)
---    writeall(unitTable.Spells)
---    writeall(unitTable.Skills)
 if unitTable.Classes.Current.TotalExp ~= '3' or unitTable.Classes.TEST_CLASS_1.Level ~= '3' then
  classCheck[#classCheck+1] = 'Test Class 1 did not level from 2 to 3'
 end
@@ -1766,12 +1773,6 @@ end
     writeall('Mining skill will remain the same, Carpentry skill will increase')
 output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
 writeall(output)
---    writeall('Class/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Classes.TEST_CLASS_1)
---    writeall(unitTable.Classes.TEST_CLASS_2)
---    writeall(unitTable.Spells)
---    writeall(unitTable.Skills)
 if unitTable.Classes.Current.TotalExp ~= '4' or unitTable.Classes.TEST_CLASS_2.Level ~= '1' then
  classCheck[#classCheck+1] = 'Test Class 2 did not level from 0 to 1'
 end
@@ -1793,16 +1794,10 @@ end
 -- START Feat SubSystem Checks
     writeall('Feat SubSystem Checks Starting')
 featCheck = {}
---    writeall('Feat/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Feats)
 ----
     writeall('Attempting to assign Test Feat 2 to unit, this should fail')
 output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 writeall(output)
---    writeall('Feat/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Feats)
 if unitTable.Feats.TEST_FEAT_2 then
  featCheck[#featCheck+1] = 'Test Feat 2 was applied when it should not have been'
 end
@@ -1810,9 +1805,6 @@ end
     writeall('Attempting to assign Test Feat 1 to unit, this should work')
 output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_1 -verbose')
 writeall(output)
---    writeall('Feat/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Feats)
 if not unitTable.Feats.TEST_FEAT_1 then
  featCheck[#featCheck+1] = 'Test Feat 1 was not correctly applied'
 end
@@ -1820,9 +1812,6 @@ end
     writeall('Attempting to assign Test Feat 2 to unit, now this should work')
 output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
 writeall(output)
---    writeall('Feat/Unit details:')
---    writeall(unitTable.Classes.Current)
---    writeall(unitTable.Feats)
 if unitTable.Feats.TEST_FEAT_2 then
  featCheck[#featCheck+1] = 'Test Feat 2 was not correctly applied'
 end
@@ -1863,24 +1852,12 @@ entityTable = roses.EntityTable[tostring(civID)]
 if not entityTable.Civilization then
  civCheck[#civCheck+1] = 'Test Civilization 1 was not correctly assigned to the entity'
 end
---    writeall('Entity details')
---    writeall(df.global.world.entities.all[civID].resources.animals.mount_races)
---    writeall(df.global.world.entities.all[civID].resources.animals.mount_castes)
---    writeall('Assigning Civlization to Entity, should clear available mounts')
---    writeall('Entity details')
---    writeall(entityTable.Civilization)
---    writeall(df.global.world.entities.all[civID].resources.animals.mount_races)
---    writeall(df.global.world.entities.all[civID].resources.animals.mount_castes)
 if #df.global.world.entities.all[civID].resources.animals.mount_races ~= 0 then
  civCheck[#civCheck+1] = 'Test Civilization 1 level 0 mount creatures were not removed'
 end
     writeall('Force level increase, should add dragons to available mounts and change level method')
 output = dfhack.run_command_silent('civilizations/level-up -civ '..tostring(civID)..' -amount 1 -verbose')
 writeall(output)
---    writeall('Entity details')
---    writeall(entityTable.Civilization)
---    writeall(df.global.world.entities.all[civID].resources.animals.mount_races)
---    writeall(df.global.world.entities.all[civID].resources.animals.mount_castes)
 if entityTable.Civilization.Level ~= '1' then
  civCheck[#civCheck+1] = 'Test Civilization 1 did not correctly level up from 0 to 1'
 end
@@ -1892,11 +1869,7 @@ end
 --df.global.pause_state = false
   script.sleep(3200,'ticks')
 --df.global.pause_state = true
---    writeall('Resuming run_test.lua')
---    writeall('Entity details')
---    writeall(entityTable.Civilization)
---    writeall(df.global.world.entities.all[civID].resources.animals.mount_races)
---    writeall(df.global.world.entities.all[civID].resources.animals.mount_castes)
+    writeall('Resuming run_test.lua')
 if entityTable.Civilization.Level ~= '2' then
  civCheck[#civCheck+1] = 'Test Civilization 1 did not correctly level up from 1 to 2' end
 if #df.global.world.entities.all[civID].resources.animals.mount_races ~= 3 then
@@ -2214,8 +2187,11 @@ eventCheck = {}
     writeall('Forcing Test Event 1 to trigger, both effects should fail')
 output = dfhack.run_command_silent('events/trigger -event TEST_EVENT_1 -force -verbose')
 writeall(output)
-if roses.CounterTable.TEST_EVENT_1 then
- eventCheck[#eventCheck + 1] = 'Test Event 1 incorrectly triggered'
+if not roses.CounterTable.TEST_EVENT_1_EFFECT_1 then
+ eventCheck[#eventCheck + 1] = 'Test Event 1 Effect 1 not triggered'
+end
+if not roses.CounterTable.TEST_EVENT_1_EFFECT_2 then
+ eventCheck[#eventCheck + 1] = 'Test Event 1 Effect 2 not triggered'
 end
     writeall('Test Event 2 should occur within 1 in-game day, if successful a random location and random unit id will be printed')
     writeall('Pausing run_test.lua for 3200 in-game ticks')
@@ -2223,8 +2199,11 @@ end
   script.sleep(3200,'ticks')
 --df.global.pause_state = true
     writeall('Resuming run_test.lua')
-if not roses.CounterTable.TEST_EVENT_2 then
- eventCheck[#eventCheck + 1] = 'Test Event 2 failed to triggered'
+if roses.CounterTable.TEST_EVENT_2_EFFECT_1 then
+ eventCheck[#eventCheck + 1] = 'Test Event 2 Effect 1 incorrectly triggered'
+end
+if roses.CounterTable.TEST_EVENT_2_EFFECT_2 then
+ eventCheck[#eventCheck + 1] = 'Test Event 2 Effect 2 incorrectly triggered'
 end
 ---- Print PASS/FAIL
 if #eventCheck == 0 then

@@ -2018,6 +2018,253 @@ function create(location,raceID,casteID,refUnit,side,name,dur,track,syndrome,cb_
  return unit
 end
 
+function createHistFig(trgunit,he,he_group) --Taken from modtools/create-unit
+ local hf=df.historical_figure:new()
+ hf.id=df.global.hist_figure_next_id
+ hf.race=trgunit.race
+ hf.caste=trgunit.caste
+ hf.profession = trgunit.profession
+ hf.sex = trgunit.sex
+ df.global.hist_figure_next_id=df.global.hist_figure_next_id+1
+ hf.appeared_year = df.global.cur_year
+
+ hf.born_year = trgunit.birth_year
+ hf.born_seconds = trgunit.birth_time
+ hf.curse_year = trgunit.curse_year
+ hf.curse_seconds = trgunit.curse_time
+ hf.birth_year_bias = trgunit.birth_year_bias
+ hf.birth_time_bias = trgunit.birth_time_bias
+ hf.old_year = trgunit.old_year
+ hf.old_seconds = trgunit.old_time
+ hf.died_year = -1
+ hf.died_seconds = -1
+ hf.name:assign(trgunit.name)
+ hf.civ_id = trgunit.civ_id
+ hf.population_id = trgunit.population_id
+ hf.breed_id = -1
+ hf.unit_id = trgunit.id
+
+ df.global.world.history.figures:insert("#",hf)
+
+ hf.info = df.historical_figure_info:new()
+ hf.info.unk_14 = df.historical_figure_info.T_unk_14:new() -- hf state?
+ unk_14.region_id = -1; unk_14.beast_id = -1; unk_14.unk_14 = 0
+ hf.info.unk_14.unk_18 = -1; hf.info.unk_14.unk_1c = -1
+ -- set values that seem related to state and do event
+ --change_state(hf, dfg.ui.site_id, region_pos)
+
+
+ --lets skip skills for now
+ --local skills = df.historical_figure_info.T_skills:new() -- skills snap shot
+ -- ...
+ -- note that innate skills are automaticaly set by DF
+ hf.info.skills = {new=true}
+
+
+ he.histfig_ids:insert('#', hf.id)
+ he.hist_figures:insert('#', hf)
+ if he_group then
+  he_group.histfig_ids:insert('#', hf.id)
+  he_group.hist_figures:insert('#', hf)
+  hf.entity_links:insert("#",{new=df.histfig_entity_link_memberst,entity_id=he_group.id,link_strength=100})
+ end
+ trgunit.flags1.important_historical_figure = true
+ trgunit.flags2.important_historical_figure = true
+ trgunit.hist_figure_id = hf.id
+ trgunit.hist_figure_id2 = hf.id
+
+ hf.entity_links:insert("#",{new=df.histfig_entity_link_memberst,entity_id=trgunit.civ_id,link_strength=100})
+
+ --add entity event
+ local hf_event_id=df.global.hist_event_next_id
+ df.global.hist_event_next_id=df.global.hist_event_next_id+1
+ df.global.world.history.events:insert("#",{new=df.history_event_add_hf_entity_linkst,year=trgunit.birth_year,
+ seconds=trgunit.birth_time,id=hf_event_id,civ=hf.civ_id,histfig=hf.id,link_type=0})
+ return hf
+end
+
+function createName() -- Taken from modtools/create-unit
+ --pick a random appropriate name
+ --choose three random words in the appropriate things
+ local unit = df.unit.find(id)
+ local entity_raw
+ if entityRawName then
+  for k,v in ipairs(df.global.world.raws.entities) do
+   if v.code == entityRawName then
+    entity_raw = v
+    break
+   end
+  end
+ else
+  local entity = df.historical_entity.find(civ_id)
+  entity_raw = entity.entity_raw
+ end
+
+ if not entity_raw then
+  error('entity raw = nil: ', id, entityRawName, civ_id)
+ end
+
+ local translation = entity_raw.translation
+ local translationIndex
+ for k,v in ipairs(df.global.world.raws.language.translations) do
+  if v.name == translation then
+   translationIndex = k
+   break
+  end
+ end
+ --translation = df.language_translation.find(translation)
+ local language_word_table = entity_raw.symbols.symbols1[0] --educated guess
+ function randomWord()
+  local index = math.random(0, #language_word_table.words[0] - 1)
+  return index
+ end
+ local firstName = randomWord()
+ local lastName1 = randomWord()
+ local lastName2 = randomWord()
+ local name = unit.status.current_soul.name
+ name.words[0] = language_word_table.words[0][lastName1]
+ name.parts_of_speech[0] = language_word_table.parts[0][lastName1]
+ name.words[1] = language_word_table.words[0][lastName2]
+ name.parts_of_speech[1] = language_word_table.parts[0][lastName2]
+ local language = nil
+ for _, lang in pairs(df.global.world.raws.language.translations) do
+  if lang.name == entity_raw.translation then
+   language = lang
+  end
+ end
+ if language then
+  name.first_name = language.words[firstName].value
+ else
+  name.first_name = df.language_word.find(language_word_table.words[0][firstName]).forms[language_word_table.parts[0][firstName]]
+ end
+ name.has_name = true
+ name.language = translationIndex
+ unit.name:assign(name)
+ if unit.hist_figure_id ~= -1 then
+  local histfig = df.historical_figure.find(unit.hist_figure_id)
+  histfig.name:assign(name)
+ end
+end
+
+function createNemesis(trgunit,civ_id,group_id) -- Taken from modtools/create-unit
+ local function  allocateNewChunk(hist_entity)
+  hist_entity.save_file_id=df.global.unit_chunk_next_id
+  df.global.unit_chunk_next_id=df.global.unit_chunk_next_id+1
+  hist_entity.next_member_idx=0
+  print("allocating chunk:",hist_entity.save_file_id)
+ end
+
+ local function allocateIds(nemesis_record,hist_entity)
+  if hist_entity.next_member_idx==100 then
+    allocateNewChunk(hist_entity)
+  end
+  nemesis_record.save_file_id=hist_entity.save_file_id
+  nemesis_record.member_idx=hist_entity.next_member_idx
+  hist_entity.next_member_idx=hist_entity.next_member_idx+1
+ end
+
+ local id=df.global.nemesis_next_id
+ local nem=df.nemesis_record:new()
+
+ nem.id=id
+ nem.unit_id=trgunit.id
+ nem.unit=trgunit
+ nem.flags:resize(4)
+  --not sure about these flags...
+ --[[
+ nem.flags[4]=true
+ nem.flags[5]=true
+ nem.flags[6]=true
+ nem.flags[7]=true
+ nem.flags[8]=true
+ nem.flags[9]=true
+ --]]
+ --[[for k=4,8 do
+ nem.flags[k]=true
+ end]]
+ nem.unk10=-1
+ nem.unk11=-1
+ nem.unk12=-1
+ df.global.world.nemesis.all:insert("#",nem)
+ df.global.nemesis_next_id=id+1
+ trgunit.general_refs:insert("#",{new=df.general_ref_is_nemesisst,nemesis_id=id})
+ trgunit.flags1.important_historical_figure=true
+
+ nem.save_file_id=-1
+
+ local he=df.historical_entity.find(civ_id)
+ he.nemesis_ids:insert("#",id)
+ he.nemesis:insert("#",nem)
+ local he_group
+ if group_id and group_id~=-1 then
+  he_group=df.historical_entity.find(group_id)
+ end
+ if he_group then
+  he_group.nemesis_ids:insert("#",id)
+  he_group.nemesis:insert("#",nem)
+ end
+ allocateIds(nem,he)
+ nem.figure=createFigure(trgunit,he,he_group)
+end
+
+function createUnit(race_id,caste_id,location) -- Taken from modtools/create-unit
+ local view_x = df.global.window_x
+ local view_y = df.global.window_y
+ local view_z = df.global.window_z
+
+ local curViewscreen = dfhack.gui.getCurViewscreen()
+ local dwarfmodeScreen = df.viewscreen_dwarfmodest:new()
+ curViewscreen.child = dwarfmodeScreen
+ dwarfmodeScreen.parent = curViewscreen
+ local oldMode = df.global.ui.main.mode
+ df.global.ui.main.mode = df.ui_sidebar_mode.LookAround
+
+ local gui = require 'gui'
+
+ if not dfhack.world.isArena() then
+  --This is already populated in arena mode, so don't clear it then (#994)
+  df.global.world.arena_spawn.race:resize(0)
+  df.global.world.arena_spawn.race:insert(0,race_id)
+
+  df.global.world.arena_spawn.caste:resize(0)
+  df.global.world.arena_spawn.caste:insert(0,caste_id)
+
+  df.global.world.arena_spawn.creature_cnt:resize(0)
+  df.global.world.arena_spawn.creature_cnt:insert(0,0)
+ end
+
+ local old_gametype = df.global.gametype
+ df.global.gametype = df.game_type.DWARF_ARENA
+ gui.simulateInput(dwarfmodeScreen, 'D_LOOK_ARENA_CREATURE')
+
+ -- move cursor to location instead of moving unit later, corrects issue of missing mapdata when moving the created unit.
+ if location then
+  df.global.cursor.x = tonumber(location[1])
+  df.global.cursor.y = tonumber(location[2])
+  df.global.cursor.z = tonumber(location[3])
+ end
+
+ local spawnScreen = dfhack.gui.getCurViewscreen()
+ if dfhack.world.isArena() then
+  -- Just modify the current screen in arena mode (#994)
+  spawnScreen.race:insert(0, race_id)
+  spawnScreen.caste:insert(0, caste_id)
+ end
+ gui.simulateInput(spawnScreen, 'SELECT')
+
+ df.global.gametype = old_gametype
+
+ curViewscreen.child = nil
+ dwarfmodeScreen:delete()
+ df.global.ui.main.mode = oldMode
+
+ local id = df.global.unit_next_id-1
+ df.global.window_x = view_x
+ df.global.window_y = view_y
+ df.global.window_z = view_z
+ return id
+end
+
 ---------------------------------------------------------------------------------------
 
 function makeProjectile(unit,velocity) -- Turns a unit into a projectile with a given velocity [vx, vy, vz]

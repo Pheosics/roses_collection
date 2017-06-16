@@ -146,6 +146,58 @@ function checkBounds(x,y,z)
  return pos
 end
 
+function checkFree(x,y,z)
+ free = false
+ pos = {}
+ if y == nil and z == nil then
+  pos.x = x.x or x[1]
+  pos.y = x.y or x[2]
+  pos.z = x.z or x[3]
+ else
+  pos.x = x
+  pos.y = y
+  pos.z = z
+ end
+
+ x = pos.x%16
+ y = pos.y%16
+ block = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z)
+ d = block.designation[x][y]
+ o = block.occupancy[x][y]
+ tt = block.tiletype[x][y]
+ if d.flow_size == 0  and o.building == 0 and string.match(df.tiletype[tt],'Floor') then
+  free = true
+ end
+
+ return free
+end
+
+function checkSurface(x,y,z)
+ surface = false
+ pos = {}
+ if y == nil and z == nil then
+  pos.x = x.x or x[1]
+  pos.y = x.y or x[2]
+  pos.z = x.z or x[3]
+ else
+  pos.x = x
+  pos.y = y
+  pos.z = z
+ end
+
+ x = pos.x%16
+ y = pos.y%16
+ b1 = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z)
+ d1 = b1.designation[x][y]
+ b2 = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z-1)
+ d2 = b2.designation[x][y]
+ 
+ if d1.outside and not d2.outside then
+  surface = true
+ end
+
+ return surface
+end
 function getEdgesPosition(pos,radius)
 -- Get the positions of the edges from a certain radius
 -- Returns list of positions
@@ -456,13 +508,7 @@ function getPositionSurfaceFree()
  location = getPositionRandom()
  while not free do
   pos = getPositionSurface(location)
-  x = pos.x%16
-  y = pos.y%16
-  block = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z)
-  d = block.designation[x][y]
-  o = block.occupancy[x][y]
-  tt = block.tiletype[x][y]
-  if d.flow_size == 0 and not o.unit and o.building == 0 and string.match(df.tiletype[tt],'Floor') then
+  if checkFree(pos) then
    free = true
   else
    location = getPositionRandom()

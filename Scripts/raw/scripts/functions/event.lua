@@ -457,7 +457,6 @@ function checkEvent(event,method,verbose)
  local persistTable = require 'persist-table'
  local eventTable = persistTable.GlobalTable.roses.EventTable[event]
  local triggered = {}
- if verbose then print(checkRequirements(event,0,verbose)) end
  if checkRequirements(event,0,verbose) then
   triggered[0] = true
   for _,i in pairs(eventTable.Effect._children) do
@@ -466,7 +465,7 @@ function checkEvent(event,method,verbose)
     if triggered[contingency] then
      triggered[tonumber(i)] = true
      triggerEvent(event,tonumber(i),verbose)
---     if verbose then print('Event effect triggered '..event) end
+     if verbose then print('Event effect triggered '..event) end
     end
    end
   end
