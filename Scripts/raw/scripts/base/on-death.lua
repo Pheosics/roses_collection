@@ -86,6 +86,7 @@ events.onUnitDeath.mainFunction=function(target_id)
   if killer_id >= 0 and killer_civ >= 0 then
    if not roses.EntityTable[tostring(killer_civ)] then dfhack.script_environment('functions/tables').makeEntityTable(tostring(killer_civ)) end
    killTable = roses.EntityTable[tostring(killer_civ)].Kills
+   killTable.Total = killTable.Total or '0'
    killTable.Total = tostring(killTable.Total + 1)
    killTable[killer_creature_name] = killTable[killer_creature_name] or {}
    killTable[killer_creature_name][killer_caste_name] = killTable[killer_creature_name][killer_caste_name] or '0'
@@ -94,6 +95,7 @@ events.onUnitDeath.mainFunction=function(target_id)
   if target_civ >= 0 then
    if not roses.EntityTable[tostring(target_civ)] then dfhack.script_environment('functions/tables').makeEntityTable(tostring(target_civ)) end
    deathTable = roses.EntityTable[tostring(target_civ)].Deaths
+   deathTable.Total = deathTable.Total or '0'
    deathTable.Total = tostring(deathTable.Total + 1)
    deathTable[target_creature_name] = deathTable[target_creature_name] or {}
    deathTable[target_creature_name][target_caste_name] = deathTable[target_creature_name][target_caste_name] or '0'

@@ -5,7 +5,7 @@ local guiScript = require 'gui.script'
 local utils = require 'utils'
 local split = utils.split_string
 
-checkclass = true
+checkclass = false
 
 function center(str, length)
  local string1 = str
@@ -348,6 +348,7 @@ function UnitViewUi:updateBottom()
  end
     self.subviews.bottom_ui:setText(text)
 end
+
 function UnitViewUi:attributeView()
  self.subviews.bottom_ui:setText({
                                   { text = 'ESC: Back'}
@@ -355,6 +356,7 @@ function UnitViewUi:attributeView()
  self.subviews.attributeView.visible = true
  self.subviews.main.visible = false
 end
+
 function UnitViewUi:classView()
  self.subviews.bottom_ui:setText({
                                   { key = 'CUSTOM_SHIFT_A', text = ': Show All Classes  ', on_activate = function () self:classList('All') end },
@@ -367,6 +369,7 @@ function UnitViewUi:classView()
  self.subviews.classView2.visible = true
  self.subviews.main.visible = false
 end
+
 function UnitViewUi:featView()
  self.subviews.bottom_ui:setText({
                                   { key = 'CUSTOM_SHIFT_A', text = ': Show All Feats  ', on_activate = function () self:featList('All') end },

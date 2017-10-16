@@ -69,12 +69,12 @@ function trackCore(unit,strname,kind,Table,func,change,value,syndrome,dur,alter)
    typeTable.Change = tostring(typeTable.Change + change)
    local statusNumber = #statusTable._children -- If the change has a duration add a status effect to the StatusEffects table
    statusTable[tostring(statusNumber+1)] = {}
-   statusTable[tostring(statusNumber+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
-   statusTable[tostring(statusNumber+1)].Change = tostring(change)
+   statusTable[tostring(statusNumber+1)].End = tostring(math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur))
+   statusTable[tostring(statusNumber+1)].Change = tostring(math.floor(change))
    statusTable[tostring(statusNumber+1)].Linked = 'False'
    if syndrome then -- If the change has an associated syndrome, link the StatusEffects table and the SyndromeTrack table together
     trackTable = unitTable[tostring(unit.id)].SyndromeTrack
-    statusTable[tostring(statusNumber+1)].Linked = 'True'
+    statusTable[tostring(math.floor(statusNumber+1))].Linked = 'True'
     if not trackTable[syndrome] then
      trackTable[syndrome] = {}
     end
@@ -84,16 +84,16 @@ function trackCore(unit,strname,kind,Table,func,change,value,syndrome,dur,alter)
     if not trackTable[syndrome][strname][kind] then
      trackTable[syndrome][strname][kind] = {}
     end
-    trackTable[syndrome][strname][kind].Number = tostring(statusNumber+1)
+    trackTable[syndrome][strname][kind].Number = tostring(math.floor(statusNumber+1))
     trackTable[syndrome][strname][kind].CallBack = tostring(cb_id)
    end
   else
-   typeTable.Base = tostring(value) -- No need for associating syndromes with permanent changes, if requested can add at a later time.
+   typeTable.Base = tostring(math.floor(value)) -- No need for associating syndromes with permanent changes, if requested can add at a later time.
   end 
  elseif alter == 'end' then -- If the change ends naturally, revert the change
   typeTable = Table[kind]
   statusTable = typeTable.StatusEffects
-  typeTable.Change = tostring(typeTable.Change - change)
+  typeTable.Change = tostring(math.floor(typeTable.Change - change))
   for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
    if statusTable[i] then
     if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
@@ -116,7 +116,7 @@ function trackCore(unit,strname,kind,Table,func,change,value,syndrome,dur,alter)
      statusTable = typeTable.StatusEffects
      local statusNumber = trackTable[name][strname][kindA].Number
      local callback = trackTable[name][strname][kindA].CallBack
-     typeTable.Change = tostring(typeTable.Change - statusTable[statusNumber].Change)
+     typeTable.Change = tostring(math.floor(typeTable.Change - statusTable[statusNumber].Change))
      func(unit.id,kindA,-tonumber(statusTable[statusNumber].Change),0,nil,nil)
      dfhack.timeout_active(callback,nil)
      dfhack.script_environment('persist-delay').environmentDelete(callback)
@@ -150,10 +150,10 @@ function trackCore(unit,strname,kind,Table,func,change,value,syndrome,dur,alter)
   end
  elseif alter == 'class' then -- Track changes associated with a class
   typeTable = Table[kind]
-  typeTable.Class = tostring(change + typeTable.Class)
+  typeTable.Class = tostring(math.floor(change + typeTable.Class))
  elseif alter == 'item' then -- Track changes associated with an item
   typeTable = Table[kind]
-  typeTable.Item = tostring(change + typeTable.Item)
+  typeTable.Item = tostring(math.floor(change + typeTable.Item))
  end
 end
 
@@ -182,7 +182,7 @@ function trackAttribute(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
  trackCore(unit,'Attribute',kind,unitTable.Attributes,changeAttribute,change,value,syndrome,dur,alter)
 end
 
-function trackResistance(unit,kind,change,dur,alter,syndrome,cb_id)
+function trackResistance(unit,kind,change,value,dur,alter,syndrome,cb_id)
  persistTable = require 'persist-table'
  if not persistTable.GlobalTable.roses then
   return
@@ -227,7 +227,7 @@ function trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
  trackCore(unit,'Skill',kind,unitTable.Skills,changeSkill,change,value,syndrome,dur,alter)
 end
 
-function trackStat(unit,kind,change,dur,alter,syndrome,cb_id)
+function trackStat(unit,kind,change,value,dur,alter,syndrome,cb_id)
  -- Make sure base/roses-init is loaded
  persistTable = require 'persist-table'
  if not persistTable.GlobalTable.roses then
@@ -243,7 +243,7 @@ function trackStat(unit,kind,change,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
  end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
- if not unitTable[tostring(unit.id)].Stats[kind] then
+ if not unitTable.Stats[kind] then
   dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit.id,'Stats',kind)
  end
  -- Track!
@@ -658,9 +658,7 @@ function changeCounter(unit,counter,change,dur)
      or counter == 'pain' or counter == 'nausea' or counter == 'dizziness' or counter == 'suffocation') then
   location = unit.counters
  elseif (counter == 'paralysis' or counter == 'numbness' or counter == 'fever' or counter == 'exhaustion'
-         or counter == 'hunger' or counter == 'thirst' or counter == 'sleepiness' or oounter == 'hunger_timer'
-         or counter == 'thirst_timer' or counter == 'sleepiness_timer') then
-  if (counter == 'hunger' or counter == 'thirst' or counter == 'sleepiness') then counter = counter .. '_timer' end
+         or counter == 'hunger_timer' or counter == 'thirst_timer' or counter == 'sleepiness_timer') then
   location = unit.counters2
  elseif counter == 'blood' or counter == 'infection' then
   location = unit.body
@@ -679,6 +677,7 @@ function changeCounter(unit,counter,change,dur)
   return  
  else
   print('Invalid counter token declared')
+  print(counter)
   return
  end
  current = location[counter]
@@ -701,10 +700,12 @@ function changeResistance(unit,resistance,change,dur,track,syndrome,cb_id)
  -- Add/Subtract given amount from resistance of a unit.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
--- For if Toady ever implements actual in game resistances 
+-- For if Toady ever implements actual in game resistances
+ value = change
+--
  if syndrome and not track == 'end' then changeSyndrome(unit,syndrome,'add') end 
  if dur > 0 then cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/unit','changeResistance',{unit.id,resistance,-change,0,'end',syndrome,nil}) end
- if track then trackResistance(unit.id,resistance,change,dur,track,syndrome,cb_id) end
+ if track then trackResistance(unit.id,resistance,change,value,dur,track,syndrome,cb_id) end
 end
 
 function changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
@@ -770,14 +771,79 @@ function changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
  if track then trackSkill(unit.id,skill,current,change,value,dur,track,syndrome,cb_id) end
 end
 
+function changeSkillExperience(unit,skill,change,dur,track,syndrome,cb_id)
+ -- Add/Subtract given amount from declared skill of a unit.
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ utils = require 'utils'
+ dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
+ change = change or 0
+ 
+ local skills = unit.status.current_soul.skills
+ local skillid = df.job_skill[skill]
+ local value = 0
+ local found = false
+ local current = 0
+ if skillid then
+  for i,x in ipairs(skills) do
+   if x.id == skillid then
+    found = true
+    token = x
+    current = token.experience
+    break
+   end
+  end
+  if not found then
+   utils.insert_or_update(unit.status.current_soul.skills,{new = true, id = skillid, rating = 0},'id')
+   skills = unit.status.current_soul.skills
+   for i,x in ipairs(skills) do
+    if x.id == skillid then
+     found = true
+     token = x
+     current = token.experience
+     break
+    end
+   end
+  end
+ else
+  persistTable = require 'persist-table'
+  if not persistTable.GlobalTable.roses then
+   print('Invalid skill id')
+   return
+  end
+  if persistTable.GlobalTable.roses.BaseTable.CustomSkills[skill] then
+   _,current = getUnit(unit,'Skills',skill)
+   token = {}
+  else
+   print('Invalid skill id')
+   return
+  end
+ end
+  
+ value = math.floor(current+change)
+ if value > 20 then
+  change = 20 - current
+  value = 20
+ end
+ if value < 0 then
+  change = current
+  value = 0
+ end
+ token.rating = value
+ if syndrome and not track == 'end' then changeSyndrome(unit,syndrome,'add') end 
+ if dur > 0 then cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/unit','changeSkill',{unit.id,skill,-change,0,'end',syndrome,nil}) end
+ if track then trackSkill(unit.id,skill,current,change,value,dur,track,syndrome,cb_id) end
+end
+
 function changeStat(unit,stat,change,dur,track,syndrome,cb_id)
  -- Add/Subtract given amount from a stat of a unit.
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  dfhack.script_environment('functions/enhanced').enhanceCreature(unit)
--- For if Toady ever implements actual in game stats  
+-- For if Toady ever implements actual in game stats
+ value = change
+--
  if syndrome and not track == 'end' then changeSyndrome(unit,syndrome,'add') end 
  if dur > 0 then cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/unit','changeStat',{unit.id,stat,-change,0,'end',syndrome,nil}) end
- if track then trackStat(unit.id,stat,change,dur,track,syndrome,cb_id) end
+ if track then trackStat(unit.id,stat,change,value,dur,track,syndrome,cb_id) end
 end
 
 function changeTrait(unit,trait,change,dur,track,syndrome,cb_id)
@@ -814,14 +880,14 @@ function changeBody(unit,part,changeType,change,dur)
    unit.flags3.body_temp_in_range = not unit.flags3.body_temp_in_range
    change = 'Fire'
   else
-   unit.status2.body_part_temperature[part].whole=unit.status2.body_part_temperature[part].whole + change
+   unit.status2.body_part_temperature[part].whole=math.floor(tonumber(unit.status2.body_part_temperature[part].whole + change))
   end
  elseif changeType == 'Size' then
-  unit.body.size_info.size_cur = unit.body.size_info.size_cur + change
+  unit.body.size_info.size_cur = math.floor(tonumber(unit.body.size_info.size_cur + change))
  elseif changeType == 'Area' then
-  unit.body.size_info.area_cur = unit.body.size_info.area_cur + change
+  unit.body.size_info.area_cur = math.floor(tonumber(unit.body.size_info.area_cur + change))
  elseif changeType == 'Length' then
-  unit.body.size_info.length_cur = unit.body.size_info.length_cur + change
+  unit.body.size_info.length_cur = math.floor(tonumber(unit.body.size_info.length_cur + change))
  end
 
  if dur > 0 then
@@ -1080,7 +1146,7 @@ function changeEmotion(unit,thought,subthought,emotion,strength,severity,task,nu
                        thought=thought,
                        subthought=subthought,
                        severity=severity,
-                       flags=0,
+                       --flags=0,
                        unk7=0,
                        year=df.global.cur_year,
                        year_tick=df.global.cur_year_tick
@@ -1287,7 +1353,7 @@ function changeSyndrome(unit,syndromes,change,dur) -- references modtools/add-sy
    for _,syn in pairs(unit.syndromes.active) do
     if syndrome == df.global.world.raws.syndromes.all[syn.type].syn_name then
      current_ticks = syn.ticks
-     new_ticks = current_ticks - dur
+     new_ticks = current_ticks + dur
      if new_ticks < 0 then new_ticks = 0 end
      syn.ticks = new_ticks
      for _,symptom in pairs(syn.symptoms) do
@@ -1304,7 +1370,7 @@ function changeSyndrome(unit,syndromes,change,dur) -- references modtools/add-sy
     for _,syn in pairs(unit.syndromes.active) do
      if id == df.global.world.raws.syndromes.all[syn.type].id then
       current_ticks = syn.ticks
-      new_ticks = current_ticks - dur
+      new_ticks = current_ticks + dur
       if new_ticks < 0 then new_ticks = 0 end
       syn.ticks = new_ticks
       for _,symptom in pairs(syn.symptoms) do
@@ -1541,6 +1607,7 @@ function getUnit(unit,strType,strKind,initialize)
  syndrome = 0
  persistTable = require 'persist-table'
  if not persistTable.GlobalTable.roses then
+  typeTable = {}
   if strType == 'Attributes' then
    if df.physical_attribute_type[strkind] then
     if unit.curse.attr_change then
@@ -1567,8 +1634,8 @@ function getUnit(unit,strType,strKind,initialize)
    -- No Stat in the base game
   elseif strType == 'Traits' then
    typeTable = unitTable.Traits
-   if unit.status.current_soul.preferences.traits[strKind] then
-    total = unit.status.current_soul.preferences.traits[strKind]
+   if unit.status.current_soul.personality.traits[strKind] then
+    total = unit.status.current_soul.personality.traits[strKind]
    end
   end
   base = total - syndrome
@@ -1609,8 +1676,8 @@ function getUnit(unit,strType,strKind,initialize)
    typeTable = unitTable.Stats
    total = 'ADD'
   elseif strType == 'Traits' then
-   if unit.status.current_soul.preferences.traits[strKind] then
-    total = unit.status.current_soul.preferences.traits[strKind]
+   if unit.status.current_soul.personality.traits[strKind] then
+    total = unit.status.current_soul.personality.traits[strKind]
    else
     total = 'ADD'
    end
@@ -2148,8 +2215,8 @@ function createEquipment(unit,equip)
   -- Item Options: Based off of entity raws
   -- Mat Options: Random
   raw = entities[equipment[1]]
-  availItems = {'weapon'=raw.weapon_id,'armor'=raw.armor_id,'helm'=raw.helm_id,'gloves'=raw.gloves_id,'shoes'=raw.shoes_id,
-                'pants'=raw.pants_id,'shield'=raw.shield_id,'ammo'=raw.ammo_id}
+  availItems = {weapon=raw.weapon_id,armor=raw.armor_id,helm=raw.helm_id,gloves=raw.gloves_id,
+				shoes=raw.shoes_id,pants=raw.pants_id,shield=raw.shield_id,ammo=raw.ammo_id}
   value = tonumber(equipment[2])
  elseif equipment[1] == 'CIV' then
   -- Item Options: Items available to the units civ
@@ -2157,9 +2224,9 @@ function createEquipment(unit,equip)
   civ = df.historic_entity.find(unit.civ_id)
   rsr = civ.resources
   mtl = civ.resources.metal
-  availItems = {'weapon'=rsr.weapon_type,'armor'=rsr.armor_type,'helm'=rsr.helm_type,'gloves'=rsr.gloves_type,'shoes'=rsr.shoes_type,
-                'pants'=rsr.pants_type,'shield'=rsr.ammo_type,'ammo'=rsr.ammo_type}
-  availMats  = {'weapon'=mtl.weapon,'armor'=mtl.armor,'ammo'=mtl.ammo,'leather'=rsr.organic.leather,'cloth'=rsr.organic.fiber}
+  availItems = {weapon=rsr.weapon_type,armor=rsr.armor_type,helm=rsr.helm_type,gloves=rsr.gloves_type,
+                shoes=rsr.shoes_type,pants=rsr.pants_type,shield=rsr.ammo_type,ammo=rsr.ammo_type}
+  availMats  = {weapon=mtl.weapon,armor=mtl.armor,ammo=mtl.ammo,leather=rsr.organic.leather,cloth=rsr.organic.fiber}
   value = tonumber(equipment[2])
  elseif equipment[1] == 'TEMPLATE' then
   -- Item Options: Items read from a template
@@ -2169,9 +2236,9 @@ function createEquipment(unit,equip)
   roses = persistTable.GlobalTable.roses
   if safe_index(roses,'EquipmentTemplates',template) then
    tmp = roses.EquipmentTemplates[template]
-   availItems = {'weapon'=tmp.Weapons,'armor'=tmp.Armor,'helm'=tmp.Helms,'gloves'=tmp.Gloves,'shoes'=tmp.Shoes,
-                 'pants'=tmp.Pants,'shield'=tmp.Shields,'ammo'=tmp.Ammo}
-   availMats  = {'weapon'=tmp.WeaponMats,'armor'=tmp.ArmorMats,'ammo'=tmp.AmmoMats,'leather'=tmp.Leathers,'cloth'=tmp.Cloths}
+   availItems = {weapon=tmp.Weapons,armor=tmp.Armor,helm=tmp.Helms,gloves=tmp.Gloves,
+                 shoes=tmp.Shoes,pants=tmp.Pants,shield=tmp.Shields,ammo=tmp.Ammo}
+   availMats  = {weapon=tmp.WeaponMats,armor=tmp.ArmorMats,ammo=tmp.AmmoMats,leather=tmp.Leathers,cloth=tmp.Cloths}
    value = tmp.Value
   else
    return items, parts, modes

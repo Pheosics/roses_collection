@@ -198,6 +198,7 @@ function checkSurface(x,y,z)
 
  return surface
 end
+
 function getEdgesPosition(pos,radius)
 -- Get the positions of the edges from a certain radius
 -- Returns list of positions
@@ -692,37 +693,36 @@ function spawnLiquid(edges,offset,depth,magma,circle,taper)
  end
 end
 
-function getFlow(pos)
+function getFlow(pos,flowType)
+ flowType = string.upper(flowType) or 'ALL'
  flowtypes = {
-              MIASMA,
-              MIST,
-              MIST2,
-              DUST,
-              LAVAMIST,
-              SMOKE,
-              DRAGONFIRE,
-              FIREBREATH,
-              WEB,
-              UNDIRECTEDGAS,
-              UNDIRECTEDVAPOR,
-              OCEANWAVE,
-              SEAFOAM
+              'MIASMA',
+              'STEAM',
+              'MIST',
+              'MATERIALDUST',
+              'MAGMAMIST',
+              'SMOKE',
+              'DRAGONFIRE',
+              'FIRE',
+              'WEB',
+              'MATERIALGAS',
+              'MATERIALVAPOR',
+              'OCEANWAVE',
+              'SEAFOAM',
+			  'ITEMCLOUD'
              }
 
  block = dfhack.maps.ensureTileBlock(pos)
  flows = block.flows
- flowID = -1
+ flowOut = {}
  for i,flow in pairs(flows) do
   if flow.pos.x == pos.x and flow.pos.y == pos.y and flow.pos.z == pos.z then
-   flowID = i
-   break
+   if flowType == 'ALL' or flowType = flowtypes[flow.type] then
+    flowOut[#flowOut+1] = flow
+   end
   end
  end
- if flowID == -1 then
-  return false, false
- else
-  return flows[flowID], flowtypes[flows[flowID]['type']]
- end
+ return flowOut
 end
 
 function getTree(pos,array)
@@ -848,7 +848,22 @@ function getGrassMaterial(pos)
  end
 end
 
-function getInorganicMaterial(pos,floor)
+function getInorganicMaterial(pos,below)
+ if below then pos.z = pos.z - 1 end 
+ events = dfhack.maps.ensureTileBlock(pos).block_events
+ for _,event in ipairs(events) do
+  if df.block_square_event_mineralst:is_instance(event) then
+   if event.type == 0 then
+    material = dfhack.matinfo.decode(419,event.plant_index)
+    break
+   end
+  end
+ end
+ if material then
+  return material
+ else
+  return 'NONE'
+ end
  return 
 end
 
@@ -902,6 +917,7 @@ function getTreePositions(tree)
 end
 
 function flowSource(n)
+ n = tostring(n)
  local persistTable = require 'persist-table'
  flowTable = persistTable.GlobalTable.roses.FlowTable
  flow = flowTable[n]
@@ -914,7 +930,37 @@ function flowSource(n)
   flowType = tonumber(flow.FlowType)
   check = tonumber(flow.Check)
   pos = xyz2pos(x,y,z)
-  dfhack.maps.spawnFlow(pos,flowType,0,inorganic,density)
+  flows = getFlow(pos,flowType)
+  if #flows == 0 then
+   dfhack.maps.spawnFlow(pos,flowType,0,inorganic,density)
+  else
+   flows[1].density = density
+  end
+  dfhack.timeout(check,'ticks',
+                 function ()
+                  dfhack.script_environment('functions/map').flowSource(n)
+                 end
+                )
+ end                
+end
+
+function flowSink(n)
+ n = tostring(n)
+ local persistTable = require 'persist-table'
+ flowTable = persistTable.GlobalTable.roses.FlowTable
+ flow = flowTable[n]
+ if flow then
+  x = tonumber(flow.x)
+  y = tonumber(flow.y)
+  z = tonumber(flow.z)
+  density = tonumber(flow.Density)
+  inorganic = tonumber(flow.Inorganic)
+  flowType = tonumber(flow.FlowType)
+  check = tonumber(flow.Check)
+  pos = xyz2pos(x,y,z)
+  for _,flow in getFlow(pos,flowType) do
+   flow.density = density
+  end
   dfhack.timeout(check,'ticks',
                  function ()
                   dfhack.script_environment('functions/map').flowSource(n)
@@ -924,6 +970,7 @@ function flowSource(n)
 end
 
 function liquidSource(n)
+ n = tostring(n)
  local persistTable = require 'persist-table'
  liquidTable = persistTable.GlobalTable.roses.LiquidTable
  liquid = liquidTable[n]
@@ -952,6 +999,7 @@ function liquidSource(n)
 end
 
 function liquidSink(n)
+ n = tostring(n)
  local persistTable = require 'persist-table'
  liquidTable = persistTable.GlobalTable.roses.LiquidTable
  liquid = liquidTable[n]

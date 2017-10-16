@@ -496,7 +496,7 @@ end
 function checkEntity(source,target,argument,relation,verbose) -- checks entity of target unit
 -- sentity = df.global.world.entities[source.civ_id].entity_raw.code
  if target.civ_id < 0 then return false end
- tentity = df.global.world.entities[target.civ_id].entity_raw.code
+ tentity = df.global.world.entities.all[target.civ_id].entity_raw.code
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
   selected = x == tentity
@@ -845,7 +845,7 @@ function checkItem(source,targetList,target,verbose) -- check list of items for 
  if not target then target = 'all' end
  n = 0
  list = {}
- target == string.upper(target)
+ target = string.upper(target)
  for i,item in pairs(targetList) do
   if target == 'INVENTORY' then
    if item.flags.in_inventory then
@@ -888,7 +888,7 @@ function checkItemType(source,item,argument,relation,verbose)
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
   splitArg = split(temp,':')
-  if #splitArg = 1 then
+  if #splitArg == 1 then
    if item:getType() == dfhack.items.findType(temp) then
     if relation == 'required' then
      return true
@@ -896,7 +896,7 @@ function checkItemType(source,item,argument,relation,verbose)
      return false
     end      
    end
-  elseif #splitArg = 2 then
+  elseif #splitArg == 2 then
    if item:getType() == dfhack.items.findType(temp) and item:getSubtype() == dfhack.items.findSubType(temp) then
     if relation == 'required' then
      return true
@@ -920,7 +920,7 @@ function checkMaterial(source,item,argument,relation,verbose)
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
   splitArg = split(temp,':')
-  if #splitArg = 1 then
+  if #splitArg == 1 then
    if item.mat_type() == dfhack.matinfo.find(temp)['type'] then
     if relation == 'required' then
      return true
@@ -928,7 +928,7 @@ function checkMaterial(source,item,argument,relation,verbose)
      return false
     end      
    end
-  elseif #splitArg = 2 then
+  elseif #splitArg == 2 then
    if item.mat_type() == dfhack.matinfo.find(temp)['type'] and item.mat_index() == dfhack.matinfo.find(temp)['index'] then
     if relation == 'required' then
      return true
@@ -959,7 +959,7 @@ function checkCorpse(source,item,argument,relation,verbose)
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
   splitArg = split(temp,':')
-  if #splitArg = 1 then
+  if #splitArg == 1 then
    if df.global.world.raws.creatures.all[item.race].creature_id == splitArg[1] then
     if relation == 'required' then
      return true
@@ -967,7 +967,7 @@ function checkCorpse(source,item,argument,relation,verbose)
      return false
     end      
    end
-  elseif #splitArg = 2 then
+  elseif #splitArg == 2 then
    if df.global.world.raws.creatures.all[item.race].creature_id == splitArg[1] and df.global.world.raws.creatures.all[item.race].caste[item.caste].caste_id == splitArg[2] then
     if relation == 'required' then
      return true

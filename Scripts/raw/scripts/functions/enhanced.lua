@@ -76,6 +76,7 @@ end
 function setResistances(unit,table)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unit then return false end
+ local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[tostring(unit.id)] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]  
@@ -113,31 +114,17 @@ end
 function setSkills(unit,table)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unit then return false end
+ local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[tostring(unit.id)] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]  
  for _,skill in pairs(table._children) do
   local current = 0
   if not unitTable.Skills[skill] then 
-   dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit,'Attributes',attribute) 
+   dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit,'Skills',skill) 
   end
   _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Skills',skill)
-  rn = math.random(0,100)
-  if rn > 95 then
-   value = table[skill]['7']
-  elseif rn > 85 then
-   value = table[skill]['6']
-  elseif rn > 65 then
-   value = table[skill]['5']
-  elseif rn < 5 then
-   value = table[skill]['1']
-  elseif rn < 15 then
-   value = table[skill]['2']
-  elseif rn < 35 then
-   value = table[skill]['3']
-  else
-   value = table[skill]['4']
-  end
+  value = math.floor(math.random(table[skill].Min,table[skill].Max))
   change = dfhack.script_environment('functions/misc').getChange(current,value,'set')
   dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,0,'track')
  end
@@ -146,6 +133,7 @@ end
 function setStats(unit,table)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unit then return false end
+ local persistTable = require 'persist-table'
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[tostring(unit.id)] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]  

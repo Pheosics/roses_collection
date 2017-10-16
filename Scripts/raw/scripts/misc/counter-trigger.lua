@@ -9,7 +9,8 @@ function counters(types,unit,counter,increase,style,cap,script,reset)
   val = dfhack.script_environment('functions/misc').changeCounter(counter,increase)
  elseif types == 'UNIT' then
   val = dfhack.script_environment('functions/misc').changeCounter('!UNIT:'..counter,increase,unit.id)
-
+ end
+ 
  if style == 'minimum' then
   if val >= cap and cap >= 0 then
    trigger = true

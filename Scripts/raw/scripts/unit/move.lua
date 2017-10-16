@@ -103,7 +103,7 @@ elseif args.building then
    return
   end
  else
-  building = dfhack.script_environment('functions/building').findBuilding({'RANDOM','CUSTOM',args.building})
+  building = dfhack.script_environment('functions/building').findBuilding({'RANDOM','CUSTOM',args.building})[1]
  end
  if building then
   location = {building.centerx,building.centery,building.z}

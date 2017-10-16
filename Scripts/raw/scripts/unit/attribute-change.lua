@@ -79,7 +79,7 @@ for i,attribute in ipairs(args.attribute) do
    return
   end
   if persistTable.GlobalTable.roses.BaseTable.CustomAttributes[attribute] then
-   _,current = dfhack.script_environment('functions/unit').trackAttribute(unit,attribute,nil,nil,nil,nil,'get')
+   _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',attribute)
   else
    print('Invalid attribute id')
    return

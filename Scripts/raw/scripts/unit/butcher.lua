@@ -32,7 +32,7 @@ if args.unit and tonumber(args.unit) then
  else
   if args.kill then
    unit.body.blood_count = 0
-   dfhack.timeout(1,'ticks',function () dfhack.run_command('butcher -unit '..tostring(unit.id)) end)
+   dfhack.timeout(1,'ticks',function () dfhack.run_command('unit/butcher -unit '..tostring(unit.id)) end)
    return
   else
    print('Unit is still alive and has not been ordered -kill')

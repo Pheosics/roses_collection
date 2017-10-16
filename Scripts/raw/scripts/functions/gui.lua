@@ -2431,6 +2431,7 @@ function getInfo(unit,length)
  end
  return temp_info
 end
+
 function getBaseOutput(unit,w_frame)
  name = getUnitName(unit)
  caste = getCasteName(unit)
@@ -2802,6 +2803,7 @@ function getClassDetails(unit,choice)
  checkChange = true
  local name = choice.text[1].text
  local persistTable = require 'persist-table'
+ if not safe_index(persistTable,'GlobalTable','roses','ClassTable') then return end
  local classTable = persistTable.GlobalTable.roses.ClassTable
  local unitClasses = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes
  local unitSpells  = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Spells
@@ -3221,6 +3223,7 @@ function getSpellDetails(unit,choice)
  input = {}
  input2 = {}
  local persistTable = require 'persist-table'
+ if not safe_index(persistTable,'GlobalTable','roses','SpellTable') then return end
  local name = choice.text[1].text
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  spellTable = persistTable.GlobalTable.roses.SpellTable
@@ -3330,6 +3333,7 @@ function getFeatDetails(unit,choice)
  input = {}
  input2 = {}
  local persistTable = require 'persist-table'
+ if not safe_index(persistTable,'GlobalTable','roses','FeatTable') then return end
  local name = choice.text[1].text
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  featTable = persistTable.GlobalTable.roses.FeatTable

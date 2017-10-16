@@ -182,7 +182,7 @@ function create(item,material,a,b,c) --from modtools/create-item
  quality = b or 0
  creatorID = a or -1
  if creatorID == -1 then
-  creator = df.unit.find(df.global.world.units.active[0])
+  creator = df.global.world.units.active[0]
   creatorID = creator.id
  else
   creator = df.unit.find(tonumber(creatorID))

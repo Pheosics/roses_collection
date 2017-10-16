@@ -61,13 +61,12 @@ if #value ~= #args.resistance then
  return
 end
 
-track = nil
-if args.track then track = 'track' end
+track = args.track or 'track'
 
 for i,resistance in ipairs(args.resistance) do
- _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Resistances',x)
+ _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Resistances',resistance)
  change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
- dfhack.script_environment('functions/unit').changeResistance(unit,x,change,dur,track,args.syndrome)
+ dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,dur,track,args.syndrome)
 end
 if args.announcement then
 --add announcement information

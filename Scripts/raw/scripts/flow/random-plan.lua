@@ -3,20 +3,21 @@
 local utils = require 'utils'
 
 flowtypes = {
-miasma = 0,
-mist = 1,
-mist2 = 2,
-dust = 3,
-lavamist = 4,
-smoke = 5,
-dragonfire = 6,
-firebreath = 7,
-web = 8,
-undirectedgas = 9,
-undirectedvapor = 10,
-oceanwave = 11,
-seafoam = 12
-}
+              MIASMA = 0,
+              STEAM = 1,
+              MIST = 2,
+              MATERIALDUST = 3,
+              MAGMAMIST = 4,
+              SMOKE = 5,
+              DRAGONFIRE = 6,
+              FIRE = 7,
+              WEB = 8,
+              MATERIALGAS = 9,
+              MATERIALVAPOR = 10,
+              OCEANWAVE = 11,
+              SEAFOAM = 12,
+			  ITEMCLOUD = 13
+             }
 
 validArgs = validArgs or utils.invert({
  'help',
@@ -135,7 +136,7 @@ if args.flow then
  stype = args.flow
  density = tonumber(args.density) or 1
  itype = args.inorganic or 0
- local snum = flowtypes[stype]
+ local snum = flowtypes[string.upper(stype)]
  local inum = 0
  if itype ~= 0 then
   inum = dfhack.matinfo.find(itype).index

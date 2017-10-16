@@ -9,7 +9,7 @@ validArgs = validArgs or utils.invert({
  'amount',
  'dur',
  'unit',
- 'announcment',
+ 'announcement',
  'track',
  'syndrome',
 })
@@ -33,6 +33,7 @@ if args.help then -- Help declaration
       Percent
       Set
    -amount #
+   -experience
    -dur #
      length of time, in in-game ticks, for the change to last
      0 means the change is permanent
@@ -75,6 +76,7 @@ for i,skill in ipairs(args.skill) do
     found = true
     token = x
     current = token.rating
+	experience = token.experience
     break
    end
   end
@@ -86,6 +88,7 @@ for i,skill in ipairs(args.skill) do
      found = true
      token = x
      current = token.rating
+	 experience = token.experience
      break
     end
    end
@@ -97,7 +100,7 @@ for i,skill in ipairs(args.skill) do
    return
   end
   if persistTable.GlobalTable.roses.BaseTable.CustomSkills[skill] then
-   _,current = dfhack.script_environment('functions/unit').trackSkill(unit,skill,nil,nil,nil,nil,'get')
+   _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Skills',skill)
   else
    print('Invalid skill id')
    return

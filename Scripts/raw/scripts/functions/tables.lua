@@ -103,13 +103,13 @@ function makeTable(array,pos,fill)
  local strint = '1'
  for _,v in pairs(temptable) do
   temp[strint] = v
-  strint = tostring(strint+1)
+  strint = tostring(math.floor(strint+1))
  end
  if fill then
-  if tonumber(strint)-1 < tonumber(fill)+1 then
-   while tonumber(strint)-1 < tonumber(fill)+1 do
+  if tonumber(strint) <= tonumber(fill) then
+   while tonumber(strint) <= tonumber(fill) do
     temp[strint] = temp[tostring(strint-1)]
-    strint = tostring(strint+1)
+    strint = tostring(math.floor(strint+1))
    end
   end
  end
@@ -626,18 +626,19 @@ function makeClassTable(spellCheck,test,verbose)
      class.AutoUpgrade = array[2]
     elseif test == '[EXP' then
      class.Experience = {}
+	 class.Experience['0'] = '0'
      local temptable = {select(2,table.unpack(array))}
      strint = '1'
      for _,v in pairs(temptable) do
       class.Experience[strint] = v
-      strint = tostring(strint+1)
+      strint = tostring(math.floor(strint+1))
      end
      if tonumber(strint)-1 < tonumber(class.Levels) then
       print('Incorrect amount of experience numbers, must be equal to number of levels. Assuming linear progression for next experience level')
       while (tonumber(strint)-1) < tonumber(class.Levels) do
 --    print('Incorrect amount of experience numbers, must be equal to number of levels. Assuming linear progression for next experience level')
-       class.Experience[strint] = tostring(2*tonumber(class.Experience[tostring(strint-1)])-tonumber(class.Experience[tostring(strint-2)]))
-       strint = tostring(tonumber(strint)+1)
+       class.Experience[strint] = tostring(2*tonumber(class.Experience[tostring(math.floor(strint-1))])-tonumber(class.Experience[tostring(math.floor(strint-2))]))
+       strint = tostring(math.floor(tonumber(strint)+1))
       end
      end
     elseif test == '[REQUIREMENT_CLASS' then
@@ -666,6 +667,7 @@ function makeClassTable(spellCheck,test,verbose)
      if array[2] == 'PHYSICAL' or array[2] == 'MENTAL' or array[2] == 'ATTRIBUTE' then
       class.LevelBonus.Attribute = class.LevelBonus.Attribute or {}
       class.LevelBonus.Attribute[array[3]] = {}
+	  class.LevelBonus.Attribute[array[3]]['0'] = '0'
       tempTable = makeTable(array,4,class.Levels)
       for x,y in pairs(tempTable) do
        class.LevelBonus.Attribute[array[3]][tostring(x)] = y
@@ -673,6 +675,7 @@ function makeClassTable(spellCheck,test,verbose)
      elseif array[2] == 'SKILL' then
       class.LevelBonus.Skill = class.LevelBonus.Skill or {}
       class.LevelBonus.Skill[array[3]] = {}
+	  class.LevelBonus.Skill[array[3]]['0'] = '0'
       tempTable = makeTable(array,4,class.Levels)
       for x,y in pairs(tempTable) do
        class.LevelBonus.Skill[array[3]][tostring(x)] = y
@@ -680,6 +683,7 @@ function makeClassTable(spellCheck,test,verbose)
      elseif array[2] == 'RESISTANCE' then
       class.LevelBonus.Resistance = class.LevelBonus.Resistance or {}
       class.LevelBonus.Resistance[array[3]] = {}
+	  class.LevelBonus.Resistance[array[3]]['0'] = '0'
       tempTable = makeTable(array,4,class.Levels)
       for x,y in pairs(tempTable) do
        class.LevelBonus.Resistance[array[3]][tostring(x)] = y
@@ -687,6 +691,7 @@ function makeClassTable(spellCheck,test,verbose)
      elseif array[2] == 'STAT' then
       class.LevelBonus.Stat = class.LevelBonus.Stat or {}
       class.LevelBonus.Stat[array[3]] = {}
+	  class.LevelBonus.Stat[array[3]]['0'] = '0'
       tempTable = makeTable(array,4,class.Levels)
       for x,y in pairs(tempTable) do
        class.LevelBonus.Stat[array[3]][tostring(x)] = y
@@ -694,6 +699,7 @@ function makeClassTable(spellCheck,test,verbose)
      elseif array[2] == 'TRAIT' then
       class.LevelBonus.Trait = class.LevelBonus.Trait or {}
       class.LevelBonus.Trait[array[3]] = {}
+	  class.LevelBonus.Trait[array[3]]['0'] = '0'
       tempTable = makeTable(array,4,class.Levels)
       for x,y in pairs(tempTable) do
        class.LevelBonus.Trait[array[3]][tostring(x)] = y
@@ -702,6 +708,7 @@ function makeClassTable(spellCheck,test,verbose)
     elseif test == '[BONUS_PHYS' or test == '[BONUS_MENT' or test == '[BONUS_ATTRIBUTE' then
      class.BonusAttribute = class.BonusAttribute or {}
      class.BonusAttribute[array[2]] = {}
+	 class.BonusAttribute[array[2]]['0'] = '0'
      tempTable = makeTable(array,3,class.Levels)
      for x,y in pairs(tempTable) do
       class.BonusAttribute[array[2]][tostring(x)] = y
@@ -709,6 +716,7 @@ function makeClassTable(spellCheck,test,verbose)
     elseif test == '[BONUS_TRAIT' then
      class.BonusTrait = class.BonusTrait or {}
      class.BonusTrait[array[2]] = {}
+	 class.BonusTrait[array[2]]['0'] = '0'
      tempTable = makeTable(array,3,class.Levels)
      for x,y in pairs(tempTable) do
       class.BonusTrait[array[2]][tostring(x)] = y
@@ -716,6 +724,7 @@ function makeClassTable(spellCheck,test,verbose)
     elseif test == '[BONUS_SKILL' then
      class.BonusSkill = class.BonusSkill or {}
      class.BonusSkill[array[2]] = {}
+	 class.BonusSkill[array[2]]['0'] = '0'
      tempTable = makeTable(array,3,class.Levels)
      for x,y in pairs(tempTable) do
       class.BonusSkill[array[2]][tostring(x)] = y
@@ -723,6 +732,7 @@ function makeClassTable(spellCheck,test,verbose)
     elseif test == '[BONUS_STAT' then
      class.BonusStat = class.BonusStat or {}
      class.BonusStat[array[2]] = {}
+	 class.BonusStat[array[2]]['0'] = '0'
      tempTable = makeTable(array,3,class.Levels)
      for x,y in pairs(tempTable) do
       class.BonusStat[array[2]][tostring(x)] = y
@@ -730,6 +740,7 @@ function makeClassTable(spellCheck,test,verbose)
     elseif test == '[BONUS_RESISTANCE' then
      class.BonusResistance = class.BonusResistance or {}
      class.BonusResistance[array[2]] = {}
+	 class.BonusResistance[array[2]]['0'] = '0'
      tempTable = makeTable(array,3,class.Levels)
      for x,y in pairs(tempTable) do
       class.BonusResistance[array[2]][tostring(x)] = y
@@ -865,7 +876,7 @@ function makeSpellTable(test,verbose)
      script = data[j]:gsub("%s+","")
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
-     spell.Script[scriptNum] = script
+     spell.Script[tostring(scriptNum)] = script
      scriptNum = scriptNum + 1
     elseif test == '[EXP_GAIN' then
      spell.ExperienceGain = array[2]
@@ -953,7 +964,7 @@ function makeFeatTable(test,verbose)
      script = data[j]:gsub("%s+","")
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
-     feat.Script[num] = script
+     feat.Script[tostring(num)] = script
      num = num + 1
     end
    end
@@ -1049,11 +1060,13 @@ function makeEnhancedCreatureTable(test,verbose)
   
  dataFiles,dataInfoFiles,files = getData('Enhanced Creature','/raw/systems/Enhanced','Ecreatures','[CREATURE',test,verbose)
  if not dataFiles then return false end
+ tokens = {}
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
    creatureToken = split(x[1],':')[1]
+   tokens[creatureToken] = creatureToken
    casteToken = split(x[1],':')[2]
    startLine = x[2]+1
    if i == #dataInfo then
@@ -1120,23 +1133,18 @@ function makeEnhancedCreatureTable(test,verbose)
  end
 
 -- Copy any ALL caste data into the respective CREATURE:CASTE combo, CASTE caste data is given priority
- for _,creatureToken in pairs(creatures._children) do
-  for n,creature in pairs(df.global.world.raws.creatures.all) do
-   if creatureToken == creature.id then
+ for _,creatureToken in pairs(tokens) do
+  for n,c in pairs(df.global.world.raws.creatures.all) do
+   if creatureToken == c.creature_id then
     creatureID = n
     break
    end
   end
   if creatureID then
-   for _,caste in pairs(creature.caste) do
-    if not creatures[creatureToken][caste.id] then
-     creatures[creatureToken][caste.id] = {}
-    end
-   end
-  end
-  if creatures[creatureToken].ALL then
-   for _,casteToken in pairs(creatures[creatureToken]._children) do
-    if not casteToken == 'ALL' then
+   for _,caste in pairs(df.global.world.raws.creatures.all[creatureID].caste) do
+    casteToken = caste.caste_id
+    if not creatures[creatureToken][casteToken] then creatures[creatureToken][casteToken] = {} end
+	if creatures[creatureToken].ALL then
      for _,x in pairs(creatures[creatureToken].ALL._children) do
       if not creatures[creatureToken][casteToken][x] then
        creatures[creatureToken][casteToken][x] = creatures[creatureToken].ALL[x]
@@ -1849,7 +1857,7 @@ function makeEventTable(test,verbose)
     strint = '1'
     for _,v in pairs(temptable) do
      effect.Unit[strint] = v
-     strint = tostring(strint+1)
+     strint = tostring(math.floor(strint+1))
     end
    elseif test == '[EFFECT_LOCATION' then
     effect.Location = {}
@@ -1857,7 +1865,7 @@ function makeEventTable(test,verbose)
     strint = '1'
     for _,v in pairs(temptable) do
      effect.Location[strint] = v
-     strint = tostring(strint+1)
+     strint = tostring(math.floor(strint+1))
     end
    elseif test == '[EFFECT_BUILDING' then
     effect.Building = {}
@@ -1865,7 +1873,7 @@ function makeEventTable(test,verbose)
     strint = '1'
     for _,v in pairs(temptable) do
      effect.Building[strint] = v
-     strint = tostring(strint+1)
+     strint = tostring(math.floor(strint+1))
     end
    elseif test == '[EFFECT_ITEM' then
     effect.Item = {}
@@ -1873,7 +1881,7 @@ function makeEventTable(test,verbose)
     strint = '1'
     for _,v in pairs(temptable) do
      effect.Item[strint] = v
-     strint = tostring(strint+1)
+     strint = tostring(math.floor(strint+1))
     end
    elseif test == '[EFFECT_ARGUMENT' then
     argnumber = array[2]
@@ -1887,7 +1895,7 @@ function makeEventTable(test,verbose)
    elseif test == '[ARGUMENT_VARIABLE' then
     argument.Variable = array[2]
    elseif test == '[EFFECT_SCRIPT' then
-    effect.Scripts = tostring(effect.Scripts + 1)
+    effect.Scripts = tostring(math.floor(effect.Scripts + 1))
     script = data[j]:gsub("%s+"," ")
     script = table.concat({select(2,table.unpack(split(script,':')))},':')
     script = string.sub(script,1,-2)
@@ -1957,7 +1965,7 @@ function makeEntityTable(entity,verbose)
        local depth2 = depth1[stype]
        for _,mobj in pairs(depth2._children) do
         local sobj = depth2[mobj]
-        dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,true)
+        dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,verbose)
        end
       end
      end
@@ -1969,7 +1977,7 @@ function makeEntityTable(entity,verbose)
        local depth2 = depth1[stype]
        for _,mobj in pairs(depth2._children) do
         local sobj = depth2[mobj]
-        dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,true)
+        dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,verbose)
        end
       end
      end
@@ -2075,7 +2083,7 @@ function makeUnitTableSecondary(unit,table,token,verbose)
  unitTable[table][token].Class = '0'
  unitTable[table][token].Item = '0'
  unitTable[table][token].StatusEffects = {}
- _,base = dfhack.script_environment('functions/unit').getUnit(unit,table,token,'initialize',verbose)
+ _,base = dfhack.script_environment('functions/unit').getUnit(unit,table,token,true)
  unitTable[table][token].Base = tostring(base)
 end
 

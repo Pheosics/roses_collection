@@ -27,17 +27,17 @@ function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchanc
  unit.next_action_id = unit.next_action_id + 1
  action.type = 1
  attack_action = action.data.attack
- attack_action.target_unit_id = defender_id
- attack_action.attack_item_id = item_id
- attack_action.target_body_part_id = target_id
- attack_action.attack_body_part_id = body_id
- attack_action.attack_velocity = velocity
- attack_action.attack_id = attack_id
- attack_action.attack_accuracy = hitchance
- attack_action.timer1 = delay
- attack_action.timer2 = delay
+ attack_action.target_unit_id = math.floor(tonumber(defender_id))
+ attack_action.attack_item_id = math.floor(tonumber(item_id)) or -1
+ attack_action.target_body_part_id = math.floor(tonumber(target_id)) or -1
+ attack_action.attack_body_part_id = math.floor(tonumber(body_id)) or -1
+ attack_action.attack_velocity = math.floor(tonumber(velocity)) or 0
+ attack_action.attack_id = math.floor(tonumber(attack_id)) or 0
+ attack_action.attack_accuracy = math.floor(tonumber(hitchance)) or 0
+ attack_action.timer1 = math.floor(tonumber(delay)) or 0
+ attack_action.timer2 = math.floor(tonumber(delay)) or 0
  -- Unknown values
- attack_action.flags = 7
+ --attack_action.flags = 7 --flags are now a table of true/false for things like quick/heavy/etc... Will need to be included
  attack_action.unk_28 = 1
  attack_action.unk_2c = 1
  attack_action.unk_38 = 1

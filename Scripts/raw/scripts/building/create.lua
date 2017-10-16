@@ -15,6 +15,13 @@ validArgs = validArgs or utils.invert({
 
 local args = utils.processArgs({...}, validArgs)
 
+local mtype = nil
+local stype = nil
+local ctype = nil
+local dimx = nil
+local dimy = nil
+local stages = nil
+
 if args.help then
 print(
 [[building/subtype-change.lua
@@ -49,27 +56,27 @@ if args.custom then
  end
 
  if not mtype then
-  print('Custom building found')
+  print('Custom building not found')
   return
  end
 
 else
  mtype = df.building_type[args.type]
- stype = args.subtype -- How to get vanilla building subtype
+ stype = tonumber(args.subtype) -- How to get vanilla building subtype
  ctype = -1
  dimx = 1 -- How to get vanilla building sizes
  dimy = 1
  stages = 1 -- How to get vanilla building stages
 end
 
-x = args.location[1]
-y = args.location[2]
-z = args.location[3]
+local x = args.location[1]
+local y = args.location[2]
+local z = args.location[3]
 
 check = dfhack.script_environment('functions/map').checkFree
 -- Check quadrant 4
-free = true
-quad = 4
+local free = true
+local quad = 4
 for xp = x, x+dimx-1 do
  for yp = y, y+dimy-1 do
   if not check(xp,yp,z) then
@@ -130,12 +137,13 @@ elseif quad == 3 then
  y = y
 end
 
-pos = {}
+local pos = {}
 pos.x = x
 pos.y = y
 pos.z = z
 
-building = dfhack.buildings.constructBuilding({pos=pos,type=mtype,subtype=stype,custom=ctype})
+filters = dfhack.buildings.getFiltersByType({},mtype,stype,ctype)
+building = dfhack.buildings.constructBuilding({pos=pos,type=mtype,subtype=stype,custom=ctype,filters=filters})
 building.construction_stage = stages
 building.jobs:erase(0)
 

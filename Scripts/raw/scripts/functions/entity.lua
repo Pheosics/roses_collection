@@ -324,7 +324,11 @@ function changeMisc(civ,stype,mobj,sobj,direction,verbose)
    return
   end
  else
-  matinfo = dfhack.matinfo.find(mobj..':'..sobj)
+  if sobj == 'NONE' then
+   matinfo = dfhack.matinfo.find(mobj)
+  else
+   matinfo = dfhack.matinfo.find(mobj..':'..sobj)
+  end
   if matinfo then
    mat_type = dfhack.matinfo.find(mobj..':'..sobj).type
    mat_index = dfhack.matinfo.find(mobj..':'..sobj).index
