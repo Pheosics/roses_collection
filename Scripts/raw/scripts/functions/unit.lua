@@ -1703,12 +1703,7 @@ function getUnit(unit,strType,strKind,initialize)
  return total,base,change,class,item,syndrome
 end
 
-function getAttack(unit,attack_type) -- Renamed function checkAttack, used for backwards compatability
- attack, bodypart = checkAttack(unit,attack_type)
- return attack,bodypart
-end
-function checkAttack(unit,attack_type) -- Returns an attack number for either a random attack or a given attack and the body part id associated with the attack
--- print('Old function detected: checkAttack. Please switch to new function getAttack')
+function getAttack(unit,attack_type) -- Returns an attack number for either a random attack or a given attack and the body part id associated with the attack
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if attack_type == 'Random' then
   local rand = dfhack.random.new()
@@ -1747,11 +1742,7 @@ function checkAttack(unit,attack_type) -- Returns an attack number for either a 
  return attack, unit.body.body_plan.attacks[attack].body_part_idx[0]
 end
 
-function getBodyRandom(unit) -- Renamed function checkBodyRandom, used for backwards compatability
- return checkBodyRandom(unit)
-end
-function checkBodyRandom(unit) -- Returns random body part number weighted for relative size of body parts
--- print('Old function detected: checkBodyRandom. Please switch to new function getBodyRandom')
+function getBodyRandom(unit) -- Returns random body part number weighted for relative size of body parts
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local rand = dfhack.random.new()
  local totwght = 0
@@ -1776,11 +1767,7 @@ function checkBodyRandom(unit) -- Returns random body part number weighted for r
  return target
 end
 
-function getBodyCategory(unit,category)  -- Renamed function checkBodyCategory, used for backwards compatability
- return checkBodyCategory(unit,category)
-end
-function checkBodyCategory(unit,category) -- Returns a table of body part numbers for body parts that match given category
--- print('Old function detected: checkBodyCategory. Please switch to new function getBodyCategory')
+function getBodyCategory(unit,category) -- Returns a table of body part numbers for body parts that match given category
  -- Check a unit for body parts that match a given category(s)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(category) == 'string' then category = {category} end
@@ -1798,11 +1785,7 @@ function checkBodyCategory(unit,category) -- Returns a table of body part number
  return parts
 end
 
-function getBodyToken(unit,token) -- Renamed function checkBodyToken, used for backwards compatability
- return checkBodyToken(unit,token)
-end
-function checkBodyToken(unit,token) -- Returns a table of body part numbers for body parts that match given token
--- print('Old function detected: checkBodyToken. Please switch to new function getBodyToken')
+function getBodyToken(unit,token) -- Returns a table of body part numbers for body parts that match given token
  -- Check a unit for body parts that match a given token(s).
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(token) == 'string' then token = {token} end
@@ -1821,11 +1804,7 @@ function checkBodyToken(unit,token) -- Returns a table of body part numbers for 
  return parts
 end
 
-function getBodyFlag(unit,flag) -- Renamed function checkBodyFlag, used for backwards compatability
- return checkBodyFlag(unit,flag)
-end
-function checkBodyFlag(unit,flag) -- Returns a table of body part numbers for body parts that match given flag
--- print('Old function detected: checkBodyFlag. Please switch to new function getBodyFlag')
+function getBodyFlag(unit,flag) -- Returns a table of body part numbers for body parts that match given flag
  -- Check a unit for body parts that match a given flag(s).
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(flag) == 'string' then flag = {flag} end
@@ -1844,11 +1823,7 @@ function checkBodyFlag(unit,flag) -- Returns a table of body part numbers for bo
  return parts
 end
 
-function getBodyConnectedParts(unit,parts)
- return checkBodyConnectedParts(unit,parts)
-end
-function checkBodyConnectedParts(unit,parts) -- Returns a table of body part numbers for body parts connected to the given body part (contains the given body part)
--- print('Old function detected: checkBodyConnectedParts. Please switch to new function getBodyConnectedParts')
+function getBodyConnectedParts(unit,parts) -- Returns a table of body part numbers for body parts connected to the given body part (contains the given body part)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(parts) ~= 'table' then parts = {parts} end
  for i,x in pairs(parts) do
@@ -1862,10 +1837,6 @@ function checkBodyConnectedParts(unit,parts) -- Returns a table of body part num
 end
 
 function getBodyPartGlobalLayers(unit,part)
- return checkBodyPartGlobalLayers(unit,part)
-end
-function checkBodyPartGlobalLayers(unit,part)
--- print('Old function detected: checkBodyPartGlobalLayers. Please switch to new function getBodyPartGlobalLayers')
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  global_layers = {}
  for i,x in pairs(unit.body.body_plan.layer_part) do
@@ -1874,11 +1845,7 @@ function checkBodyPartGlobalLayers(unit,part)
  return global_layers
 end
 
-function getBodyCorpseParts(unit)
- return checkBodyCorpseParts(unit)
-end
-function checkBodyCorpseParts(unit) -- Returns a table with three components, Unit, Corpse, and Parts. Unit is the unit id of the unit. Corpse is the item id of the units item_corpsest (i.e. it's upper body). Parts is a table of the item id's of the units item_corpsepartsst (i.e. non upper body parts)
--- print('Old function detected: checkBodyCorpseParts. Please switch to new function getBodyCorpseParts')
+function getBodyCorpseParts(unit) -- Returns a table with three components, Unit, Corpse, and Parts. Unit is the unit id of the unit. Corpse is the item id of the units item_corpsest (i.e. it's upper body). Parts is a table of the item id's of the units item_corpsepartsst (i.e. non upper body parts)
  if df.item_corpsest:is_instance(unit) then
   unit = df.unit.find(unit.unit_id)
  elseif df.item_corpsepiecest:is_instance(unit) then
@@ -1898,11 +1865,7 @@ function checkBodyCorpseParts(unit) -- Returns a table with three components, Un
  return corpseparts
 end
 
-function getEmotion(unit,emotion,thought)
- return checkEmotion(unit,emotion,thought)
-end
-function checkEmotion(unit,emotion,thought) -- Returns a table of emotion numbers that match given emotion/thought
--- print('Old function detected: checkEmotion. Please switch to new function getEmotion')
+function getEmotion(unit,emotion,thought) -- Returns a table of emotion numbers that match given emotion/thought
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  thought = df.unit_thought_type[thought]
  emotion = df.emotion_type[emotion]
@@ -1935,11 +1898,7 @@ function checkEmotion(unit,emotion,thought) -- Returns a table of emotion number
  return list
 end
 
-function getSyndrome(unit,class,what)
- return checkSyndrome(unit,class,what)
-end
-function checkSyndrome(unit,class,what) -- Returns table of syndrome names and ids matching given SYN_CLASS or SYN_NAME
--- print('Old function detected: checkSyndrome. Please switch to new function getSyndrome')
+function getSyndrome(unit,class,what) -- Returns table of syndrome names and ids matching given SYN_CLASS or SYN_NAME
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(class) ~= 'table' then class = {class} end
 
@@ -1978,11 +1937,7 @@ function checkSyndrome(unit,class,what) -- Returns table of syndrome names and i
  return names, ids, ida
 end
 
-function getInventoryType(unit,item_type)
- return checkInventoryType(unit,item_type)
-end
-function checkInventoryType(unit,item_type) -- Returns table of item ids for items of a given type
--- print('Old function detected: checkInventoryType. Please switch to new function getInventoryType')
+function getInventoryType(unit,item_type) -- Returns table of item ids for items of a given type
  -- Check a unit for any inventory items of a given type(s).
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(item_type) == 'string' then item_type = {item_type} end
@@ -1995,6 +1950,38 @@ function checkInventoryType(unit,item_type) -- Returns table of item ids for ite
    if df.item_type[x.item:getType()] == y or y == 'ALL' then
     items[a] = x.item.id
     a = a + 1
+   end
+  end
+ end
+ return items
+end
+
+function getInventoryBodyPart(unit,bodyPart) -- Returns a table of item ids currently equipped to a given body part number
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if type(bodyPart) ~= 'table' then bodyPart = {bodyPart} end
+ 
+ local items = {}
+ local inventory = unit.inventory
+ for _,x in ipairs(inventory) do
+  for _.y in ipairs(bodyPart) do
+   if x.body_part_id == y then
+    items[#items+1] = x.item.id
+   end
+  end
+ end
+ return items
+end
+
+function getInventoryMode(unit,mode) -- Returns a table of item ids currently equipped with the given mode
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if type(mode) ~= 'table' then mode = {mode} end
+
+ local items = {}
+ local inventory = unit.inventory
+ for _,x in ipairs(inventory) do
+  for _.y in ipairs(mode) do
+   if x.mode == y then
+    items[#items+1] = x.item.id
    end
   end
  end

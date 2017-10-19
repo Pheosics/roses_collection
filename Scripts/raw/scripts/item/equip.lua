@@ -1,32 +1,22 @@
 -- equip an item on a unit with a particular body part
 local utils = require 'utils'
 
-validArgs = --[[validArgs or--]] utils.invert({
+validArgs = utils.invert({
   'unit',
   'item',
   'bodyPart',
   'type',
   'mode'
 })
-
-if moduleMode then
-  return
-end
-
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then
- print(help)
- return
-end
-
-local unitId = tonumber(args.unit) or ((args.unit == '\\LAST') and (df.global.unit_next_id-1))
+local unitId = tonumber(args.unit)
 local unit = df.unit.find(unitId)
 if not unit then
  error('invalid unit!', args.unit)
 end
 
-local itemId = tonumber(args.item) or ((args.item == '\\LAST') and (df.global.item_next_id-1))
+local itemId = tonumber(args.item)
 local item = df.item.find(itemId)
 if not item then
  error('invalid item!', args.item)
@@ -50,5 +40,4 @@ end
 local mode = args.mode
 mode = df.unit_inventory_item.T_mode[mode]
 
-dfhack.script_environment('functions/item').equip(unit, item, partId, mode)
-
+dfhack.script_environment('functions/item').equip(item, unit, partId, mode)

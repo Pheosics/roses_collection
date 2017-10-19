@@ -431,7 +431,6 @@ end
 scriptCheck['item_create'] = itemCheck
      writeall('item/create checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
 -- START item/equip and item/unequip
 itemCheck = {}
 unit = civ[1]
@@ -443,6 +442,7 @@ item = mostRecentItem()
      writeall('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPartFlag GRASP (Should succeed and move item into inventory of unit carrying in hand)')
 output = dfhack.run_command_silent('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPartFlag GRASP')
 writeall(output)
+yes = false
 for _,itemID in pairs(unitFunctions.getInventoryType(unit,'WEAPON')) do
  if item.id == itemID then
   yes = true
@@ -453,44 +453,29 @@ if not yes then
  itemCheck[#itemCheck+1] = 'Short sword not equipped on unit'
 end
 ---- Check that the script succeeds and moves item from inventory to the ground at units location
-     writeall('item/unequip -item '..tostring(item.id)..' -ground (Should succeed and move item from inventory to ground at unit location)')
-output = dfhack.run_command_silent('item/unequip -item '..tostring(item.id)..' -ground')
+     writeall('item/unequip -item '..tostring(item.id)..' (Should succeed and move item from inventory to ground at unit location)')
+output = dfhack.run_command_silent('item/unequip -item '..tostring(item.id))
 writeall(output)
 if not same_xyz(item.pos,unit.pos) or not item.flags.on_ground or item.flags.in_inventory then
  itemCheck[#itemCheck+1] = 'Short sword not unequipped and placed on ground'
 end
----- Check that the script succeeds and moves item from location at feet to inventory
-     writeall('item/equip -item STANDING -unit '..tostring(unit.id)..' -bodyPartCategory HEAD -mode 0 (Should succeed and move item into inventory of unit weilding it on head)')
-output = dfhack.run_command_silent('item/equip -item STANDING -unit '..tostring(unit.id)..' -bodyPartCategory HEAD -mode 0')
-writeall(output)
-for _,itemID in pairs(unitFunctions.getInventoryType(unit,'WEAPON')) do
- if item.id == itemID then
-  yes = true
-  break 
- end
-end
-if not yes then
- itemCheck[#itemCheck+1] = 'Short sword not equipped on unit off of ground'
-end
 ---- Check that the script succeeds and removes units entire inventory
-     writeall('item/unequip -item ALL -unit '..tostring(unit.id)..' -destroy (Should succeed and destroy all items that unit has in inventory)')
-output = dfhack.run_command_silent('item/unequip -item ALL -unit '..tostring(unit.id)..' -destroy')
+     writeall('item/unequip -item ALL -unit '..tostring(unit.id)..' (Should succeed and remove all items that unit has in inventory)')
+output = dfhack.run_command_silent('item/unequip -item ALL -unit '..tostring(unit.id))
 writeall(output)
 if #unit.inventory > 0 then
  itemCheck[#itemCheck+1] = 'Entire inventory was not correctly unequipped'
 end
 ---- Print PASS/FAIL
 if #itemCheck == 0 then
- printplus('PASSED: item/equip and item/unequip')
+ printplus('PASSED: item/equip and item/unequip',COLOR_GREEN)
 else
- printplus('FAILED: item/equip and item/unequip')
+ printplus('FAILED: item/equip and item/unequip',COLOR_RED)
  writeall(itemCheck)
 end
 -- FINISH item/equip and item/unequip
 scriptCheck['item_equip'] = itemCheck
      writeall('item/equip and item/unequip checks finished')
-]]
- printplus('NOCHECK: item/equip and item/unequip',COLOR_YELLOW)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START item/material-change
 itemCheck = {}
@@ -748,18 +733,20 @@ unit = civ[3]
     writeall('tile/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor (Should succeed and change the material of the floor at unit location to obsidian)')
 output = dfhack.run_command_silent('tile/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor')
 writeall(output)
---if mapFunctions.getInorganicMaterial(unit.pos,true) ~= 'INORGANIC:OBSIDIAN' then
--- tileCheck[#tileCheck+1] = 'Failed to change the desired location to INORGANIC:OBSIDIAN. Location material = '..mapFunctions.getInorganicMaterial(unit.pos,true)
---end
+if mapFunctions.getTileType(unit.pos.x,unit.pos.y,unit.pos.z-1) ~= 'INORGANIC:OBSIDIAN' then
+ foundType = mapFunctions.getTileType(unit.pos.x,unit.pos.y,unit.pos.z-1) or "nil"
+ tileCheck[#tileCheck+1] = 'Failed to change the desired location to INORGANIC:OBSIDIAN. Location material = '..foundType
+end
 ---- Check that the script succeeds and changes the material of floor in a 5x5 X centered on unit to slade for 50 ticks
     writeall('tile/material-change -material INORGANIC:SLADE -unit '..tostring(unit.id)..' -floor -plan test_plan_5x5_X.txt -dur 50 (Should succeed and change the material of floor in a 5x5 X centered at the unit to slade)')
 output = dfhack.run_command_silent('tile/material-change -material INORGANIC:SLADE -unit '..tostring(unit.id)..' -floor -plan test_plan_5x5_X.txt -dur 50')
 writeall(output)
 positions = mapFunctions.getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
 for _,pos in pairs(positions) do
--- if mapFunctions.getInorganicMaterial(pos,true) ~= 'INORGANIC:SLADE' then
---  tileCheck[#tileCheck+1] = 'Failed to change the desired location to INORGANIC:SLADE. Location material = '..mapFunctions.getInorganicMaterial(pos,true)
--- end
+ if mapFunctions.getTileType(pos.x,pos.y,pos.z-1) ~= 'INORGANIC:SLADE' then
+  foundType = mapFunctions.getTileType(pos.x,pos.y,pos.z-1) or "nil"
+  tileCheck[#tileCheck+1] = 'Failed to change the desired location to INORGANIC:SLADE. Location material = '..foundType
+ end
 end
     writeall('Pausing run_test.lua for 75 in-game ticks')
 --df.global.pause_state = false
@@ -767,15 +754,16 @@ end
 --df.global.pause_state = true
     writeall('Resuming run_test.lua')
 for _,pos in pairs(positions) do
--- if mapFunctions.getInorganicMaterial(pos,true) == 'INORGANIC:SLADE' then
---  tileCheck[#tileCheck+1] = 'Failed to revert the desired location from INORGANIC:SLADE. Location material = '..mapFunctions.getInorganicMaterial(pos,true)
--- end
+ if mapFunctions.getTileType(pos.x,pos.y,pos.z-1) == 'INORGANIC:SLADE' then
+  foundType = mapFunctions.getTileType(pos.x,pos.y,pos.z-1) or "nil"
+  tileCheck[#tileCheck+1] = 'Failed to revert the desired location from INORGANIC:SLADE. Location material = '..foundType
+ end
 end
 ---- Print PASS/FAIL
 if #tileCheck == 0 then
- printplus('NOCHECK: tile/material-change',COLOR_YELLOW)
+ printplus('PASSED: tile/material-change',COLOR_GREEN)
 else
- printplus('NOCHECK: tile/material-change',COLOR_YELLOW)
+ printplus('FAILED: tile/material-change',COLOR_RED)
  writeall(tileCheck)
 end
 -- FINISH tile/material-change
@@ -1285,7 +1273,6 @@ end
 -- FINISH unit/emotion-change
 scriptCheck['unit_emotion_change'] = unitCheck
     writeall('unit/emotion-change checks finished')
- printplus('NOTRUN: unit/emotion-change',COLOR_YELLOW)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/flag-change
 unitCheck = {}
@@ -1670,15 +1657,15 @@ wrapCheck = {}
 unit = civ[1]
 targ = civ[2]
 ----
-    writeall('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ devel/print-args TARGET_UNIT_ID ]')
+    writeall('wrapper -checkUnit RACE -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -script [ devel/print-args TARGET_UNIT_ID ]')
 output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ devel/print-args TARGET_UNIT_ID ]')
 writeall(output)
 ----
-    writeall('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ devel/print-args TARGET_UNIT_LOCATION ]')
+    writeall('wrapper -checkUnit DOMESTIC -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -script [ devel/print-args TARGET_UNIT_LOCATION ]')
 output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ devel/print-args TARGET_UNIT_LOCATION ]')
 writeall(output)
 ----
-    writeall('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
+    writeall('wrapper -checkUnit CIV -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -requiredCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
 output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
 writeall(output)
 ----
@@ -1709,7 +1696,6 @@ end
 -- FINISH Unit Based Targeting
     writeall('Unit Based Targeting Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
 -- START Location Based Targeting
     writeall('Location Based Targeting Starting')
 wrapCheck = {}
@@ -1718,8 +1704,17 @@ loc = '[ '..tostring(pos.x)..' '..tostring(pos.y)..' '..tostring(pos.z)..' ]'
 pos = civ[2].pos
 tar = '[ '..tostring(pos.x)..' '..tostring(pos.y)..' '..tostring(pos.z)..' ]'
 ----
+    writeall('wrapper -checkLocation LEVEL -sourceLocation '..loc..' -targetLocation '..tar..' -requiredLiquid WATER -script [ devel/print-args TARGET_POSITION ]')
+output = dfhack.run_command_silent('wrapper -checkLocation LEVEL -sourceLocation '..loc..' -targetLocation '..tar..' -requiredLiquid WATER -script [ devel/print-args TARGET_POSITION ]')
+writeall(output)
 ----
+    writeall('wrapper -checkLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -forbiddenFLOW DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
+output = dfhack.run_command_silent('wrapper -checkLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -forbiddenFLOW DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
+writeall(output)
 ----
+    writeall('wrapper -checkLocation BELOW -sourceLocation '..loc..' -center -forbiddenTree [CEDAR MAPLE OAK ] -script [ devel/print-args TARGET_POSITION ]')
+output = dfhack.run_command_silent('wrapper -checkLocation BELOW -sourceLocation '..loc..' -center -forbiddenTree [CEDAR MAPLE OAK ] -script [ devel/print-args TARGET_POSITION ]')
+writeall(output)
 ----
 checks = '-checkLocation ANY -radius 100 '
 checks = checks..'-requiredTree CEDAR -forbiddenTree [ MAPLE OAK ] '
@@ -1729,42 +1724,50 @@ checks = checks..'-requiredLiquid WATER -forbiddenLiquid MAGMA '
 checks = checks..'-requiredInorganic OBSIDIAN -forbiddenInorganic [ SLADE MARBLE ] '
 checks = checks..'-requiredFlow MIST -forbiddenFlow [ MIASMA DRAGONFIRE ] '
     writeall('wrapper -sourceLocation '..loc..' -center '..checks..' -test -script [ devel/print-args TARGET_POSITION ]')
+output = dfhack.run_command_silent('wrapper -sourceLocation '..loc..' -center '..checks..' -test -script [ devel/print-args TARGET_POSITION ]')
+writeall(output)
 ---- Print PASS/FAIL
 if #wrapCheck == 0 then
- printplus('PASSED: Location Based Targeting')
+ printplus('PASSED: Location Based Targeting', COLOR_GREEN)
 else
- printplus('FAILED: Location Based Targeting')
+ printplus('FAILED: Location Based Targeting', COLOR_RED)
  writeall(wrapCheck)
 end
 -- FINISH Location Based Targeting
     writeall('Location Based Targeting Finished')
-]]
- printplus('NOCHECK: Location Based Targeting',COLOR_YELLOW)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
 -- START Item Based Targeting
     writeall('Item Based Targeting Starting')
 wrapCheck = {}
 ----
+    writeall('wrapper -checkItem INVENTORY -sourceUnit '..tostring(civ[2].id)..' -targetUnit '..tostring(civ[3].id)..' -requiredItem WEAPON:ITEM_SWORD_SHORT -script [ devel/print-args TARGET_ITEM_ID ]')
+output = dfhack.run_command_silent('wrapper -checkItem INVENTORY -sourceUnit '..tostring(civ[2].id)..' -targetUnit '..tostring(civ[3].id)..' -requiredItem WEAPON:ITEM_SWORD_SHORT -script [ devel/print-args TARGET_ITEM_ID ]')
+writeall(output)
 ----
+    writeall('wrapper -checkItem ONGROUND -sourceUnit '..tostring(civ[2].id)..' -center -radius [ 20 20 20 ] -requiredCorpse ALL -script [ devel/print-args TARGET_ITEM_ID ]')
+output = dfhack.run_command_silent('wrapper -checkItem ONGROUND -sourceUnit '..tostring(civ[2].id)..' -center -radius [ 20 20 20 ] -requiredCorpse ALL -script [ devel/print-args TARGET_ITEM_ID ]')
+writeall(output)
 ----
+    writeall('wrapper -checkItem PROJECTILE -sourceLocation '..loc..' -center -radius [2 2 1 ] -requiredMaterial INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
+output = dfhack.run_command_silent('wrapper -checkItem PROJECTILE -sourceLocation '..loc..' -center -radius [2 2 1 ] -requiredMaterial INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
+writeall(output)
 ----
 checks = '-checkItem ANY -radius 100 '
 checks = checks..'-requiredItem STATUE -forbiddenItem [ WEAPON:ITEM_WEAPON_LONGSWORD AMMO:ITEM_AMMO_BOLT ] '
 checks = checks..'-requiredMaterial STEEL -forbiddenMaterial [ SILVER GOLD ] '
 checks = checks..'-requiredCorpse DWARF -forbiddenCorpse [ HUMAN:MALE ELF:FEMALE ] '
     writeall('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ devel/print-args TARGET_ITEM_ID ]')
+output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ devel/print-args TARGET_ITEM_ID ]')
+writeall(output)
 ---- Print PASS/FAIL
 if #wrapCheck == 0 then
- printplus('PASSED: Item Based Targeting')
+ printplus('PASSED: Item Based Targeting', COLOR_GREEN)
 else
- printplus('FAILED: Item Based Targeting')
+ printplus('FAILED: Item Based Targeting', COLOR_RED)
  writeall(wrapCheck)
 end
 -- FINISH Item Based Targeting
     writeall('Item Based Targeting Finished')
-]]
- printplus('NOCHECK: Item Based Targeting',COLOR_YELLOW)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Wrapper script checks finished',COLOR_CYAN)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1814,112 +1817,6 @@ writeall(output)
 
 --print('Running base/periodic-check')
 -- dfhack.run_command_silent('base/periodic-check -verbose')
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    writeall('Begin System Read Checks')
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
-local classTable = roses.ClassTable
-    writeall('Class System:')
-    writeall('--Test Class 1')
-    writeall(classTable.TEST_CLASS_1._children)
-    writeall('--Test Class 2')
-    writeall(classTable.TEST_CLASS_2._children)
-    writeall('--Test Class 3')
-    writeall(classTable.TEST_CLASS_3._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local featTable = roses.FeatTable
-    writeall('')
-    writeall('Class System - Feat SubSystem:')
-    writeall('--Test Feat 1')
-    writeall(featTable.TEST_FEAT_1._children)
-    writeall('--Test Feat 2')
-    writeall(featTable.TEST_FEAT_2._children)
-    writeall('--Test Feat 3')
-    writeall(featTable.TEST_FEAT_3._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local spellTable = roses.SpellTable
-    writeall('')
-    writeall('Class System - Spell SubSystem:')
-    writeall('--Test Spell 1')
-    writeall(spellTable.TEST_SPELL_1._children)
-    writeall('--Test Spell 2')
-    writeall(spellTable.TEST_SPELL_2._children)
-    writeall('--Test Spell 3')
-    writeall(spellTable.TEST_SPELL_3._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local civTable = roses.CivilizationTable
-    writeall('')
-    writeall('Civilization System:')
-    writeall('--Test Dwarf Civ')
-    writeall(civTable.MOUNTAIN._children)
-    writeall('--Test Elf Civ')
-    writeall(civTable.FOREST._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local eventTable = roses.EventTable
-    writeall('')
-    writeall('Event System:')
-    writeall('--Test Event 1')
-    writeall(eventTable.TEST_EVENT_1._children)
-    writeall('--Test Event 2')
-    writeall(eventTable.TEST_EVENT_2._children)
-    writeall('--Test Event 3')
-    writeall(eventTable.TEST_EVENT_3._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    writeall('')
-    writeall('Enhanced System:')
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- print('Enhanced System - Buldings')
- local EBTable = roses.EnhancedBuildingTable
- print('--Test Enhanced Building 1')
- printall(EBTable.TEST_BUILDING_1._children)
- print('--Test Enhanced Building 2')
- printall(EBTable.TEST_BUILDING_2._children)
- print('--Test Enhanced Building 3')
- printall(EBTable.TEST_BUILDING_3._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local ECTable = roses.EnhancedCreatureTable
-    writeall('')
-    writeall('Enhanced System - Creatures:')
-    writeall('--Test Enhanced Creature 1')
-    writeall(ECTable.DWARF._children)
-    writeall('--Test Enhanced Creature 2')
-    writeall(ECTable.ELF._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local EITable = roses.EnhancedItemTable
-    writeall('')
-    writeall('Enhanced System - Items:')
-    writeall('--Test Enhanced Item 1')
-    writeall(EITable.ITEM_WEAPON_PICK._children)
-    writeall('--Test Enhanced Item 2')
-    writeall(EITable.ITEM_WEAPON_HANDAXE._children)
-    writeall('--Test Enhanced Item 3')
-    writeall(EITable.ITEM_WEAPON_SWORD_SHORT._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- print('')
- print('Enhanced System - Materials')
- local EMTable = roses.EnhancedMaterialTable
- print('--Test Enhanced Material 1')
- printall(EMTable.INORGANIC.SAPPHIRE._children)
- print('--Test Enhanced Material 2')
- printall(EMTable.CREATURE_MAT.DRAGON.SCALE._children)
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- print('')
- print('Enhanced System - Reactions')
- local ERTable = roses.EnhancedReactionTable
- print('--Test Enhanced Reaction 1')
- printall(ERTable.TEST_REACTION_1._children)
- print('--Test Enhanced Reaction 2')
- printall(ERTable.TEST_REACTION_2._children)
-]]
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    writeall('')
-    writeall('All System Read Checks Finished')
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     writeall('Beginning System Run Checks')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2268,7 +2165,6 @@ end
 -- FINISH Enhanced System - Creatures
     writeall('Enhanced System - Creatures Finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
 -- START Enhanced System - Items
     writeall('')
     writeall('Enhanced System - Items Starting')
@@ -2280,11 +2176,13 @@ EICheck = {}
 base = 'modtools/item-trigger -itemType ITEM_WEAPON_PICK -onEquip -command'
 output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
 writeall(output)
+base = 'modtools/item-trigger -itemType ITEM_WEAPON_HANDAXE -onEquip -command'
 output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
 writeall(output)
 base = 'modtools/item-trigger -itemType ITEM_WEAPON_PICK -onUnequip -command'
 output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
 writeall(output)
+base = 'modtools/item-trigger -itemType ITEM_WEAPON_HANDAXE -onUnequip -command'
 output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
 writeall(output)
 ----
@@ -2293,7 +2191,6 @@ writeall(output)
 output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_PICK -material INORGANIC:STEEL -verbose')
 writeall(output)
     writeall('Before Equipping the pick')
---    writeall(unitTable.Skills)
 ----
 output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -verbose')
 writeall(output)
@@ -2308,7 +2205,7 @@ if unitTable.Skills.AXE.Item < '15' then
  EICheck[#EICheck+1] = 'Enhanced System - Item 1 equip skill change not correctly applied'
 end
 ----
-output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -item WEAPONS -verbose')
+output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -itemType WEAPON -verbose')
 writeall(output)
     writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
 --df.global.pause_state = false
@@ -2316,7 +2213,6 @@ writeall(output)
 --df.global.pause_state = true
     writeall('Resuming run_test.lua')
     writeall('After UnEquipping the pick')
---    writeall(unitTable.Skills)
 if unitTable.Skills.AXE.Item > '0' then
  EICheck[#EICheck+1] = 'Enhanced System - Item 1 unequip skill change not correctly applied'
 end
@@ -2336,12 +2232,11 @@ writeall(output)
 --df.global.pause_state = true
     writeall('Resuming run_test.lua')
     writeall('After Equipping the hand axe')
---    writeall(unitTable.Spells.Active)
 if not unitTable.Spells.Active.TEST_SPELL_1 then
  EICheck[#EICheck+1] = 'Enhanced System - Item 2 equip spell change not correctly applied'
 end
 ----
-output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -item WEAPONS -verbose')
+output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -itemType WEAPON -verbose')
 writeall(output)
     writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
 --df.global.pause_state = false
@@ -2349,21 +2244,18 @@ writeall(output)
 --df.global.pause_state = true
     writeall('Resuming run_test.lua')
     writeall('After UnEquipping the hand axe')
---    writeall(unitTable.Spells.Active)
 if unitTable.Spells.Active.TEST_SPELL_1 then
  EICheck[#EICheck+1] = 'Enhanced System - Item 2 unequip spell change not correctly applied'
 end
 ---- Print PASS/FAIL
 if #EICheck == 0 then
- printplus('PASSED: Enhanced System - Items')
+ printplus('PASSED: Enhanced System - Items', COLOR_GREEN)
 else
- printplus('FAILED: Enhanced System - Items')
+ printplus('FAILED: Enhanced System - Items', COLOR_RED)
  writeall(EICheck)
 end
 -- FINISH Enhanced System - Items
     writeall('Enhanced System - Items check finished')
-]]
- printplus('NOCHECK: Enhanced System - Items',COLOR_YELLOW)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --[[
 -- START Enhanced System - Materials
