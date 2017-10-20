@@ -1780,15 +1780,15 @@ printplus('Finished Roses Script Checks')
 printplus('Beginning System Checks')
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-printplus('Running base/roses-init with all systems enabled')
-local classCheck = ' -classSystem [ Feats Spells ]'
-local civCheck = ' -civilizationSystem [ Diplomacy ]'
-local eventCheck = ' -eventSystem'
-local enhCheck = ' -enhancedSystem [ Buildings Creatures Items Materials Reactions ]'
-local verbose = true
-printplus('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
-output = dfhack.run_command_silent('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
-writeall(output)
+--printplus('Running base/roses-init with all systems enabled')
+--local classCheck = ' -classSystem [ Feats Spells ]'
+--local civCheck = ' -civilizationSystem [ Diplomacy ]'
+--local eventCheck = ' -eventSystem'
+--local enhCheck = ' -enhancedSystem [ Buildings Creatures Items Materials Reactions ]'
+--local verbose = true
+--printplus('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
+--output = dfhack.run_command_silent('base/roses-init'..classCheck..civCheck..eventCheck..enhCheck..' -verbose -testRun -forceReload')
+--writeall(output)
 local persistTable = require 'persist-table'
 local roses = persistTable.GlobalTable.roses
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1822,6 +1822,10 @@ writeall(output)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CLASS SYSTEM CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+printplus('')
+printplus('base/roses-init -classSystem [ Feats Spells ] -verbose -testRun')
+output = dfhack.run_command_silent('base/roses-init -classSystem [ Feats Spells ] -verbose -testRun')
+writeall(output)
 -- START Class System Checks
 printplus('')
 printplus('Class System Checks Starting',COLOR_CYAN)
@@ -1961,6 +1965,10 @@ printplus('Class System Checks Finished',COLOR_CYAN)
 -- CIVILIZATION SYSTEM CHECKS ------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('')
+printplus('base/roses-init -civilizationSystem [ Diplomacy ] -verbose -test')
+output = dfhack.run_command_silent('base/roses-init -civilizationSystem [ Diplomacy ] -verbose -test')
+writeall(output)
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Civilization System Checks Starting',COLOR_CYAN)
 civCheck = {}
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2111,6 +2119,10 @@ printplus('Civilization System Checks Finished',COLOR_CYAN)
 -- ENHANCED SYSTEM CHECKS ----------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('')
+printplus('base/roses-init -enhancedSystem [ Buildings Creatures Items Materials Reactions ] -verbose -test')
+output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Buildings Creatures Items Materials Reactions ] -verbose -test')
+writeall(output)
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Enhanced System Checks Starting',COLOR_CYAN)
 enhCheck = {}
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2297,6 +2309,10 @@ printplus('Enhanced System Checks Finished',COLOR_CYAN)
 -- EVENT SYSTEM CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('')
+printplus('base/roses-init -eventSystem -verbose -test')
+output = dfhack.run_command_silent('base/roses-init -eventSystem -verbose -test')
+writeall(output)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('Event System Checks Starting',COLOR_CYAN)
 eventCheck = {}
     writeall('Forcing Test Event 1 to trigger, both effects should fail')
