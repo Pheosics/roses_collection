@@ -1,5 +1,30 @@
 -- flow/source.lua v0.8 | DFHack 43.05
+local usage = [====[
 
+flow/source
+====================
+
+Usage:
+    This is used to create sources / sinks of flows and liquids.
+
+Commands:
+  -help            - Gives this usage block
+  -report          - gives a full report of all flow/liquid sinks/sources.
+  -unit            - ability to target the unit that does the reaction.
+  -location        - target a specific location.
+  -offset          - offset from the point the point from the above.
+  -source          - tells us to add a source.
+  -sink            - tells us to add a sink.
+  -remove          - tells us to remove something.
+  -removeAll       - tells us to removeAll sinks and sources.
+  -removeAllSource - tells us to remove only all sources.
+  -removeAllSink   - tells us to reomve only all sinks.
+  -magma           - tells us to use magma instead of water.
+  -check           - how often to update this location.
+  -flow            - designate the flowtype.
+  -inorganic       - material for the flowtype.
+
+]====]
 local utils = require 'utils'
 
 flowtypes = {
@@ -16,7 +41,7 @@ flowtypes = {
               MATERIALVAPOR = 10,
               OCEANWAVE = 11,
               SEAFOAM = 12,
-			  ITEMCLOUD = 13
+              ITEMCLOUD = 13
              }
              
 validArgs = validArgs or utils.invert({
@@ -34,11 +59,31 @@ validArgs = validArgs or utils.invert({
  'flow',
  'inorganic',
  'check',
+ 'report',		
 })
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then
- return
+  print( usage )
+  return
+end
+
+if args.report then
+  print( "Printing LiquidTable" )
+  print( "Index\ttype\tliquid\tlevel\tx\ty\tz" )
+  for _,i in pairs(liquidTable._children) do
+    local L = liquidTable[i]
+    if L.Magma == true then liquid = "magma" else liquid = "water" end
+    print( i.."\t"..L.Type.."\t"..liquid.."\t"..L.Depth.."\t"..L.x.."\t"..L.y.."\t"..L.z )
+  end
+  print( "---------------------------" )
+  print( "Printing FlowTable" )
+  print( "Index\ttype\tdensity\tinorganic\tflowtype\tx\ty\tz" )
+  for _,i in pairs(flowTable._children) do
+    local F = flowTable[i]
+    print( i.."\t"..F.Type.."\t"..F.Density.."\t"..F.Inorganic.."\t"..F.FlowType.."\t"..F.x.."\t"..F.y.."\t"..F.z )
+  end
+  return
 end
 
 pos = {}
@@ -49,7 +94,7 @@ elseif args.location then
  pos.y = args.location[2]
  pos.z = args.location[3]
 else
- if not args.removeAll or not args.removeAllSource or not args.removeAllSink then
+ if not ( args.removeAll or args.removeAllSource or args.removeAllSink ) then
   print('No unit or location selected')
   return
  end
@@ -63,7 +108,7 @@ z = pos.z + offset[3]
 local persistTable = require 'persist-table'
 liquidTable = persistTable.GlobalTable.roses.LiquidTable
 flowTable = persistTable.GlobalTable.roses.FlowTable
-number = tostring(#liquidTable._children)
+number = tostring(df.global.cur_year).."."..tostring(df.global.cur_year_tick)..".0"..tostring(x)..tostring(y)..tostring(z)
 
 if args.removeAll then
  persistTable.GlobalTable.roses.LiquidTable = {}
@@ -133,7 +178,6 @@ elseif args.source then
   flowTable[tostring(number)].Type = 'Source'
   dfhack.script_environment('functions/map').flowSource(number)
  else
-  number = tostring(#liquidTable._children)
   depth = args.source
   for _,i in pairs(liquidTable._children) do
    liquid = liquidTable[i]
@@ -153,7 +197,6 @@ elseif args.source then
  end
 elseif args.sink then
  if args.flow then
-  number = tostring(#flowTable._children)
   density = args.sink
   inorganic = args.inorganic or 0
   if inorganic ~= 0 then
@@ -178,7 +221,6 @@ elseif args.sink then
   dfhack.script_environment('functions/map').flowSink(number)
  else
   depth = args.sink
-  number = tostring(#liquidTable._children)
   for _,i in pairs(liquidTable._children) do
    liquid = liquidTable[i]
    if tonumber(liquid.x) == x and tonumber(liquid.y) == y and tonumber(liquid.z) == z then
