@@ -13,6 +13,7 @@ validArgs = validArgs or utils.invert({
  'matchingShoes',
  'dur',
  'quality',
+ 'verbose'
 })
 
 local args = utils.processArgs({...}, validArgs)

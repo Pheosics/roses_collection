@@ -1294,7 +1294,7 @@ function makeEnhancedItemTable(test,verbose)
    action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID'
    if item.OnEquip then
     dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
-    dfhack.run_command(base..' -onUnequip '..equip..' ]')
+    dfhack.run_command(base..' -onUnequip '..equip..' -unequip ]')
    end
    if item.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
    if item.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
@@ -1539,7 +1539,7 @@ for _,materialToken in pairs(materials.Plant._children) do
    action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
    if material.OnEquip then
     dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
-    dfhack.run_command(base..' -onUnequip '..equip..' ]')
+    dfhack.run_command(base..' -onUnequip '..equip..' unequip ]')
    end
    if material.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
    if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
@@ -1571,7 +1571,7 @@ for _,materialToken in pairs(materials.Plant._children) do
      action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
      if material.OnEquip then
       dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
-      dfhack.run_command(base..' -onUnequip '..equip..' ]')
+      dfhack.run_command(base..' -onUnequip '..equip..' -unequip ]')
      end
      if material.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
      if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end

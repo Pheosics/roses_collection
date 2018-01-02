@@ -208,13 +208,14 @@ end
 
 function equip(item,unit,bodyPart,mode) --from modtools/equip-item
   --it is assumed that the item is on the ground
-  --taken from expwnent
+  --taken from expwnent and modified
+  if tonumber(item) then item = df.item.find(tonumber(item)) end
+  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
   item.flags.on_ground = false
   item.flags.in_inventory = true
   local block = dfhack.maps.getTileBlock(item.pos)
   local occupancy = block.occupancy[item.pos.x%16][item.pos.y%16]
   for k,v in ipairs(block.items) do
-    --local blockItem = df.item.find(v)
     if v == item.id then
       block.items:erase(k)
       break
@@ -236,6 +237,26 @@ function equip(item,unit,bodyPart,mode) --from modtools/equip-item
   inventoryItem.mode = mode
   inventoryItem.body_part_id = bodyPart
   unit.inventory:insert(#unit.inventory,inventoryItem)
+end
+
+function unequip(item,unit) --basically just reversed modtools/equip-item
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ local slot = -1
+ for i,x in pairs(unit.inventory) do
+  if x.item.id == item.id then
+    slot = i
+    break
+  end
+ end
+ if slot < 0 then return end
+ unit.inventory:erase(slot)
+ item.flags.in_inventory = false
+ item.flags.on_ground = true
+ local block = dfhack.maps.getTileBlock(unit.pos)
+ block.items:insert(#block.items,item.id)
+ local occupancy = block.occupancy[unit.pos.x%16][unit.pos.y%16]
+ occupancy.item = true
 end
 
 function makeProjectileFall(item,origin,velocity)

@@ -138,7 +138,7 @@ function getChange(current,value,mode)
  if mode == 'Fixed' or mode == 'fixed' then
   change = tonumber(value)
  elseif mode == 'Percent' or mode == 'percent' then
-  local percent = (100+tonumber(value))/100
+  local percent = tonumber(value)/100
   change = current*percent - current
  elseif mode == 'Set' or mode == 'set' then
   change = tonumber(value) - current

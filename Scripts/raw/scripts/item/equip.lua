@@ -1,33 +1,32 @@
 -- equip an item on a unit with a particular body part
 local utils = require 'utils'
 
-validArgs = --[[validArgs or--]] utils.invert({
+validArgs = utils.invert({
   'unit',
   'item',
   'bodyPart',
   'type',
-  'mode'
+  'mode',
+  'verbose'
 })
-
-if moduleMode then
-  return
-end
-
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then
- print(help)
- return
-end
-
-local unitId = tonumber(args.unit) or ((args.unit == '\\LAST') and (df.global.unit_next_id-1))
+local unitId = tonumber(args.unit)
 local unit = df.unit.find(unitId)
 if not unit then
  error('invalid unit!', args.unit)
 end
 
-local itemId = tonumber(args.item) or ((args.item == '\\LAST') and (df.global.item_next_id-1))
-local item = df.item.find(itemId)
+if args.item == 'GROUND' then
+ print('Currently equipping all items from ground is not currently supported')
+ return
+elseif args.item == 'MOST_RECENT' then
+ itemID = df.global.item_next_id-1
+ item = df.item.find(itemID)
+elseif tonumber(args.item) then
+ itemId = tonumber(args.item)
+ item = df.item.find(itemId)
+end
 if not item then
  error('invalid item!', args.item)
 end
@@ -35,9 +34,9 @@ end
 local bodyPartName = args.bodyPart
 
 if args.type == 'Category' then
- parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
+ parts = dfhack.script_environment('functions/unit').getBodyCategory(unit,bodyPartName)
 elseif args.type == 'Flag' then
- parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
+ parts = dfhack.script_environment('functions/unit').getBodyFlag(unit,bodyPartName)
 else
  parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
 end
@@ -50,5 +49,4 @@ end
 local mode = args.mode
 mode = df.unit_inventory_item.T_mode[mode]
 
-dfhack.script_environment('functions/item').equip(unit, item, partId, mode)
-
+dfhack.script_environment('functions/item').equip(item, unit, partId, mode)

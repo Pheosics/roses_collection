@@ -88,7 +88,9 @@ for i,counter in ipairs(args.counter) do
          or counter == 'thirst_timer' or counter == 'sleepiness_timer') then
   if (counter == 'hunger' or counter == 'thirst' or counter == 'sleepiness') then counter = counter .. '_timer' end
   location = unit.counters2
- elseif counter == 'blood' or counter == 'infection' then
+ elseif counter == 'blood' or counter == 'infection' or counter == 'blood_count' or counter == 'infection_level' then
+  if counter == 'blood' then counter = 'blood_count' end
+  if counter == 'infection' then counter = 'infection_level' end
   location = unit.body
  else
   print('Invalid counter token declared')

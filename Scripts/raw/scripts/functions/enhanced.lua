@@ -171,7 +171,7 @@ function enhanceItemsInventory()
  
 end
 
-function onEquip(item,unit)
+function onItemEquip(item,unit)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local persistTable = require 'persist-table'
@@ -214,7 +214,7 @@ function onEquip(item,unit)
  end
 end
 
-function onUnEquip(item,unit)
+function onItemUnEquip(item,unit)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local persistTable = require 'persist-table'
@@ -417,3 +417,90 @@ function onDodge(item,attacker,defender)
   dfhack.run_command(script)
  end 
 end
+
+--------------------------------------------------------------------------------------------------------------------------
+----------------------------------------- Enhanced Material System Functions ---------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
+
+function onMatEquip(item,unit)
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ local persistTable = require 'persist-table'
+ local matTable = persistTable.GlobalTable.roses.EnhancedMaterialTable
+ if not matTable then return end
+ matTable = itemTable[item.subtype.id]
+ if not matTable then return end
+ onTable = matTable.onEquip
+ for _,attribute in pairs(onTable.Attributes._children) do
+  change = onTable.Attributes[attribute]
+  dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,0,'item')
+ end
+ for _,resistance in pairs(onTable.Resistances._children) do
+  change = onTable.Resistances[resistance]
+  dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,0,'item')
+ end
+ for _,skill in pairs(onTable.Skills._children) do
+  change = onTable.Skills[skill]
+  dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,0,'item')
+ end
+ for _,stat in pairs(onTable.Stats._children) do
+  change = onTable.Stats[stat]
+  dfhack.script_environment('functions/unit').changeStat(unit,stat,change,0,'item')
+ end
+ for _,trait in pairs(onTable.Traits._children) do
+  change = onTable.Traits[trait]
+  dfhack.script_environment('functions/unit').changeTrait(unit,trait,change,0,'item')
+ end
+ for _,n in pairs(onTable.Syndromes._children) do
+  syndrome = onTable.Syndromes[n]
+  dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'add',0)
+ end
+ for _,n in pairs(onTable.Interactions._children) do
+  syndrome = onTable.Interactions[n]
+  dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'add',0)
+ end
+ for _,n in pairs(onTable.Scripts._children) do
+  script = onTable.Scripts[n]
+  dfhack.run_command(script)
+ end
+end
+
+function onMatUnEquip(item,unit)
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ local persistTable = require 'persist-table'
+ local matTable = persistTable.GlobalTable.roses.EnhancedMaterialTable
+ if not matTable then return end
+ matTable = itemTable[item.subtype.id]
+ if not matTable then return end
+ onTable = matTable.onEquip
+ for _,attribute in pairs(onTable.Attributes._children) do
+  change = onTable.Attributes[attribute]
+  dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,-change,0,'item')
+ end
+ for _,resistance in pairs(onTable.Resistances._children) do
+  change = onTable.Resistances[resistance]
+  dfhack.script_environment('functions/unit').changeResistance(unit,resistance,-change,0,'item')
+ end
+ for _,skill in pairs(onTable.Skills._children) do
+  change = onTable.Skills[skill]
+  dfhack.script_environment('functions/unit').changeSkill(unit,skill,-change,0,'item')
+ end
+ for _,stat in pairs(onTable.Stats._children) do
+  change = onTable.Stats[stat]
+  dfhack.script_environment('functions/unit').changeStat(unit,stat,-change,0,'item')
+ end
+ for _,trait in pairs(onTable.Traits._children) do
+  change = onTable.Traits[trait]
+  dfhack.script_environment('functions/unit').changeTrait(unit,trait,-change,0,'item')
+ end
+ for _,n in pairs(onTable.Syndromes._children) do
+  syndrome = onTable.Syndromes[n]
+  dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'erase',0)
+ end
+ for _,n in pairs(onTable.Interactions._children) do
+  syndrome = onTable.Interactions[n]
+  dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'erase',0)
+ end
+end
+

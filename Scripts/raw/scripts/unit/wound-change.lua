@@ -109,7 +109,7 @@ if args.remove then
   for _,part in pairs(wounds[#wounds-1].parts) do
    bp_id = part.body_part_id
    if unit.body.components.body_part_status[bp_id].missing and regrow then
-    con_parts = dfhack.script_environment('functions/unit').checkBodyConnectedParts(unit,bp_id)
+    con_parts = dfhack.script_environment('functions/unit').getBodyConnectedParts(unit,bp_id)
    else
     con_parts = {bp_id}
    end
@@ -121,9 +121,9 @@ if args.remove then
  end
 elseif changeLife then
  if args.unit then 
-  corpseparts = dfhack.script_environment('functions/unit').checkBodyCorpseParts(args.unit)
+  corpseparts = dfhack.script_environment('functions/unit').getBodyCorpseParts(args.unit)
  elseif args.corpse then
-  corpseparts = dfhack.script_environment('functions/unit').checkBodyCorpseParts(args.corpse)
+  corpseparts = dfhack.script_environment('functions/unit').getBodyCorpseParts(args.corpse)
  else
   print('Neither a unit nor a corpse item declared for resurrection/animation')
   return
