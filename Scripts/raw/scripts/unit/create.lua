@@ -102,5 +102,4 @@ else
 end
 
 dur = tonumber(args.dur) or 0
-
 dfhack.script_environment('functions/unit').create(args.loc,raceID,casteID,reference,args.side,args.name,dur,args.track,args.syndrome)

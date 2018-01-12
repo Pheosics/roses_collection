@@ -10,6 +10,7 @@ validArgs = validArgs or utils.invert({
  'mat',
  'dur',
  'track',
+ 'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -54,7 +55,7 @@ end
 if args.unit and tonumber(args.unit) then
  unit = df.unit.find(tonumber(args.unit))
  local types = args.equipment
- items = dfhack.script_environment('functions/unit').checkInventoryType(unit,types)
+ items = dfhack.script_environment('functions/unit').getInventoryType(unit,types)
 else
  if args.item and tonumber(args.item) then
   items = {df.item.find(tonumber(args.item))}

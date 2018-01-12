@@ -6,7 +6,8 @@ validArgs = utils.invert({
   'item',
   'bodyPart',
   'type',
-  'mode'
+  'mode',
+  'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -16,8 +17,16 @@ if not unit then
  error('invalid unit!', args.unit)
 end
 
-local itemId = tonumber(args.item)
-local item = df.item.find(itemId)
+if args.item == 'GROUND' then
+ print('Currently equipping all items from ground is not currently supported')
+ return
+elseif args.item == 'MOST_RECENT' then
+ itemID = df.global.item_next_id-1
+ item = df.item.find(itemID)
+elseif tonumber(args.item) then
+ itemId = tonumber(args.item)
+ item = df.item.find(itemId)
+end
 if not item then
  error('invalid item!', args.item)
 end
@@ -25,9 +34,9 @@ end
 local bodyPartName = args.bodyPart
 
 if args.type == 'Category' then
- parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
+ parts = dfhack.script_environment('functions/unit').getBodyCategory(unit,bodyPartName)
 elseif args.type == 'Flag' then
- parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
+ parts = dfhack.script_environment('functions/unit').getBodyFlag(unit,bodyPartName)
 else
  parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
 end

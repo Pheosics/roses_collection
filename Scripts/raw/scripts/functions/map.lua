@@ -695,28 +695,12 @@ end
 
 function getFlow(pos,flowType)
  flowType = string.upper(flowType) or 'ALL'
- flowtypes = {
-              'MIASMA',
-              'STEAM',
-              'MIST',
-              'MATERIALDUST',
-              'MAGMAMIST',
-              'SMOKE',
-              'DRAGONFIRE',
-              'FIRE',
-              'WEB',
-              'MATERIALGAS',
-              'MATERIALVAPOR',
-              'OCEANWAVE',
-              'SEAFOAM',
-              'ITEMCLOUD'
-             }
  block = dfhack.maps.ensureTileBlock(pos)
  flows = block.flows
  flowOut = {}
  for i,flow in pairs(flows) do
   if flow.pos.x == pos.x and flow.pos.y == pos.y and flow.pos.z == pos.z then
-   if flowType == 'ALL' or flowType = flowtypes[flow.type] then
+   if flowType == 'ALL' or flowType == string.upper(df.flow_type[flow.type]) then
     flowOut[#flowOut+1] = flow
    end
   end
@@ -828,8 +812,7 @@ function getGrassMaterial(pos)
 end
 
 --=============================================================================
--- This is taken from Milo Christianson's Rubble Utility and translated to work without that framework
---[[
+--[[ This is taken from Milo Christianson's Rubble Utility and translated to work without that framework
 This module contains functions for finding the material of a tile.
 		
 There is a function that will find the material of the tile based on it's type (in other words
@@ -857,9 +840,9 @@ game creates mineral veins for them. I am not 100% sure if these functions will 
 with all caved in tiles, but I can confirm that they do in at least some cases...
 --]]
 
+function GetLayerMat(x, y, z)
 -- GetLayerMat returns the layer material for the given tile.
 -- AFAIK this will never return nil.
-function GetLayerMat(x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -878,8 +861,8 @@ function GetLayerMat(x, y, z)
  return dfhack.matinfo.decode(0, layer_mat_index)
 end
 
--- GetLavaStone returns the biome lava stone material (generally obsidian).
 function GetLavaStone(x, y, z)
+-- GetLavaStone returns the biome lava stone material (generally obsidian).
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -899,10 +882,10 @@ function GetLavaStone(x, y, z)
  return nil
 end
 
+function GetVeinMat(x, y, z)
 -- GetVeinMat returns the vein material of the given tile or nil if the tile has no veins.
 -- Multiple veins in one tile should be handled properly (smallest vein type, last in the list wins,
 -- which seems to be the rule DF uses).
-function GetVeinMat(x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -950,9 +933,9 @@ function GetVeinMat(x, y, z)
  return dfhack.matinfo.decode(0, priority.inorganic_mat)
 end
 
+function GetConstructionMat(x, y, z)
 -- GetConstructionMat returns the material of the construction at the given tile or nil if the tile
 -- has no construction.
-function GetConstructionMat(x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -968,9 +951,9 @@ function GetConstructionMat(x, y, z)
  return nil
 end
 
+function GetConstructOriginalTileMat(x, y, z)
 -- GetConstructOriginalTileMat returns the material of the tile under the construction at the given
 -- tile or nil if the tile has no construction.
-function GetConstructOriginalTileMat(x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -986,10 +969,10 @@ function GetConstructOriginalTileMat(x, y, z)
  return nil
 end
 
+function GetTreeMat(x, y, z)
 -- GetTreeMat returns the material of the tree at the given tile or nil if the tile does not have a
 -- tree or giant mushroom.
 -- Currently roots are ignored.
-function GetTreeMat(x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -1022,9 +1005,9 @@ function GetTreeMat(x, y, z)
  return nil
 end
 
+function GetShrubMat(x, y, z)
 -- GetShrubMat returns the material of the shrub at the given tile or nil if the tile does not
 -- contain a shrub or sapling.
-function GetShrubMat(x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -1042,9 +1025,9 @@ function GetShrubMat(x, y, z)
  return nil
 end
 
+function GetFeatureMat(x, y, z)
 -- GetFeatureMat returns the material of the feature (adamantine tube, underworld surface, etc) at
 -- the given tile or nil if the tile is not made of a feature stone.
-function GetFeatureMat(x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -1084,9 +1067,9 @@ local function fixedMat(id)
  end
 end
 
+function GetTileMat(x, y, z)
 -- GetTileMat will return the material of the specified tile as determined by its tile type and the world geology data, etc.
 -- The returned material should exactly match the material reported by DF except in cases where is is impossible to get a material.
-function GetTileMat(x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -1099,13 +1082,16 @@ function GetTileMat(x, y, z)
   return nil
  end
 
- return GetTileTypeMat(typ, pos)
+ temp = GetTileTypeMat(typ, pos)
+ mtype = temp.type
+ mindex = temp.index
+ return dfhack.matinfo.getToken(mtype,mindex)
 end
 
+function GetTileTypeMat(typ, x, y, z)
 -- GetTileTypeMat is exactly like GetTileMat except it allows you to specify the notional type for
 -- the tile. This allows you to see what the tile would be made of it it was a certain type.
 -- Unless the tile could be the given type this function will probably return nil.
-function GetTileTypeMat(typ, x, y, z)
  local pos = nil
  if y == nil and z == nil then
   pos = x
@@ -1242,7 +1228,7 @@ function flowSink(n)
   flowType = tonumber(flow.FlowType)
   check = tonumber(flow.Check)
   pos = xyz2pos(x,y,z)
-  for _,flow in getFlow(pos,flowType) do
+  for _,flow in pairs(getFlow(pos,flowType)) do
    flow.density = density
   end
   dfhack.timeout(check,'ticks',

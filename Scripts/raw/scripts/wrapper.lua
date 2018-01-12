@@ -272,16 +272,26 @@ if args.checkLocation then
     selected[n] = dfhack.script_environment('functions/wrapper').isSelectedLocation(sourceLocation,pos,args)
    end
    -- Step 4: Pick targets from the eligible list (number of targets picked ranges between 1 and args.maxTargets).
-   if n == 0 then
-    if args.verbose then print('No valid positions found') end
+   targets,i = {},0
+   for n,pos in pairs(positionList) do
+    if args.exclude then
+     if (pos.x == sourceLocation.x and pos.y == sourceLocation.y and pos.z == sourceLocation.z) then selected[n] = false end
+    end
+    if selected[n] then     
+     i = i + 1
+     targets[i] = pos
+    end
+   end
+   if i == 0 then
+    if args.verbose then print('No valid targets found') end
     return
    end
-   if args.maxTargets == 0 or args.maxTargets >= n then
-    targets = positionList
+   if args.maxTargets == 0 or args.maxTargets >= i then
+    targets = targets
    else
-    targets = dfhack.script_environment('functions/misc').permute(positionList)
+    targets = dfhack.script_environment('functions/misc').permute(targets)
     targets = {selected(#targets-args.maxTargets+1,table.unpack(targets))}
-   end    
+   end
    -- Step 5: Assign the script to each target in the target list (no reflections or replacements for location based spells)
    for _,position in ipairs(targets) do
     for _,script in ipairs(args.script) do
@@ -301,10 +311,7 @@ if args.checkLocation then
    end
    centerLocation = targets[1]
   end
- end 
-else
- if args.verbose then print('Must have either checkUnit or checkLocation declared') end
- return
+ end
 end
 
 if args.checkItem then

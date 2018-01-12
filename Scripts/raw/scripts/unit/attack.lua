@@ -13,6 +13,7 @@ validArgs = validArgs or utils.invert({
  'weapon',
  'delay',
  'number',
+ 'flags'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -45,9 +46,9 @@ attackFunctions = dfhack.script_environment('functions/attack')
 itemFunctions = dfhack.script_environment('functions/item')
 
 if not args.target then
- target = unitFunctions.checkBodyRandom(defender)
+ target = unitFunctions.getBodyRandom(defender)
 else
- target = unitFunctions.checkBodyCategory(defender,args.target)[1]
+ target = unitFunctions.getBodyCategory(defender,args.target)[1]
 end
  
 if not target then
@@ -60,7 +61,7 @@ if args.weapon then
  local item = nil
  args.weapon = 'Equipped'
  if args.weapon == 'Equipped' then
-  item = unitFunctions.checkInventoryType(attacker,'WEAPON')[1]
+  item = unitFunctions.getInventoryType(attacker,'WEAPON')[1]
   if not item then
    print('No Equipped Weapon')
    return
@@ -84,9 +85,9 @@ if args.weapon then
 else
  item_id = -1 
  if not args.attack then
-  attack = unitFunctions.checkAttack(attacker,'Random')
+  attack = unitFunctions.getAttack(attacker,'Random')
  else
-  attack = unitFunctions.checkAttack(attacker,args.attack)
+  attack = unitFunctions.getAttack(attacker,args.attack)
  end
  if not attack then
   print('No appropriate attack found')
@@ -102,6 +103,6 @@ end
 
 j = 0
 while j < number do
- attackFunctions.addAttack(attacker,defender.id,attack_id,target,item_id,attack,hitchance,velocity,delay)
+ attackFunctions.addAttack(attacker,defender.id,attack_id,target,item_id,attack,hitchance,velocity,delay,args.flags)
  j = j + 1
 end

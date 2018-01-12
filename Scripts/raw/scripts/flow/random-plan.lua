@@ -56,19 +56,7 @@ if args.help then
    -flow TYPE
      specify the flow type
      valid types:
-      miasma
-      mist
-      mist2
-      dust
-      lavamist
-      smoke
-      dragonfire
-      firebreath
-      web
-      undirectedgas
-      undirectedvapor
-      oceanwave
-      seafoam
+
    -inorganic INORGANIC_TOKEN
      specify the material of the flow, if applicable
      examples:

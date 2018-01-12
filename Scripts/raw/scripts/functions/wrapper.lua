@@ -49,32 +49,32 @@ function checkPosition(source,targetList,target,verbose) -- checks list of posit
   tiletype = dfhack.maps.getTileType(pos)
   type_mat = df.tiletype_material[df.tiletype.attrs[tiletype].material]
   if target == 'ABOVE' then
-   if pos.z > source.pos.z then
+   if pos.z > source.z then
     n = n + 1
     list[n] = pos
    end
   elseif target == 'BELOW' then
-   if pos.z < source.pos.z then
+   if pos.z < source.z then
     n = n + 1
     list[n] = pos
    end
   elseif target == 'LEVEL' then
-   if pos.z == source.pos.z then
+   if pos.z == source.z then
     n = n + 1
     list[n] = pos
    end
   elseif target == 'LEVELABOVE'then
-   if pos.z >= source.pos.z then
+   if pos.z >= source.z then
     n = n + 1
     list[n] = pos
    end
   elseif target == 'LEVELBELOW' then
-   if pos.z <= source.pos.z then
+   if pos.z <= source.z then
     n = n + 1
     list[n] = pos
    end
   elseif target == 'NOTLEVEL' then
-   if not pos.z == source.pos.z then
+   if not pos.z == source.z then
     n = n + 1
     list[n] = pos
    end
@@ -208,31 +208,16 @@ function checkInorganic(source,pos,argument,relation,verbose) -- not done
 end
 
 function checkFlow(source,pos,argument,relation,verbose) -- checks for flow at given position
- flow,flowtype = dfhack.script_environment('functions/map').getFlow(pos)
- if not flow then
-  if relation == 'required' then
-   return false
-  elseif relation == 'forbidden' then
-   return true
-  end
- end
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   arg = string.upper(arg)
-  if arg == 'ANY' then
+  flows = dfhack.script_environment('functions/map').getFlow(pos,arg)
+  if #flows > 0 then
    if relation == 'required' then
     return true
    elseif relation == 'forbidden' then
     return false
    end   
-  else
-   if arg == flowtype then
-    if relation == 'required' then
-     return true
-    elseif relation == 'forbidden' then
-     return false
-    end
-   end
   end
  end
  if relation == 'required' then

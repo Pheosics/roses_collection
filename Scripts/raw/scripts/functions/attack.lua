@@ -20,7 +20,7 @@
  NOTE: All computed values are based on Urist DaVinci's work.
 ]]
 ---------------------------------------------------------------------------------------
-function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchance,velocity,delay)
+function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchance,velocity,delay,flags)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  action = df.unit_action:new()
  action.id = unit.next_action_id
@@ -36,8 +36,12 @@ function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchanc
  attack_action.attack_accuracy = math.floor(tonumber(hitchance)) or 0
  attack_action.timer1 = math.floor(tonumber(delay)) or 0
  attack_action.timer2 = math.floor(tonumber(delay)) or 0
+ if flags then
+  for _,flag in ipairs(flags) do
+   attack_action[string.lower(flag)] = true
+  end
+ end
  -- Unknown values
- --attack_action.flags = 7 --flags are now a table of true/false for things like quick/heavy/etc... Will need to be included
  attack_action.unk_28 = 1
  attack_action.unk_2c = 1
  attack_action.unk_38 = 1

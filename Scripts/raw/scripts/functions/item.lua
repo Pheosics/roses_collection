@@ -239,7 +239,7 @@ function equip(item,unit,bodyPart,mode) --from modtools/equip-item
   unit.inventory:insert(#unit.inventory,inventoryItem)
 end
 
-function unequip(item,unit) --basically just reveresed modtools/equip-item
+function unequip(item,unit) --basically just reversed modtools/equip-item
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local slot = -1

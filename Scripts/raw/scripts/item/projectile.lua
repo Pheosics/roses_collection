@@ -20,6 +20,7 @@ validArgs = validArgs or utils.invert({
  'equipped',
  'type',
  'quality',
+ 'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
 

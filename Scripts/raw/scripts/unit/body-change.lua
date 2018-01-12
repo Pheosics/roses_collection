@@ -97,11 +97,11 @@ if args.temperature then
    parts[k] = k
   end
  elseif args.category then
-  parts = dfhack.script_environment('functions/unit').checkBodyCategory(unit,args.category)
+  parts = dfhack.script_environment('functions/unit').getBodyCategory(unit,args.category)
  elseif args.token then
-  parts = dfhack.script_environment('functions/unit').checkBodyToken(unit,args.token)
+  parts = dfhack.script_environment('functions/unit').getBodyToken(unit,args.token)
  elseif args.flag then
-  parts = dfhack.script_environment('functions/unit').checkBodyFlag(unit,args.flag)
+  parts = dfhack.script_environment('functions/unit').getBodyFlag(unit,args.flag)
  else
   print('No body parts declared for temperature change')
   return
@@ -112,17 +112,7 @@ if args.temperature then
    dfhack.script_environment('functions/unit').changeBody(unit,part,changeType,'Fire',dur)
   else
    current = unit.status2.body_part_temperature[part].whole
-   if args.mode == 'Fixed' or args.mode == 'fixed' then
-    change = tonumber(value)
-   elseif args.mode == 'Percent' or args.mode == 'percent' then
-    local percent = (100+tonumber(value))/100
-    change = current*percent - current
-   elseif args.mode == 'Set' or args.mode == 'set' then
-    change = tonumber(value) - current
-   else
-    print('No method for change defined')
-    return
-   end 
+   change = dfhack.script_environment('functions/misc').getChange(current,value,args.mode)
    dfhack.script_environment('functions/unit').changeBody(unit,part,changeType,change,dur)
   end
  end
@@ -136,32 +126,12 @@ elseif args.size then
  end
  if args.size == 'Area' or args.size == 'All' then
   current = unit.body.size_info.area_cur
-  if args.mode == 'Fixed' or args.mode == 'fixed' then
-   change = tonumber(value)
-  elseif args.mode == 'Percent' or args.mode == 'percent' then
-   local percent = (100+tonumber(value))/100
-   change = current*percent - current
-  elseif args.mode == 'Set' or args.mode == 'set' then
-   change = tonumber(value) - current
-  else
-   print('No method for change defined')
-   return
-  end 
+  change = dfhack.script_environment('functions/misc').getChange(current,value,args.mode)
   dfhack.script_environment('functions/unit').changeBody(unit,nil,'Area',change,dur)
  end
  if args.size == 'Length' or args.size == 'All' then
   current = unit.body.size_info.length_cur
-  if args.mode == 'Fixed' or args.mode == 'fixed' then
-   change = tonumber(value)
-  elseif args.mode == 'Percent' or args.mode == 'percent' then
-   local percent = (100+tonumber(value))/100
-   change = current*percent - current
-  elseif args.mode == 'Set' or args.mode == 'set' then
-   change = tonumber(value) - current
-  else
-   print('No method for change defined')
-   return
-  end 
+  change = dfhack.script_environment('functions/misc').getChange(current,value,args.mode)
   dfhack.script_environment('functions/unit').changeBody(unit,nil,'Length',change,dur)
  end
 else

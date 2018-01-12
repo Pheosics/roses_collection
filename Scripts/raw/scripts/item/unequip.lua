@@ -7,7 +7,8 @@ validArgs = utils.invert({
   'itemType',
   'bodyPart',
   'partType',
-  'mode'
+  'mode',
+  'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -20,9 +21,9 @@ end
 if args.bodypart then
  local bodyPartName = args.bodyPart
  if args.partType == 'Category' then
-  parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
+  parts = dfhack.script_environment('functions/unit').getBodyCategory(unit,bodyPartName)
  elseif args.partType == 'Flag' then
-  parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
+  parts = dfhack.script_environment('functions/unit').getBodyFlag(unit,bodyPartName)
  else
   parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
  end
@@ -50,13 +51,13 @@ end
 if args.item then
  if args.item == 'ALL' then
   local items = {}
-  for _.x in pairs(unit.inventory) do
+  for _,x in pairs(unit.inventory) do
    items[#items+1] = x.item.id
   end
   for _,itemId in pairs(items) do
    dfhack.script_environment('functions/item').unequip(itemId,unit)
   end
  else
-  dfhack.script_environment('functions/item').unequip(item, unit)
+  dfhack.script_environment('functions/item').unequip(args.item, unit)
  end
 end

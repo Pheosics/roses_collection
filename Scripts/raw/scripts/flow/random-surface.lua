@@ -46,19 +46,7 @@ if args.help then -- Help declaration
    -flow TYPE
      specify the flow type
      valid types:
-      miasma
-      mist
-      mist2
-      dust
-      lavamist
-      smoke
-      dragonfire
-      firebreath
-      web
-      undirectedgas
-      undirectedvapor
-      oceanwave
-      seafoam
+
    -inorganic INORGANIC_TOKEN
      specify the material of the flow, if applicable
      examples:
@@ -97,8 +85,8 @@ if args.help then -- Help declaration
      specify the number of flows that are spawned at each frequency
      DEFAULT 1
   examples:
-   flow/random-surface -flow firebreath -density 25 -frequency 200 -number 50 -dur 7200
-   flow/random-surface -flow web -inorganic GOLD -density 50 -frequency 500 -number 100 -dur 1000
+   flow/random-surface -flow DRAGONFIRE -density 25 -frequency 200 -number 50 -dur 7200
+   flow/random-surface -flow WEB -inorganic GOLD -density 50 -frequency 500 -number 100 -dur 1000
    flow/random-surface -liquid magma -depth 1 -radius [ 1 1 0 ] -circle -number 50 -frequency 500 -dur 5000
  ]])
  return
@@ -127,6 +115,7 @@ if args.flow then
   script = 'flow/random-surface -flow '..stype..' -number '..tostring(number)..' -frequency '..tostring(frequency)..' -density '..tostring(density)
   script = script..' -dur '..tostring(duration-frequency)
   if itype ~= 0 then script = script..' -inorganic '..itype end
+  if args.static then script = script..' -static' end
   dfhack.script_environment('persist-delay').commandDelay(frequency,script)
  end
 elseif args.liquid then

@@ -267,8 +267,8 @@ function trackTrait(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
   dfhack.script_environment('functions/tables').makeUnitTable(unit.id)
  end
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
- if not unitTable[tostring(unit.id)].Traits[kind] then
-  dfhack.script_environment('functions/tables').makeUnitTableTrait(unit.id,kind)
+ if not unitTable.Traits[kind] then
+  dfhack.script_environment('functions/tables').makeUnitTableSecondary(unit.id,'Traits',kind)
  end
  -- Track!
  trackCore(unit,'Trait',kind,unitTable.Traits,changeTrait,change,value,syndrome,dur,alter)
@@ -660,7 +660,9 @@ function changeCounter(unit,counter,change,dur)
  elseif (counter == 'paralysis' or counter == 'numbness' or counter == 'fever' or counter == 'exhaustion'
          or counter == 'hunger_timer' or counter == 'thirst_timer' or counter == 'sleepiness_timer') then
   location = unit.counters2
- elseif counter == 'blood' or counter == 'infection' then
+ elseif counter == 'blood' or counter == 'infection' or counter == 'blood_count' or counter == 'infection_level' then
+  if counter == 'blood' then counter = 'blood_count' end
+  if counter == 'infection' then counter = 'infection_level' end
   location = unit.body
  elseif counter == 'reset' then
   unit.body.blood_count=unit.body.blood_max
@@ -878,7 +880,6 @@ function changeBody(unit,part,changeType,change,dur)
   if change == 'Fire' then
    unit.body.components.body_part_status[part].on_fire = not unit.body.components.body_part_status[part].on_fire
    unit.flags3.body_temp_in_range = not unit.flags3.body_temp_in_range
-   change = 'Fire'
   else
    unit.status2.body_part_temperature[part].whole=math.floor(tonumber(unit.status2.body_part_temperature[part].whole + change))
   end
@@ -1065,7 +1066,7 @@ function changeWound(unit,bp_id,gl_id,regrow)
    unit.flags2.breathing_problem = false 
   end
   if gl_id == 'All' then
-   layers = checkBodyPartGlobalLayers(unit,bp_id)
+   layers = getBodyPartGlobalLayers(unit,bp_id)
    for _,ly_id in pairs(layers) do
     unit.body.components.layer_status[ly_id].whole = 0
     unit.body.components.layer_wound_area[ly_id] = 0
@@ -1963,7 +1964,7 @@ function getInventoryBodyPart(unit,bodyPart) -- Returns a table of item ids curr
  local items = {}
  local inventory = unit.inventory
  for _,x in ipairs(inventory) do
-  for _.y in ipairs(bodyPart) do
+  for _,y in ipairs(bodyPart) do
    if x.body_part_id == y then
     items[#items+1] = x.item.id
    end
@@ -1979,7 +1980,7 @@ function getInventoryMode(unit,mode) -- Returns a table of item ids currently eq
  local items = {}
  local inventory = unit.inventory
  for _,x in ipairs(inventory) do
-  for _.y in ipairs(mode) do
+  for _,y in ipairs(mode) do
    if x.mode == y then
     items[#items+1] = x.item.id
    end
@@ -2028,20 +2029,13 @@ end
 ------ The following function just reference modtools/create-unit, this allows --------
 ------ me to change certain features of that code without altering it directly --------
 ---------------------------------------------------------------------------------------
-function create(pos,creature,options)
+function create(pos,raceID,casteID,reference,side,name,dur,track,syndrome,equip,skills,classes)
  script = require 'gui.script'
 
- options = options or {}
- number = options.number or 1
- reference = options.reference or 'LOCAL'
- side = options.side or 'NEUTRAL'
- name = options.name
- dur = options.duration or 0
- track = options.track
- syndrome = options.syndrome
- equip = options.equipment
- skills = options.skills
- classes = options.classes
+ number = 1
+ reference = reference or 'LOCAL'
+ side = side or 'NEUTRAL'
+ dur = dur or 0
 
  persistTable = require 'persist-table'
  roses = persistTable.GlobalTable.roses
@@ -2054,48 +2048,6 @@ function create(pos,creature,options)
   location.x = pos.x or pos[1]
   location.y = pos.y or pos[2]
   location.z = pos.z or pos[3]
- end
-
- -- Get creature's race and caste
- local race = nil
- local caste = nil
- if creature then
-  race_token = split(creature,':')[1]
-  caste_token = split(creature,':')[2]
-  for i,x in ipairs(df.global.world.raws.creatures.all) do
-   if x.creature_id == race_token then
-    raceID = i
-    race = x
-    break
-   end
-  end
-  if not race then
-   print('Invalid race')
-   return
-  end
-  if caste_token == 'RANDOM' then
-   caste = dfhack.script_environment('functions/misc').permute(race.caste)[1]
-   casteID = caste.id
-   casteIDs = {}
-   for i,x in pairs(race.caste) do
-    casteIDs[i] = x.id
-   end
-  else
-   for i,x in ipairs(race.caste) do
-    if x.caste_id == caste_token then
-     casteID= i
-     caste = x
-     break
-    end
-   end
-  end
-  if not caste then
-   print('Invalid caste')
-   return
-  end
- else
-  print('No unit declared')
-  return
  end
 
  -- Get civ_id and group_id (actually do that per unit basis)
