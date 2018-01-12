@@ -18,11 +18,11 @@ mweOrder = baseTypes + ['TOKENS'] # + dualTokens
 fileTypes = ['ALL']
 
 class reactions:
- def getRAW(self,dir):
+ def getRAW(self,dirs):
   files = []
-  for file in os.listdir(dir):
-   if fnmatch.fnmatch(file, 'reaction*.txt'):
-    files.append(dir+file)
+  for fname in os.listdir(dirs):
+   if fnmatch.fnmatch(fname, 'reaction*.txt'):
+    files.append(dirs+fname)
 
   totdat = [[]]*len(files)
   for i in range(len(files)):
@@ -96,7 +96,7 @@ class reactions:
    rawData['numbers'][x] = maxval[x]
   self.rawData = rawData
 
- def getMWE(self,dir):
+ def getMWE(self,dirs):
   csvfile = open('reactions.csv')
   reader = csv.reader(csvfile)
   mweData = {}

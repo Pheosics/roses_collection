@@ -470,7 +470,7 @@ function getPositionCavern(number)
          for l,v in pairs(df.global.world.features.feature_global_idx) do
           if v == dfhack.maps.getTileBlock(i,j,k).global_feature then
            feature = df.global.world.features.map_features[l]
-           if feature.start_depth == tonumber(quaternary) or quaternary == 'NONE' then
+           if feature.start_depth == tonumber(number) or number == -1 then
             if df.tiletype.attrs[dfhack.maps.getTileType(i,j,k)].caption == 'stone floor' then
              n = n+1
              targetList[n] = {x = i, y = j, z = k}
@@ -1247,7 +1247,7 @@ function flowSink(n)
   end
   dfhack.timeout(check,'ticks',
                  function ()
-                  dfhack.script_environment('functions/map').flowSource(n)
+                  dfhack.script_environment('functions/map').flowSink(n)
                  end
                 )
  end                

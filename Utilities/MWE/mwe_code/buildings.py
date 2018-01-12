@@ -21,11 +21,11 @@ mweOrder = nameTypes + basicTypes + stageTypes + ['TOKENS'] # + dualTokens
 fileTypes   = ['WORKSHOP','FURNACE']
 
 class buildings:
- def getRAW(self,dir):
+ def getRAW(self,dirs):
   files = []
-  for file in os.listdir(dir):
-   if fnmatch.fnmatch(file, 'building*.txt'):
-    files.append(dir+file)
+  for fname in os.listdir(dirs):
+   if fnmatch.fnmatch(fname, 'building*.txt'):
+    files.append(dirs+fname)
 
   totdat = [[]]*len(files)
   for i in range(len(files)):
@@ -98,7 +98,7 @@ class buildings:
    rawData['numbers'][x] = maxval[x]
   self.rawData = rawData
 
- def getMWE(self,dir):
+ def getMWE(self,dirs):
   csvfile = open('buildings.csv')
   reader = csv.reader(csvfile)
   mweData = {}

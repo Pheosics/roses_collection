@@ -41,11 +41,11 @@ mweOrder = ['USE_MATERIAL_TEMPLATE'] + stateTypes + nameTypes + colorTypes + ['L
 fileTypes = ['METAL','ORE','SOIL','STONE','GEM']
 
 class inorganics:
- def getRAW(self,dir):
+ def getRAW(self,dirs):
   files = []
-  for file in os.listdir(dir):
-   if fnmatch.fnmatch(file, 'inorganic*.txt'):
-    files.append(dir+file)
+  for fname in os.listdir(dirs):
+   if fnmatch.fnmatch(fname, 'inorganic*.txt'):
+    files.append(dirs+fname)
 
   totdat = [[]]*len(files)
   for i in range(len(files)):
@@ -127,7 +127,7 @@ class inorganics:
    rawData['numbers'][x] = maxval[x]
   self.rawData = rawData
 
- def getMWE(self,dir):
+ def getMWE(self,dirs):
   csvfile = open('inorganics.csv')
   reader = csv.reader(csvfile)
   mweData = {}

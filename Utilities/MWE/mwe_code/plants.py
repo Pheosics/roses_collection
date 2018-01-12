@@ -27,11 +27,11 @@ mweOrder = nameTypes + numTypes + tileTypes + colorTypes + seasonTypes + ['BIOME
 fileTypes = ['TREE','GRASS','CROP']
 
 class plants:
- def getRAW(self,dir):
+ def getRAW(self,dirs):
   files = []
-  for file in os.listdir(dir):
-   if fnmatch.fnmatch(file, 'plant*.txt'):
-    files.append(dir+file)
+  for fname in os.listdir(dirs):
+   if fnmatch.fnmatch(fname, 'plant*.txt'):
+    files.append(dirs+fname)
 
   totdat = [[]]*len(files)
   for i in range(len(files)):
@@ -109,7 +109,7 @@ class plants:
    rawData['numbers'][x] = maxval[x]
   self.rawData = rawData
 
- def getMWE(self,dir):
+ def getMWE(self,dirs):
   csvfile = open('plants.csv')
   reader = csv.reader(csvfile)
   mweData = {}

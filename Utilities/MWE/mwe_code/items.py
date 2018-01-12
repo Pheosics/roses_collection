@@ -29,11 +29,11 @@ mweOrder = nameTypes + numTypes + armorTypes + layerTypes + weaponTypes + trapTy
 fileTypes   = ['AMMO','ARMOR','PANTS','HELM','SHOES','WEAPON','TOOL','FOOD','TOY','TRAPCOMP','GLOVES','SIEGEAMMO','SHIELD']
 
 class items:
- def getRAW(self,dir):
+ def getRAW(self,dirs):
   files = []
-  for file in os.listdir(dir):
-   if fnmatch.fnmatch(file, 'item*.txt'):
-    files.append(dir+file)
+  for fname in os.listdir(dirs):
+   if fnmatch.fnmatch(fname, 'item*.txt'):
+    files.append(dirs+fname)
 
   totdat = [[]]*len(files)
   for i in range(len(files)):
@@ -106,7 +106,7 @@ class items:
    rawData['numbers'][x] = maxval[x]
   self.rawData = rawData
 
- def getMWE(self,dir):
+ def getMWE(self,dirs):
   csvfile = open('items.csv')
   reader = csv.reader(csvfile)
   mweData = {}

@@ -8,16 +8,16 @@ from mwe_code.buildings import buildings
 from mwe_code.reactions import reactions
 from mwe_code.creatures import creatures
 
-dir = 'raws/'
+dirs = 'raws/'
 #Type = 'Inorganics'
-#Type = 'Plants'
+Type = 'Plants'
 #Type = 'Items'
 #Type = 'Buildings'
 #Type = 'Reactions'
-Type = 'Creatures'
-Directions = 'RAWtoMWE'
+#Type = 'Creatures'
+#Directions = 'RAWtoMWE'
 #Directions = 'MWEtoRAW'
-#Directions = 'RAWtoRAW'
+Directions = 'RAWtoRAW'
 
 if Type == 'Inorganics':
  func = inorganics()
@@ -35,11 +35,11 @@ elif Type == 'All':
  print('NYI')
 
 if Directions == 'MWEtoRAW':
- func.getMWE(dir)
+ func.getMWE(dirs)
  func.writeRAW(func.mweData)
 elif Directions == 'RAWtoMWE':
- func.getRAW(dir)
+ func.getRAW(dirs)
  func.writeMWE(func.rawData)
 elif Directions == 'RAWtoRAW':
- func.getRAW(dir)
+ func.getRAW(dirs)
  func.writeRAW(func.rawData)

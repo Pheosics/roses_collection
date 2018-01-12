@@ -125,9 +125,11 @@ function changeStanding(civ1,civ2,amount,verbose)
    if diplomacyTable[civ1][civ2] then
     diplomacyTable[civ1][civ2] = tostring(tonumber(diplomacyTable[civ1][civ2]) + amount)
     diplomacyTable[civ2][civ1] = tostring(tonumber(diplomacyTable[civ2][civ1]) + amount)
+    return tonumber(diplomacyTable[civ1][civ2]) + amount
    end
   end
  end
+ return 0
 end
 
 function checkEntity(id,method,verbose)
