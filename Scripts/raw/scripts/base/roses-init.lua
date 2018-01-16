@@ -63,6 +63,9 @@ end
 
 dfhack.script_environment('functions/tables').makeBaseTable(args.testRun,args.verbose)
 
+--==========================================================================================================================
+-- MAKE CLASS SYSTEM =======================================================================================================
+--==========================================================================================================================
 if args.all or args.classSystem then
  if args.verbose then print('Initializing the Class System') end
  if type(args.classSystem) == 'string' then args.classSystem = {args.classSystem} end
@@ -131,7 +134,11 @@ if args.all or args.classSystem then
   print('Class System not loaded')
  end
 end
+--==========================================================================================================================
 
+--==========================================================================================================================
+-- MAKE CIVILIZATION SYSTEM ================================================================================================
+--==========================================================================================================================
 if args.all or args.civilizationSystem then
  if args.verbose then print('Initializing the Civilization System') end
  if type(args.civilizationSystem) == 'string' then args.civilizationSystem = {args.civilizationSystem} end
@@ -171,7 +178,11 @@ if args.all or args.civilizationSystem then
   print('Civilization System not loaded')
  end
 end
+--==========================================================================================================================
 
+--==========================================================================================================================
+-- MAKE ENHANCED SYSTEM ====================================================================================================
+--==========================================================================================================================
 if args.all or args.enhancedSystem then
  if args.verbose then print('Initializing the Enhanced System') end
  if type(args.enhancedSystem) == 'string' then args.enhancedSystem = {args.enhancedSystem} end
@@ -260,7 +271,11 @@ if args.all or args.enhancedSystem then
   print('Enhanced System - Materials not loaded')
  end
 end
+--==========================================================================================================================
 
+--==========================================================================================================================
+-- MAKE EVENT SYSTEM =======================================================================================================
+--==========================================================================================================================
 if args.all or args.eventSystem then
  if args.verbose then print('Initializing the Event System') end
  systemCheck = false
@@ -283,7 +298,11 @@ if args.all or args.eventSystem then
   print('Event System not loaded')
  end
 end
+--==========================================================================================================================
 
+--==========================================================================================================================
+-- RUN BASE COMMANDS =======================================================================================================
+--==========================================================================================================================
 if args.testRun then
  print('Base commands are run seperately for a -testRun')
 else
@@ -307,5 +326,150 @@ else
   dfhack.run_command('base/on-death')
   dfhack.run_command('base/on-time')
   dfhack.run_command('base/periodic-check')
+ end
+end
+
+--==========================================================================================================================
+-- SET UP TRIGGERS =========================================================================================================
+--==========================================================================================================================
+-- Enhanced Item Triggers
+if args.all or itemCheck then
+ if args.verbose and then print('Setting up Enhanced Item Triggers') end
+ for _,itemToken in ipairs(persistTable.GlobalTable.roses.EnhancedItemTable._children) do
+  item = persistTable.GlobalTable.roses.EnhancedItemTable[itemToken]
+  if item.OnEquip then
+   if verbose then print('trigger/action -actionType Equip -item '..itemToken..' -command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]') end
+   dfhack.run_command('trigger/action -actionType Equip -item '..itemToken..' -command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
+   if verbose then print('trigger/action -actionType Unequip -item '..itemToken..' -command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]') end
+   dfhack.run_command('trigger/action -actionType Unequip -item '..itemToken..' -command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
+  end
+  if item.OnAttack then
+   if verbose then print('trigger/action -actionType Attack -item '..itemToken..' -command [ enhanced/item-action -source \\ATTACKER_ID -target \\DEFENDER_ID -item \\ITEM_ID -velocity \\ATTACK_VELOCITY -action Attack ]') end
+   dfhack.run_command('trigger/action -actionType Attack -item '..itemToken..' -command [ enhanced/item-action -source \\ATTACKER_ID -target \\DEFENDER_ID -item \\ITEM_ID -velocity \\ATTACK_VELOCITY -action Attack ]')
+  end
+  if item.OnBlock then
+   if verbose then print('trigger/action -actionType Block -item '..itemToken..' -command [ enhanced/item-action -source \\BLOCKER_ID -target \\BLOCKED_UNIT_ID -item \\ITEM_ID -action BLOCK ]') end
+   dfhack.run_command('trigger/action -actionType Block -item '..itemToken..' -command [ enhanced/item-action -source \\BLOCKER_ID -target \\BLOCKED_UNIT_ID -item \\ITEM_ID -action BLOCK ]')
+  end
+  if item.OnDodge then
+   if verbose then print('trigger/action -actionType Dodge -item '..itemToken..' -command [ enhanced/item-action -source \\UNIT_ID -item \\ITEM_ID -action Dodge ]') end
+   dfhack.run_command('trigger/action -actionType Dodge -item '..itemToken..' -command [ enhanced/item-action -source \\UNIT_ID -item \\ITEM_ID -action Dodge ]')
+  end
+  if item.OnParry then
+   if verbose then print('trigger/action -actionType Parry -item '..itemToken..' -command [ enhanced/item-action -source \\PARRIER_ID -target \\PARRIED_UNIT_ID -item \\ITEM_ID -action Parry ]') end
+   dfhack.run_command('trigger/action -actionType Parry -item '..itemToken..' -command [ enhanced/item-action -source \\PARRIER_ID -target \\PARRIED_UNIT_ID -item \\ITEM_ID -action Parry ]')
+  end
+  if item.OnMove then
+   if verbose then print('trigger/action -actionType Move -item '..itemToken..' -command [ enhanced/item-action -source \\UNIT_ID -item \\ITEM_ID -action Move ]') end
+   dfhack.run_command('trigger/action -actionType Move -item '..itemToken..' -command [ enhanced/item-action -source \\UNIT_ID -item \\ITEM_ID -action Move ]')
+  end
+  if item.OnWound then
+   if verbose then print('trigger/action -actionType Wound -item '..itemToken..' -command [ enhanced/item-action -source \\ATTACKER_ID -target \\DEFENDER_ID -item \\ITEM_ID -wound \\WOUND_ID -action Wound ]') end
+   dfhack.run_command('trigger/action -actionType Wound -item '..itemToken..' -command [ enhanced/item-action -source \\ATTACKER_ID -target \\DEFENDER_ID -item \\ITEM_ID -wound \\WOUND_ID -action Wound ]')
+  end
+ end
+end
+
+-- Enhanced Material Triggers
+if args.all or materialCheck then
+ local function matTrigger(material,materialToken,triggerType)
+  if material.OnEquip then
+   if verbose then print('trigger/action -actionType Equip -material '..materialToken..' -command [ enhanced/material-equip -unit \\UNIT_ID -item \\ITEM_ID -equip -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Equip -material '..materialToken..' -command [ enhanced/material-equip -unit \\UNIT_ID -item \\ITEM_ID -equip -matType '..triggerType..' ]')
+   if verbose then print('trigger/action -actionType Unequip -material '..materialToken..' -command [ enhanced/material-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Unequip -material '..materialToken..' -command [ enhanced/material-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip -matType '..triggerType..' ]')
+  end
+  if material.OnAttack then
+   if verbose then print('trigger/action -actionType Attack -material '..materialToken..' -command [ enhanced/material-action -source \\ATTACKER_ID -target \\DEFENDER_ID -item \\ITEM_ID -velocity \\ATTACK_VELOCITY -action Attack -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Attack -material '..materialToken..' -command [ enhanced/material-action -source \\ATTACKER_ID -target \\DEFENDER_ID -item \\ITEM_ID -velocity \\ATTACK_VELOCITY -action Attack -matType '..triggerType..' ]')
+  end
+  if material.OnBlock then
+   if verbose then print('trigger/action -actionType Block -material '..materialToken..' -command [ enhanced/material-action -source \\BLOCKER_ID -target \\BLOCKED_UNIT_ID -item \\ITEM_ID -action BLOCK -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Block -material '..materialToken..' -command [ enhanced/material-action -source \\BLOCKER_ID -target \\BLOCKED_UNIT_ID -item \\ITEM_ID -action BLOCK -matType '..triggerType..' ]')
+  end
+  if material.OnDodge then
+   if verbose then print('trigger/action -actionType Dodge -material '..materialToken..' -command [ enhanced/material-action -source \\UNIT_ID -item \\ITEM_ID -action Dodge -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Dodge -material '..materialToken..' -command [ enhanced/material-action -source \\UNIT_ID -item \\ITEM_ID -action Dodge -matType '..triggerType..' ]')
+  end
+  if material.OnParry then
+   if verbose then print('trigger/action -actionType Parry -material '..materialToken..' -command [ enhanced/material-action -source \\PARRIER_ID -target \\PARRIED_UNIT_ID -item \\ITEM_ID -action Parry -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Parry -material '..materialToken..' -command [ enhanced/material-action -source \\PARRIER_ID -target \\PARRIED_UNIT_ID -item \\ITEM_ID -action Parry -matType '..triggerType..' ]')
+  end
+  if material.OnMove then
+   if verbose then print('trigger/action -actionType Move -material '..materialToken..' -command [ enhanced/material-action -source \\UNIT_ID -item \\ITEM_ID -action Move -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Move -material '..materialToken..' -command [ enhanced/material-action -source \\UNIT_ID -item \\ITEM_ID -action Move -matType '..triggerType..' ]')
+  end
+  if material.OnWound then
+   if verbose then print('trigger/action -actionType Wound -material '..materialToken..' -command [ enhanced/material-action -source \\ATTACKER_ID -target \\DEFENDER_ID -item \\ITEM_ID -wound \\WOUND_ID -action Wound -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Wound -material '..materialToken..' -command [ enhanced/material-action -source \\ATTACKER_ID -target \\DEFENDER_ID -item \\ITEM_ID -wound \\WOUND_ID -action Wound -matType '..triggerType..' ]')
+  end
+ end
+ 
+ if verbose then print('Setting up Enhanced Material Triggers') end
+ materials = persistTable.GlobalTable.roses.EnhancedMaterialTable
+ for _,materialToken in pairs(materials.Inorganic._children) do
+  material = materials.Inorganic[materialToken]
+  matTrigger(material,materialToken,'Inorganic')
+ end
+ for _,token in pairs(materials.Creature._children) do
+  for _,index in pairs(materials.Creature[token]._children) do
+   if not index == 'ALL' then
+    material = materials.Creature[token][index]
+    materialToken = 'CREATURE_MAT:'..token..':'..index
+    matTrigger(material,materialToken,'Creature')
+   end
+  end
+ end
+ for _,token in pairs(materials.Plant._children) do
+  for _,index in pairs(materials.Plant[token]._children) do
+   if not index == 'ALL' then
+    material = materials.Plant[token][index]
+    materialToken = 'PLANT_MAT:'..token..':'..index
+    matTrigger(material,materialToken,'Plant')
+   end
+  end
+ end
+end
+
+-- Enhanced Building Triggers
+if args.all or buildingCheck then
+ if verbose then print('Setting up Enhanced Building Triggers') end
+ for _,buildingToken in pairs(persistTable.GlobalTable.roses.EnhancedBuildingTable._children) do
+  building = persistTable.GlobalTable.roses.EnhancedBuildingTable[buildingToken]
+  checks = ''
+  if building.OutsideOnly then checks = checks .. ' -location Outside' end
+  if building.InsideOnly then checks = checks .. ' -location Inside' end
+  if building.MaxAmount then checks = checks .. ' -maxNumber ' .. building.MaxAmount end
+  if building.MultiStory then checks = checks .. ' -zLevels ' .. building.MultiStory end
+  if building.RequiredWater then checks = checks .. ' -requiredWater ' .. building.RequiredWater end
+  if building.RequiredMagma then checks = checks .. ' -requiredMagma ' .. building.RequiredMagma end
+  if building.RequiredBuildings then
+   temp = ' [ '
+   for bldg,num in pairs(building.RequiredBuildings) do
+    temp = temp..bldg..':'..num..' '
+   end
+   temp = temp..']'
+   checks = checks .. temp
+  end
+  if building.ForbiddenBuildings then
+   temp = ' [ '
+   for bldg,num in pairs(building.ForbiddenBuildings) do
+    temp = temp..bldg..':'..num..' '
+   end
+   temp = temp..']'
+   checks = checks .. temp
+  end 
+  if verbose then print('trigger/building -building '..buildingToken..checks..' -command [ enhanced/building -building \\BUILDING_ID ]') end
+  dfhack.run_command('trigger/building -building '..buildingToken..checks..' -command [ enhanced/building -building \\BUILDING_ID ]')
+ end
+end
+
+-- Enhanced Reaction Triggers
+if args.all or reactionCheck then
+ if verbose then print('Setting up Enhanced Reaction Triggers') end
+ for _,reactionToken in pairs(persistTable.GlobalTable.roses.EnhancedReactionTable._children) do
+  reaction = persistTable.GlobalTable.roses.EnhancedReactionTable[reactionToken]
+  if verbose then print('trigger/reaction -building '..reactionToken..' -command [ enhanced/reaction -reaction \\REACTION_NAME ]') end
+  dfhack.run_command('trigger/reaction -building '..reactionToken..' -command [ enhanced/reaction -reaction \\REACTION_NAME ]')
  end
 end

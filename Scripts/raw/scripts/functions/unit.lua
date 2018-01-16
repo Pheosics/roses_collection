@@ -1734,7 +1734,7 @@ function getAttack(unit,attack_type) -- Returns an attack number for either a ra
   end
  else
   for i,attacks in pairs(unit.body.body_plan.attacks) do
-   if attacks.name == attack then
+   if attacks.name == attack_type then
     attack = i
     break
    end

@@ -78,16 +78,21 @@ function system_checks()
   writeall('Enhanced System - Buildings Starting')
   EBCheck = {}
 
-  ---- Print PASS/FAIL
-  if #EBCheck == 0 then
-   printplus('PASSED: Enhanced System - Buildings')
-  else
-   printplus('FAILED: Enhanced System - Buildings')
-   writeall(EBCheck)
-  end
+  printplus('')
+  printplus('base/roses-init -enhancedSystem [ Buildings ] -verbose -test')
+  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Buildings ] -verbose -test')
+  writeall(output)
 
-  ---- FINISH Enhanced System - Buildings
-  writeall('Enhanced System - Buildings Finished')
+  ---- Print PASS/FAIL
+  --if #EBCheck == 0 then
+  -- printplus('PASSED: Enhanced System - Buildings')
+  --else
+  -- printplus('FAILED: Enhanced System - Buildings')
+  -- writeall(EBCheck)
+  --end
+
+  ------ FINISH Enhanced System - Buildings
+  --writeall('Enhanced System - Buildings Finished')
   printplus('NOCHECK: Enhanced System - Buildings',COLOR_YELLOW)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -97,6 +102,11 @@ function system_checks()
   writeall('Enhanced System - Creatures Starting')
   writeall('Enhancing all dwarf creatures')
   writeall('Agility should be increased to between 5000 and 8000 and PLANT skill to between 5 and 15')
+
+  printplus('')
+  printplus('base/roses-init -enhancedSystem [ Creatures ] -verbose -test')
+  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Creatures ] -verbose -test')
+  writeall(output)
 
   ECCheck = {}
   unit = civ[5]
@@ -136,22 +146,13 @@ function system_checks()
   writeall('When the pick is equipped the units Axe skill should increase to legendary')
   writeall('When the hand axe is equipped the unit should learn the Test Spell 1 spell')
   writeall('Both effects should revert when the item is unequipped')
-  writeall('Running modtools/item-trigger')
+
+  printplus('')
+  printplus('base/roses-init -enhancedSystem [ Items ] -verbose -test')
+  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Items ] -verbose -test')
+  writeall(output)
 
   EICheck = {}
-  base = 'modtools/item-trigger -itemType ITEM_WEAPON_PICK -onEquip -command'
-  output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
-  writeall(output)
-  base = 'modtools/item-trigger -itemType ITEM_WEAPON_HANDAXE -onEquip -command'
-  output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -equip ]')
-  writeall(output)
-  base = 'modtools/item-trigger -itemType ITEM_WEAPON_PICK -onUnequip -command'
-  output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
-  writeall(output)
-  base = 'modtools/item-trigger -itemType ITEM_WEAPON_HANDAXE -onUnequip -command'
-  output = dfhack.run_command_silent(base..' [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -unequip ]')
-  writeall(output)
-
   ----
   writeall('')
   writeall('Testing Enhanced Item 1 - ITEM_WEAPON_PICK')
@@ -227,37 +228,86 @@ function system_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   writeall('')
   writeall('Enhanced System - Materials Starting')
+  writeall('When the dragon scale helm is equipped the units Axe skill should increase to legendary')
+  writeall('When the sapphire shield is equipped the units stats should change')
+  writeall('Both effects should revert when the item is unequipped')
+
+  printplus('')
+  printplus('base/roses-init -enhancedSystem [ Materials ] -verbose -test')
+  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Materials ] -verbose -test')
+  writeall(output)
+
   EMCheck = {}
+
+  ----
+  writeall('')
+  writeall('Testing Enhanced Material 1 - CREATURE_MAT:DRAGON:SCALE')
+  output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item HELM:ITEM_HELM_HELM -material CREATURE_MAT:DRAGON:SCALE -verbose')
+  writeall(output)
+  output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -bodyPart HEAD -type Flag -mode Worn -verbose')
+  writeall(output)
+  writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
+  script.sleep(50,'ticks')
+  writeall('Resuming run_test.lua')
+  if unitTable.Skills.AXE.Item < '15' then
+   EMCheck[#EICheck+1] = 'Enhanced System - Material 1 equip skill change not correctly applied'
+  end
+
+  ----
+  output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -itemType HELM -verbose')
+  writeall(output)
+  writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
+  script.sleep(50,'ticks')
+  writeall('Resuming run_test.lua')
+  if unitTable.Skills.AXE.Item > '0' then
+   EMCheck[#EICheck+1] = 'Enhanced System - Material 1 unequip skill change not correctly applied'
+  end
+
+  ----
+  writeall('')
+  writeall('Testing Enhanced Material 2 - INORGANIC:SAPPHIRE')
+  output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item SHIELD:ITEM_SHIELD_SHIELD -material INORGANIC:SAPPHIRE -verbose')
+  writeall(output)
+  output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -bodyPart GRASP -type Flag -mode Weapon -verbose')
+  writeall(output)
+  writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
+  script.sleep(50,'ticks')
+  writeall('Resuming run_test.lua')
 
   ---- Print PASS/FAIL
   if #EMCheck == 0 then
-   printplus('PASSED: Enhanced System - Materials')
+   printplus('PASSED: Enhanced System - Materials', COLOR_GREEN)
   else
-   printplus('FAILED: Enhanced System - Materials')
-   writeall(EICheck)
+   printplus('FAILED: Enhanced System - Materials', COLOR_RED)
+   writeall(EMCheck)
   end
 
   ---- FINISH Enhanced System - Materials
-  writeall('Enhanced System - Materials Finished')
-  printplus('NOCHECK: Enhanced System - Materials',COLOR_YELLOW)
-  
+  writeall('Enhanced System - Materials check finished')
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START Enhanced System - Reactions ---------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   writeall('')
   writeall('Enhanced System - Reactions Starting')
+
+  printplus('')
+  printplus('base/roses-init -enhancedSystem [ Reactions ] -verbose -test')
+  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Reactions ] -verbose -test')
+  writeall(output)
+
   ERCheck = {}
 
-  ---- Print PASS/FAIL
-  if #ERCheck == 0 then
-   printplus('PASSED: Enhanced System - Reactions')
-  else
-   printplus('FAILED: Enhanced System - Reactions')
-   writeall(EICheck)
-  end
+  ------ Print PASS/FAIL
+  --if #ERCheck == 0 then
+  -- printplus('PASSED: Enhanced System - Reactions')
+  --else
+  -- printplus('FAILED: Enhanced System - Reactions')
+  -- writeall(EICheck)
+  --end
 
-  ---- FINISH Enhanced System - Reactions
-  writeall('Enhanced System - Reactions Finished')
+  ------ FINISH Enhanced System - Reactions
+  --writeall('Enhanced System - Reactions Finished')
   printplus('NOCHECK: Enhanced System - Reactions',COLOR_YELLOW)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

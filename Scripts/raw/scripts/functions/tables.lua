@@ -1028,6 +1028,11 @@ function makeEnhancedBuildingTable(test,verbose)
      building.Spells = building.Spells or {}
      building.Spells[spell] = {}
      building.Spells[spell].Frequency = array[3]
+    elseif test == '[SCRIPT' then
+     script = array[2]
+     building.Scripts = building.Scripts or {}
+     building.Scripts[script] = {}
+     building.Scripts[script].Frequency = array[3]
     elseif test == '[REQUIRED_WATER' then
      building.RequiredWater = array[2]
     elseif test == '[REQUIRED_MAGMA' then
@@ -1204,9 +1209,9 @@ function makeEnhancedItemTable(test,verbose)
     onTable = item.OnEquip
     onTable.Script = onTable.Script or {}
     onTable.Script[#onTable.Script+1] = array[2]
-   elseif test == '[ON_STRIKE' then
-    item.OnStrike = item.OnStrike or {}
-    onTable = item.OnStrike
+   elseif test == '[ON_ATTACK' then
+    item.OnAttack = item.OnAttack or {}
+    onTable = item.OnAttack
     onTable.Script = onTable.Script or {}
     onTable.Script[#onTable.Script+1] = array[2]
    elseif test == '[ON_PARRY' then
@@ -1217,6 +1222,16 @@ function makeEnhancedItemTable(test,verbose)
    elseif test == '[ON_DODGE' then
     item.OnDodge = item.OnDodge or {}
     onTable = item.OnDodge
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ON_BLOCK' then
+    item.OnBlock = item.OnBlock or {}
+    onTable = item.OnBlock
+    onTable.Script = onTable.Script or {}
+    onTable.Script[#onTable.Script+1] = array[2]
+   elseif test == '[ON_WOUND' then
+    item.OnWound = item.OnWound or {}
+    onTable = item.OnWound
     onTable.Script = onTable.Script or {}
     onTable.Script[#onTable.Script+1] = array[2]
    elseif test == '[ATTRIBUTE_CHANGE' then
@@ -1288,18 +1303,6 @@ function makeEnhancedItemTable(test,verbose)
     onTable.DefenderDur = array[2]
    end
   end
-  if not test then
-   base = 'modtools/item-trigger -itemType '..itemToken
-   equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID'
-   action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID'
-   if item.OnEquip then
-    dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
-    dfhack.run_command(base..' -onUnequip '..equip..' -unequip ]')
-   end
-   if item.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
-   if item.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
-   if item.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end    
-  end
  end
  end
  return true
@@ -1347,9 +1350,9 @@ function makeEnhancedMaterialTable(test,verbose)
      onTable = material.OnEquip
      onTable.Script = onTable.Script or {}
      onTable.Script[#onTable.Script+1] = array[2]
-    elseif test == '[ON_STRIKE' then
-     material.OnStrike = material.OnStrike or {}
-     onTable = material.OnStrike
+    elseif test == '[ON_ATTACK' then
+     material.OnAttack = material.OnAttack or {}
+     onTable = material.OnAttack
      onTable.Script = onTable.Script or {}
      onTable.Script[#onTable.Script+1] = array[2]
     elseif test == '[ON_PARRY' then
@@ -1360,6 +1363,16 @@ function makeEnhancedMaterialTable(test,verbose)
     elseif test == '[ON_DODGE' then
      material.OnDodge = material.OnDodge or {}
      onTable = material.OnDodge
+     onTable.Script = onTable.Script or {}
+     onTable.Script[#onTable.Script+1] = array[2]
+    elseif test == '[ON_BLOCK' then
+     material.OnBlock = material.OnBlock or {}
+     onTable = material.OnBlock
+     onTable.Script = onTable.Script or {}
+     onTable.Script[#onTable.Script+1] = array[2]
+    elseif test == '[ON_WOUND' then
+     material.OnWound = material.OnWound or {}
+     onTable = material.OnWound
      onTable.Script = onTable.Script or {}
      onTable.Script[#onTable.Script+1] = array[2]
     elseif test == '[ATTRIBUTE_CHANGE' then
@@ -1526,56 +1539,6 @@ for _,materialToken in pairs(materials.Plant._children) do
        end
       end
      end
-    end
-   end
-  end
- end
-
- if not test then
-  for _,materialToken in pairs(materials.Inorganic._children) do
-   material = materials.Inorganic[materialToken]
-   base = 'modtools/item-trigger -mat '..materialToken
-   equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -mat'
-   action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
-   if material.OnEquip then
-    dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
-    dfhack.run_command(base..' -onUnequip '..equip..' unequip ]')
-   end
-   if material.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
-   if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
-   if material.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end    
-  end
-  for _,materialToken in pairs(materials.Creature._children) do
-   for _,materialIndex in pairs(materials.Creature[materialToken]._children) do
-    if not materialIndex == 'ALL' then
-     material = materials.Creature[materialToken][materialIndex]
-     base = 'modtools/item-trigger -mat '..'CREATURE_MAT:'..materialToken..':'..materialIndex
-     equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -mat'
-     action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
-     if material.OnEquip then
-      dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
-      dfhack.run_command(base..' -onUnequip '..equip..' ]')
-     end
-     if material.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
-     if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
-     if material.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end
-    end
-   end
-  end
-  for _,materialToken in pairs(materials.Plant._children) do
-   for _,materialIndex in pairs(materials.Plant[materialToken]._children) do
-    if not materialIndex == 'ALL' then
-     material = materials.Plant[materialToken][materialIndex]
-     base = 'modtools/item-trigger -mat '..'PLANT_MAT:'..materialToken..':'..materialIndex
-     equip = '-command [ enhanced/item-equip -unit \\UNIT_ID -item \\ITEM_ID -mat'
-     action = '-command [ enhanced/item-action -attacker \\ATTACKER_ID -defender \\DEFENDER_ID -item \\ITEM_ID -mat'
-     if material.OnEquip then
-      dfhack.run_command(base..' -onEquip '..equip..' -equip ]')
-      dfhack.run_command(base..' -onUnequip '..equip..' -unequip ]')
-     end
-     if material.OnStrike then dfhack.run_command(base..' -onStrike '..action..' -action Strike ]') end
-     if material.OnDodge then dfhack.run_command(base..' -onStrike '..action..' -action Dodge ]') end
-     if material.OnParry then dfhack.run_command(base..' -onStrike '..action..' -action Parry ]') end
     end
    end
   end
