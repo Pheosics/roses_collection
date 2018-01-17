@@ -87,8 +87,8 @@ function script_checks()
    unitCheck[#unitCheck+1] = 'Failed to add a 500 tick action for each action to unit'
   end
   ---- Check that the script succeeds and removes all actions from unit
-  writeall('unit/action-change -unit '..tostring(unit.id)..' -timer clearAll (Should succeed and remove all actions from unit)')
-  output = dfhack.run_command_silent('unit/action-change -unit '..tostring(unit.id)..' -timer clearAll')
+  writeall('unit/action-change -unit '..tostring(unit.id)..' action ALL -timer clearAll (Should succeed and remove all actions from unit)')
+  output = dfhack.run_command_silent('unit/action-change -unit '..tostring(unit.id)..' -action ALL -timer clearAll')
   writeall(output)
   if #unit.actions > 0 then
    unitCheck[#unitCheck+1] = 'Failed to remove all actions from unit'
@@ -160,16 +160,15 @@ function script_checks()
   end
 
   ---- Check that the script succeeds and adds 10 punch attacks against defenders head
-  writeall('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' -attack PUNCH -target HEAD -number 10 -velocity 100 (Should succeed and add 10 punch attacks targeting defender head with velocity 100 and calculated hit chance)')
-  output = dfhack.run_command_silent('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' -attack PUNCH -target HEAD -number 10 -velocity 100')
+  writeall('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10 (Should succeed and add 10 punch attacks targeting defender head with velocity 100 and calculated hit chance)')
+  output = dfhack.run_command_silent('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10')
   writeall(output)
   n = 0
-  bpn = 0
-  an = 0
+  bpn = unitFunctions.getBodyCategory(defender,'HEAD')[1]
   for _,action in pairs(attacker.actions) do
    if action.type == 1 then
     if action.data.attack.target_unit_id == defender.id then
-     if action.data.attack.attack_velocity == 100 and action.data.attack.target_body_part_id == bpn and action.data.attack.attack_id == an then
+     if action.data.attack.attack_velocity == 100 and action.data.attack.target_body_part_id == bpn then
       n = n + 1
      end
     end
@@ -271,15 +270,14 @@ function script_checks()
   writeall('unit/body-change -unit '..tostring(unit.id)..' -size All -amount 50 -mode Percent (Should succeed and set all sizes, size, length, and area, of the unit to 50 percent of the current)')
   output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -size All -amount 50 -mode percent')
   writeall(output)
-  if scur/unit.body.size_info.size_cur ~= 2 then
+  if scur/unit.body.size_info.size_cur < 1.9 or scur/unit.body.size_info.size_cur > 2.1 then
    unitCheck[#unitCheck+1] = 'Failed to set current size to 50% of previous size. Size ratio = '..tostring(scur/unit.body.size_info.size_cur)
   end
-  if acur/unit.body.size_info.area_cur ~= 2 then
+  if acur/unit.body.size_info.area_cur < 1.9 or acur/unit.body.size_info.area_cur > 2.1 then
    unitCheck[#unitCheck+1] = 'Failed to set current area to 50% of previous area. Area ratio = '..tostring(acur/unit.body.size_info.area_cur)
   end
-  if lcur/unit.body.size_info.length_cur ~= 2 then
+  if lcur/unit.body.size_info.length_cur < 1.9 or lcur/unit.body.size_info.length_cur > 2.1 then
    unitCheck[#unitCheck+1] = 'Failed to set current length to 50% of previous length. Length ratio = '..tostring(lcur/unit.body.size_info.length_cur)
-  end
 
   ---- Check that the script succeeds and sets the temperature of the upper body to 9000
   writeall('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature -mode Set -amount 9000 (Should succeed and set the upper body temperature to 9000)')
