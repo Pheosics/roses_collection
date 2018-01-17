@@ -46,7 +46,7 @@ if not partId then
   error('invalid body part name: ', bodyPartName)
 end
 
-local mode = args.mode
+local mode = args.mode or 'Worn'
 mode = df.unit_inventory_item.T_mode[mode]
 
 dfhack.script_environment('functions/item').equip(item, unit, partId, mode)

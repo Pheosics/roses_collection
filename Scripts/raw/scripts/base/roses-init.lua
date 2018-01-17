@@ -334,7 +334,7 @@ end
 --==========================================================================================================================
 -- Enhanced Item Triggers
 if args.all or itemCheck then
- if args.verbose and then print('Setting up Enhanced Item Triggers') end
+ if args.verbose then print('Setting up Enhanced Item Triggers') end
  for _,itemToken in ipairs(persistTable.GlobalTable.roses.EnhancedItemTable._children) do
   item = persistTable.GlobalTable.roses.EnhancedItemTable[itemToken]
   if item.OnEquip then

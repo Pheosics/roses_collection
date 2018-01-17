@@ -113,8 +113,8 @@ function script_checks()
   writeall('item/equip and item/unequip checks starting')
 
   ---- Check that the script succeeds and moves the item into the inventory of the unit
-  writeall('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPartFlag GRASP (Should succeed and move item into inventory of unit carrying in hand)')
-  output = dfhack.run_command_silent('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPartFlag GRASP')
+  writeall('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPart GRASP -type Flag -mode Weapon (Should succeed and move item into inventory of unit carrying in hand)')
+  output = dfhack.run_command_silent('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPart GRASP -type Flag -mode Weapon')
   writeall(output)
   yes = false
   for _,itemID in pairs(unitFunctions.getInventoryType(unit,'WEAPON')) do
@@ -128,8 +128,8 @@ function script_checks()
   end
 
   ---- Check that the script succeeds and moves item from inventory to the ground at units location
-  writeall('item/unequip -item '..tostring(item.id)..' (Should succeed and move item from inventory to ground at unit location)')
-  output = dfhack.run_command_silent('item/unequip -item '..tostring(item.id))
+  writeall('item/unequip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' (Should succeed and move item from inventory to ground at unit location)')
+  output = dfhack.run_command_silent('item/unequip -item '..tostring(item.id)..' -unit '..tostring(unit.id))
   writeall(output)
   if not same_xyz(item.pos,unit.pos) or not item.flags.on_ground or item.flags.in_inventory then
    itemCheck[#itemCheck+1] = 'Short sword not unequipped and placed on ground'

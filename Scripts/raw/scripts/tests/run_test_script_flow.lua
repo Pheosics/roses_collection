@@ -73,8 +73,8 @@ function script_checks()
   end
 
   ---- Check that the script succeeds in creating obsidian dust in a 5x5 plus centered on unit
-  writeall('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow dust -inorganic OBSIDIAN -density 100 -static (Should succeed and create obsidian dust in a 5x5 plus centered on unit, dust should not expand)')
-  output = dfhack.run_command_silent('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow dust -inorganic OBSIDIAN -density 100 -static')
+  writeall('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow MATERIALDUST -inorganic OBSIDIAN -density 100 -static (Should succeed and create obsidian dust in a 5x5 plus centered on unit, dust should not expand)')
+  output = dfhack.run_command_silent('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow MATERIALDUST -inorganic OBSIDIAN -density 100 -static')
   writeall(output)
   locations = mapFunctions.getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_P.txt',unit.pos,nil)
   for _,pos in pairs(locations) do
@@ -125,7 +125,7 @@ function script_checks()
     n = n + #mapFunctions.getFlow(pos,'MIST')
    end
   end
-  if n ~= 10 then
+  if n < 10 then
    flowCheck[#flowCheck+1] = 'Mist was not spawned correctly. Number spawned = '..tostring(n)
   end
 

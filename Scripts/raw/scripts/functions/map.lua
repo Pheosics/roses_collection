@@ -694,7 +694,8 @@ function spawnLiquid(edges,offset,depth,magma,circle,taper)
 end
 
 function getFlow(pos,flowType)
- flowType = string.upper(flowType) or 'ALL'
+ flowType = flowType or 'ALL'
+ flowType = string.upper(flowType)
  block = dfhack.maps.ensureTileBlock(pos)
  flows = block.flows
  flowOut = {}
@@ -1083,6 +1084,7 @@ function GetTileMat(x, y, z)
  end
 
  temp = GetTileTypeMat(typ, pos)
+ if not temp then return 'NONE' end
  mtype = temp.type
  mindex = temp.index
  return dfhack.matinfo.getToken(mtype,mindex)

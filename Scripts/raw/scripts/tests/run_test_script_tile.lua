@@ -66,8 +66,8 @@ function script_checks()
   writeall('tile/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor (Should succeed and change the material of the floor at unit location to obsidian)')
   output = dfhack.run_command_silent('tile/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor')
   writeall(output)
-  if mapFunctions.getTileType(unit.pos.x,unit.pos.y,unit.pos.z-1) ~= 'INORGANIC:OBSIDIAN' then
-   foundType = mapFunctions.getTileType(unit.pos.x,unit.pos.y,unit.pos.z-1) or "nil"
+  if mapFunctions.GetTileMat(unit.pos.x,unit.pos.y,unit.pos.z-1) ~= 'INORGANIC:OBSIDIAN' then
+   foundType = mapFunctions.GetTileMat(unit.pos.x,unit.pos.y,unit.pos.z-1) or "nil"
    tileCheck[#tileCheck+1] = 'Failed to change the desired location to INORGANIC:OBSIDIAN. Location material = '..foundType
   end
 
@@ -77,8 +77,8 @@ function script_checks()
   writeall(output)
   positions = mapFunctions.getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
   for _,pos in pairs(positions) do
-   if mapFunctions.getTileType(pos.x,pos.y,pos.z-1) ~= 'INORGANIC:SLADE' then
-    foundType = mapFunctions.getTileType(pos.x,pos.y,pos.z-1) or "nil"
+   if mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) ~= 'INORGANIC:SLADE' then
+    foundType = mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) or "nil"
     tileCheck[#tileCheck+1] = 'Failed to change the desired location to INORGANIC:SLADE. Location material = '..foundType
    end
   end
@@ -86,8 +86,8 @@ function script_checks()
   script.sleep(75,'ticks')
   writeall('Resuming run_test.lua')
   for _,pos in pairs(positions) do
-   if mapFunctions.getTileType(pos.x,pos.y,pos.z-1) == 'INORGANIC:SLADE' then
-    foundType = mapFunctions.getTileType(pos.x,pos.y,pos.z-1) or "nil"
+   if mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) == 'INORGANIC:SLADE' then
+    foundType = mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) or "nil"
     tileCheck[#tileCheck+1] = 'Failed to revert the desired location from INORGANIC:SLADE. Location material = '..foundType
    end
   end
@@ -122,13 +122,18 @@ function script_checks()
   end
 
   ---- Check that the script succeeds and sets the temerpature in a 5x5 plus centered on the unit to 15000 for 50 ticks
-  positions = mapFunctions.getPositionPlan('test_plan_5x5_P.txt',unit,nil)
+  positions = mapFunctions.getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
   it1 = {}
   it2 = {}
+  ps1 = {}
   for i,pos in ipairs(positions) do
    block = dfhack.maps.ensureTileBlock(pos)
    it1[i] = block.temperature_1[pos.x%16][pos.y%16]
-   it2[i] = block.temperature_2[pos.x%16][pos.y%16] 
+   it2[i] = block.temperature_2[pos.x%16][pos.y%16]
+   ps1[i] = ps1[i] or {}
+   ps1[i].x = pos.x
+   ps1[i].y = pos.y
+   ps1[i].z = pos.z
   end
   writeall('tile/temperature-change -unit '..tostring(unit.id)..' -plan test_plan_5x5_P.txt -temperature 15000 -dur 50 (Should succeed and set the temperature in a 5x5 plus centered at the unit to 15000 for 50 ticks)')
   output = dfhack.run_command_silent('tile/temperature-change -unit '..tostring(unit.id)..' -plan test_plan_5x5_P.txt -temperature 15000 -dur 50')
@@ -152,10 +157,10 @@ function script_checks()
   end
   for n=1,#it1 do
    if ot1[n] ~= 15000 or ot2[n] ~= 15000 then
-    tileCheck[#tileCheck+1] = 'Temperature in 5x5 Plus not correctly set to 15000. Position = '..tostring(pos[n].x)..' '..tostring(pos[n].y)..' '..tostring(pos[n].z)..'. Temperature 1/2 = '..tostring(ot1[n])..'/'..tostring(ot2[n])
+    tileCheck[#tileCheck+1] = 'Temperature in 5x5 Plus not correctly set to 15000. Position = '..tostring(ps1[n].x)..' '..tostring(ps1[n].y)..' '..tostring(ps1[n].z)..'. Temperature 1/2 = '..tostring(ot1[n])..'/'..tostring(ot2[n])
    end
    if pt1[n] ~= it1[n] or pt2[n] ~= it2[n] then
-    tileCheck[#tileCheck+1] = 'Temperature in 5x5 Plus not correctly reset to initial temperature. Position = '..tostring(pos[n].x)..' '..tostring(pos[n].y)..' '..tostring(pos[n].z)..'. Temperature 1/2 = '..tostring(pt1[n])..'/'..tostring(pt2[n])
+    tileCheck[#tileCheck+1] = 'Temperature in 5x5 Plus not correctly reset to initial temperature. Position = '..tostring(ps1[n].x)..' '..tostring(ps1[n].y)..' '..tostring(ps1[n].z)..'. Temperature 1/2 = '..tostring(pt1[n])..'/'..tostring(pt2[n])
    end
   end 
 

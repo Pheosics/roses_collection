@@ -39,7 +39,7 @@ function script_checks()
  local mapFunctions = dfhack.script_environment('functions/map')
 
  -- Get all items for scripts
- dfhack.run_command_silent('modtools/create-item -creator '..tostring(civ[1].id)..' -material INORGANIC:IRON -item WEAPON:ITEM_WEAPON_AXE_BATTLE')
+ dfhack.run_command_silent('modtools/create-item -creator '..tostring(df.global.world.units.active[1].id)..' -material INORGANIC:IRON -item WEAPON:ITEM_WEAPON_AXE_BATTLE')
  buildingitem = df.item.find(df.global.item_next_id - 1)
 
 -- Get building information for scripts

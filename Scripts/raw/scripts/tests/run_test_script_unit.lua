@@ -68,15 +68,16 @@ function script_checks()
   output = dfhack.run_command_silent('unit/action-change -unit '..tostring(unit.id)..' -timer 500 -action All')
   writeall(output)
   check = true
+  timerTypes = {'move','holdterrain','climb','job','talk','unsteady','dodge','recover','standup','liedown','job2','pushobject','suckblood'}
   for _,action in pairs(unit.actions) do
-   if action.type => 0 then
-   actionType = df.unit_action_type[action.type]
-    if action.data[string.lower(actionType)].timer then
-     if action.data[string.lower(actionType)].timer < 500 then
+   if action.type >= 0 then
+    actionType = string.lower(df.unit_action_type[action.type])
+    if timerTypes[actionType] then
+     if action.data[actionType].timer < 500 then
       check = false
      end
-    elseif action.data[string.lower(actionType)].timer1 then
-     if action.data[string.lower(actionType)].timer1 < 500 then
+    elseif actionType == 'attack' then
+     if action.data[actionType].timer1 < 100 then
       check = false
      end
     end
@@ -85,7 +86,6 @@ function script_checks()
   if not check then
    unitCheck[#unitCheck+1] = 'Failed to add a 500 tick action for each action to unit'
   end
-
   ---- Check that the script succeeds and removes all actions from unit
   writeall('unit/action-change -unit '..tostring(unit.id)..' -timer clearAll (Should succeed and remove all actions from unit)')
   output = dfhack.run_command_silent('unit/action-change -unit '..tostring(unit.id)..' -timer clearAll')
@@ -108,7 +108,7 @@ function script_checks()
     end
    end
   end
-  if unit.curse.own_interaction_delay >= 100 then
+  if unit.curse.own_interaction_delay[0] >= 100 then
    check2 = true
   end
   if not check1 then
@@ -169,7 +169,7 @@ function script_checks()
   for _,action in pairs(attacker.actions) do
    if action.type == 1 then
     if action.data.attack.target_unit_id == defender.id then
-     if action.data.attack.attack_velocity == 100 and action.data.attack.target_body_part_id == bpn and action.data.attack.attack_id = an then
+     if action.data.attack.attack_velocity == 100 and action.data.attack.target_body_part_id == bpn and action.data.attack.attack_id == an then
       n = n + 1
      end
     end
@@ -436,6 +436,7 @@ function script_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/create -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
   unitCheck = {}
   loc = {pos2xyz(civ[2].pos)}
   location = tostring(loc[1])..' '..tostring(loc[2])..' '..tostring(loc[3])
@@ -469,10 +470,11 @@ function script_checks()
   ---- FINISH unit/create
   scriptCheck['unit_create'] = unitCheck
   writeall('unit/create checks finished')
-
+]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/destory ------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
   unitCheck = {}
   unit1 = df.unit.find(df.global.unit_next_id - 1)
   unit2 = df.unit.find(df.global.unit_next_id - 2)
@@ -506,7 +508,7 @@ function script_checks()
   ---- FINISH unit/destroy
   scriptCheck['unit_destroy'] = unitCheck
   writeall('unit/destroy checks finished')
-  
+]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/emotion-change -----------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
