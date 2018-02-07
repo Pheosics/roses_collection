@@ -338,6 +338,7 @@ function changeSpell(unit,spell,direction,verbose)
  elseif direction == 'learn' then
   if unitTable.Spells[spell] == '1' then
    if verbose then print('Spell already known, adding to unit') end
+   changeSpell(unit,spell,'add',verbose)
   else
    test, upgrade = checkRequirementsSpell(unit,spell,verbose)
    if test then
@@ -357,6 +358,18 @@ function changeSpell(unit,spell,direction,verbose)
    if verbose then print('Spell not known') end
   end
   changeSpell(unit,spell,'remove',verbose)
+ elseif direction == 'forceLearn' then
+  if unitTable.Spells[spell] == '1' then
+   if verbose then print('Spell already known, adding to unit') end
+   changeSpell(unit,spell,'forceAdd',verbose)
+  else
+   if verbose then print('Spell learned, adding to unit') end
+   unitTable.Spells[spell] = '1'
+   changeSpell(unit,spell,'forceAdd',verbose)
+  end
+ elseif direction == 'forceAdd' then
+  dfhack.script_environment('functions/unit').changeSyndrome(unit,spell,'add',0)
+  unitTable.Spells.Active[spell] = spell
  end
 end
 
@@ -364,6 +377,7 @@ function checkRequirementsClass(unit,class,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
+ if not safe_index(persistTable.GlobalTable.roses,'ClassTable') then return false end
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
@@ -460,6 +474,7 @@ function checkRequirementsSpell(unit,spell,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
+ if not safe_index(persistTable.GlobalTable.roses,'SpellTable') then return false end
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  local unitTable = persistTable.GlobalTable.roses.UnitTable[key]
@@ -575,7 +590,7 @@ function checkRequirementsFeat(unit,feat,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local key = tostring(unit.id)
  local persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses.FeatTable then return false end
+ if not safe_index(persistTable.GlobalTable.roses,'FeatTable') then return false end
  local unitTable = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[key] then dfhack.script_environment('functions/tables').makeUnitTable(unit) end
  featTable = persistTable.GlobalTable.roses.FeatTable[feat]

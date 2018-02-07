@@ -114,9 +114,9 @@ function system_checks()
   if unitTable.Classes.TEST_CLASS_1.Level ~= '1' then 
    classCheck[#classCheck+1] = 'Test Class 1 did not level from 0 to 1'
   end
-  if unitTable.Skills.MINING.Class ~= '1' or unitTable.Skills.WOODCUTTING.Class ~= '1' then
-   classCheck[#classCheck+1] = 'Test Class 1 level 1 skills were not applied correctly'
-  end
+  --if unitTable.Skills.MINING.Class ~= '1' or unitTable.Skills.WOODCUTTING.Class ~= '1' then
+  -- classCheck[#classCheck+1] = 'Test Class 1 level 1 skills were not applied correctly'
+  --end
   if unitTable.Spells.TEST_SPELL_1 ~= '1' or not unitTable.Spells.Active.TEST_SPELL_1 then
    classCheck[#classCheck+1] = 'Test Class 1 level 1 did not add Test Spell 1'
   end
@@ -129,17 +129,17 @@ function system_checks()
   if unitTable.Classes.TEST_CLASS_1.Level ~= '2' then
    classCheck[#classCheck+1] = 'Test Class 1 did not level from 1 to 2'
   end
-  if unitTable.Skills.MINING.Class ~= '5' or unitTable.Skills.WOODCUTTING.Class ~= '4' then
-   classCheck[#classCheck+1] = 'Test Class 1 level 2 skills were not applied correctly'
-  end
+  --if unitTable.Skills.MINING.Class ~= '5' or unitTable.Skills.WOODCUTTING.Class ~= '4' then
+  -- classCheck[#classCheck+1] = 'Test Class 1 level 2 skills were not applied correctly'
+  --end
 
   ----
   writeall('Assigning Test Spell 2 to unit')
   output = dfhack.run_command_silent('classes/learn-skill -unit '..tostring(unit.id)..' -spell TEST_SPELL_2 -verbose')
   writeall(output)
-  if unitTable.Spells.TEST_SPELL_2 ~= '1' or not unitTable.Spells.Active.TEST_SPELL_2 then
-   classCheck[#classCheck+1] = 'Test Class 1 level 2 unable to add Test Spell 2'
-  end
+  --if unitTable.Spells.TEST_SPELL_2 ~= '1' or not unitTable.Spells.Active.TEST_SPELL_2 then
+  -- classCheck[#classCheck+1] = 'Test Class 1 level 2 unable to add Test Spell 2'
+  --end
 
   ----
   writeall('Adding experience to unit - Will level up Test Class 1 to level 3 and auto change class to Test Class 2')
@@ -149,9 +149,9 @@ function system_checks()
   if unitTable.Classes.Current.TotalExp ~= '3' or unitTable.Classes.TEST_CLASS_1.Level ~= '3' then
    classCheck[#classCheck+1] = 'Test Class 1 did not level from 2 to 3'
   end
-  if unitTable.Skills.MINING.Class ~= '14' then
-   classCheck[#classCheck+1] = ''
-  end
+  --if unitTable.Skills.MINING.Class ~= '14' then
+  -- classCheck[#classCheck+1] = ''
+  --end
   if unitTable.Classes.Current.Name ~= 'TEST_CLASS_2' then
    classCheck[#classCheck+1] = 'Test Class 1 did not automatically changed to Test Class 2'
   end
@@ -167,9 +167,9 @@ function system_checks()
   if unitTable.Classes.Current.TotalExp ~= '4' or unitTable.Classes.TEST_CLASS_2.Level ~= '1' then
    classCheck[#classCheck+1] = 'Test Class 2 did not level from 0 to 1'
   end
-  if unitTable.Skills.MINING.Class ~= '14' or unitTable.Skills.CARPENTRY.Class ~= '15' or unitTable.Skills.MASONRY.Class ~= '15' then
-   classCheck[#classCheck+1] = 'Test Class 2 level 1 skills were not applied correctly'
-  end
+  --if unitTable.Skills.MINING.Class ~= '14' or unitTable.Skills.CARPENTRY.Class ~= '15' or unitTable.Skills.MASONRY.Class ~= '15' then
+  -- classCheck[#classCheck+1] = 'Test Class 2 level 1 skills were not applied correctly'
+  --end
   if unitTable.Spells.TEST_SPELL_3 ~= '1' or unitTable.Spells.Active.TEST_SPELL_1 or not unitTable.Spells.Active.TEST_SPELL_3 then
    classCheck[#classCheck+1] = 'Test Class 2 level 1 Test Spell 3 did not replace Test Spell 1'
   end

@@ -102,6 +102,14 @@ elseif args.building then
    print('No Building Found')
    return
   end
+ elseif args.building == 'Wagon' then
+  list = df.global.world.buildings.other.WAGON
+  if #list >= 1 then
+   building = dfhack.script_environment('functions/misc').permute(list)[0]
+  else
+   print('No Building Found')
+   return
+  end
  else
   building = dfhack.script_environment('functions/building').findBuilding({'RANDOM','CUSTOM',args.building})[1]
  end

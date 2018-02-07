@@ -759,10 +759,6 @@ function changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
  end
   
  value = math.floor(current+change)
- if value > 20 then
-  change = 20 - current
-  value = 20
- end
  if value < 0 then
   change = current
   value = 0
@@ -2025,6 +2021,7 @@ function getItemCorpse(caste)
  end
  return itemcorpse
 end
+
 ---------------------------------------------------------------------------------------
 ------ The following function just reference modtools/create-unit, this allows --------
 ------ me to change certain features of that code without altering it directly --------

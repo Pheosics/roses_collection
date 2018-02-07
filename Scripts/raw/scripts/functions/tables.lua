@@ -84,7 +84,9 @@ function getData(table,dirLocation,filename,tokenCheck,test,verbose)
   local count = 1
   for i,line in ipairs(data[file]) do
    if split(line,':')[1] == tokenCheck then
-    if #split(line,':') == 3 then
+    if #split(line,':') == 4 then
+     dataInfo[file][count] = {split(line,':')[2]..':'..split(line,':')[3]..':'..split(split(line,':')[4],']')[1],i,0}
+    elseif #split(line,':') == 3 then
      dataInfo[file][count] = {split(line,':')[2]..':'..split(split(line,':')[3],']')[1],i,0}
     else
      dataInfo[file][count] = {split(split(line,':')[2],']')[1],i,0}
@@ -873,7 +875,7 @@ function makeSpellTable(test,verbose)
       spell.TargetSecondaryAttribute[tostring(x)] = y
      end     
     elseif test == '[SCRIPT' then
-     script = data[j]:gsub("%s+","")
+     script = data[j]
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
      spell.Script[tostring(scriptNum)] = script
@@ -900,6 +902,8 @@ function makeSpellTable(test,verbose)
     elseif test == '[FORBIDDEN_SPELL' then
      spell.ForbiddenSpell = spell.ForbiddenSpell or {}
      spell.ForbiddenSpell[array[2]] = array[2]
+	elseif test == '[CLASS_RESTRICTED]' then
+	 spell.ClassRestricted = 'true'
     end
    end
   end
@@ -998,6 +1002,7 @@ function makeEnhancedBuildingTable(test,verbose)
    end
    buildings[buildingToken] = {}
    building = buildings[buildingToken]
+   scripts = 0
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -1023,16 +1028,17 @@ function makeEnhancedBuildingTable(test,verbose)
      building.Stairs = array[2]
     elseif test == '[UPGRADE' then
      building.Upgrade = array[2]
-    elseif test == '[SPELL' then
-     spell = array[2]
-     building.Spells = building.Spells or {}
-     building.Spells[spell] = {}
-     building.Spells[spell].Frequency = array[3]
-    elseif test == '[SCRIPT' then
-     script = array[2]
+    elseif test == '[SCRIPT' or test == '[SPELL' then
      building.Scripts = building.Scripts or {}
-     building.Scripts[script] = {}
-     building.Scripts[script].Frequency = array[3]
+	 scripts = scripts + 1
+     building.Scripts[tostring(scripts)] = {}
+     a = data[j]
+     a = table.concat({select(2,table.unpack(split(a,':')))},':')
+	 n = string.find(string.reverse(a),':')
+     script = string.sub(a,1,-(n+1))
+	 frequency = string.sub(a,-(n-1),-2)
+	 building.Scripts[tostring(scripts)].Script = script
+     building.Scripts[tostring(scripts)].Frequency = frequency
     elseif test == '[REQUIRED_WATER' then
      building.RequiredWater = array[2]
     elseif test == '[REQUIRED_MAGMA' then
@@ -1191,13 +1197,14 @@ function makeEnhancedItemTable(test,verbose)
   end
   items[itemToken] = {}
   item = items[itemToken]
+  scripts = 0
   for j = startLine,endLine,1 do
    test = data[j]:gsub("%s+","")
+   test = split(test,':')[1]
    array = split(data[j],':')
    for k = 1, #array, 1 do
     array[k] = split(array[k],']')[1]
    end
-   test = array[1]
    if test == '[NAME' then
     item.Name = array[2]
    elseif test == '[DESCRIPTION' then
@@ -1207,33 +1214,51 @@ function makeEnhancedItemTable(test,verbose)
    elseif test == '[ON_EQUIP' then
     item.OnEquip = item.OnEquip or {}
     onTable = item.OnEquip
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
+    onTable.Chance = array[2]
+   elseif test == '[ON_EQUIP]' then
+    item.OnEquip = item.OnEquip or {}
+    onTable = item.OnEquip
+    onTable.Chance = '100'
    elseif test == '[ON_ATTACK' then
     item.OnAttack = item.OnAttack or {}
     onTable = item.OnAttack
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
+    onTable.Chance = array[2]
+   elseif test == '[ON_ATTACK]' then
+    item.OnAttack = item.OnAttack or {}
+    onTable = item.OnAttack
+	onTable.Chance = '100'
    elseif test == '[ON_PARRY' then
     item.OnParry = item.OnParry or {}
     onTable = item.OnParry
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
+	onTable.Chance = array[2]
+   elseif test == '[ON_PARRY]' then
+    item.OnParry = item.OnParry or {}
+    onTable = item.OnParry
+	onTable.Chance = '100'
    elseif test == '[ON_DODGE' then
     item.OnDodge = item.OnDodge or {}
     onTable = item.OnDodge
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
+	onTable.Chance = array[2]
+   elseif test == '[ON_DODGE]' then
+    item.OnDodge = item.OnDodge or {}
+    onTable = item.OnDodge
+	onTable.Chance = '100'
    elseif test == '[ON_BLOCK' then
     item.OnBlock = item.OnBlock or {}
     onTable = item.OnBlock
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
+	onTable.Chance = array[2]
+   elseif test == '[ON_BLOCK]' then
+    item.OnBlock = item.OnBlock or {}
+    onTable = item.OnBlock
+	onTable.Chance = '100'
    elseif test == '[ON_WOUND' then
     item.OnWound = item.OnWound or {}
     onTable = item.OnWound
-    onTable.Script = onTable.Script or {}
-    onTable.Script[#onTable.Script+1] = array[2]
+	onTable.Chance = array[2]
+   elseif test == '[ON_WOUND]' then
+    item.OnWound = item.OnWound or {}
+    onTable = item.OnWound
+	onTable.Chance = '100'
    elseif test == '[ATTRIBUTE_CHANGE' then
     onTable.Attributes = onTable.Attributes or {}
     onTable.Attributes[array[2]] = array[3]
@@ -1245,7 +1270,7 @@ function makeEnhancedItemTable(test,verbose)
     onTable.Traits[array[2]] = array[3]
    elseif test == '[STAT_CHANGE' then
     onTable.Stats = onTable.Stats or {}
-    onTable.Stats[stat] = array[3]
+    onTable.Stats[array[2]] = array[3]
    elseif test == '[RESISTANCE_CHANGE' then
     onTable.Resistances = onTable.Resistances or {}
     onTable.Resistances[array[2]] = array[3]
@@ -1266,7 +1291,7 @@ function makeEnhancedItemTable(test,verbose)
     onTable.AttackerTraits[array[2]] = array[3]
    elseif test == '[ATTACKER_STAT_CHANGE' then
     onTable.AttackerStats = onTable.AttackerStats or {}
-    onTable.AttackerStats[stat] = array[3]
+    onTable.AttackerStats[array[2]] = array[3]
    elseif test == '[ATTACKER_RESISTANCE_CHANGE' then
     onTable.AttackerResistances = onTable.AttackerResistances or {}
     onTable.AttackerResistances[array[2]] = array[3]
@@ -1275,7 +1300,7 @@ function makeEnhancedItemTable(test,verbose)
     onTable.AttackerInteractions[#onTable.AttackerInteractions+1] = array[2]
    elseif test == '[ATTACKER_SYNDROME_ADD' then
     onTable.AttackerSyndromes = onTable.AttackerSyndromes or {}
-    onTable.AttackerSyndromes[#onTable.SAttackeryndromes+1] = array[2]
+    onTable.AttackerSyndromes[#onTable.AttackerSyndromes+1] = array[2]
    elseif test == '[ATTACKER_CHANGE_DUR' then
     onTable.AttackerDur = array[2]
    elseif test == '[DEFENDER_ATTRIBUTE_CHANGE' then
@@ -1289,7 +1314,7 @@ function makeEnhancedItemTable(test,verbose)
     onTable.DefenderTraits[array[2]] = array[3]
    elseif test == '[DEFENDER_STAT_CHANGE' then
     onTable.DefenderStats = onTable.DefenderStats or {}
-    onTable.DefenderStats[stat] = array[3]
+    onTable.DefenderStats[array[2]] = array[3]
    elseif test == '[DEFENDER_RESISTANCE_CHANGE' then
     onTable.DefenderResistances = onTable.DefenderResistances or {}
     onTable.DefenderResistances[array[2]] = array[3]
@@ -1301,6 +1326,17 @@ function makeEnhancedItemTable(test,verbose)
     onTable.DefenderSyndromes[#onTable.DefenderSyndromes+1] = array[2]
    elseif test == '[DEFENDER_CHANGE_DUR' then
     onTable.DefenderDur = array[2]
+   elseif test == '[SCRIPT' or test == '[SPELL' then
+    onTable.Scripts = onTable.Scripts or {}
+    scripts = scripts + 1
+    onTable.Scripts[tostring(scripts)] = {}
+    a = data[j]
+    a = table.concat({select(2,table.unpack(split(a,':')))},':')
+	n = string.find(string.reverse(a),':')
+    script = string.sub(a,1,-(n+1))
+	chance = string.sub(a,-(n-1),-2)
+	onTable.Scripts[tostring(scripts)].Script = script
+    onTable.Scripts[tostring(scripts)].Chance = chance
    end
   end
  end
@@ -1333,48 +1369,83 @@ function makeEnhancedMaterialTable(test,verbose)
    else
     endLine = dataInfo[i+1][2]-1
    end
+   scripts = 0
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],']')[1]
     end
-    test = array[1]
-    material = {}
+	if materialToken == 'INORGANIC' then
+	 materials.Inorganic[materialIndex] = materials.Inorganic[materialIndex] or {}
+	 material = materials.Inorganic[materialIndex]
+	elseif materialToken == 'CREATURE' then
+	 materials.Creature[materialIndex] = materials.Creature[materialIndex] or {}
+	 materials.Creature[materialIndex][split(x[1],':')[3]] = materials.Creature[materialIndex][split(x[1],':')[3]] or {}
+	 material = materials.Creature[materialIndex][split(x[1],':')[3]]
+	elseif materialToken == 'PLANT' then
+	 materials.Plant[materialIndex] = materials.Plant[materialIndex] or {}
+	 materials.Plant[materialIndex][split(x[1],':')[3]] = materials.Plant[materialIndex][split(x[1],':')[3]] or {}
+	 material = materials.Plant[materialIndex][split(x[1],':')[3]]
+	else
+	 materials.Misc[materialToken] = materials.Misc[materialToken] or {}
+	 material = materials.Misc[materialToken]
+    end
     if test == '[NAME' then
      material.Name = array[2]
     elseif test == '[DESCRIPTION' then
      material.Description = array[2]
+    elseif test == '[CLASS' then
+     material.Class = array[2]
     elseif test == '[ON_EQUIP' then
      material.OnEquip = material.OnEquip or {}
      onTable = material.OnEquip
-     onTable.Script = onTable.Script or {}
-     onTable.Script[#onTable.Script+1] = array[2]
+     onTable.Chance = array[2]
+    elseif test == '[ON_EQUIP]' then
+     material.OnEquip = material.OnEquip or {}
+     onTable = material.OnEquip
+     onTable.Chance = '100'
     elseif test == '[ON_ATTACK' then
      material.OnAttack = material.OnAttack or {}
      onTable = material.OnAttack
-     onTable.Script = onTable.Script or {}
-     onTable.Script[#onTable.Script+1] = array[2]
+     onTable.Chance = array[2]
+    elseif test == '[ON_ATTACK]' then
+     material.OnAttack = material.OnAttack or {}
+     onTable = material.OnAttack
+     onTable.Chance = '100'
     elseif test == '[ON_PARRY' then
      material.OnParry = material.OnParry or {}
      onTable = material.OnParry
-     onTable.Script = onTable.Script or {}
-     onTable.Script[#onTable.Script+1] = array[2]
+     onTable.Chance = array[2]
+    elseif test == '[ON_PARRY]' then
+     material.OnParry = material.OnParry or {}
+     onTable = material.OnParry
+     onTable.Chance = '100'
     elseif test == '[ON_DODGE' then
      material.OnDodge = material.OnDodge or {}
      onTable = material.OnDodge
-     onTable.Script = onTable.Script or {}
-     onTable.Script[#onTable.Script+1] = array[2]
+     onTable.Chance = array[2]
+    elseif test == '[ON_DODGE]' then
+     material.OnDodge = material.OnDodge or {}
+     onTable = material.OnDodge
+     onTable.Chance = '100'
     elseif test == '[ON_BLOCK' then
      material.OnBlock = material.OnBlock or {}
      onTable = material.OnBlock
-     onTable.Script = onTable.Script or {}
-     onTable.Script[#onTable.Script+1] = array[2]
+     onTable.Chance = array[2]
+    elseif test == '[ON_BLOCK]' then
+     material.OnBlock = material.OnBlock or {}
+     onTable = material.OnBlock
+     onTable.Chance = '100'
     elseif test == '[ON_WOUND' then
      material.OnWound = material.OnWound or {}
      onTable = material.OnWound
-     onTable.Script = onTable.Script or {}
-     onTable.Script[#onTable.Script+1] = array[2]
+     onTable.Chance = array[2]
+    elseif test == '[ON_WOUND]' then
+     material.OnWound = material.OnWound or {}
+     onTable = material.OnWound
+     onTable.Chance = '100'
     elseif test == '[ATTRIBUTE_CHANGE' then
      onTable.Attributes = onTable.Attributes or {}
      onTable.Attributes[array[2]] = array[3]
@@ -1386,7 +1457,7 @@ function makeEnhancedMaterialTable(test,verbose)
      onTable.Traits[array[2]] = array[3]
     elseif test == '[STAT_CHANGE' then
      onTable.Stats = onTable.Stats or {}
-     onTable.Stats[stat] = array[3]
+     onTable.Stats[array[2]] = array[3]
     elseif test == '[RESISTANCE_CHANGE' then
      onTable.Resistances = onTable.Resistances or {}
      onTable.Resistances[array[2]] = array[3]
@@ -1407,7 +1478,7 @@ function makeEnhancedMaterialTable(test,verbose)
      onTable.AttackerTraits[array[2]] = array[3]
     elseif test == '[ATTACKER_STAT_CHANGE' then
      onTable.AttackerStats = onTable.AttackerStats or {}
-     onTable.AttackerStats[stat] = array[3]
+     onTable.AttackerStats[array[2]] = array[3]
     elseif test == '[ATTACKER_RESISTANCE_CHANGE' then
      onTable.AttackerResistances = onTable.AttackerResistances or {}
      onTable.AttackerResistances[array[2]] = array[3]
@@ -1416,7 +1487,7 @@ function makeEnhancedMaterialTable(test,verbose)
      onTable.AttackerInteractions[#onTable.AttackerInteractions+1] = array[2]
     elseif test == '[ATTACKER_SYNDROME_ADD' then
      onTable.AttackerSyndromes = onTable.AttackerSyndromes or {}
-     onTable.AttackerSyndromes[#onTable.SAttackeryndromes+1] = array[2]
+     onTable.AttackerSyndromes[#onTable.AttackerSyndromes+1] = array[2]
     elseif test == '[ATTACKER_CHANGE_DUR' then
      onTable.AttackerDur = array[2]
     elseif test == '[DEFENDER_ATTRIBUTE_CHANGE' then
@@ -1430,7 +1501,7 @@ function makeEnhancedMaterialTable(test,verbose)
      onTable.DefenderTraits[array[2]] = array[3]
     elseif test == '[DEFENDER_STAT_CHANGE' then
      onTable.DefenderStats = onTable.DefenderStats or {}
-     onTable.DefenderStats[stat] = array[3]
+     onTable.DefenderStats[array[2]] = array[3]
     elseif test == '[DEFENDER_RESISTANCE_CHANGE' then
      onTable.DefenderResistances = onTable.DefenderResistances or {}
      onTable.DefenderResistances[array[2]] = array[3]
@@ -1442,35 +1513,17 @@ function makeEnhancedMaterialTable(test,verbose)
      onTable.DefenderSyndromes[#onTable.DefenderSyndromes+1] = array[2]
     elseif test == '[DEFENDER_CHANGE_DUR' then
      onTable.DefenderDur = array[2]
-    end
-   end
-   -- Seperate materials into Inorganic, Creature, and Plant
-   if materialToken == 'INORGANIC' then
-    materials.Inorganic[materialIndex] = material
-   else
-    creatureCheck = false
-    plantCheck = false
-    for _,creature in pairs(df.global.world.raws.creatures.all) do
-     if creature.creature_id == materialToken then
-      materials.Creature[materialToken] =  materials.Creature[materialToken] or {}
-      materials.Creature[materialToken][materialIndex] = material
-      creatureCheck = true
-      break
-     end
-    end
-    if not creatureCheck then
-     for _,plant in pairs(df.global.world.raws.plants.all) do
-      if plant.id == materialToken then
-       materials.Plant[materialToken] = materials.Plant[materialToken] or {}
-       materials.Plant[materialToken][materialIndex] = material
-       plantCheck = true
-       break
-      end
-     end
-    end
-    if not creatureCheck and not plantCheck then
-     materials.Misc[materialToken] = materials.Misc[materialToken] or {}
-     materials.Misc[materialToken][materialIndex] = material
+    elseif test == '[SCRIPT' or test == '[SPELL' then
+     onTable.Scripts = onTable.Scripts or {}
+     scripts = scripts + 1
+     onTable.Scripts[tostring(scripts)] = {}
+     a = data[j]
+     a = table.concat({select(2,table.unpack(split(a,':')))},':')
+ 	 n = string.find(string.reverse(a),':')
+     script = string.sub(a,1,-(n+1))
+	 chance = string.sub(a,-(n-1),-2)
+	 onTable.Scripts[tostring(scripts)].Script = script
+     onTable.Scripts[tostring(scripts)].Chance = chance
     end
    end
   end
@@ -1511,7 +1564,7 @@ function makeEnhancedMaterialTable(test,verbose)
   end
  end
  -- Plants 
-for _,materialToken in pairs(materials.Plant._children) do
+ for _,materialToken in pairs(materials.Plant._children) do
   for n,plant in pairs(df.global.world.raws.plants.all) do
    if materialToken == plant.id then
     plantID = n
@@ -1570,6 +1623,8 @@ function makeEnhancedReactionTable(test,verbose)
    reaction = reactions[reactionToken]
    reaction.Frozen = 'false'
    reaction.Disappear = 'false'
+   reaction.Scripts = {}
+   scripts = 0
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -1583,8 +1638,18 @@ function makeEnhancedReactionTable(test,verbose)
      reaction.Description = array[2]
     elseif test == '[BASE_DURATION' then
      reaction.BaseDur = array[2]
+	elseif test == '[REQUIRED_MAGMA' then
+	 reaction.RequiredMagma = array[2]
+	elseif test == '[REQUIRED_WATER' then
+	 reaction.RequiredWater = array[2]
     elseif test == '[SKILL' then
      reaction.Skill = array[2]
+	elseif test == '[ON_PRODUCT]' then
+	 reaction.OnProduct = 'true'
+	elseif test == '[ON_START]' then
+	 reaction.OnStart = 'true'
+	elseif test == '[ON_FINISH]' then
+	 reaction.OnFinish = 'true'
     elseif test == '[SKILL_DURATION' then
      reaction.SkillDur = makeTable(array,2,20)
     elseif test == '[DURATION_REDUCTION' then
@@ -1605,6 +1670,12 @@ function makeEnhancedReactionTable(test,verbose)
      reaction.Frozen = 'true'
     elseif test == '[REMOVE]' then
      reaction.Disappear = 'true'
+	elseif test == '[SCRIPT' then
+	 scripts = scripts + 1
+     script = data[j]
+     script = table.concat({select(2,table.unpack(split(script,':')))},':')
+     script = string.sub(script,1,-2)
+	 reaction.Scripts[scripts] = script
     end
    end
   end

@@ -50,3 +50,4 @@ local mode = args.mode or 'Worn'
 mode = df.unit_inventory_item.T_mode[mode]
 
 dfhack.script_environment('functions/item').equip(item, unit, partId, mode)
+--require('plugins.eventful').onInventoryChange.equipmentTrigger(unit.id,item.id,nil,item.id)

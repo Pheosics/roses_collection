@@ -145,7 +145,7 @@ pos.z = z
 filters = dfhack.buildings.getFiltersByType({},mtype,stype,ctype)
 building = dfhack.buildings.constructBuilding({pos=pos,type=mtype,subtype=stype,custom=ctype,filters=filters})
 building.construction_stage = stages
-building.jobs:erase(0)
+dfhack.job.removeJob(building.jobs[0])
 
 if args.item then
  if type(args.item) ~= 'table' then args.item = {args.item} end

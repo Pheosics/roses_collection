@@ -65,8 +65,8 @@ function system_checks()
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   printplus('')
-  printplus('base/roses-init -eventSystem -verbose -test')
-  output = dfhack.run_command_silent('base/roses-init -eventSystem -verbose -test')
+  printplus('base/roses-init -eventSystem -verbose -testRun')
+  output = dfhack.run_command_silent('base/roses-init -eventSystem -verbose -testRun')
   writeall(output)
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------

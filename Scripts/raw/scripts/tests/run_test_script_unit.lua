@@ -278,10 +278,11 @@ function script_checks()
   end
   if lcur/unit.body.size_info.length_cur < 1.9 or lcur/unit.body.size_info.length_cur > 2.1 then
    unitCheck[#unitCheck+1] = 'Failed to set current length to 50% of previous length. Length ratio = '..tostring(lcur/unit.body.size_info.length_cur)
-
+  end
+  
   ---- Check that the script succeeds and sets the temperature of the upper body to 9000
   writeall('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature -mode Set -amount 9000 (Should succeed and set the upper body temperature to 9000)')
-  output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature 9000')
+  output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature -mode Set -amount 9000')
   writeall(output)
   bps = unitFunctions.getBodyToken(unit,'UB')
   for _,ids in pairs(bps) do
@@ -519,7 +520,7 @@ function script_checks()
   writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion ACCEPTANCE (Should succeed and add emotion XXXX with thought WWWW and severity and strength 0 to unit)')
   output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion ACCEPTANCE')
   writeall(output)
-  emotion = unit.status.current_soul.personality.emotions[#unit.status.current_soul.personality.emotions]
+  emotion = unit.status.current_soul.personality.emotions[#unit.status.current_soul.personality.emotions-1]
   if df.emotion_type[emotion.type] ~= 'ACCEPTANCE' then
    unitCheck[#unitCheck+1] = 'Failed to add an ACCEPTANCE emotion'
   end
@@ -528,7 +529,7 @@ function script_checks()
   writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion AGONY -thought Conflict -severity 100 -strength 100 -add (Should succeed and add emotion XXXX with thought ZZZZ and severity and strength 100 to unit)')
   output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion AGONY -thought Conflict -severity 100 -strength 100 -add')
   writeall(output)
-  emotion = unit.status.current_soul.personality.emotions[#unit.status.current_soul.personality.emotions]
+  emotion = unit.status.current_soul.personality.emotions[#unit.status.current_soul.personality.emotions-1]
   if df.emotion_type[emotion.type] ~= 'AGONY' and df.unit_thought_type[emotion.thought] ~= 'Conflict' then
    unitCheck[#unitCheck+1] = 'Failed to add an AGONY emotion with Conflict thought'
   end
@@ -606,11 +607,11 @@ function script_checks()
   end
 
   ---- Check that the script succeeds and moves the unit to the test building
-  writeall('unit/move -unit '..tostring(unit.id)..' -building TEST_BUILDING_3 (Should succeed and move the unit to the test building from earlier)')
-  output = dfhack.run_command_silent('unit/move -unit '..tostring(unit.id)..' -building TEST_BUILDING_3')
+  writeall('unit/move -unit '..tostring(unit.id)..' -building Wagon (Should succeed and move the unit to the wagon)')
+  output = dfhack.run_command_silent('unit/move -unit '..tostring(unit.id)..' -building Wagon')
   writeall(output)
-  bldgloc = dfhack.script_environment('functions/building').findBuilding({'RANDOM','CUSTOM','TEST_BUILDING_3'})[1]
-  if unit.pos.x ~= buildingCustom.centerx or unit.pos.y ~= buildingCustom.centery or unit.pos.z ~= buildingCustom.z then
+  bldgloc = df.global.world.buildings.all[0]
+  if unit.pos.x ~= bldgloc.centerx or unit.pos.y ~= bldgloc.centery or unit.pos.z ~= bldgloc.z then
    unitstr = '[ '..tostring(unit.pos.x)..' '..tostring(unit.pos.y)..' '..tostring(unit.pos.z)..' ]'
    bldgstr = '[ '..tostring(bldgloc.centerx)..' '..tostring(bldgloc.centery)..' '..tostring(bldgloc.z)..' ]'
    unitCheck[#unitCheck+1] = 'Failed to move unit to TEST_BUILDING_3. Unit pos = '..unitstr..'. Building pos = '..bldgstr
@@ -715,8 +716,8 @@ function script_checks()
   skill = skill + 5
 
   ---- Check that the script succeeds and doubles units dodging skill and creates tracking table
-  writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 100 -mode Percent -track (Should succeed and double units dodging skill, will also create unit persist table)')
-  output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 100 -mode Percent -track')
+  writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 200 -mode Percent -track (Should succeed and double units dodging skill, will also create unit persist table)')
+  output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 200 -mode Percent -track')
   writeall(output)
   if dfhack.units.getNominalSkill(unit,df.job_skill['DODGING']) ~= skill*2 then
    unitCheck[#unitCheck+1] = 'Failed to increase units dodging skill by 200 percent'
@@ -846,8 +847,8 @@ function script_checks()
 
   ---- Check that the script succeeds and lowers the units greed trait by 5
   s = unit.status.current_soul.personality.traits.GREED
-  writeall('unit/trait-change -unit '..tostring(unit.id).." -trait GREED -amount \\-5 -mode Fixed (Should succeed and lower units greed trait by 5)'")
-  output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait GREED -amount \\-5 -mode Fixed')
+  writeall('unit/trait-change -unit '..tostring(unit.id).." -trait GREED -amount 5 -mode Fixed (Should succeed and lower units greed trait by 5)'")
+  output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait GREED -amount 5 -mode Fixed')
   writeall(output)
   if unit.status.current_soul.personality.traits.GREED ~= s+5 and s+5 < 100 then
    unitCheck[#unitCheck+1] = 'Failed to increase GREED trait by 5. Previous GREED = '..tostring(s)..'. New GREED = '..tostring(unit.status.current_soul.personality.traits.GREED)
@@ -858,7 +859,7 @@ function script_checks()
   writeall('unit/trait-change -unit '..tostring(unit.id)..' -trait BRAVERY -amount 25 -mode Percent -track (Should succeed and quarter units bravery trait, will also create unit persist table)')
   output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait BRAVERY -amount 25 -mode Percent -track')
   writeall(output)
-  if s/unit.status.current_soul.personality.traits.BRAVERY > 4.1 or s/unit.status.current_soul.personality.traits.BRAVERY < 3.9 then
+  if s/unit.status.current_soul.personality.traits.BRAVERY > 5.0 or s/unit.status.current_soul.personality.traits.BRAVERY < 3.0 then
    unitCheck[#unitCheck+1] = 'Failed to quarter BRAVERY trait. Previous BRAVERY = '..tostring(s)..'. New BRAVERY = '..tostring(unit.status.current_soul.personality.traits.BRAVERY)
   end
   if not safe_index(roses,'UnitTable',tostring(unit.id),'Traits','BRAVERY') then

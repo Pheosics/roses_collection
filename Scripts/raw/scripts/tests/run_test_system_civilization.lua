@@ -71,8 +71,8 @@ function system_checks()
 ---- Base System Checks ------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   printplus('')
-  printplus('base/roses-init -civilizationSystem [ Diplomacy ] -verbose -test')
-  output = dfhack.run_command_silent('base/roses-init -civilizationSystem [ Diplomacy ] -verbose -test')
+  printplus('base/roses-init -civilizationSystem [ Diplomacy ] -verbose -testRun')
+  output = dfhack.run_command_silent('base/roses-init -civilizationSystem [ Diplomacy ] -verbose -testRun')
   writeall(output)
   
   ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -81,6 +81,7 @@ function system_checks()
   civID = df.global.ui.civ_id
   tableFunctions.makeEntityTable(civID,false)
   entityTable = roses.EntityTable[tostring(civID)]
+  script.sleep(5,'ticks')
   if not entityTable.Civilization then
    civCheck[#civCheck+1] = 'Test Civilization 1 was not correctly assigned to the entity'
   end

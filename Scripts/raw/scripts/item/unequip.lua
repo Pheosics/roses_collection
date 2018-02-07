@@ -31,6 +31,7 @@ if args.bodypart then
  items = dfhack.script_environment('functions/unit').getInventoryBodyPart(unit,parts)
  for _,itemId in pairs(items) do
   dfhack.script_environment('functions/item').unequip(itemId, unit)
+  --require('plugins.eventful').onInventoryChange.equipmentTrigger(unit.id,itemId,itemId,nil)
  end
 end
 
@@ -38,6 +39,7 @@ if args.mode then
  items = dfhack.script_environment('functions/unit').getInventoryMode(unit,df.unit_inventory_item.T_mode[args.mode])
  for _,itemId in pairs(items) do
   dfhack.script_environment('functions/item').unequip(itemId, unit)
+  --require('plugins.eventful').onInventoryChange.equipmentTrigger(unit.id,itemId,itemId,nil)
  end
 end
 
@@ -45,6 +47,7 @@ if args.itemType then
  items = dfhack.script_environment('functions/unit').getInventoryType(unit,args.itemType)
  for _,itemId in pairs(items) do
   dfhack.script_environment('functions/item').unequip(itemId, unit)
+  --require('plugins.eventful').onInventoryChange.equipmentTrigger(unit.id,itemId,itemId,nil)
  end
 end
 
@@ -56,8 +59,10 @@ if args.item then
   end
   for _,itemId in pairs(items) do
    dfhack.script_environment('functions/item').unequip(itemId,unit)
+   --require('plugins.eventful').onInventoryChange.equipmentTrigger(unit.id,itemId,itemId,nil)
   end
  else
   dfhack.script_environment('functions/item').unequip(args.item, unit)
+  --require('plugins.eventful').onInventoryChange.equipmentTrigger(unit.id,args.item,args.item,nil)
  end
 end

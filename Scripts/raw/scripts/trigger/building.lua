@@ -5,7 +5,8 @@ local eventful = require 'plugins.eventful'
 local utils = require 'utils'
 local split = utils.split_string
 
-registeredBuildings = registeredBuildings or {}
+createdTriggers = createdTriggers or {}
+destroyedTriggers = destroyedTriggers or {}
 checkEvery = checkEvery or 100
 timeoutId = timeoutId or nil
 
@@ -58,7 +59,9 @@ validArgs = validArgs or utils.invert({
  'maxNumber',
  'requiredWater',
  'requiredMagma',
- 'command', 
+ 'command',
+ 'created',
+ 'destroyed'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -68,52 +71,58 @@ if args.help then
 end
 
 if args.clear then
- registeredBuildings = {}
-end
-
-if args.checkEvery then
- if not tonumber(args.checkEvery) then
-  error('Invalid checkEvery.')
- end
- checkEvery = tonumber(args.checkEvery)
+ createdTriggers = {}
+ destroyedTriggers = {}
 end
 
 if not args.building then
  return
 end
 
-registeredBuildings[args.building] = {}
-
-if args.location then
- if args.location == 'OUTSIDE' then registeredBuildings[args.building].Outside = true end
- if args.location == 'INSIDE' then registeredBuildings[args.building].Inside = true end
+if not args.created and not args.destroyed then
+ args.created = true
 end
 
-if args.zLevels then registeredBuildings[args.building].ZLevels = tonumber(args.zLevels) or -1 end
-if args.requiredBuilding then 
- registeredBuildings[args.building].RequiredBuilding = args.requiredBuilding 
+if args.created then
+ createdTriggers[args.building] = {}
+
+ if args.command then createdTriggers[args.building].command = args.command end
+ 
+ if args.location then
+  if string.upper(args.location) == 'OUTSIDE' then createdTriggers[args.building].Outside = true end
+  if string.upper(args.location) == 'INSIDE' then createdTriggers[args.building].Inside = true end
+ end
+
+ if args.zLevels then createdTriggers[args.building].ZLevels = tonumber(args.zLevels) or -1 end
+ if args.createdTriggers then 
+  createdTriggers[args.building].RequiredBuilding = args.requiredBuilding 
+ end
+ if args.forbiddenBuilding then 
+  createdTriggers[args.building].ForbiddenBuilding = args.forbiddenBuilding
+ end
+ if args.maxNumber then createdTriggers[args.building].MaxNumber = tonumber(args.maxNumber) or -1 end
+ if args.requiredWater then createdTriggers[args.building].RequiredWater = tonumber(args.requiredWater) or -1 end
+ if args.requiredMagma then createdTriggers[args.building].RequiredMagma = tonumber(args.requiredMagma) or -1 end
+
+elseif args.destroyed then
+ destroyedTriggers[args.building] = {}
+ if args.command then destroyedTriggers[args.building].command = args.command end
 end
-if args.forbiddenBuilding then 
- registeredBuildings[args.building].ForbiddenBuilding = args.forbiddenBuilding
-end
-if args.maxNumber then registeredBuildings[args.building].MaxNumber = tonumber(args.maxNumber) or -1 end
-if args.requiredWater then registeredBuildings[args.building].RequiredWater = tonumber(args.requiredWater) or -1 end
-if args.requiredMagma then registeredBuildings[args.building].RequiredMagma = tonumber(args.requiredMagma) or -1 end
 
 -- Eventful Function
-local function checkBuilding(buildingID)
+function checkBuildingCreated(buildingID)
  local building = df.building.find(buildingID)
- local buildingToken = building:getCustomType()
- if buildingToken < 0 then return end
- buildingToken = buildingToken.code
- if not registeredBuildings[buildingToken] then return end
+ local buildingCType = building:getCustomType()
+ if buildingCType < 0 then return end
+ buildingToken = df.global.world.raws.buildings.all[buildingCType].code
+ if not createdTriggers[buildingToken] then return end
  local pos = {}
  pos.x = building.centerx
  pos.y = building.centery
  pos.z = building.z
  designation = dfhack.maps.getTileBlock(pos).designation[pos.x%16][pos.y%16]
 
- trigger = registeredBuildings[buildingToken]
+ trigger = createdTriggers[buildingToken]
  destroy = false
  if trigger.Outside then -- Check to make sure the building is being built outside
   if not designation.outside then destroy = true end
@@ -231,11 +240,12 @@ local function checkBuilding(buildingID)
  end
 
  if trigger.command then
-  processCommand(building,trigger.command)
+  processCommand(building,buildingToken,trigger.command)
  end
 end
 
-local function destroyBuilding(building)
+
+function destroyBuilding(building)
  if #building.jobs > 0 and building.jobs[0] and building.jobs[0].job_type == df.job_type.DestroyBuilding then
   return
  end
@@ -244,18 +254,30 @@ local function destroyBuilding(building)
   --TODO: print an error message to the user so they know
   return
  end
--- building.flags.almost_deleted = 1
+ -- building.flags.almost_deleted = 1
 end
 
-local function processCommand(building,command)
+
+function checkBuildingDestroyed(buildingID)
+ token = 'DESTROYED'
+ if not destroyedTriggers[token] then return end
+ building = {}
+ building.id = buildingID
+ building.centerx = -30000
+ building.centery = 0
+ building.z = 0
+ processCommand(building,token,destroyedTriggers[token].command)
+end
+
+function processCommand(building,token,command)
  local command2 = {}
  for i,arg in ipairs(command) do
-  if arg == '\\BUILDING_ID' then
+  if arg == 'BUILDING_ID' then
    command2[i] = '' .. building.id
-  elseif arg == '\\BUILDING_TOKEN' then
-   command2[i] = '' .. building:getCustomType().code
-  elseif arg == '\\BUILDING_LOCATION' then
-   command2[i] = '[ '..building.centerx..' '..building.centery..' '..building.z..' ]'
+  elseif arg == 'BUILDING_TOKEN' then
+   command2[i] = '' .. token
+  elseif arg == 'BUILDING_LOCATION' then
+   command2[i] = ''..building.centerx..' '..building.centery..' '..building.z..''
   else
    command2[i] = arg
   end
@@ -271,7 +293,12 @@ eventful.onUnload.buildingTrigger = function()
  timeoutId = nil
 end
 
-eventful.enableEvent(eventful.eventType.BUILDING, 100)
+eventful.enableEvent(eventful.eventType.BUILDING, 10)
 eventful.onBuildingCreatedDestroyed.outsideOnly = function(buildingID)
- checkBuilding(buildingID)
+ building = df.building.find(buildingID)
+ if building then
+  checkBuildingCreated(buildingID)
+ else
+  checkBuildingDestroyed(buildingID)
+ end
 end
