@@ -10,14 +10,14 @@ from mwe_code.creatures import creatures
 
 dirs = 'raws/'
 #Type = 'Inorganics'
-Type = 'Plants'
-#Type = 'Items'
+#Type = 'Plants'
+Type = 'Items'
 #Type = 'Buildings'
 #Type = 'Reactions'
 #Type = 'Creatures'
-#Directions = 'RAWtoMWE'
+Directions = 'RAWtoMWE'
 #Directions = 'MWEtoRAW'
-Directions = 'RAWtoRAW'
+#Directions = 'RAWtoRAW'
 
 if Type == 'Inorganics':
  func = inorganics()

@@ -465,16 +465,16 @@ function makeCivilizationTable(test,verbose)
      civsLevel.Add.Product[subType] = civsLevel.Add.Product[subType] or {}
      civsLevel.Add.Product[subType][array[4]] = array[5]
     end
-   elseif testa== '[LEVEL_CHANGE_ETHICS' then
+   elseif test == '[LEVEL_CHANGE_ETHICS' then
     civsLevel.Ethics = civsLevel.Ethics or {}
     civsLevel.Ethics[array[2]] = array[3]
-   elseif testa== '[LEVEL_CHANGE_VALUES' then
+   elseif test == '[LEVEL_CHANGE_VALUES' then
     civsLevel.Values = civsLevel.Values or {}
     civsLevel.Values[array[2]] = array[3]
-   elseif testa== '[LEVEL_CHANGE_SKILLS' then
+   elseif test == '[LEVEL_CHANGE_SKILLS' then
     civsLevel.Skills = civsLevel.Skills or {}
     civsLevel.Skills[array[2]] = array[3]
-   elseif testa== '[LEVEL_CHANGE_CLASSES' then
+   elseif test == '[LEVEL_CHANGE_CLASSES' then
     civsLevel.Classes = civsLevel.Classes or {}
     civsLevel.Classes[array[2]] = array[3]
    elseif test == '[LEVEL_CHANGE_METHOD' then
@@ -902,8 +902,8 @@ function makeSpellTable(test,verbose)
     elseif test == '[FORBIDDEN_SPELL' then
      spell.ForbiddenSpell = spell.ForbiddenSpell or {}
      spell.ForbiddenSpell[array[2]] = array[2]
-	elseif test == '[CLASS_RESTRICTED]' then
-	 spell.ClassRestricted = 'true'
+    elseif test == '[CLASS_RESTRICTED]' then
+      spell.ClassRestricted = 'true'
     end
    end
   end
@@ -1226,39 +1226,39 @@ function makeEnhancedItemTable(test,verbose)
    elseif test == '[ON_ATTACK]' then
     item.OnAttack = item.OnAttack or {}
     onTable = item.OnAttack
-	onTable.Chance = '100'
+    onTable.Chance = '100'
    elseif test == '[ON_PARRY' then
     item.OnParry = item.OnParry or {}
     onTable = item.OnParry
-	onTable.Chance = array[2]
+    onTable.Chance = array[2]
    elseif test == '[ON_PARRY]' then
     item.OnParry = item.OnParry or {}
     onTable = item.OnParry
-	onTable.Chance = '100'
+    onTable.Chance = '100'
    elseif test == '[ON_DODGE' then
     item.OnDodge = item.OnDodge or {}
     onTable = item.OnDodge
-	onTable.Chance = array[2]
+    onTable.Chance = array[2]
    elseif test == '[ON_DODGE]' then
     item.OnDodge = item.OnDodge or {}
     onTable = item.OnDodge
-	onTable.Chance = '100'
+    onTable.Chance = '100'
    elseif test == '[ON_BLOCK' then
     item.OnBlock = item.OnBlock or {}
     onTable = item.OnBlock
-	onTable.Chance = array[2]
+    onTable.Chance = array[2]
    elseif test == '[ON_BLOCK]' then
     item.OnBlock = item.OnBlock or {}
     onTable = item.OnBlock
-	onTable.Chance = '100'
+    onTable.Chance = '100'
    elseif test == '[ON_WOUND' then
     item.OnWound = item.OnWound or {}
     onTable = item.OnWound
-	onTable.Chance = array[2]
+    onTable.Chance = array[2]
    elseif test == '[ON_WOUND]' then
     item.OnWound = item.OnWound or {}
     onTable = item.OnWound
-	onTable.Chance = '100'
+    onTable.Chance = '100'
    elseif test == '[ATTRIBUTE_CHANGE' then
     onTable.Attributes = onTable.Attributes or {}
     onTable.Attributes[array[2]] = array[3]
@@ -1332,10 +1332,10 @@ function makeEnhancedItemTable(test,verbose)
     onTable.Scripts[tostring(scripts)] = {}
     a = data[j]
     a = table.concat({select(2,table.unpack(split(a,':')))},':')
-	n = string.find(string.reverse(a),':')
+    n = string.find(string.reverse(a),':')
     script = string.sub(a,1,-(n+1))
-	chance = string.sub(a,-(n-1),-2)
-	onTable.Scripts[tostring(scripts)].Script = script
+    chance = string.sub(a,-(n-1),-2)
+    onTable.Scripts[tostring(scripts)].Script = script
     onTable.Scripts[tostring(scripts)].Chance = chance
    end
   end

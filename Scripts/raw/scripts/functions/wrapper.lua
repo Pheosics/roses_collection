@@ -329,7 +329,7 @@ function checkUnitLocation(center,radius,verbose) -- checks for units within rad
  local selected = {}
  n = 1
  unitList = df.global.world.units.active
- if rx < 0 and ry < 0 and rz < 0 then
+ if rx <= 0 and ry <= 0 and rz <= 0 then
   targetList[n] = center
  else
   local xmin = center.pos.x - rx
@@ -342,7 +342,7 @@ function checkUnitLocation(center,radius,verbose) -- checks for units within rad
   for i,unit in ipairs(unitList) do
    if unit.pos.x <= xmax and unit.pos.x >= xmin and unit.pos.y <= ymax and unit.pos.y >= ymin and unit.pos.z <= zmax and unit.pos.z >= zmin and unit ~= center then
     n = n + 1
-	targetList[n] = unit
+    targetList[n] = unit
    end
   end
  end
