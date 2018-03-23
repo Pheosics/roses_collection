@@ -9,6 +9,7 @@ validArgs = validArgs or utils.invert({
  'source',
  'target',
  'spell',
+ 'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -20,10 +21,6 @@ if args.help then -- Help declaration
    -source id
    -target id
    -spell TOKEN
-   -value
-   -experience
-   -cast_count
-   -description
  ]])
  return
 end
@@ -33,20 +30,16 @@ if not spell then
  print('No spell found in database')
  return
 end
+
 if args.source and tonumber(args.source) then
- source = args.source
- source_name = dfhack.unit.getVisibleName(df.unit.find(tonumber(source)))
+ source = tonumber(args.source)
+else
+ source = nil
 end
 if args.target and tonumber(args.target) then
- target = args.target
- target_name = dfhack.unit.getVisibleName(df.unit.find(tonumber(target)))
+ target = tonumber(args.target)
+else
+ target = nil
 end
 
-description = spell.description or ''
-description:gsub('TARGET',target_name)
-description:gsub('SOURCE',source_name)
-
-script = spell.script or ''
-script:gsub('SOURCE',source)
-script:gsub('TARGET',target)
-script:gsub('DESCRIPTION',description)
+dfhack.script_environment('functions/spell').Spell(source,target,args.spell,verbose)

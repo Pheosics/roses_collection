@@ -221,23 +221,23 @@ function makeBaseTable(test,verbose)
    end
   end
  end
- for _,n in pairs(base.CustomResistances._children) do
-  resistance = base.CustomResistances[n]
-  base.CustomStats[#base.CustomStats+1] = resistance..'_SKILL_PENETRATION'
- end
- for _,TSSDS in pairs({'Types','Spheres','Schools','Disciplines','SubDisciplines'}) do
-  for _,n in pairs(base[TSSDS]._children) do
-   temp = base[TSSDS][n]
-   if TSSDS == 'Schools' then base.CustomSkills[#base.CustomSkills+1] = temp..'_SPELL_CASTING' end
-   base.CustomStats[#base.CustomStats+1] = temp..'_CRITICAL_CHANCE'
-   base.CustomStats[#base.CustomStats+1] = temp..'_CRITICAL_BONUS'
-   base.CustomStats[#base.CustomStats+1] = temp..'_CASTING_SPEED'
-   base.CustomStats[#base.CustomStats+1] = temp..'_ATTACK_SPEED'
-   base.CustomStats[#base.CustomStats+1] = temp..'_SKILL_PENETRATION'
-   base.CustomStats[#base.CustomStats+1] = temp..'_HIT_CHANCE'
-   base.CustomResistances[#base.CustomResistances+1] = temp
-  end
- end
+ --for _,n in pairs(base.CustomResistances._children) do
+ -- resistance = base.CustomResistances[n]
+ -- base.CustomStats[#base.CustomStats+1] = resistance..'_SKILL_PENETRATION'
+ --end
+ --for _,TSSDS in pairs({'Types','Spheres','Schools','Disciplines','SubDisciplines'}) do
+ -- for _,n in pairs(base[TSSDS]._children) do
+ --  temp = base[TSSDS][n]
+ --  if TSSDS == 'Schools' then base.CustomSkills[#base.CustomSkills+1] = temp..'_SPELL_CASTING' end
+ --  base.CustomStats[#base.CustomStats+1] = temp..'_CRITICAL_CHANCE'
+ --  base.CustomStats[#base.CustomStats+1] = temp..'_CRITICAL_BONUS'
+ --  base.CustomStats[#base.CustomStats+1] = temp..'_CASTING_SPEED'
+ --  base.CustomStats[#base.CustomStats+1] = temp..'_ATTACK_SPEED'
+ --  base.CustomStats[#base.CustomStats+1] = temp..'_SKILL_PENETRATION'
+ --  base.CustomStats[#base.CustomStats+1] = temp..'_HIT_CHANCE'
+ --  base.CustomResistances[#base.CustomResistances+1] = temp
+ -- end
+ --end
 end
 
 function makeWrapperTemplateTable(test,verbose)
