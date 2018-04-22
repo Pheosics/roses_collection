@@ -5,6 +5,7 @@ local eventful = require 'plugins.eventful'
 local utils = require 'utils'
 
 attackTriggers  = attackTriggers  or {}
+shootTriggers   = shootTriggers   or {}
 blockTriggers   = blockTriggers   or {}
 dodgeTriggers   = dodgeTriggers   or {}
 equipTriggers   = equipTriggers   or {}
@@ -15,9 +16,11 @@ woundTriggers   = woundTriggers   or {}
 reportTriggers  = reportTriggers  or {}
 
 onUnitAction=onUnitAction or dfhack.event.new()
+onShoot=onShoot or dfhack.event.new()
 local actions_already_checked=actions_already_checked or {}
 things_to_do_every_action=things_to_do_every_action or {}
 actions_to_be_ignored_forever=actions_to_be_ignored_forever or {}
+number_of_projectiles=number_of_projectiles or 0
 
 --==========================================================================================================================
 validArgs = validArgs or utils.invert({
@@ -44,6 +47,7 @@ arguments:
         trigger the command when this action takes place
         valid values:
             Attack
+			Shoot
             Block
             Dodge
             Equip
@@ -97,6 +101,7 @@ end
 
 if args.clear then
  attackTriggers  = {}
+ shootTriggers   = {}
  blockTriggers   = {}
  dodgeTriggers   = {}
  equipTriggers   = {}
@@ -105,11 +110,13 @@ if args.clear then
  woundTriggers   = {}
  reportTriggers  = {}
  onUnitAction = nil
+ onShoot = nil
  things_to_do_every_action = {}
  actions_to_be_ignored_forever = {}
  eventful.onInventoryChange.equipmentTrigger = function (a,b,c,d) return end
  eventful.onUnitAttack.attackTrigger = function(a,b,c) return end
  require('repeat-util').cancel('onAction')
+ require('repeat-util').cancel('onShoot')
  return
 end
 
@@ -122,6 +129,10 @@ if args.actionType == 'Attack' then
  id = #attackTriggers + 1
  attackTriggers[id] = {}
  trigger = attackTriggers[id]
+elseif args.actionType == 'Shoot' then
+ id = #shootTriggers + 1
+ shootTriggers[id] = {}
+ trigger = shootTriggers[id]
 elseif args.actionType == 'Block' then
  id = #blockTriggers + 1
  blockTriggers[id] = {}
@@ -178,6 +189,35 @@ if args.attack then
 end 
  
 --==========================================================================================================================
+function checkForShot() -- This is a custom function based off of putnam-events function checkForActions
+ old_projectile_id = number_of_projectiles
+ new_projectile_id = df.global.proj_next_id
+ if old_projectile_id == new_projectile_id then return end
+ diff_projectile_id = new_projectile_id - old_projectile_id
+ i = 0
+ items = {}
+ while i < diff_projectile_id do
+  found = false
+  projectile = df.global.world.proj_list
+  while not found do
+   projectile = projectile.next
+   if projectile then
+    if projectile.item.id == old_projectile_id + i then
+	 items[i+1] = projectile.item
+	 found = true
+	end
+   else
+    items[i+1] = nil
+	found = true
+   end
+  end
+  i = i + 1
+ end
+ for j,item in ipairs(items) do
+  onShoot(item)
+ end
+ number_of_projectiles = new_projectile_id
+end
 
 --==========================================================================================================================
 -- Need to create an onUnitAction event since there is not a built in one (this is taken from putnam-events)
@@ -210,22 +250,12 @@ function checkForActions()
  end
 end
 
-function doSomethingToEveryActionNextTick(unit_id,action_id,func,func_args) --func is thing to do, unit_id and action_id represent the action that gave the "order"
- actions_to_be_ignored_forever[unit_id]=actions_to_be_ignored_forever[unit_id] or {}
- if not actions_to_be_ignored_forever[unit_id][action_id] then
-  intable.insert(things_to_do_every_action,{func,func_args,unit_id,action_id,0})
- end
- actions_to_be_ignored_forever[unit_id][action_id]=true
-end
-
+--==========================================================================================================================
 function enableEvent(event,ticks)
  ticks=ticks or 1
  require('repeat-util').scheduleUnlessAlreadyScheduled(event.name,ticks,'ticks',event.func)
 end
 
-eventTypes={
-    ON_ACTION={name='onAction',func=checkForActions},
-}
 --==========================================================================================================================
 
 --==========================================================================================================================
@@ -335,7 +365,7 @@ function processTrigger(trigger,intable)
   if arg == 'ATTACKER_ID' then
    command2[i] = '' .. intable.source.id
   elseif arg == 'UNIT_ID' then
-   command2[i] = '' .. intable.source.id
+   command2[i] = 'Unit ID' .. intable.source.id
   elseif arg == 'BLOCKER_ID' then
    command2[i] = '' .. intable.source.id
   elseif arg == 'PARRIER_ID' then
@@ -353,7 +383,7 @@ function processTrigger(trigger,intable)
   elseif arg == 'CONTAMINANT_MATERIAL' and intable.contaminantStr then
    command2[i] = '' .. intable.contaminantStr
   elseif arg == 'ITEM_ID' and intable.item then
-   command2[i] = '' .. intable.item.id
+   command2[i] = 'Item ID' .. intable.item.id
   elseif arg == 'ATTACK_VELOCITY' then
    command2[i] = '' .. intable.velocity
   elseif arg == 'ATTACK_ACCURACY' then
@@ -364,6 +394,10 @@ function processTrigger(trigger,intable)
    command2[i] = '' .. intable.targetBodyPart
   elseif arg == 'WOUND_ID' then
    command2[i] = '' .. intable.wound.id
+  elseif arg == 'PROJECTILE_ID' then
+   command2[i] = 'Projectile ID' .. intable.projectile.id
+  elseif arg == 'PROJECTILE_ITEM_ID' then
+   command2[i] = 'Projectile Item ID' .. intable.projItem.id
   else
    command2[i] = arg
   end
@@ -378,6 +412,7 @@ end
 -- Eventful function for when the game is unloaded
 eventful.onUnload.actionTrigger = function()
  attackTriggers  = {}
+ shootTriggers   = {}
  blockTriggers   = {}
  dodgeTriggers   = {}
  equipTriggers   = {}
@@ -386,6 +421,7 @@ eventful.onUnload.actionTrigger = function()
  woundTriggers   = {}
  reportTriggers  = {}
  onUnitAction = nil
+ onShoot = nil
  things_to_do_every_action = {}
  actions_to_be_ignored_forever = {}
 end
@@ -471,6 +507,17 @@ onUnitAction.attack=function(unit_id,action)
  end
 end
 
+-- Eventful function for when a unit shoots a projectile
+onShoot.shoot=function(projectile)
+ if not projectile then print('Something weird happened! ',unit_id,action) return false end
+ local intable = {}
+ intable.unit = projectile.firer
+ intable.item = df.item.find(projectile.bow_id)
+ intable.projectile = projectile
+ intable.projItem = projectile.item
+ handler(intable.unit.id,intable,shootTriggers)
+end
+
 -- Eventful function for when a unit blocks
 onUnitAction.block=function(unit_id,action)
  if not unit_id or not action then print('Something weird happened! ',unit_id,action) return false end
@@ -523,9 +570,14 @@ onUnitAction.move=function(unit_id,action)
 end
 
 --==========================================================================================================================
-
+-- Custom event types
+eventTypes={
+    ON_ACTION={name='onAction',func=checkForActions},
+	ON_SHOOT={name='onShoot',func=checkForShot},
+}
 -- Enable event checking
 enableEvent(eventTypes.ON_ACTION,1)
+enableEvent(eventTypes.ON_SHOOT,1)
 eventful.enableEvent(eventful.eventType.UNIT_ATTACK,1) -- this event type is cheap, so checking every tick is fine
 eventful.enableEvent(eventful.eventType.INVENTORY_CHANGE,5) --this is expensive, but you might still want to set it lower
 eventful.enableEvent(eventful.eventType.REPORT,1) -- I don't know how expensive this is, setting to 1 to test

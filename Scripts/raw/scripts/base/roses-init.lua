@@ -386,6 +386,22 @@ if args.all or itemCheck then
    if verbose then print('trigger/action -actionType Wound -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -wound WOUND_ID -action Wound ]') end
    dfhack.run_command('trigger/action -actionType Wound -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -wound WOUND_ID -action Wound ]')
   end
+  if item.OnShoot then
+   if verbose then print('trigger/action -actionType Shoot -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot ]') end
+   dfhack.run_command('trigger/action -actionType Shoot -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot ]')
+  end
+  if item.OnProjectileMove then
+   if verbose then print('trigger/projectile -type Move -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -action ProjectileMove ]') end
+   dfhack.run_command('trigger/projectile -type Move -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -action ProjectileMove ]')
+  end
+  if item.OnProjectileHit then
+   if verbose then print('trigger/projectile -type Hit -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -action ProjectileHit ]') end
+   dfhack.run_command('trigger/projectile -type Hit -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -action ProjectileHit ]')
+  end
+  if item.OnProjectileFired then
+   if verbose then print('trigger/projectile -type Fired -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -action ProjectileFired ]') end
+   dfhack.run_command('trigger/projectile -type Fired -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -action ProjectileFired ]')
+  end
  end
 end
 
@@ -421,6 +437,22 @@ if args.all or materialCheck then
   if material.OnWound then
    if verbose then print('trigger/action -actionType Wound -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -wound WOUND_ID -action Wound -matType '..triggerType..' ]') end
    dfhack.run_command('trigger/action -actionType Wound -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -wound WOUND_ID -action Wound -matType '..triggerType..' ]')
+  end
+  if material.OnShoot then
+   if verbose then print('trigger/action -actionType Shoot -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot -matType '..triggerType..' ]') end
+   dfhack.run_command('trigger/action -actionType Shoot -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot -matType '..triggerType..' ]')
+  end
+  if material.OnProjectileMove then
+   if verbose then print('trigger/projectile -type Move -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -matType '..triggerType..' -action ProjectileMove ]') end
+   dfhack.run_command('trigger/projectile -type Move -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -matType '..triggerType..' -action ProjectileMove ]')
+  end
+  if material.OnProjectileHit then
+   if verbose then print('trigger/projectile -type Hit -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -matType '..triggerType..' -action ProjectileHit ]') end
+   dfhack.run_command('trigger/projectile -type Hit -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -matType '..triggerType..' -action ProjectileHit ]')
+  end
+  if material.OnProjectileFired then
+   if verbose then print('trigger/projectile -type Fired -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -matType '..triggerType..' -action ProjectileFired ]') end
+   dfhack.run_command('trigger/projectile -type Fired -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -matType '..triggerType..' -action ProjectileFired ]')
   end
  end
  

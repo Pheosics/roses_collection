@@ -1227,6 +1227,14 @@ function makeEnhancedItemTable(test,verbose)
     item.OnAttack = item.OnAttack or {}
     onTable = item.OnAttack
     onTable.Chance = '100'
+   elseif test == '[ON_SHOOT' then
+    item.OnShoot = item.OnShoot or {}
+    onTable = item.OnShoot
+    onTable.Chance = array[2]
+   elseif test == '[ON_SHOOT]' then
+    item.OnShoot = item.OnSHoot or {}
+    onTable = item.OnShoot
+    onTable.Chance = '100'
    elseif test == '[ON_PARRY' then
     item.OnParry = item.OnParry or {}
     onTable = item.OnParry
@@ -1259,6 +1267,32 @@ function makeEnhancedItemTable(test,verbose)
     item.OnWound = item.OnWound or {}
     onTable = item.OnWound
     onTable.Chance = '100'
+   elseif test == '[ON_PROJECTILE_MOVE]' then
+    item.OnProjectileMove = item.OnProjectileMove or {}
+	onTable = item.OnProjectileMove
+	onTable.Chance = '100'
+   elseif test == '[ON_PROJECTILE_MOVE' then
+    item.OnProjectileMove = item.OnProjectileMove or {}
+	onTable = item.OnProjectileMove
+	onTable.Chance = array[2]
+   elseif test == '[ON_PROJECTILE_HIT]' then
+    item.OnProjectileHit = item.OnProjectileHit or {}
+	onTable = item.OnProjectileHit
+	onTable.Chance = '100'
+   elseif test == '[ON_PROJECTILE_HIT' then
+    item.OnProjectileHit = item.OnProjectileHit or {}
+	onTable = item.OnProjectileHit
+	onTable.Chance = array[2]
+   elseif test == '[ON_PROJECTILE_FIRED]' then
+    item.OnProjectileFired = item.OnProjectileFired or {}
+	onTable = item.OnProjectileFired
+	onTable.Chance = '100'
+   elseif test == '[ON_PROJECTILE_FIRED' then
+    item.OnProjectileFired = item.OnProjectileFired or {}
+	onTable = item.OnProjectileFired
+	onTable.Chance = array[2]
+   elseif test == '[TRIGGER_CHANCE' then
+    onTable.Chance = array[2]
    elseif test == '[ATTRIBUTE_CHANGE' then
     onTable.Attributes = onTable.Attributes or {}
     onTable.Attributes[array[2]] = array[3]
@@ -1414,6 +1448,14 @@ function makeEnhancedMaterialTable(test,verbose)
      material.OnAttack = material.OnAttack or {}
      onTable = material.OnAttack
      onTable.Chance = '100'
+    elseif test == '[ON_SHOOT' then
+     material.OnShoot = material.OnShoot or {}
+     onTable = material.OnShoot
+     onTable.Chance = array[2]
+    elseif test == '[ON_SHOOT]' then
+     material.OnShoot = material.OnShoot or {}
+     onTable = material.OnShoot
+     onTable.Chance = '100'
     elseif test == '[ON_PARRY' then
      material.OnParry = material.OnParry or {}
      onTable = material.OnParry
@@ -1446,6 +1488,32 @@ function makeEnhancedMaterialTable(test,verbose)
      material.OnWound = material.OnWound or {}
      onTable = material.OnWound
      onTable.Chance = '100'
+    elseif test == '[ON_PROJECTILE_MOVE]' then
+     material.OnProjectileMove = material.OnProjectileMove or {}
+	 onTable = material.OnProjectileMove
+	 onTable.Chance = '100'
+    elseif test == '[ON_PROJECTILE_MOVE' then
+     material.OnProjectileMove = material.OnProjectileMove or {}
+	 onTable = material.OnProjectileMove
+	 onTable.Chance = array[2]
+    elseif test == '[ON_PROJECTILE_HIT]' then
+     material.OnProjectileHit = material.OnProjectileHit or {}
+ 	 onTable = material.OnProjectileHit
+	 onTable.Chance = '100'
+    elseif test == '[ON_PROJECTILE_HIT' then
+     material.OnProjectileHit = material.OnProjectileHit or {}
+	 onTable = material.OnProjectileHit
+	 onTable.Chance = array[2]
+    elseif test == '[ON_PROJECTILE_FIRED]' then
+     material.OnProjectileFired = material.OnProjectileFired or {}
+	 onTable = material.OnProjectileFired
+	 onTable.Chance = '100'
+    elseif test == '[ON_PROJECTILE_FIRED' then
+     material.OnProjectileFired = material.OnProjectileFired or {}
+	 onTable = material.OnProjectileFired
+	 onTable.Chance = array[2]
+    elseif test == '[TRIGGER_CHANCE' then
+     onTable.Chance = array[2]
     elseif test == '[ATTRIBUTE_CHANGE' then
      onTable.Attributes = onTable.Attributes or {}
      onTable.Attributes[array[2]] = array[3]
