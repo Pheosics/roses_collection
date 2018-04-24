@@ -1211,6 +1211,15 @@ function makeEnhancedItemTable(test,verbose)
     item.Description = array[2]
    elseif test == '[CLASS' then
     item.Class = array[2]
+   elseif test == '[ON_REPORT' then
+    item.OnReport = item.OnReport or {}
+    item.OnReport[array[2]] = {}
+    onTable = item.OnReport[array[2]]
+    if array[3] then
+     onTable.Chance = array[3]
+    else
+     onTable.Chance = '100'
+    end
    elseif test == '[ON_EQUIP' then
     item.OnEquip = item.OnEquip or {}
     onTable = item.OnEquip
@@ -1432,6 +1441,15 @@ function makeEnhancedMaterialTable(test,verbose)
      material.Description = array[2]
     elseif test == '[CLASS' then
      material.Class = array[2]
+    elseif test == '[ON_REPORT' then
+     material.OnReport = material.OnReport or {}
+     material.OnReport[array[2]] = {}
+     onTable = material.OnReport[array[2]]
+     if array[3] then
+      onTable.Chance = array[3]
+     else
+      onTable.Chance = '100'
+     end
     elseif test == '[ON_EQUIP' then
      material.OnEquip = material.OnEquip or {}
      onTable = material.OnEquip

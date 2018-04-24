@@ -20,7 +20,7 @@ onShoot=onShoot or dfhack.event.new()
 local actions_already_checked=actions_already_checked or {}
 things_to_do_every_action=things_to_do_every_action or {}
 actions_to_be_ignored_forever=actions_to_be_ignored_forever or {}
-number_of_projectiles=number_of_projectiles or 0
+number_of_projectiles=number_of_projectiles or df.global.proj_next_id
 
 --==========================================================================================================================
 validArgs = validArgs or utils.invert({
@@ -47,7 +47,7 @@ arguments:
         trigger the command when this action takes place
         valid values:
             Attack
-			Shoot
+            Shoot
             Block
             Dodge
             Equip
@@ -55,7 +55,7 @@ arguments:
             Parry
             Unequip
             Wound
-			ANNOUNCEMENT_TYPE (e.g. COMBAT_JUMP_DODGE_PROJ, COMBAT_COUNTERSTRIKE)
+            ANNOUNCEMENT_TYPE (e.g. COMBAT_JUMP_DODGE_PROJ, COMBAT_COUNTERSTRIKE)
     -item type
         trigger the command for items of this type
         examples:
@@ -436,7 +436,7 @@ eventful.onReport.reportActionTrigger = function(reportID)
  print('Report Action Triggers not currently supported.')
  print('Still need to figure out how to get the correct')
  print('unit and location information from just report.')
- return
+ --handler(unit_id,intable,reportTriggers[reportType])
 end
 
 -- Eventful function for when a unit's inventory changes
@@ -573,8 +573,9 @@ end
 -- Custom event types
 eventTypes={
     ON_ACTION={name='onAction',func=checkForActions},
-	ON_SHOOT={name='onShoot',func=checkForShot},
+    ON_SHOOT={name='onShoot',func=checkForShot},
 }
+
 -- Enable event checking
 enableEvent(eventTypes.ON_ACTION,1)
 enableEvent(eventTypes.ON_SHOOT,1)

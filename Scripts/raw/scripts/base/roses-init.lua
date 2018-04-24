@@ -352,10 +352,11 @@ end
 -- SET UP TRIGGERS =========================================================================================================
 --==========================================================================================================================
 -- Enhanced Item Triggers
-if args.all or itemCheck then
+if itemCheck then
  if args.verbose then print('Setting up Enhanced Item Triggers') end
  for _,itemToken in ipairs(persistTable.GlobalTable.roses.EnhancedItemTable._children) do
   item = persistTable.GlobalTable.roses.EnhancedItemTable[itemToken]
+  -- trigger/action triggers
   if item.OnEquip then
    if verbose then print('trigger/action -actionType Equip -item '..itemToken..' -command [ enhanced/item-action -unit UNIT_ID -item ITEM_ID -action Equip ]') end
    dfhack.run_command('trigger/action -actionType Equip -item '..itemToken..' -command [ enhanced/item-action -unit UNIT_ID -item ITEM_ID -action Equip ]')
@@ -390,6 +391,13 @@ if args.all or itemCheck then
    if verbose then print('trigger/action -actionType Shoot -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot ]') end
    dfhack.run_command('trigger/action -actionType Shoot -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot ]')
   end
+  if item.OnReport then
+   for _,reportType in ipairs(item.OnReport._children) do
+    if verbose then print('trigger/action -actionType '..reportType..' -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action '..reportType..' ]') end
+    dfhack.run_command('trigger/action -actionType '..reportType..' -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action '..reportType..' ]')
+   end
+  end
+  -- trigger/projectile triggers
   if item.OnProjectileMove then
    if verbose then print('trigger/projectile -type Move -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -action ProjectileMove ]') end
    dfhack.run_command('trigger/projectile -type Move -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -action ProjectileMove ]')
@@ -406,8 +414,9 @@ if args.all or itemCheck then
 end
 
 -- Enhanced Material Triggers
-if args.all or materialCheck then
+if materialCheck then
  local function matTrigger(material,materialToken,triggerType,verbose)
+  -- trigger/action triggers
   if material.OnEquip then
    if verbose then print('trigger/action -actionType Equip -material '..materialToken..' -command [ enhanced/material-action -unit UNIT_ID -item ITEM_ID -action Equip -matType '..triggerType..' ]') end
    dfhack.run_command('trigger/action -actionType Equip -material '..materialToken..' -command [ enhanced/material-action -unit UNIT_ID -item ITEM_ID -action Equip -matType '..triggerType..' ]')
@@ -442,6 +451,13 @@ if args.all or materialCheck then
    if verbose then print('trigger/action -actionType Shoot -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot -matType '..triggerType..' ]') end
    dfhack.run_command('trigger/action -actionType Shoot -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot -matType '..triggerType..' ]')
   end
+  if material.OnReport then
+   for _,reportType in ipairs(material.OnReport._children) do
+    if verbose then print('trigger/action -actionType '..reportType..' -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action '..reportType..' -matType '..triggerType..' ]') end
+    dfhack.run_command('trigger/action -actionType '..reportType..' -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action '..reportType..' -matType '..triggerType..' ]')
+   end
+  end
+  -- trigger/projectile triggers
   if material.OnProjectileMove then
    if verbose then print('trigger/projectile -type Move -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -matType '..triggerType..' -action ProjectileMove ]') end
    dfhack.run_command('trigger/projectile -type Move -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -projectile PROJECTILE_ID -matType '..triggerType..' -action ProjectileMove ]')
@@ -484,15 +500,15 @@ if args.all or materialCheck then
 end
 
 -- Enhanced Building Triggers
-if args.all or buildingCheck then
+if buildingCheck then
  if verbose then print('Setting up Enhanced Building Triggers') end
  for _,buildingToken in pairs(persistTable.GlobalTable.roses.EnhancedBuildingTable._children) do
   building = persistTable.GlobalTable.roses.EnhancedBuildingTable[buildingToken]
   checks = ''
-  if building.OutsideOnly then checks = checks .. ' -location Outside' end
-  if building.InsideOnly then checks = checks .. ' -location Inside' end
-  if building.MaxAmount then checks = checks .. ' -maxNumber ' .. building.MaxAmount end
-  if building.MultiStory then checks = checks .. ' -zLevels ' .. building.MultiStory end
+  if building.OutsideOnly   then checks = checks .. ' -location Outside'                         end
+  if building.InsideOnly    then checks = checks .. ' -location Inside'                          end
+  if building.MaxAmount     then checks = checks .. ' -maxNumber '     .. building.MaxAmount     end
+  if building.MultiStory    then checks = checks .. ' -zLevels '       .. building.MultiStory    end
   if building.RequiredWater then checks = checks .. ' -requiredWater ' .. building.RequiredWater end
   if building.RequiredMagma then checks = checks .. ' -requiredMagma ' .. building.RequiredMagma end
   if building.RequiredBuildings then
@@ -521,7 +537,7 @@ if args.all or buildingCheck then
 end
 
 -- Enhanced Reaction Triggers
-if args.all or reactionCheck then
+if reactionCheck then
  if verbose then print('Setting up Enhanced Reaction Triggers') end
  for _,reactionToken in pairs(persistTable.GlobalTable.roses.EnhancedReactionTable._children) do
   reaction = persistTable.GlobalTable.roses.EnhancedReactionTable[reactionToken]
