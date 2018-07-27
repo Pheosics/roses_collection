@@ -2,7 +2,7 @@
 
 local utils = require 'utils'
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'plan',
  'location',
@@ -72,7 +72,7 @@ location.z = pos.z + offset[3] or pos[3] + offset[3]
 
 if args.plan then
  file = dfhack.getDFPath()..'/raw/files/'..args.plan
- locations,n = dfhack.script_environment('functions/map').getPositionPlan(file,location)
+ locations,n = dfhack.script_environment('functions/map').getPlanPositions(file,location)
  for i,loc in ipairs(locations) do
   if args.floor then
    loc.z = loc.z - 1

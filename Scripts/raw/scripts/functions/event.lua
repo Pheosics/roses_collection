@@ -1,9 +1,28 @@
 -- Functions for the Event System
 --[[
- checkRequirements(event,effect,verbose)
- triggerEvent(event,effect,verbose)
- checkEvent(event,method,verbose)
- queueCheck(event,method,verbose)
+        checkRequirements(event,effect,verbose)
+                event:                  Event Token
+                effect:                 Effect number
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: Boolean - Does the event/effect combination meet the requirements to trigger?
+
+        triggerEvent(event,effect,verbose)
+                event:                  Event Token
+                effect:                 Effect number
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
+
+        checkEvent(event,method,verbose)
+                event:                  Event Token
+                method:                 How often to check for event trigger (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA (Calls queueCheck to set up another check in X ticks)
+
+        queueCheck(event,method,verbose)
+                event:                  Event Token
+                method:                 How often to check for event trigger (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
 ]]
 ------------------------------------------------------------------------
 function checkRequirements(event,effect,verbose)

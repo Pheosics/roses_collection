@@ -1,62 +1,173 @@
 --unit based functions, version 42.06a
 --[[
- trackCore(unit,strname,kind,Table,func,change,value,syndrome,alter)
- trackAttribute(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
- trackResistance(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
- trackSkill(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
- trackStat(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
- trackTrait(unit,kind,current,change,value,dur,alter,syndrome,cb_id)
- trackCreate(unit,summoner,dur,alter,syndrome,cb_id)
- trackSide(unit,civ_id,pop_id,inv_id,trn,regx,regy,regp,pet,stype,dur,alter,syndrome,cb_id)
- trackTransform(unit,race,caste,dur,alter,syndrome,cb_id)
+changeAttribute()
+  Purpose:
+  Calls: trackAttribute | trackCore
+  Inputs:
+  Returns:
 
- changeAttribute(unit,attribute,change,dur,track,syndrome,cb_id)
- changeCounter(unit,counter,change,dur)
- changeResistance(unit,resistance,change,dur,track,syndrome,cb_id)
- changeSkill(unit,skill,change,dur,track,syndrome,cb_id)
- changeStat(unit,stat,change,dur,track,syndrome,cb_id)
- changeTrait(unit,trait,change,dur,track,syndrome,cb_id)
- changeBody(unit,part,changeType,change,dur)
- changeLife(unit,corpsepart,change,reference,regrow,syndrome,dur)
- changeWound(unit,bp_id,gl_id,regrow)
- changeEmotion(unit,thought,subthought,emotion,strength,severity,task,number,dur,syndrome,cb_id)
- changeFlag(unit,flag,clear)
- changeSide(unit,side,side_type,dur,track,syndrome,civ_id,pop_id,inv_id,trn,regx,regy,regp,cb_id)
- changeSyndrome(unit,syndromes,change,dur)
- transform(unit,race,caste,dur,track,syndrome,cb_id)
- move(unit,location)
- removal(unit,remType)
+changeCounter()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
 
- checkClass(unit,class)
- checkClassCreature(unit,class)
- checkClassSyndrome(unit,class)
- checkCreatureRace(unit,creature)
- checkCreatureToken(unit,token)
- checkDistance(unit,location,distance)
+changeResistance()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
 
- getUnit(unit,strType,strKind)
- getAttack(unit,attack_type)
- getBodyRandom(unit)
- getBodyCategory(unit,category)
- getBodyFlag(unit,flag)
- getBodyToken(unit,token)
- getBodyConnectedParts(unit,parts)
- getBodyPartGlobalLayers(unit,part)
- getBodyCorpseParts(unit)
- getEmotion(unit,emotion,thought)
- getSyndrome(unit,class,what)
- getInventoryType(unit,item_type)
- getCounter(unit,counter)
+changeSkill()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
 
- create(location,raceID,casteID,refUnit,side,name,dur,track,syndrome,cb_id)
- createHistFig()
- createName()
- createNemesis()
- createUnit()
+changeStat()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
 
- makeProjectile(unit,velocity)
+changeTrait()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
 
- findUnit(search)
+changeBody()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+changeLife()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+changeWound()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+changeAction()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+changeInteraction()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+changeEmotion()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+changeFlag()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+changeSide()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+changeSyndrome()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+transform()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+makeProjectile()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+move()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+checkClass()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+checkCreature()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+checkDistance()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+getUnit()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+getAttack()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+getBodyParts()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+getEmotion()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+getSyndrome()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+getInventory()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+findUnit()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
 ]]
 ---------------------------------------------------------------------------------------
 ----------- Track changes in the persist-table and handle termination -----------------

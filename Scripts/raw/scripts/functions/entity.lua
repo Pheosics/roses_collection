@@ -1,20 +1,47 @@
 --entity based functions, version 42.06a
 --[[
- changeCreature(entity,stype,mobj,sobj,direction,verbose)
- changeInorganic(entity,stype,mobj,sobj,direction,verbose)
- changeItem(entity,stype,mobj,sobj,direction,verbose)
- changeMisc(entity,stype,mobj,sobj,direction,verbose)
- changeNoble(entity,position,direction,verbose)
- changeOrganic(entity,stype,mobj,sobj,direction,verbose)
- changeRefuse(entity,stype,mobj,sobj,direction,verbose)
- changeProduct(entity,stype,mobj,sobj,direction,verbose)
- changeSkill(entity,stype,mobj,sobj,direction,verbose)
- changeEthic(entity,stype,mobj,sobj,direction,verbose)
- changeValue(entity,stype,mobj,sobj,direction,verbose)
- changeResources(entity,mtype,stype,mobj,sobj,direction,verbose)
- NOTE: For a complete list of acceptable values for mtype, stype, mobj, and sobj see the Entity ReadMe
+changeResources(entity,group,category,mainToken,subToken,direction,verbose)
+  Purpose: Add or remove a given resource from an entity
+  Calls: changeCreature | changeInorganic | changeItem | changeMisc | changeOrganic | changeRefuse | changeProduct | changeSkill | changeEthic | changeValue
+  Inputs:
+        entity:                 Entity ID or entity struct
+        group:                  Group of resources to change (Valid Values: CREATURE, INORGANIC, ITEM, MISC, ORGANIC, REFUSE, PRODUCT, SKILLS, ETHICS, or VALUES)
+        category:               Category of group to change (see above functions for valid values)
+        mainToken:              Depends on the group and category
+        subToken:               Depends on the group and category
+        direction:              add or remove
+        verbose:                Boolean, whether to print extra debugging information
+  Returns: NA
+NOTE: For a complete list of acceptable values for mtype, stype, mobj, and sobj see the Entity ReadMe
 ]]
 ---------------------------------------------------------------------------------------
+function changeResources(entity,mtype,stype,mobj,sobj,direction,verbose)
+ if string.upper(mtype) == 'CREATURE' then
+  changeCreature(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'INORGANIC' then
+  changeInorganic(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'ITEM' then
+  changeItem(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'MISC' then
+  changeMisc(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'ORGANIC' then
+  changeOrganic(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'REFUSE' then
+  changeRefuse(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'PRODUCT' then
+  changeProduct(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'SKILLS' then
+  changeSkill(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'ETHICS' then
+  changeEthic(entity,stype,mobj,sobj,direction,verbose)
+ elseif string.upper(mtype) == 'VALUES' then
+  changeValue(entity,stype,mobj,sobj,direction,verbose)
+ else
+  if verbose then print('No valid resource type to add') end
+  return
+ end
+end
+
 function changeCreature(civ,stype,mobj,sobj,direction,verbose)
  if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
@@ -990,32 +1017,5 @@ function changeValue(civ,stype,mobj,sobj,direction,verbose)
    if verbose then print('Not a valid value') end
    return
   end
- end
-end
-
-function changeResources(entity,mtype,stype,mobj,sobj,direction,verbose)
- if string.upper(mtype) == 'CREATURE' then
-  changeCreature(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'INORGANIC' then
-  changeInorganic(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'ITEM' then
-  changeItem(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'MISC' then
-  changeMisc(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'ORGANIC' then
-  changeOrganic(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'REFUSE' then
-  changeRefuse(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'PRODUCT' then
-  changeProduct(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'SKILLS' then
-  changeSkill(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'ETHICS' then
-  changeEthic(entity,stype,mobj,sobj,direction,verbose)
- elseif string.upper(mtype) == 'VALUES' then
-  changeValue(entity,stype,mobj,sobj,direction,verbose)
- else
-  if verbose then print('No valid resource type to add') end
-  return
  end
 end

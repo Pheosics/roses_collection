@@ -11,7 +11,7 @@ onFired=onFired or dfhack.event.new()
 number_of_projectiles=number_of_projectiles or df.global.proj_next_id
 
 --==========================================================================================================================
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'clear',
  'help',
  'type',

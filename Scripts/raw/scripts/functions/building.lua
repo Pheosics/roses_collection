@@ -1,9 +1,38 @@
 --building based functions, version 42.06a
 --[[
- addItem(building,item,dur)
- removeItem(building,item,dur)
- changeSubtype(building,subtype,dur)
- findBuilding(search)
+addItem(building,item,duration)
+  Purpose: Adds an item to a buildings item list
+  Calls: persistDelay.environmentDelay
+  Inputs:
+        building:               Building ID or building struct
+        item:                   Item ID or item struct
+        duration:               Time (in ticks) for the item to remain in the building
+  Returns: NA
+
+removeItem(building,item,duration)
+  Purpose: Removes an item from a buildings item list
+  Calls: persistDelay.environmentDelay
+  Inputs:
+        building:               Building ID or building struct
+        item:                   Item ID or item struct
+        duration:               Time (in ticks) for the item to remain outside of building
+  Returns: NA
+
+changeSubtype(building,subtype,duration)
+  Purpose: Changes the subtype of a building
+  Calls: persistDelay.environmentDelay
+  Inputs:
+        building:               Building ID or building struct
+        subtype:                RAW Token of custom building
+        duration:               Time (in ticks) for the change to last
+  Returns: Boolean - Did the building successfully change?
+
+findBuilding(searchTable)
+  Purpose: Finds a building that satisfies certain criteria
+  Calls: misc.permute
+  Inputs:
+        searchTable:            Table of strings to search for a building on the map (NEED TO ADD MORE INFORMATION)
+  Returns: Table - { target[s] )
 ]]
 ---------------------------------------------------------------------------------------
 function addItem(building,item,dur)

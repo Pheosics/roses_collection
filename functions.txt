@@ -1,488 +1,311 @@
-ATTACK FUNCTIONS
-	addAttack(unit,defenderID,attackBodyPartID,targetBodyPartID,attackItemID,attackID,accuracy,velocity,delay)
-		unit: 			Attacker unit ID or unit struct
-		defenderID:		Defender unit ID
-		attackBodyPartID:	Attacker's attacking body part ID (if using a body part attack)
-		targetBodyPartID:	Defender's targeted body part ID
-		attackItemID:		Attacker's attacking item ID (if using an item attack)
-		attackID:		Attack ID number (found in unit.body.body_plan.attacks or item.subtype.attacks)
-		accuracy:		Percent hit chance of attack
-		velocity:		Velocity of attack
-		delay:			Time (in ticks) until attack is executed
-	  Returns: NA
-
-	getAttack(unit,category,type)
-		unit:			Unit ID or unit struct
-		category:		Category of attack (Valid values: Equipped, Created, or BodyPart)
-		type:			RAW Token of attack (e.g. PUNCH) (Special Value: Random)
-	  Returns: Table - { material momentum contact penetration sharpness item body_part }
-
-	checkCoverage(unit,bodyPartID,inventory_item)
-		unit:			Unit ID or unit struct
-		bodyPartID:		Body Part ID
-		inventory_item:		Inventory item struct
-	  Returns: Boolean - Does the item cover the body part?
-
-	getDefense(unit,category,type)
-		unit:			Unit ID or unit struct
-		category:		Category of body part to check for (Valid values: Random, Category, Token, or Type)
-		type:			RAW token for above category (e.g. EYES, REYE, and SIGHT would all check eyes)
-	  Returns: Table - { layers tissues items materials body_part
-
-	getAttackItem(unit,item,attackID)
-		unit:			Unit ID or unit struct
-		item:			Item ID or item struct
-		attackID:		Attack ID number (found in item.subtype.attacks)
-	  Returns: momentum, weight, material, velocity, item
-
-	getAttackUnit(unit,bodyPartID,attackID)
-		unit:			Unit ID or unit struct
-		bodyPartID:		Body Part ID attacking
-		attackID:		Attack ID number (found in unit.body.body_plan.attacks
-	  Returns: momentum, weight, material, velocity, body_part
-
-	computeAttackValues(attacker,defender,attackCategory,attackType,defenseCategory,defenseType)
-		attacker:		Attacking unit ID or unit struct
-		defender:		Defending unit ID or unit struct
-		attackCategory:		Category of attack (see getAttack for more information)
-		attackType:		Type of attack (see getAttack for more information)
-		defenseCategory:	Category of defense (see getDefense for more information)
-		defenseType:		Type of defense (see getDefense for more information)
-	  Return: Numbers - momentum_deduction1, momentum_deduction2
-
-BUILDING FUNCTIONS
-	addItem(building,item,duration)
-		building:		Building ID or building struct
-		item:			Item ID or item struct
-		duration:		Time (in ticks) for the item to remain in the building
-	  Returns: NA
-
-	removeItem(building,item,duration)
-		building:		Building ID or building struct
-		item:			Item ID or item struct
-		duration:		Time (in ticks) for the item to remain outside of building
-	  Returns: NA
-
-	changeSubtype(building,subtype,duration)
-		building:		Building ID or building struct
-		subtype:		RAW Token of custom building
-		duration:		Time (in ticks) for the change to last
-	  Returns: Boolean - Did the building successfully change?
-
-	findBuilding(searchTable)
-		searchTable:		Table of strings to search for a building on the map (NEED TO ADD MORE INFORMATION)
-	  Returns: Table - { target[s] )
-
-CIVILIZATION FUNCTIONS
-	changeLevel(entity,amount,verbose)
-		entity:			Entity ID or entity struct
-		amount:			Number of levels to increase (decrease currently disabled)
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeStanding(civAID,civBID,amount,verbose)
-		civAID:			Entity ID for civ A
-		civBID:			Entity ID for civ B
-		amount:			Amount to change diplomatic standing by
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: Number - Current diplomatic standing
-
-	checkEntity(entityID,method,verbose)
-		entityID:		Entity ID
-		method:			Frequency of checking (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA (Calls queueCheck to set up another check in X ticks)
-
-	queueCheck(entityID,method,verbose)
-                entityID:               Entity ID
-                method:                 Frequency of checking (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
-                verbose:                Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	checkRequirements(entityID,verbose)
-		entityID:		Entity ID
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: Boolean - Does the entity meet the requirements to level up?
-
-CLASS FUNCTIONS
-	addExperience(unit,amount,verbose)
-		unit:			Unit ID or unit struct
-		amount:			Amount of experience to add to unit
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeClass(unit,class,verbose)
-		unit:			Unit ID or unit struct
-		class:			Class Token to change unit to
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: Boolean - Was the class change successful
-
-	changeLevel(unit,amount,verbose)
-		unit:			Unit ID or unit struct
-		amount:			Amount of levels to go up/down
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeName(unit,name,direction,verbose)
-		unit:			Unit ID or unit struct
-		name:			RAW Token of syndrome class name is attached to
-		direction:		add, remove, or removeall
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeSpell(unit,spell,direction,verbose)
-		unit:			Unit ID or unit struct
-		spell:			RAW Token of syndrome class spell is attached to
-		direction:		add, remove, removeall, learn, or unlearn
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	checkRequirementsClass(unit,class,verbose)
-		unit:			Unit ID or unit struct
-		class:			Class Token to check requirements for
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: Boolean - Does the unit meet the requirements for the class?
-
-	checkRequirementsSpell(unit,spell,verbose)
-		unit:			Unit ID or unit struct
-		spell:			Spell Token to check requirements for
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: Boolean - Does the unit meet the requirements for the spell?
-
-	addFeat(unit,feat,verbose)
-		unit:			Unit ID or unit struct
-		feat:			Feat Token to add
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	checkRequirementsFeat(unit,feat,verbose)
-		unit:			Unit ID or unit struct
-		feat:			Feat Token to check requirements for
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: Boolean - Does the unit meet the requirements for the feat?
-
-ENTITY FUNCTIONS
-	changeCreature(entity,category,creatureToken,casteToken,direction,verbose)
-		entity:			Entity ID or entity struct
-		category:		Category of creature to change (Valid Values: PET, WAGON, MOUNT, PACK, MINION, EXOTIC, FISH, or EGG)
-		creatureToken:		RAW Token of creature (or ALL)
-		casteToken:		Caste Token of creature (or ALL)
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeInorganic(entity,category,inorganicToken,nil,direction,verbose)
-		entity:			Entity ID or entity struct
-		category:		Category of inorganic to change (Valid Values: METAL, STONE, or GEM)
-		inorganicToken:		RAW Token of inorganic (or ALL)
-		nil
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeItem(entity,category,itemToken,nil,direction,verbose)
-		entity:			Entity ID or entity struct
-		category:		Category of item to change (Valid Values: WEAPON, SHIELD, AMMO, HELM, ARMOR, PANTS, SHOES, GLOVES, TRAP, SIEGE, TOY, INSTRUMENT, TOOL, DIGGER, or TRAINING)
-		itemToken:		Raw Token of item (or ALL)
-		nil
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeMisc(entity,category,mainToken,subToken,direction,verbose)
-		entity:			Entity ID or entity struct
-		category:		Category of misc to change (Valid Values: GLASS, SAND, CLAY, BOOZE, CHEESE, POWDER, EXTRACT, or MEAT)
-		mainToken:		RAW Token of inorganic or creature (or ALL)
-		subToken:		RAW Token of caste if using a creature for mainToken
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeNoble(entity,position,direction,verbose)
-		entity:			Entity ID or entity struct
-		position:		RAW Token of an entity position or Civilization System position
-		direction:		add or remove (highly highly highly recommend you do NOT use remove)
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeOrganic(entity,category,mainToken,subToken,direction,verbose)
-		entity:			Entity ID or entity struct
-		category:		Category of organic to change (Valid Values: LEATHER, FIBER, SILK, WOOL, WOOD, PLANT, or SEED)
-		mainToken:		RAW Token of creature or plant (or ALL)
-		subToken:		RAW Token of caste or plant mat
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeProduct(entity,category,mainToken,subToken,direction,verbose)
-		entity:			Entity ID or entity struct
-		category:		Category of product to change (Valid Values: PICK, MELEE, RANGED, AMMO, AMMO2, ARMOR, ANVIL, CRAFTS, BARRELS, FLASKS, QUIVERS, BACKPACKS, or CAGES)
-		mainToken:		RAW Token of inorganic, creature, or plant
-		subToken:		RAW Token of caste or plant mat
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeRefuse(entity,category,creatureToken,casteToken,direction,verbose)
-		entity:			Entity ID or entity struct
-		category:		Category of refuse to change (Valid Values: BONE, SHELL, PEARL, IVORY, or HORN)
-		creatureToken:		RAW Token of creature
-		casteToken:		Caste Token of creature
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Refuse: NA
-
-	changeSkill(entity,skillToken,nil,nil,direction,verbose)
-		entity:			Entity ID or entity struct
-		skillToken:		RAW Token of skill (or ALL)
-		nil
-		nil
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeEthic(entity,ethicToken,nil,nil,direction,verbose)
-		entity:			Entity ID or entity struct
-		ethicToken:		RAW Token of ethic (or ALL)
-		nil
-		nil
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeValue(entity,valueToken,valueLevel,nil,nil,verbose)
-		entity:			Entity ID or entity struct
-		valueToken:		RAW Token of value (or ALL)
-		valueLevel:		Level to set value to
-		nil
-		nil
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	changeResources(entity,group,category,mainToken,subToken,direction,verbose)
-		entity:			Entity ID or entity struct
-		group:			Group of resources to change (Valid Values: CREATURE, INORGANIC, ITEM, MISC, ORGANIC, REFUSE, PRODUCT, SKILLS, ETHICS, or VALUES)
-		category:		Category of group to change (see above functions for valid values)
-		mainToken:		Depends on the group and category
-		subToken:		Depends on the group and category
-		direction:		add or remove
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-EVENT FUNCTIONS
-	checkRequirements(event,effect,verbose)
-		event:			Event Token
-		effect:			Effect number
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: Boolean - Does the event/effect combination meet the requirements to trigger?
-
-	triggerEvent(event,effect,verbose)
-		event:			Event Token
-		effect:			Effect number
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-	checkEvent(event,method,verbose)
-		event:			Event Token
-		method:			How often to check for event trigger (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA (Calls queueCheck to set up another check in X ticks)
-
-	queueCheck(event,method,verbose)
-		event:			Event Token
-		method:			How often to check for event trigger (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
-		verbose:		Boolean, whether to print extra debugging information
-	  Returns: NA
-
-ITEM FUNCTIONS
-	changeMaterial(item,materialTokens,duration,track)
-		item:			Item ID or item struct
-		materialTokens:		RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
-		duration:		Time (in ticks) for change to last
-		track:			How to track the material change (Valid Values: track, end, or nil)
-	  Returns: NA
-
-	changeQuality(item,quality,duration,track)
-		item:			Item ID or item struct
-		quality:		Number of quality to set item to
-		duration:		Time (in ticks) for change to last
-		track:			How to track the quality change (Valid Values: track, end, or nil)
-	  Returns: NA
-
-	changeSubtype(item,subtype,duration,track)
-		item:			Item ID or item struct
-		subtype:		RAW Token of item subtype
-		duration:		Time (in ticks) for change to last
-		track:			How to track the subtype change (Valid Values: track, end, or nil)
-	  Returns: NA
-
-	checkAttack(item,attackToken)
-		item:			Item ID or item struct
-		attackToken:		RAW Token of an attack (e.g. PUNCH) (Special Value: Random)
-	  Returns: Number - AttackID
-
-	makeProjectileFall(item,origin,velocity)
-		item:			Item ID or item struct
-		origin:			Table of x,y,z coordinates
-		velocity:		Table of x,y,z velocities
-	  Returns: NA
-
-	makeProjectileShot(item,origin,target,options)
-		item:			Item ID or item struct
-		origin:			Table of x,y,z coordinates
-		target:			Table of x,y,z coordinates
-		options:		Table of special values { velocity accuracy range minimumDistance firer }
-	  Returns: NA
-
-	findItem(searchTable)
-		searchTable:		Table of strings to search for an item on the map (NEED TO ADD MORE INFORMATION)
-	  Returns: Table - { item[s] }
-
-MAP FUNCTIONS
-	changeInorganic(x,y,z,inorganicToken,duration)
-		x:			X Location or Table of x,y,z coordinates
-		y:			Y location if x isn't a table
-		z:			Z location if x isn't a table
-		inorganicToken:		RAW Token of inorganic
-		duration:		Time (in ticks) for the change to last
-	  Returns: Boolean - Was the change successful?
-
-	changeTemperature(x,y,z,temperature,duration)
-                x:  			X Location or Table of x,y,z coordinates
-                y:                      Y location if x isn't a table
-                z:                      Z location if x isn't a table
-                temperature:		Number to set temperature to
-                duration:               Time (in ticks) for the change to last
-          Returns: Boolean - Was the change successful?
-
-	checkBounds(x,y,z)
-                x:                      X Location or Table of x,y,z coordinates
-                y:                      Y location if x isn't a table
-                z:                      Z location if x isn't a table
-	  Returns: Table - { x y z } of closest match to original coordinates that are within bounds
-
-	checkFree(x,y,z)
-                x:                      X Location or Table of x,y,z coordinates
-                y:                      Y location if x isn't a table
-                z:                      Z location if x isn't a table
-	  Returns: Boolean - Is the position free of buildings and flows and is a floor tile type?
-
-	getEdgesPosition(pos,radius)
-		pos:			Table of x,y,z coordinates
-		radius:			Table of x,y,z distances
-	  Returns: Table - { xmin xmax ymin ymax zmin zmax }
-
-	getFillPosition(pos,radius)
-                pos:                    Table of x,y,z coordinates
-                radius:                 Table of x,y,z distances
-          Returns: Table - { { x y z } { x y z } ... }
-
-	getPositionPlan(file,target,origin)
-		file:			File name to search for a plan
-		target:			Table of x,y,z coordinates
-		origin:			Table of x,y,z coordinates
-	  Returns: Table - { { x y z } { x y z } ... }
-
-	getPositionCenter(radius)
-		radius:			Table of x,y,z distances
-	  Returns: Table - { x y z }
-
-	getPositionEdge()
-	  Returns: Table - { x y z }
-
-	getPositionRandom()
-	  Returns: Table - { x y z }
-
-	getPositionCavern(number)
-		number:			Cavern number to limit position search to (Special Value: -1)
-	  Returns: Table - { x y z }
-
-	getPositionSurface(pos)
-		pos:			Table of x,y,z coordinates
-	  Returns: Table - { x y z }
-
-	getPositionSky(pos)
-                pos:                    Table of x,y,z coordinates
-          Returns: Table - { x y z }
-
-	getPositionUnderground(pos)
-                pos:                    Table of x,y,z coordinates
-          Returns: Table - { x y z }
-
-	getPositionLocationRandom(pos,radius)
-                pos:                    Table of x,y,z coordinates
-		radius:			Table of x,y,z distances
-          Returns: Table - { x y z }
-
-	getPostionUnitRandom(unit,radius)
-		unit:			Unit ID or unit struct
-		radius:			Table of x,y,z distances
-	  Returns: Table - { x y z }
-
-	spawnFlow(edges,offset,flowType,inorganicToken,density,static)
-		edges:			Table of x,y,zmin and x,y,zmax
-		offset:			Table of x,y,z distances
-		flowType:		Flow Token (Valid Values: MIASMA, STEAM, MIST, MATERIALDUST, MAGMAMIST, SMOKE, DRAGONFIRE, FIRE, WEB, MATERIALGAS, MATERIALVAPOR, OCEANWAVE, SEAFOAM, or ITEMCLOUD)
-		inorganicToken:		RAW inorganic token
-		density:		Number of flow density
-		static:			Boolean for whether the flow can move or not
-	  Returns: NA
-
-	spawnLiquid(edges,offset,depth,magma,circle,taper)
-                edges:                  Table of x,y,zmin and x,y,zmax
-                offset:                 Table of x,y,z distances
-		depth:			Number of liquid depth
-		magma:			Boolean for whether magma or not (i.e. water)
-		circle:			Boolean for if the liquid should be spawned in a circle
-		taper:			Boolean for if the liquid should have a maximum depth at the center and taper off
-	  Returns: NA
-
-	getFlow(pos, flowType)
-		pos:                    Table of x,y,z coordinates
-		flowType:               Flow Token (Valid Values: MIASMA, STEAM, MIST, MATERIALDUST, MAGMAMIST, SMOKE, DRAGONFIRE, FIRE, WEB, MATERIALGAS, MATERIALVAPOR, OCEANWAVE, SEAFOAM, or ITEMCLOUD)
-	  Returns: Table - { flow_struct[s] }
-
-	getTree(pos)
-                pos:                    Table of x,y,z coordinates
-	  Returns: Number, Struct - TreeID, tree_struct
-
-	getTreePositions(tree)
-		tree:			Tree struct
-	  Returns: Table, Table, Table, Table, Table - { position[s] }, { trunkPosition[s] }, { thickBranchPosition[s] }, { branchPosition[s] }, { twigPosition[s] }
-
-	getShrub(pos)
-                pos:                    Table of x,y,z coordinates
-	  Returns: Number, Struct - ShrubID, shrub_struct
-
-	removeTree(pos)
-                pos:                    Table of x,y,z coordinates
-	  Returns: NA
-
-	removeShrub(pos)
-                pos:                    Table of x,y,z coordinates
-	  Returns: NA
-
-	flowSource(n)
-		n:			Unique identifier
-	  Returns: NA
-
-	flowSink(n)
-		n:			Unique identifier
-	  Returns: NA
-
-	liquidSource(n)
-		n:			Unique identifier
-	  Returns: NA
-
-	liquidSink(n)
-		n:			Unique identifier
-	  Returns: NA
-
-	findLocation(searchTable)
-                searchTable:            Table of strings to search for a location on the map (NEED TO ADD MORE INFORMATION)
-          Returns: Table - { location[s] }
-
-UNIT FUNCTIONS
+#######################################
+######### ATTACK FUNCTIONS ############
+#######################################
+    addAttack(unit,defenderID,attackBodyPartID,targetBodyPartID,attackItemID,attackID,accuracy,velocity,delay)
+      Purpose: Add an attack action to the unit
+      Calls: None
+      Inputs:
+            unit:                   Attacker unit ID or unit struct
+            defenderID:             Defender unit ID
+            attackBodyPartID:       Attacker's attacking body part ID (if using a body part attack)
+            targetBodyPartID:       Defender's targeted body part ID
+            attackItemID:           Attacker's attacking item ID (if using an item attack)
+            attackID:               Attack ID number (found in unit.body.body_plan.attacks or item.subtype.attacks)
+            accuracy:               Percent hit chance of attack
+            velocity:               Velocity of attack
+            delay:                  Time (in ticks) until attack is executed
+      Returns: NA
+    
+    getAttack(unit,category,type)
+      Purpose: Get attack details of equipped weapons and/or body parts
+      Calls: getAttackItem | getAttackUnit | unit.getInventoryType | unit.getAttack | item.getAttack 
+      Inputs:
+            unit:                   Unit ID or unit struct
+            category:               Category of attack (Valid values: Equipped, Created, or BodyPart)
+            type:                   RAW Token of attack (e.g. PUNCH) (Special Value: Random)
+      Returns: Table - { material momentum contact penetration sharpness item body_part }
+    
+    getDefense(unit,category,type)
+      Purpose: Get layer, tissue, and material information for a given body part
+      Calls: checkCoverage | unit.getBodyRandom | unit.getBodyCategory | unit.getBodyToken | unit.getBodyType
+      Inputs:
+            unit:                   Unit ID or unit struct
+            category:               Category of body part to check for (Valid values: Random, Category, Token, or Type)
+            type:                   RAW token for above category (e.g. EYES, REYE, and SIGHT would all check eyes)
+      Returns: Table - { layers tissues items materials body_part }
+    
+    computeAttackValues(attacker,defender,attackCategory,attackType,defenseCategory,defenseType)
+      Purpose:
+      Calls: computeAttackValuesItems, computeAttackValuesLayers
+      Inputs:
+            attacker:               Attacking unit ID or unit struct
+            defender:               Defending unit ID or unit struct
+            attackCategory:         Category of attack (see getAttack for more information)
+            attackType:             Type of attack (see getAttack for more information)
+            defenseCategory:        Category of defense (see getDefense for more information)
+            defenseType:            Type of defense (see getDefense for more information)
+      Return: Numbers - momentum_deduction1, momentum_deduction2
+
+#######################################
+######## BUILDING FUNCTIONS ###########
+#######################################
+    addItem(building,item,duration)
+      Purpose: Adds an item to a buildings item list
+      Calls: persist-delay.environmentDelay
+      Inputs:
+            building:               Building ID or building struct
+            item:                   Item ID or item struct
+            duration:               Time (in ticks) for the item to remain in the building
+      Returns: NA
+    
+    removeItem(building,item,duration)
+      Purpose: Removes an item from a buildings item list
+      Calls: persist-delay.environmentDelay
+      Inputs:
+            building:               Building ID or building struct
+            item:                   Item ID or item struct
+            duration:               Time (in ticks) for the item to remain outside of building
+      Returns: NA
+    
+    changeSubtype(building,subtype,duration)
+      Purpose: Changes the subtype of a building
+      Calls: persist-delay.environmentDelay
+      Inputs:
+            building:               Building ID or building struct
+            subtype:                RAW Token of custom building
+            duration:               Time (in ticks) for the change to last
+      Returns: Boolean - Did the building successfully change?
+    
+    findBuilding(searchTable)
+      Purpose: Finds a building that satisfies certain criteria
+      Calls: misc.permute
+      Inputs:
+            searchTable:            Table of strings to search for a building on the map (NEED TO ADD MORE INFORMATION)
+      Returns: Table - { target[s] )
+
+#######################################
+######### ENTITY FUNCTIONS ############
+#######################################
+    changeResources(entity,group,category,mainToken,subToken,direction,verbose)
+      Purpose: Add or remove a given resource from an entity
+      Calls: changeCreature | changeInorganic | changeItem | changeMisc | changeOrganic | changeRefuse | changeProduct | changeSkill | changeEthic | changeValue
+      Inputs:
+            entity:                 Entity ID or entity struct
+            group:                  Group of resources to change (Valid Values: CREATURE, INORGANIC, ITEM, MISC, ORGANIC, REFUSE, PRODUCT, SKILLS, ETHICS, or VALUES)
+            category:               Category of group to change (see above functions for valid values)
+            mainToken:              Depends on the group and category
+            subToken:               Depends on the group and category
+            direction:              add or remove
+            verbose:                Boolean, whether to print extra debugging information
+      Returns: NA
+
+#######################################
+########## ITEM FUNCTIONS #############
+#######################################
+    changeMaterial(item,materialTokens,duration,track)
+      Purpose: Change the material an item is made of
+      Calls: trackMaterial | tables.makeItemTable | persist-delay.environmentDelay
+      Inputs:
+            item:                   Item ID or item struct
+            materialTokens:         RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
+            duration:               Time (in ticks) for change to last
+            track:                  How to track the material change (Valid Values: track, end, or nil)
+      Returns: NA
+    
+    changeQuality(item,quality,duration,track)
+      Purpose: Change the quality of an item
+      Calls: trackQuality | tables.makeItemTable | persist-delay.environmentDelay
+      Inputs:
+            item:                   Item ID or item struct
+            quality:                Number of quality to set item to
+            duration:               Time (in ticks) for change to last
+            track:                  How to track the quality change (Valid Values: track, end, or nil)
+      Returns: NA
+    
+    changeSubtype(item,subtype,duration,track)
+      Purpose: Change the subtype of an item
+      Calls: trackSubtype | tables.makeItemTable | persist-delay.environmentDelay
+      Inputs:
+            item:                   Item ID or item struct
+            subtype:                RAW Token of item subtype
+            duration:               Time (in ticks) for change to last
+            track:                  How to track the subtype change (Valid Values: track, end, or nil)
+      Returns: NA
+    
+    create(item,material,creatorID,quality,duration)
+      Purpose: Creates an item of the given material for a set duration
+      Calls: removal | persist-delay.environmentDelay
+      Inputs:
+            item:                   RAW Token item (e.g. WEAPON:ITEM_WEAPON_SWORD_SHORT)
+            material:               RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
+            creatorID:              Unit ID
+            quality:                Quality number
+            duration:               Time (in ticks) for item to last
+      Returns: NA
+    
+    equip(item,unit,bodyPart,mode)
+      Purpose: Move an item from the ground into a unit's inventory
+      Calls: None
+      Inputs:
+            item:                   Item ID or item struct
+            unit:                   Unit ID or unit struct
+            bodyPart:               Body part ID
+            mode:                   Inventory mode number
+      Returns: NA
+    
+    unequip(item,unit)
+      Purpose: Move an item from the unit's inventory to the ground
+      Calls: None
+      Inputs:
+            item:                   Item ID or item struct
+            unit:                   Unit ID or unit struct
+      Returns: NA
+    
+    getAttack(item,attackToken)
+      Purpose: Find the given attack of an item
+      Calls: None
+      Inputs:
+            item:                   Item ID or item struct
+            attackToken:            RAW Token of an attack (e.g. PUNCH) (Special Value: Random)
+      Returns: Number - AttackID
+    
+    makeProjectileFall(item,origin,velocity)
+      Purpose: Turn an item into a falling projectile
+      Calls: None
+      Inputs:
+            item:                   Item ID or item struct
+            origin:                 Table of x,y,z coordinates
+            velocity:               Table of x,y,z velocities
+      Returns: NA
+    
+    makeProjectileShot(item,origin,target,options)
+      Purpose: Turn an item into a shot projectile
+      Calls: None
+      Inputs:
+            item:                   Item ID or item struct
+            origin:                 Table of x,y,z coordinates
+            target:                 Table of x,y,z coordinates
+            options:                Table of special values { velocity accuracy range minimumDistance firer }
+      Returns: NA
+    
+    findItem(searchTable)
+      Purpose: Find an item given a specific search string
+      Calls: misc.permute
+      Inputs:
+            searchTable:            Table of strings to search for an item on the map (NEED TO ADD MORE INFORMATION)
+      Returns: Table - { item[s] }
+ 
+#######################################
+########### MAP FUNCTIONS #############
+#######################################
+    changeInorganic(x,y,z,inorganicToken,duration)
+      Purpose: Changes the inorganic at specified position
+      Calls: persist-delay.environmentDelay
+      Inputs:
+            x:                      X Location or Table of x,y,z coordinates
+            y:                      Y location if x isn't a table
+            z:                      Z location if x isn't a table
+            inorganicToken:         RAW Token of inorganic
+            duration:               Time (in ticks) for the change to last
+      Returns: Boolean - Was the change successful?
+    
+    changeTemperature(x,y,z,temperature,duration)
+      Purpose: Changes the temperature at specified position (doesn't really work well since the game constantly reupdates temperatures)
+      Calls: persist-delay.environmentDelay
+      Inputs:
+            x:                      X Location or Table of x,y,z coordinates
+            y:                      Y location if x isn't a table
+            z:                      Z location if x isn't a table
+            temperature:            Number to set temperature to
+            duration:               Time (in ticks) for the change to last
+      Returns: Boolean - Was the change successful?
+    
+    getPosition(Type,options)
+      Purpose: Returns a single position { x y z } depending on the given type and options
+      Calls: getPositionCenter | getPositionEdge | getPositionRandom | getPositionCavern | getPositionSurface | getPositionSky
+             getPositionUnderground | getPositionLocationRandom | getPositionUnitRandom | checkBounds | checkFree | checkSurface
+      Inputs:
+            Type:                   Type of position to return (Valid Values: Center, Edge, Random, Cavern, Surface, SurfaceFree, Sky, Underground, LocationRandom, UnitRandom)
+            options:                An array of optional arguments depending on the Type
+                    unit:           (If using UnitRandom) The unit struct or unitID to center the position on
+                    location:       (If using Surface, Sky, Underground, or LocationRandom) The location { x y z } to center the position on
+                    radius:         (If using Center, LocationRandom, or UnitRandom) The radius ( x y z ) around the central location
+                    caveNumber:     (If using Cavern) The cave number to search for a position in
+      Returns: Table { x, y, z}
+    
+    getPositions(Type,options)
+      Purpose: Returns a table of positions { { x y z } } depending on the given type and options
+      Calls: getEdgesPositions | getFillPositions | getPlanPositions
+      Inputs:
+            Type:                   Type of positions to return (Valid Values: Edges, Fill, Plan)
+            Options:                An array of optional arguments depending on the Type
+                    target:         (If using Edges, Fill, or Plan) The position { x y z } to center on
+                    radius:         (If using Edges or Fill) The radius { x y z } around the center to include
+                    origin:         (If using Plan) The position { x y z } to reference as the origin for rotation
+                    file:           (If using Plan) The file to read for the positional information
+      Returns: Table, Number - { position[s] }, # of positions
+    
+    getFlow(position,flowType)
+      Purpose: Get all flows of a specific type and the given position
+      Calls: None
+      Inputs:
+             Position:              Table of { x y z } coordinate
+             FlowType:              (Optional) If present it will restrict the flow check to that specific flow type
+      Returns: Table - { flow[s] }
+    
+    getTileFeature(type,position,array)
+      Purpose: Get the table entry of the specified feature type at a given positions
+      Calls: getTree | getShrub
+      Inputs:
+             Type:                  Type of feature/object to look for (Valid Values: Tree or Shrub)
+             Position:              Table of { x y z } coordinate
+             Array:                 (Optional) The DFHack array to check against (e.g. df.global.world.plants.all)
+      Returns: Number, Struct - # of Struct Entry, DFHack Struct
+    
+    getTileMat(x,y,z)               **Taken from Milo Christianson's Rubble Utility and translated to work without that framework
+      Purpose: Get the material string that cooresponds with that is seen in game
+      Calls: getTileTypeMat | getLayerMat | getLavaStone | getVeinMat | getConstructionMat | getConstructOriginalTileMat | getTreeMat
+             getShrubMat | getFeatureMat
+      Inputs:
+             x:                     Either a table of { x y z } coordinates or the x coordinate
+             y:                     The y coordinate if x is not a table
+             z:                     The z coordinate if x is not a table
+      Returns: String - RAW material token
+    
+    spawnFlow(edges,offset,flowType,inorganicToken,density,static)
+      Purpose: Spawns a flow with given characteristics
+      Calls: None
+      Inputs:
+            edges:                  Table of x,y,zmin and x,y,zmax
+            offset:                 Table of x,y,z distances
+            flowType:               Flow Token (Valid Values: MIASMA, STEAM, MIST, MATERIALDUST, MAGMAMIST, SMOKE, DRAGONFIRE, FIRE, WEB, MATERIALGAS, MATERIALVAPOR, OCEANWAVE, SEAFOAM, or ITEMCLOUD)
+            inorganicToken:         RAW inorganic token
+            density:                Number of flow density
+            static:                 Boolean for whether the flow can move or not
+      Returns: NA
+    
+    spawnLiquid(edges,offset,depth,magma,circle,taper)
+      Purpose: Spawns water or magma with given characteristics
+      Calls: None
+      Inputs:
+            edges:                  Table of x,y,zmin and x,y,zmax
+            offset:                 Table of x,y,z distances
+            depth:                  Number of liquid depth
+            magma:                  Boolean for whether magma or not (i.e. water)
+            circle:                 Boolean for if the liquid should be spawned in a circle
+            taper:                  Boolean for if the liquid should have a maximum depth at the center and taper off
+      Returns: NA
+    
+    findLocation(searchTable)
+      Purpose: Find a location that satisfies a specific search criteria
+      Calls: misc.permute
+      Inputs:
+            searchTable:            Table of strings to search for a location on the map (NEED TO ADD MORE INFORMATION)
+      Returns: Table - { location[s] }
+
+#######################################
+########## UNIT FUNCTIONS #############
+#######################################
 	changeAttribute(unit,attribute,change,duration,track,syndrome)
 
 	changeCounter(unit,counter,change,duration)

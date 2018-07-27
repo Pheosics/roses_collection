@@ -1,10 +1,34 @@
 -- Functions to be used with the Civilization System, v42.06a
 --[[
- changeLevel(entity,amount,verbose)
- changeStanding(civ1,civ2,amount,verbose)
- checkEntity(id,method,verbose)
- checkRequirements(entityID,verbose)
- queueCheck(id,method,verbose)
+        changeLevel(entity,amount,verbose)
+                entity:                 Entity ID or entity struct
+                amount:                 Number of levels to increase (decrease currently disabled)
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
+
+        changeStanding(civAID,civBID,amount,verbose)
+                civAID:                 Entity ID for civ A
+                civBID:                 Entity ID for civ B
+                amount:                 Amount to change diplomatic standing by
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: Number - Current diplomatic standing
+
+        checkEntity(entityID,method,verbose)
+                entityID:               Entity ID
+                method:                 Frequency of checking (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA (Calls queueCheck to set up another check in X ticks)
+
+        queueCheck(entityID,method,verbose)
+                entityID:               Entity ID
+                method:                 Frequency of checking (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
+
+        checkRequirements(entityID,verbose)
+                entityID:               Entity ID
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: Boolean - Does the entity meet the requirements to level up?
 ]]
 function changeLevel(entity,amount,verbose)
  if tonumber(entity) then 

@@ -1,20 +1,111 @@
 -- Item based functions, version 42.06a
 --[[
- trackMaterial(itemID,change,dur,alter)
- trackQuality(itemID,change,dur,alter)
- trackSubtype(itemID,change,dur,alter)
- changeMaterial(item,material,dur,track)
- changeQuality(item,quality,dur,track)
- changeSubtype(item,subtype,dur,track)
- checkAttack(item,attack)
- create(item,material,options)
- equip(item,unit,bodyPart,mode)
- makeProjectileFall(item,origin,velocity)
- makeProjectileShoot(item,origin,target,options)
- removal(item)
- findItem(search)
+changeMaterial(item,materialTokens,duration,track)
+  Purpose: Change the material an item is made of
+  Calls: trackMaterial | tables.makeItemTable | persist-delay.environmentDelay
+  Inputs:
+        item:                   Item ID or item struct
+        materialTokens:         RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
+        duration:               Time (in ticks) for change to last
+        track:                  How to track the material change (Valid Values: track, end, or nil)
+  Returns: NA
+
+changeQuality(item,quality,duration,track)
+  Purpose: Change the quality of an item
+  Calls: trackQuality | tables.makeItemTable | persist-delay.environmentDelay
+  Inputs:
+        item:                   Item ID or item struct
+        quality:                Number of quality to set item to
+        duration:               Time (in ticks) for change to last
+        track:                  How to track the quality change (Valid Values: track, end, or nil)
+  Returns: NA
+
+changeSubtype(item,subtype,duration,track)
+  Purpose: Change the subtype of an item
+  Calls: trackSubtype | tables.makeItemTable | persist-delay.environmentDelay
+  Inputs:
+        item:                   Item ID or item struct
+        subtype:                RAW Token of item subtype
+        duration:               Time (in ticks) for change to last
+        track:                  How to track the subtype change (Valid Values: track, end, or nil)
+  Returns: NA
+
+create(item,material,creatorID,quality,duration)
+  Purpose: Creates an item of the given material for a set duration
+  Calls: removal | persist-delay.environmentDelay
+  Inputs:
+        item:			RAW Token item (e.g. WEAPON:ITEM_WEAPON_SWORD_SHORT)
+        material:               RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
+        creatorID:              Unit ID
+        quality:                Quality number
+        duration:               Time (in ticks) for item to last
+  Returns: NA
+
+equip(item,unit,bodyPart,mode)
+  Purpose: Move an item from the ground into a unit's inventory
+  Calls: None
+  Inputs:
+        item:			Item ID or item struct
+        unit:			Unit ID or unit struct
+        bodyPart:		Body part ID
+        mode:			Inventory mode number
+  Returns: NA
+
+unequip(item,unit)
+  Purpose: Move an item from the unit's inventory to the ground
+  Calls: None
+  Inputs:
+        item:			Item ID or item struct
+        unit:			Unit ID or unit struct
+  Returns: NA
+
+getAttack(item,attackToken)
+  Purpose: Find the given attack of an item
+  Calls: None
+  Inputs:
+        item:                   Item ID or item struct
+        attackToken:            RAW Token of an attack (e.g. PUNCH) (Special Value: Random)
+  Returns: Number - AttackID
+
+makeProjectileFall(item,origin,velocity)
+  Purpose: Turn an item into a falling projectile
+  Calls: None
+  Inputs:
+        item:                   Item ID or item struct
+        origin:                 Table of x,y,z coordinates
+        velocity:               Table of x,y,z velocities
+  Returns: NA
+
+makeProjectileShot(item,origin,target,options)
+  Purpose: Turn an item into a shot projectile
+  Calls: None
+  Inputs:
+        item:                   Item ID or item struct
+        origin:                 Table of x,y,z coordinates
+        target:                 Table of x,y,z coordinates
+        options:                Table of special values { velocity accuracy range minimumDistance firer }
+  Returns: NA
+
+findItem(searchTable)
+  Purpose: Find an item given a specific search string
+  Calls: misc.permute
+  Inputs:
+        searchTable:            Table of strings to search for an item on the map (NEED TO ADD MORE INFORMATION)
+  Returns: Table - { item[s] }
+
 ]]
 ---------------------------------------------------------------------------------------
+--=================================================================================================
+function changeMaterial(item,material,dur,track)
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ mat = dfhack.matinfo.find(material)
+ save = dfhack.matinfo.getToken(item.mat_type,item.mat_index)
+ item.mat_type = mat.type
+ item.mat_index = mat.index
+ if tonumber(dur) and tonumber(dur) > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeMaterial',{item.id,save,0,'end'}) end
+ if track then trackMaterial(item.id,material,dur,track) end
+end
+
 function trackMaterial(itemID,change,dur,alter)
  local persistTable = require 'persist-table'
  local itemTable = persistTable.GlobalTable.roses.ItemTable
@@ -43,6 +134,17 @@ function trackMaterial(itemID,change,dur,alter)
    end
   end
  end
+end
+
+--=================================================================================================
+function changeQuality(item,quality,dur,track)
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ save = item.quality
+ if quality > 5 then quality = 5 end
+ if quality < 0 then quality = 0 end
+ item:setQuality(quality)
+ if tonumber(dur) and tonumber(dur) > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeQuality',{item.id,save,0,'end'}) end
+ if track then trackQuality(item.id,quality,dur,track) end
 end
 
 function trackQuality(itemID,change,dur,alter)
@@ -75,6 +177,28 @@ function trackQuality(itemID,change,dur,alter)
  end
 end
 
+--=================================================================================================
+function changeSubtype(item,subtype,dur,track)
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ local itemType = item:getType()
+ local itemSubtype = item:getSubtype()
+ itemSubtype = dfhack.items.getSubtypeDef(itemType,itemSubtype).id
+ local found = false
+ for i=0,dfhack.items.getSubtypeCount(itemType)-1,1 do
+  local item_sub = dfhack.items.getSubtypeDef(itemType,i)
+  if item_sub.id == subtype then
+   item:setSubtype(item_sub.subtype)
+   found = true
+  end
+ end
+ if not found then
+  print('Incompatable item type and subtype')
+  return
+ end
+ if tonumber(dur) and tonumber(dur) > 0 and found then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeSubtype',{item.id,itemSubtype,0,'end'}) end
+ if track then trackSubtype(item.id,subtype,dur,track) end
+end
+
 function trackSubtype(itemID,change,dur,alter)
  local persistTable = require 'persist-table'
  local itemTable = persistTable.GlobalTable.roses.ItemTable
@@ -105,48 +229,8 @@ function trackSubtype(itemID,change,dur,alter)
  end
 end
 
-function changeMaterial(item,material,dur,track)
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- mat = dfhack.matinfo.find(material)
- save = dfhack.matinfo.getToken(item.mat_type,item.mat_index)
- item.mat_type = mat.type
- item.mat_index = mat.index
- if tonumber(dur) and tonumber(dur) > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeMaterial',{item.id,save,0,'end'}) end
- if track then trackMaterial(item.id,material,dur,track) end
-end
-
-function changeQuality(item,quality,dur,track)
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- save = item.quality
- if quality > 5 then quality = 5 end
- if quality < 0 then quality = 0 end
- item:setQuality(quality)
- if tonumber(dur) and tonumber(dur) > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeQuality',{item.id,save,0,'end'}) end
- if track then trackQuality(item.id,quality,dur,track) end
-end
-
-function changeSubtype(item,subtype,dur,track)
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- local itemType = item:getType()
- local itemSubtype = item:getSubtype()
- itemSubtype = dfhack.items.getSubtypeDef(itemType,itemSubtype).id
- local found = false
- for i=0,dfhack.items.getSubtypeCount(itemType)-1,1 do
-  local item_sub = dfhack.items.getSubtypeDef(itemType,i)
-  if item_sub.id == subtype then
-   item:setSubtype(item_sub.subtype)
-   found = true
-  end
- end
- if not found then
-  print('Incompatable item type and subtype')
-  return
- end
- if tonumber(dur) and tonumber(dur) > 0 and found then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeSubtype',{item.id,itemSubtype,0,'end'}) end
- if track then trackSubtype(item.id,subtype,dur,track) end
-end
-
-function checkAttack(item,attack)
+--=================================================================================================
+function getAttack(item,attack)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  attackID = false
  if attack == 'Random' then
@@ -178,6 +262,7 @@ function checkAttack(item,attack)
  return attackID
 end
 
+--=================================================================================================
 function create(item,material,a,b,c) --from modtools/create-item
  quality = b or 0
  creatorID = a or -1
@@ -259,6 +344,7 @@ function unequip(item,unit) --basically just reversed modtools/equip-item
  occupancy.item = true
 end
 
+--=================================================================================================
 function makeProjectileFall(item,origin,velocity)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  proj = dfhack.items.makeProjectile(item)
@@ -336,6 +422,7 @@ function removal(item)
  dfhack.items.remove(item)
 end
 
+--=================================================================================================
 function findItem(search)
  local primary = search[1]
  local secondary = search[2] or 'NONE'

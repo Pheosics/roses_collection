@@ -2,7 +2,7 @@
 
 local utils = require 'utils'
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'counter',
  'mode',
@@ -54,9 +54,9 @@ if args.help then -- Help declaration
      0 means the change is permanent
      DEFAULT: 0
   examples:
-   unit/counter-change -unit \\UNIT_ID -mode fixed -amount 10000 -token stunned -dur 10
-   unit/counter-change -unit \\UNIT_ID -mode set -amount [ 0 0 0 0 ] -token [ nausea dizziness numbness fever ]
-   unit/counter-change -unit \\UNIT_ID -mode percent -amount \-100 -token blood
+   unit/counter-change -unit \\UNIT_ID -mode fixed -amount 10000 -counter stunned -dur 10
+   unit/counter-change -unit \\UNIT_ID -mode set -amount [ 0 0 0 0 ] -counter [ nausea dizziness numbness fever ]
+   unit/counter-change -unit \\UNIT_ID -mode percent -amount \-100 -counter blood
  ]])
  return
 end

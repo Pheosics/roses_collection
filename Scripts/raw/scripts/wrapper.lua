@@ -4,7 +4,7 @@ local utils = require 'utils'
 
 input = {...}
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'verbose',
  'test',
@@ -256,10 +256,10 @@ if args.checkLocation then
   if count >= 0 then
   -- Step 1: Get all location positions within a specified radius of the center location (which is the source unit location if -center is used, the target unit location if -targetUnit is used or the target location if -targetLocation is used)
    if args.targetPlan then
-    positions = dfhack.script_environment('functions/map').getPositionPlan(args.targetPlan,centerUnit,sourceUnit)
+    positions, n = dfhack.script_environment('functions/map').getPlanPositions(args.targetPlan,centerUnit,sourceUnit)
    else
     if args.radius then
-     positions = dfhack.script_environment('functions/map').getFillPosition(centerLocation,args.radius)
+     positions, n = dfhack.script_environment('functions/map').getFillPositions(centerLocation,args.radius)
     else
      positions = {centerLocation}
     end

@@ -16,10 +16,10 @@ flowtypes = {
               MATERIALVAPOR = 10,
               OCEANWAVE = 11,
               SEAFOAM = 12,
-			  ITEMCLOUD = 13
+              ITEMCLOUD = 13
              }
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'unit',
  'location',
@@ -118,7 +118,7 @@ elseif args.origin then
 end
 
 path = dfhack.getDFPath()..'/raw/files/'..args.plan
-positions = dfhack.script_environment('functions/map').getPositionPlan(path,target,origin)
+positions = dfhack.script_environment('functions/map').getPlanPositions(path,target,origin)
 
 if args.flow then
  stype = args.flow
@@ -141,7 +141,8 @@ if args.flow then
   end
  end
 elseif args.liquid then
- if args.liquid == magma then magma = true end
+ magma = false
+ if args.liquid == 'magma' then magma = true end
  if number == 0 then
   for i,pos in ipairs(positions) do
    dfhack.script_environment('functions/map').spawnLiquid(pos,offset,depth,magma,nil,nil)

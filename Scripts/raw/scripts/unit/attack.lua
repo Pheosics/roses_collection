@@ -2,7 +2,7 @@
 
 local utils = require 'utils'
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'defender',
  'attacker',
@@ -68,9 +68,9 @@ if args.weapon then
   end
  end
  if not args.attack then
-  attack = itemFunctions.checkAttack(item,'Random')
+  attack = itemFunctions.getAttack(item,'Random')
  else
-  attack = itemFunctions.checkAttack(item,args.attack)
+  attack = itemFunctions.getAttack(item,args.attack)
  end
  if not attack then
   print('No appropriate attack found')

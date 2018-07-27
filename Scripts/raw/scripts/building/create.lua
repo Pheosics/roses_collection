@@ -2,7 +2,7 @@
 local utils = require 'utils'
 require 'dfhack.buildings'
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'type',
  'subtype',
@@ -43,7 +43,7 @@ if not args.subtype then
  return
 end
 
-if args.custom then
+--if args.custom then
  for i,bldg in pairs(df.global.world.raws.buildings.all) do
   if bldg.code == args.subtype then
    mtype = bldg.building_type
@@ -60,14 +60,14 @@ if args.custom then
   return
  end
 
-else
- mtype = df.building_type[args.type]
- stype = tonumber(args.subtype) -- How to get vanilla building subtype
- ctype = -1
- dimx = 1 -- How to get vanilla building sizes
- dimy = 1
- stages = 1 -- How to get vanilla building stages
-end
+--else
+-- mtype = df.building_type[args.type]
+-- stype = tonumber(args.subtype) -- How to get vanilla building subtype
+-- ctype = -1
+-- dimx = 1 -- How to get vanilla building sizes
+-- dimy = 1
+-- stages = 1 -- How to get vanilla building stages
+--end
 
 local x = args.location[1]
 local y = args.location[2]
@@ -155,7 +155,7 @@ if args.item then
  for i,x in pairs(args.item) do
   if tonumber(x) then
    id = tonumber(x)
-   dfhack.script_environment('functions/building').addItem(building,item)
+   dfhack.script_environment('functions/building').addItem(building,id)
   elseif args.material[i] then
    item = dfhack.script_environment('functions/item').create(x,args.material[i])
    dfhack.script_environment('functions/building').addItem(building,item)

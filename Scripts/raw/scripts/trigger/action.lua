@@ -23,7 +23,7 @@ actions_to_be_ignored_forever=actions_to_be_ignored_forever or {}
 number_of_projectiles=number_of_projectiles or df.global.proj_next_id
 
 --==========================================================================================================================
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'clear',
  'help',
  'actionType',

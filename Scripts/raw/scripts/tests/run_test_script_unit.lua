@@ -594,7 +594,7 @@ function script_checks()
   writeall('unit/move -unit '..tostring(unit.id)..' -random [ 5 5 0 ] (Should succeed and move the unit to a random position within a 5x5 square)')
   output = dfhack.run_command_silent('unit/move -unit '..tostring(unit.id)..' -random [ 5 5 0 ]')
   writeall(output)
-  positions = mapFunctions.getFillPosition(unit.pos,{5,5,0})
+  positions, n = mapFunctions.getFillPositions(unit.pos,{5,5,0})
   c = false
   for _,pos in pairs(positions) do
    if unit.pos.x == pos.x and unit.pos.y == pos.y and unit.pos.z == pos.z then

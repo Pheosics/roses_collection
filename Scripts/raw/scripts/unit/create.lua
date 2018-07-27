@@ -3,7 +3,7 @@
 local utils = require 'utils'
 local split = utils.split_string
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'loc',
  'creature',

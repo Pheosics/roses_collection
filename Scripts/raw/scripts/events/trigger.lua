@@ -3,7 +3,7 @@
 local utils = require 'utils'
 local persistTable = require 'persist-table'
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'event',
  'force',

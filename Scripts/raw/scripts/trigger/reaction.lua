@@ -2,44 +2,6 @@
 -- expanded by Roses (Pheosics)
 --
 local usage = [====[
-
-modtools/reaction-trigger
-=========================
-Triggers dfhack commands when custom reactions complete, regardless of whether
-it produced anything, once per completion.  Arguments::
-
-    -clear
-        unregister all reaction hooks
-    -reactionName name
-        specify the name of the reaction
-    -syndrome name
-        specify the name of the syndrome to be applied to the targets
-    -allowNonworkerTargets
-        allow other units in the same building to be targetted by
-        either the script or the syndrome
-    -allowMultipleTargets
-        allow multiple targets to the script or syndrome
-        if absent:
-            if running a script, only one target will be used
-            if applying a syndrome, then only one target will be infected
-    -resetPolicy policy
-        the policy in the case that the syndrome is already present
-        policy
-            NewInstance (default)
-            DoNothing
-            ResetDuration
-            AddDuration
-    -command [ commandStrs ]
-        specify the command to be run on the target(s)
-        special args
-            \\WORKER_ID
-            \\TARGET_ID
-            \\BUILDING_ID
-            \\LOCATION
-            \\REACTION_NAME
-            \\anything -> \anything
-            anything -> anything
-
 ]====]
 local eventful = require 'plugins.eventful'
 local utils = require 'utils'
@@ -49,7 +11,7 @@ reactionStartTriggers   = reactionStartTriggers   or {}
 reactionEndTriggers     = reactionEndTriggers     or {}
 reactionProductTriggers = reactionProductTriggers or {}
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'clear',
  'trigger',

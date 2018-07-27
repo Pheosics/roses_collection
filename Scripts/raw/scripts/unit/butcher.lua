@@ -3,7 +3,7 @@
 local utils=require 'utils'
 local gui = require 'gui'
  
-validArgs = --[[validArgs or]]utils.invert({
+validArgs = utils.invert({
   'help',
   'unit',
   'corpse',

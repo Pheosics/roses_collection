@@ -1,14 +1,60 @@
 --Functions for use in the Class System, v42.06a
 --[[
- addExperience(unit,amount,verbose)
- changeClass(unit,change,verbose)
- changeLevel(unit,amount,verbose)
- changeName(unit,name,direction,verbose)
- changeSpell(unit,spell,direction,verbose)
- checkRequirementsClass(unit,class,verbose)
- checkRequirementsSpell(unit,spell,verbose)
- addFeat(unit,feat,verbose)
- checkRequirementsFeat(unit,feat,verbose)
+        addExperience(unit,amount,verbose)
+                unit:                   Unit ID or unit struct
+                amount:                 Amount of experience to add to unit
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
+
+        changeClass(unit,class,verbose)
+                unit:                   Unit ID or unit struct
+                class:                  Class Token to change unit to
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: Boolean - Was the class change successful
+
+        changeLevel(unit,amount,verbose)
+                unit:                   Unit ID or unit struct
+                amount:                 Amount of levels to go up/down
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
+
+        changeName(unit,name,direction,verbose)
+                unit:                   Unit ID or unit struct
+                name:                   RAW Token of syndrome class name is attached to
+                direction:              add, remove, or removeall
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
+
+        changeSpell(unit,spell,direction,verbose)
+                unit:                   Unit ID or unit struct
+                spell:                  RAW Token of syndrome class spell is attached to
+                direction:              add, remove, removeall, learn, or unlearn
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
+
+        checkRequirementsClass(unit,class,verbose)
+                unit:                   Unit ID or unit struct
+                class:                  Class Token to check requirements for
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: Boolean - Does the unit meet the requirements for the class?
+
+        checkRequirementsSpell(unit,spell,verbose)
+                unit:                   Unit ID or unit struct
+                spell:                  Spell Token to check requirements for
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: Boolean - Does the unit meet the requirements for the spell?
+
+        addFeat(unit,feat,verbose)
+                unit:                   Unit ID or unit struct
+                feat:                   Feat Token to add
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: NA
+
+        checkRequirementsFeat(unit,feat,verbose)
+                unit:                   Unit ID or unit struct
+                feat:                   Feat Token to check requirements for
+                verbose:                Boolean, whether to print extra debugging information
+          Returns: Boolean - Does the unit meet the requirements for the feat?
 ]]
 -- CLASS FUNCTIONS
 function addExperience(unit,amount,verbose)

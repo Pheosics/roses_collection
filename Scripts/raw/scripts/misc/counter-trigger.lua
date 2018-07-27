@@ -38,7 +38,7 @@ function counters(types,unit,counter,increase,style,cap,script,reset)
  return trigger
 end
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'type',
  'unit',

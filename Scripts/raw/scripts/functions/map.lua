@@ -1,47 +1,113 @@
 --map based functions, version 42.06a
 --[[
- changeInorganic(x,y,z,inorganic,dur)
- changeTemperature(x,y,z,temperature,dur)
- checkBounds(x,y,z)
- getEdgesPosition(pos,radius)
- getFillPosition(pos,radius)
- getPositionPlan(file,target,origin)
- getPositionCenter(radius)
- getPositionEdge()
- getPositionRandom()
- getPositionCavern(number)
- getPositionSurface(pos)
- getPositionSky(pos)
- getPositionUnderground(pos)
- getPositionLocationRandom(pos,radius)
- getPositionUnitRandom(unit,radius)
- spawnFlow(edges,offset,flowType,inorganic,density,static)
- spawnLiquid(edges,offset,depth,magma,circle,taper)
- getFlow(pos)
- getTree(pos,array)
- getShrub(pos,array)
- removeTree(pos)
- removeShrub(pos)
- getTreeMaterial(pos)
- getShrubMaterial(pos)
- getGrassMaterial(pos)
- getInorganicMaterial(pos,floor)
- getTreePositions(tree)
- flowSource(n)
- liquidSource(n)
- liquidSink(n)
- findLocation(search)
+changeInorganic(x,y,z,inorganicToken,duration)
+  Purpose: Changes the inorganic at specified position
+  Calls: persist-delay.environmentDelay
+  Inputs:
+        x:                      X Location or Table of x,y,z coordinates
+        y:                      Y location if x isn't a table
+        z:                      Z location if x isn't a table
+        inorganicToken:         RAW Token of inorganic
+        duration:               Time (in ticks) for the change to last
+  Returns: Boolean - Was the change successful?
+
+changeTemperature(x,y,z,temperature,duration)
+  Purpose: Changes the temperature at specified position (doesn't really work well since the game constantly reupdates temperatures)
+  Calls: persist-delay.environmentDelay
+  Inputs:
+        x:                      X Location or Table of x,y,z coordinates
+        y:                      Y location if x isn't a table
+        z:                      Z location if x isn't a table
+        temperature:            Number to set temperature to
+        duration:               Time (in ticks) for the change to last
+  Returns: Boolean - Was the change successful?
+
+getPosition(Type,options)
+  Purpose: Returns a single position { x y z } depending on the given type and options
+  Calls: getPositionCenter | getPositionEdge | getPositionRandom | getPositionCavern | getPositionSurface | getPositionSky
+         getPositionUnderground | getPositionLocationRandom | getPositionUnitRandom | checkBounds | checkFree | checkSurface
+  Inputs:
+	Type:			Type of position to return (Valid Values: Center, Edge, Random, Cavern, Surface, SurfaceFree, Sky, Underground, LocationRandom, UnitRandom)
+        options:		An array of optional arguments depending on the Type
+		unit:		(If using UnitRandom) The unit struct or unitID to center the position on
+		location:	(If using Surface, Sky, Underground, or LocationRandom) The location { x y z } to center the position on
+                radius:		(If using Center, LocationRandom, or UnitRandom) The radius ( x y z ) around the central location
+		caveNumber:	(If using Cavern) The cave number to search for a position in
+  Returns: Table { x, y, z}
+
+getPositions(Type,options)
+  Purpose: Returns a table of positions { { x y z } } depending on the given type and options
+  Calls: getEdgesPositions | getFillPositions | getPlanPositions
+  Inputs:
+	Type:			Type of positions to return (Valid Values: Edges, Fill, Plan)
+	Options:		An array of optional arguments depending on the Type
+		target:		(If using Edges, Fill, or Plan) The position { x y z } to center on
+		radius:		(If using Edges or Fill) The radius { x y z } around the center to include
+		origin:		(If using Plan) The position { x y z } to reference as the origin for rotation
+		file:		(If using Plan) The file to read for the positional information
+  Returns: Table, Number - { position[s] }, # of positions
+
+getFlow(position,flowType)
+  Purpose: Get all flows of a specific type and the given position
+  Calls: None
+  Inputs:
+         Position:		Table of { x y z } coordinate
+         FlowType:		(Optional) If present it will restrict the flow check to that specific flow type
+  Returns: Table - { flow[s] }
+
+getTileFeature(type,position,array)
+  Purpose: Get the table entry of the specified feature type at a given positions
+  Calls: getTree | getShrub
+  Inputs:
+         Type:			Type of feature/object to look for (Valid Values: Tree or Shrub)
+         Position:		Table of { x y z } coordinate
+         Array:			(Optional) The DFHack array to check against (e.g. df.global.world.plants.all)
+  Returns: Number, Struct - # of Struct Entry, DFHack Struct
+
+getTileMat(x,y,z)		**Taken from Milo Christianson's Rubble Utility and translated to work without that framework
+  Purpose: Get the material string that cooresponds with that is seen in game
+  Calls: getTileTypeMat | getLayerMat | getLavaStone | getVeinMat | getConstructionMat | getConstructOriginalTileMat | getTreeMat
+         getShrubMat | getFeatureMat
+  Inputs:
+         x:			Either a table of { x y z } coordinates or the x coordinate
+         y:			The y coordinate if x is not a table
+         z:			The z coordinate if x is not a table
+  Returns: String - RAW material token
+
+spawnFlow(edges,offset,flowType,inorganicToken,density,static)
+  Purpose: Spawns a flow with given characteristics
+  Calls: None
+  Inputs:
+        edges:                  Table of x,y,zmin and x,y,zmax
+        offset:                 Table of x,y,z distances
+        flowType:               Flow Token (Valid Values: MIASMA, STEAM, MIST, MATERIALDUST, MAGMAMIST, SMOKE, DRAGONFIRE, FIRE, WEB, MATERIALGAS, MATERIALVAPOR, OCEANWAVE, SEAFOAM, or ITEMCLOUD)
+        inorganicToken:         RAW inorganic token
+        density:                Number of flow density
+        static:                 Boolean for whether the flow can move or not
+  Returns: NA
+
+spawnLiquid(edges,offset,depth,magma,circle,taper)
+  Purpose: Spawns water or magma with given characteristics
+  Calls: None
+  Inputs:
+        edges:                  Table of x,y,zmin and x,y,zmax
+        offset:                 Table of x,y,z distances
+        depth:                  Number of liquid depth
+        magma:                  Boolean for whether magma or not (i.e. water)
+        circle:                 Boolean for if the liquid should be spawned in a circle
+        taper:                  Boolean for if the liquid should have a maximum depth at the center and taper off
+  Returns: NA
+
+findLocation(searchTable)
+  Purpose: Find a location that satisfies a specific search criteria
+  Calls: misc.permute
+  Inputs:
+        searchTable:            Table of strings to search for a location on the map (NEED TO ADD MORE INFORMATION)
+  Returns: Table - { location[s] }
 ]]
+
 ---------------------------------------------------------------------------------------
 function changeInorganic(x,y,z,inorganic,dur)
--- Changes the inorganic at specified position
--- Returns true/false if the change was successful/unsuccessful and the Callback ID if dur is present
--- Inputs:
----- x = # or {#,#,#} or {x=#,y=#,z=#}
----- y = # or nil
----- z = # or nil
----- inorganic = INORGANIC_ID or clear
----- dur = # or nil
  pos = {}
  change = false
  cb_id = -1
@@ -87,14 +153,6 @@ function changeInorganic(x,y,z,inorganic,dur)
 end
 
 function changeTemperature(x,y,z,temperature,dur)
--- Changes the temperature at specified position (doesn't really work well since the game constantly reupdates temperatures)
--- -- Returns true/false if the change was successful/unsuccessful and the Callback ID if dur is present
--- -- Inputs:
--- ---- x = # or {#,#,#} or {x=#,y=#,z=#}
--- ---- y = # or nil
--- ---- z = # or nil
--- ---- temperature = #
--- ---- dur = # or nil
  pos = {}
  change = true
  if y == nil and z == nil then
@@ -120,12 +178,6 @@ function changeTemperature(x,y,z,temperature,dur)
 end
 
 function checkBounds(x,y,z)
--- Checks if the position is within the map bounds
--- Returns the closest position to the input that is within the bounds
--- Inputs:
----- x = # or {#,#,#} or {x=#,y=#,z=#}
----- y = # or nil
----- z = # or nil
  pos = {}
  if y == nil and z == nil then
   pos.x = x.x or x[1]
@@ -199,12 +251,27 @@ function checkSurface(x,y,z)
  return surface
 end
 
-function getEdgesPosition(pos,radius)
--- Get the positions of the edges from a certain radius
--- Returns list of positions
--- Inputs:
----- pos = {#,#,#} or {x=#,y=#,z=#}
----- radius = # or {#,#,#} or {x=#,y=#,z=#}
+function getPositions(posType,options)
+ options = options or {}
+ target = options.target
+ radius = options.radius or {0,0,0}
+ posType = posType or 'Error'
+ positions = {}
+ n = 0
+ if not target then return positions, n end
+ if posType == 'Edges' then
+  positions, n = getEdgesPositions(target,radius)
+ elseif posType == 'Fill' then
+  positions, n = getFillPositions(target,radius)
+ elseif posType == 'Plan' then
+  if options.file then
+   positions, n = getPlanPositions(options.file,target,options.origin)
+  end
+ end
+ return positions, n
+end
+
+function getEdgesPositions(pos,radius)
  local edges = {}
  local rx = radius.x or radius[1] or 0
  local ry = radius.y or radius[2] or rx
@@ -225,10 +292,10 @@ function getEdgesPosition(pos,radius)
  if edges.xmax > mapx then edges.xmax = mapx-1 end
  if edges.ymax > mapy then edges.ymax = mapy-1 end
  if edges.zmax > mapz then edges.zmax = mapz-1 end
- return edges
+ return edges, 6
 end
 
-function getFillPosition(pos,radius)
+function getFillPositions(pos,radius)
  local positions = {}
  local rx = radius.x or radius[1] or 0
  local ry = radius.y or radius[2] or 0
@@ -255,7 +322,7 @@ function getFillPosition(pos,radius)
  return positions,n
 end
 
-function getPositionPlan(file,target,origin)
+function getPlanPositions(file,target,origin)
  local xtar = target.x or target[1]
  local ytar = target.y or target[2]
  local ztar = target.z or target[3]
@@ -330,75 +397,75 @@ function getPositionPlan(file,target,origin)
    for i,v in ipairs(x) do
     if t[i] then
      n = n + 1
-	 xO = x[i] - xS
-	 yO = y[i] - yS
-	 xpos = -yface*xO+xface*yO
-	 ypos = xface*xO+yface*yO
-	 locations[n] = {x = xorg + xpos, y = yorg + ypos, z = zorg}
-	 if (xface == 1 and yface == 1) or (xface == -1 and yface == 1) or (xface == 1 and yface == -1) or (xface == -1 and yface == -1) then
-	  if xO ~= 0 and yO ~= 0 and (xO+yO) ~= 0 and (xO-yO) ~= 0 then
+     xO = x[i] - xS
+     yO = y[i] - yS
+     xpos = -yface*xO+xface*yO
+     ypos = xface*xO+yface*yO
+     locations[n] = {x = xorg + xpos, y = yorg + ypos, z = zorg}
+     if (xface == 1 and yface == 1) or (xface == -1 and yface == 1) or (xface == 1 and yface == -1) or (xface == -1 and yface == -1) then
+      if xO ~= 0 and yO ~= 0 and (xO+yO) ~= 0 and (xO-yO) ~= 0 then
        n = n + 1
-	   if yO < 0 and xO < 0 then
-	    locations[n] = {x = xorg + xpos + (xface-yface)*xface*xface/2, y = yorg + ypos + (xface+yface)*xface*yface/2, z = zorg}
-	   elseif yO < 0 and xO > 0 then
-	    locations[n] = {x = xorg + xpos + (xface+yface)*xface*xface/2, y = yorg + ypos + (xface-yface)*xface*yface/2, z = zorg}
-	   elseif yO > 0 and xO > 0 then
-	    locations[n] = {x = xorg + xpos - (xface-yface)*xface*xface/2, y = yorg + ypos - (xface+yface)*xface*yface/2, z = zorg}
-	   elseif yO > 0 and xO < 0 then
-	    locations[n] = {x = xorg + xpos - (xface+yface)*xface*xface/2, y = yorg + ypos - (xface-yface)*xface*yface/2, z = zorg}
-	   end
-	  end
-	 end
+       if yO < 0 and xO < 0 then
+        locations[n] = {x = xorg + xpos + (xface-yface)*xface*xface/2, y = yorg + ypos + (xface+yface)*xface*yface/2, z = zorg}
+       elseif yO < 0 and xO > 0 then
+        locations[n] = {x = xorg + xpos + (xface+yface)*xface*xface/2, y = yorg + ypos + (xface-yface)*xface*yface/2, z = zorg}
+       elseif yO > 0 and xO > 0 then
+        locations[n] = {x = xorg + xpos - (xface-yface)*xface*xface/2, y = yorg + ypos - (xface+yface)*xface*yface/2, z = zorg}
+       elseif yO > 0 and xO < 0 then
+        locations[n] = {x = xorg + xpos - (xface+yface)*xface*xface/2, y = yorg + ypos - (xface-yface)*xface*yface/2, z = zorg}
+       end
+      end
+     end
     end
    end
   elseif xT > 0 and xS == -1 then
    for i,v in ipairs(x) do
     if t[i] then
      n = n + 1
-	 xO = x[i] - xT
-	 yO = y[i] - yT
-	 xpos = -yface*xO+xface*yO
-	 ypos = xface*xO+yface*yO
-	 locations[n] = {x = xorg + xpos, y = yorg + ypos, z = zorg}
-	 if (xface == 1 and yface == 1) or (xface == -1 and yface == 1) or (xface == 1 and yface == -1) or (xface == -1 and yface == -1) then
-	  if xO ~= 0 and yO ~= 0 and (xO+yO) ~= 0 and (xO-yO) ~= 0 then
+     xO = x[i] - xT
+     yO = y[i] - yT
+     xpos = -yface*xO+xface*yO
+     ypos = xface*xO+yface*yO
+     locations[n] = {x = xorg + xpos, y = yorg + ypos, z = zorg}
+     if (xface == 1 and yface == 1) or (xface == -1 and yface == 1) or (xface == 1 and yface == -1) or (xface == -1 and yface == -1) then
+      if xO ~= 0 and yO ~= 0 and (xO+yO) ~= 0 and (xO-yO) ~= 0 then
        n = n + 1
-	   if yO < 0 and xO < 0 then
-	    locations[n] = {x = xorg + xpos + (xface-yface)*xface*xface/2, y = yorg + ypos + (xface+yface)*xface*yface/2, z = zorg}
-	   elseif yO < 0 and xO > 0 then
-	    locations[n] = {x = xorg + xpos + (xface+yface)*xface*xface/2, y = yorg + ypos + (xface-yface)*xface*yface/2, z = zorg}
-	   elseif yO > 0 and xO > 0 then
-	    locations[n] = {x = xorg + xpos - (xface-yface)*xface*xface/2, y = yorg + ypos - (xface+yface)*xface*yface/2, z = zorg}
-	   elseif yO > 0 and xO < 0 then
-	    locations[n] = {x = xorg + xpos - (xface+yface)*xface*xface/2, y = yorg + ypos - (xface-yface)*xface*yface/2, z = zorg}
-	   end
-	  end
-	 end
+       if yO < 0 and xO < 0 then
+        locations[n] = {x = xorg + xpos + (xface-yface)*xface*xface/2, y = yorg + ypos + (xface+yface)*xface*yface/2, z = zorg}
+       elseif yO < 0 and xO > 0 then
+        locations[n] = {x = xorg + xpos + (xface+yface)*xface*xface/2, y = yorg + ypos + (xface-yface)*xface*yface/2, z = zorg}
+       elseif yO > 0 and xO > 0 then
+        locations[n] = {x = xorg + xpos - (xface-yface)*xface*xface/2, y = yorg + ypos - (xface+yface)*xface*yface/2, z = zorg}
+       elseif yO > 0 and xO < 0 then
+        locations[n] = {x = xorg + xpos - (xface+yface)*xface*xface/2, y = yorg + ypos - (xface-yface)*xface*yface/2, z = zorg}
+       end
+      end
+     end
     end
    end
   elseif xT > 0 and xS > 0 then -- For now just use the same case as above, in the future should add a way to check for both
    for i,v in ipairs(x) do
     if t[i] then
      n = n + 1
-	 xO = x[i] - xT
-	 yO = y[i] - yT
-	 xpos = -yface*xO+xface*yO
-	 ypos = xface*xO+yface*yO
-	 locations[n] = {x = xorg + xpos, y = yorg + ypos, z = zorg}
-	 if (xface == 1 and yface == 1) or (xface == -1 and yface == 1) or (xface == 1 and yface == -1) or (xface == -1 and yface == -1) then
-	  if xO ~= 0 and yO ~= 0 and (xO+yO) ~= 0 and (xO-yO) ~= 0 then
+     xO = x[i] - xT
+     yO = y[i] - yT
+     xpos = -yface*xO+xface*yO
+     ypos = xface*xO+yface*yO
+     locations[n] = {x = xorg + xpos, y = yorg + ypos, z = zorg}
+     if (xface == 1 and yface == 1) or (xface == -1 and yface == 1) or (xface == 1 and yface == -1) or (xface == -1 and yface == -1) then
+      if xO ~= 0 and yO ~= 0 and (xO+yO) ~= 0 and (xO-yO) ~= 0 then
        n = n + 1
-	   if yO < 0 and xO < 0 then
-	    locations[n] = {x = xorg + xpos + (xface-yface)*xface*xface/2, y = yorg + ypos + (xface+yface)*xface*yface/2, z = zorg}
-	   elseif yO < 0 and xO > 0 then
-	    locations[n] = {x = xorg + xpos + (xface+yface)*xface*xface/2, y = yorg + ypos + (xface-yface)*xface*yface/2, z = zorg}
-	   elseif yO > 0 and xO > 0 then
-	    locations[n] = {x = xorg + xpos - (xface-yface)*xface*xface/2, y = yorg + ypos - (xface+yface)*xface*yface/2, z = zorg}
-	   elseif yO > 0 and xO < 0 then
-	    locations[n] = {x = xorg + xpos - (xface+yface)*xface*xface/2, y = yorg + ypos - (xface-yface)*xface*yface/2, z = zorg}
-	   end
-	  end
-	 end
+       if yO < 0 and xO < 0 then
+        locations[n] = {x = xorg + xpos + (xface-yface)*xface*xface/2, y = yorg + ypos + (xface+yface)*xface*yface/2, z = zorg}
+       elseif yO < 0 and xO > 0 then
+        locations[n] = {x = xorg + xpos + (xface+yface)*xface*xface/2, y = yorg + ypos + (xface-yface)*xface*yface/2, z = zorg}
+       elseif yO > 0 and xO > 0 then
+        locations[n] = {x = xorg + xpos - (xface-yface)*xface*xface/2, y = yorg + ypos - (xface+yface)*xface*yface/2, z = zorg}
+       elseif yO > 0 and xO < 0 then
+        locations[n] = {x = xorg + xpos - (xface+yface)*xface*xface/2, y = yorg + ypos - (xface-yface)*xface*yface/2, z = zorg}
+       end
+      end
+     end
     end
    end
   end
@@ -411,6 +478,37 @@ function getPositionPlan(file,target,origin)
   end
  end
  return locations,n
+end
+
+function getPosition(posType,options)
+ options = options or {}
+ location = options.location
+ unit = options.unit
+ radius = options.radius or { 0, 0, 0}
+ posType = posType or 'Random'
+ if posType == 'Center' then
+  pos = getPositionCenter(radius)
+ elseif posType == 'Edge' then
+  pos = getPositionEdge()
+ elseif posType == 'Cavern' then
+  n = options.caveNumber or -1
+  pos = getPositionCavern(n)
+ elseif posType == 'Surface' then
+  pos = getPositionSurface(location)
+ elseif posType == 'SurfaceFree' then
+  pos = getPositionSurfaceFree()
+ elseif posType == 'Sky' then
+  pos = getPositionSky(location)
+ elseif posType == 'Underground' then
+  pos = getPositionUnderground(location)
+ elseif posType == 'Location' then
+  pos = getPositionLocationRandom(location,radius)
+ elseif posType == 'Unit' then
+  pos = getPositionUnitRandom(unit,radius)
+ else
+  pos = getPositionRandom()
+ end
+ return pos
 end
 
 function getPositionCenter(radius)
@@ -462,29 +560,29 @@ end
 
 function getPositionCavern(number)
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
-    for i = 1,mapx,1 do
-     for j = 1,mapy,1 do
-      for k = 1,mapz,1 do
-       if dfhack.maps.getTileFlags(i,j,k).subterranean then
-        if dfhack.maps.getTileBlock(i,j,k).global_feature >= 0 then
-         for l,v in pairs(df.global.world.features.feature_global_idx) do
-          if v == dfhack.maps.getTileBlock(i,j,k).global_feature then
-           feature = df.global.world.features.map_features[l]
-           if feature.start_depth == tonumber(number) or number == -1 then
-            if df.tiletype.attrs[dfhack.maps.getTileType(i,j,k)].caption == 'stone floor' then
-             n = n+1
-             targetList[n] = {x = i, y = j, z = k}
-            end
-           end
-          end
+ for i = 1,mapx,1 do
+  for j = 1,mapy,1 do
+   for k = 1,mapz,1 do
+    if dfhack.maps.getTileFlags(i,j,k).subterranean then
+     if dfhack.maps.getTileBlock(i,j,k).global_feature >= 0 then
+      for l,v in pairs(df.global.world.features.feature_global_idx) do
+       if v == dfhack.maps.getTileBlock(i,j,k).global_feature then
+        feature = df.global.world.features.map_features[l]
+        if feature.start_depth == tonumber(number) or number == -1 then
+         if df.tiletype.attrs[dfhack.maps.getTileType(i,j,k)].caption == 'stone floor' then
+          n = n+1
+          targetList[n] = {x = i, y = j, z = k}
          end
         end
-       else
-        break
        end
       end
      end
+    else
+     break
     end
+   end
+  end
+ end
  pos = dfhack.script_environment('functions/misc').permute(targetList)
  return pos[1]
 end
@@ -617,11 +715,11 @@ function spawnFlow(edges,offset,flowType,inorganic,density,static)
   for y = ymin, ymax, 1 do
    for z = zmin, zmax, 1 do
     block = dfhack.maps.ensureTileBlock(x,y,z)
-	dsgn = block.designation[x%16][y%16]
-	if not dsgn.hidden then
+    dsgn = block.designation[x%16][y%16]
+    if not dsgn.hidden then
      flow = dfhack.maps.spawnFlow({x=x,y=y,z=z},flowType,0,inorganic,density)
      if static then flow.expanding = false end
-	end
+    end
    end
   end
  end
@@ -707,6 +805,17 @@ function getFlow(pos,flowType)
   end
  end
  return flowOut
+end
+
+function getTileFeature(objType,options)
+ options = options or {}
+ if not options.position then return end
+ if objType == 'Tree' then
+  i, struct = getTree(position,options.array)
+ elseif objType == 'Shrub' then
+  i, struct = getTree(position,options.array)
+ end
+ return i, struct
 end
 
 function getTree(pos,array)
@@ -841,7 +950,7 @@ game creates mineral veins for them. I am not 100% sure if these functions will 
 with all caved in tiles, but I can confirm that they do in at least some cases...
 --]]
 
-function GetLayerMat(x, y, z)
+function getLayerMat(x, y, z)
 -- GetLayerMat returns the layer material for the given tile.
 -- AFAIK this will never return nil.
  local pos = nil
@@ -862,7 +971,7 @@ function GetLayerMat(x, y, z)
  return dfhack.matinfo.decode(0, layer_mat_index)
 end
 
-function GetLavaStone(x, y, z)
+function getLavaStone(x, y, z)
 -- GetLavaStone returns the biome lava stone material (generally obsidian).
  local pos = nil
  if y == nil and z == nil then
@@ -883,7 +992,7 @@ function GetLavaStone(x, y, z)
  return nil
 end
 
-function GetVeinMat(x, y, z)
+function getVeinMat(x, y, z)
 -- GetVeinMat returns the vein material of the given tile or nil if the tile has no veins.
 -- Multiple veins in one tile should be handled properly (smallest vein type, last in the list wins,
 -- which seems to be the rule DF uses).
@@ -934,7 +1043,7 @@ function GetVeinMat(x, y, z)
  return dfhack.matinfo.decode(0, priority.inorganic_mat)
 end
 
-function GetConstructionMat(x, y, z)
+function getConstructionMat(x, y, z)
 -- GetConstructionMat returns the material of the construction at the given tile or nil if the tile
 -- has no construction.
  local pos = nil
@@ -952,7 +1061,7 @@ function GetConstructionMat(x, y, z)
  return nil
 end
 
-function GetConstructOriginalTileMat(x, y, z)
+function getConstructOriginalTileMat(x, y, z)
 -- GetConstructOriginalTileMat returns the material of the tile under the construction at the given
 -- tile or nil if the tile has no construction.
  local pos = nil
@@ -964,13 +1073,13 @@ function GetConstructOriginalTileMat(x, y, z)
 
  for _, construction in ipairs(df.global.world.constructions) do
   if construction.pos.x == pos.x and construction.pos.y == pos.y and construction.pos.z == pos.z then
-   return GetTileTypeMat(construction.original_tile, pos)
+   return getTileTypeMat(construction.original_tile, pos)
   end
  end
  return nil
 end
 
-function GetTreeMat(x, y, z)
+function getTreeMat(x, y, z)
 -- GetTreeMat returns the material of the tree at the given tile or nil if the tile does not have a
 -- tree or giant mushroom.
 -- Currently roots are ignored.
@@ -1006,7 +1115,7 @@ function GetTreeMat(x, y, z)
  return nil
 end
 
-function GetShrubMat(x, y, z)
+function getShrubMat(x, y, z)
 -- GetShrubMat returns the material of the shrub at the given tile or nil if the tile does not
 -- contain a shrub or sapling.
  local pos = nil
@@ -1026,7 +1135,7 @@ function GetShrubMat(x, y, z)
  return nil
 end
 
-function GetFeatureMat(x, y, z)
+function getFeatureMat(x, y, z)
 -- GetFeatureMat returns the material of the feature (adamantine tube, underworld surface, etc) at
 -- the given tile or nil if the tile is not made of a feature stone.
  local pos = nil
@@ -1068,7 +1177,7 @@ local function fixedMat(id)
  end
 end
 
-function GetTileMat(x, y, z)
+function getTileMat(x, y, z)
 -- GetTileMat will return the material of the specified tile as determined by its tile type and the world geology data, etc.
 -- The returned material should exactly match the material reported by DF except in cases where is is impossible to get a material.
  local pos = nil
@@ -1083,14 +1192,14 @@ function GetTileMat(x, y, z)
   return nil
  end
 
- temp = GetTileTypeMat(typ, pos)
+ temp = getTileTypeMat(typ, pos)
  if not temp then return 'NONE' end
  mtype = temp.type
  mindex = temp.index
  return dfhack.matinfo.getToken(mtype,mindex)
 end
 
-function GetTileTypeMat(typ, x, y, z)
+function getTileTypeMat(typ, x, y, z)
 -- GetTileTypeMat is exactly like GetTileMat except it allows you to specify the notional type for
 -- the tile. This allows you to see what the tile would be made of it it was a certain type.
 -- Unless the tile could be the given type this function will probably return nil.
@@ -1105,29 +1214,29 @@ function GetTileTypeMat(typ, x, y, z)
 
  local mat_actions = {
   [df.tiletype_material.AIR] = nil, -- Empty
-  [df.tiletype_material.SOIL] = GetLayerMat,
-  [df.tiletype_material.STONE] = GetLayerMat,
-  [df.tiletype_material.FEATURE] = GetFeatureMat,
-  [df.tiletype_material.LAVA_STONE] = GetLavaStone,
-  [df.tiletype_material.MINERAL] = GetVeinMat,
+  [df.tiletype_material.SOIL] = getLayerMat,
+  [df.tiletype_material.STONE] = getLayerMat,
+  [df.tiletype_material.FEATURE] = getFeatureMat,
+  [df.tiletype_material.LAVA_STONE] = getLavaStone,
+  [df.tiletype_material.MINERAL] = getVeinMat,
   [df.tiletype_material.FROZEN_LIQUID] = fixedMat("WATER:NONE"),
-  [df.tiletype_material.CONSTRUCTION] = GetConstructionMat,
-  [df.tiletype_material.GRASS_LIGHT] = GetLayerMat,
-  [df.tiletype_material.GRASS_DARK] = GetLayerMat,
-  [df.tiletype_material.GRASS_DRY] = GetLayerMat,
-  [df.tiletype_material.GRASS_DEAD] = GetLayerMat,
-  [df.tiletype_material.PLANT] = GetShrubMat,
+  [df.tiletype_material.CONSTRUCTION] = getConstructionMat,
+  [df.tiletype_material.GRASS_LIGHT] = getLayerMat,
+  [df.tiletype_material.GRASS_DARK] = getLayerMat,
+  [df.tiletype_material.GRASS_DRY] = getLayerMat,
+  [df.tiletype_material.GRASS_DEAD] = getLayerMat,
+  [df.tiletype_material.PLANT] = getShrubMat,
   [df.tiletype_material.HFS] = nil, -- Eerie Glowing Pit
-  [df.tiletype_material.CAMPFIRE] = GetLayerMat,
-  [df.tiletype_material.FIRE] = GetLayerMat,
-  [df.tiletype_material.ASHES] = GetLayerMat,
+  [df.tiletype_material.CAMPFIRE] = getLayerMat,
+  [df.tiletype_material.FIRE] = getLayerMat,
+  [df.tiletype_material.ASHES] = getLayerMat,
   [df.tiletype_material.MAGMA] = nil, -- SMR
-  [df.tiletype_material.DRIFTWOOD] = GetLayerMat,
-  [df.tiletype_material.POOL] = GetLayerMat,
-  [df.tiletype_material.BROOK] = GetLayerMat,
-  [df.tiletype_material.ROOT] = GetLayerMat,
-  [df.tiletype_material.TREE] = GetTreeMat,
-  [df.tiletype_material.MUSHROOM] = GetTreeMat,
+  [df.tiletype_material.DRIFTWOOD] = getLayerMat,
+  [df.tiletype_material.POOL] = getLayerMat,
+  [df.tiletype_material.BROOK] = getLayerMat,
+  [df.tiletype_material.ROOT] = getLayerMat,
+  [df.tiletype_material.TREE] = getTreeMat,
+  [df.tiletype_material.MUSHROOM] = getTreeMat,
   [df.tiletype_material.UNDERWORLD_GATE] = nil, -- I guess this is for the gates found in vaults?
   }
 

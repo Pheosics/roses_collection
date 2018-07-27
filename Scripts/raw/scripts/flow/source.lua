@@ -16,10 +16,10 @@ flowtypes = {
               MATERIALVAPOR = 10,
               OCEANWAVE = 11,
               SEAFOAM = 12,
-			  ITEMCLOUD = 13
+              ITEMCLOUD = 13
              }
              
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'unit',
  'location',

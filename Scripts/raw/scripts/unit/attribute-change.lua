@@ -2,7 +2,7 @@
 
 local utils = require 'utils'
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'attribute',
  'mode',
@@ -39,9 +39,9 @@ if args.help then -- Help declaration
    -announcement string
      optional argument to create an announcement and combat log report
   examples:
-   unit/attribute-change -unit \\UNIT_ID -fixed 100 -attribute STRENGTH
-   unit/attribute-change -unit \\UNIT_ID -percent [ 10 10 10 ] -attribute [ ENDURANCE TOUGHNESS WILLPOWER ] -dur 3600
-   unit/attribute-change -unit \\UNIT_ID -set 5000 -attribute WILLPOWER -dur 1000
+   unit/attribute-change -unit \\UNIT_ID -mode Fixed -amount 100 -attribute STRENGTH
+   unit/attribute-change -unit \\UNIT_ID -mode Percent -amount [ 10 10 10 ] -attribute [ ENDURANCE TOUGHNESS WILLPOWER ] -dur 3600
+   unit/attribute-change -unit \\UNIT_ID -mode set -amount 5000 -attribute WILLPOWER -dur 1000
  ]])
  return
 end

@@ -64,7 +64,7 @@ function script_checks()
   writeall('flow/random-plan -plan test_plan_5x5_X.txt -unit '..tostring(unit.id)..' -liquid water -depth 3 (Should succeed and create water of depth 3 in a 5x5 X centered on unit)')
   output = dfhack.run_command_silent('flow/random-plan -plan test_plan_5x5_X.txt -unit '..tostring(unit.id)..' -liquid water -depth 3')
   writeall(output)
-  locations = mapFunctions.getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
+  locations, n = mapFunctions.getPlanPositions(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
   for _,pos in pairs(locations) do
    if dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z).designation[pos.x%16][pos.y%16].flow_size < 3 then 
     flowCheck[#flowCheck+1] = 'Water was not correctly spawned'
@@ -76,7 +76,7 @@ function script_checks()
   writeall('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow MATERIALDUST -inorganic OBSIDIAN -density 100 -static (Should succeed and create obsidian dust in a 5x5 plus centered on unit, dust should not expand)')
   output = dfhack.run_command_silent('flow/random-plan -plan test_plan_5x5_P.txt -unit '..tostring(unit.id)..' -flow MATERIALDUST -inorganic OBSIDIAN -density 100 -static')
   writeall(output)
-  locations = mapFunctions.getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_P.txt',unit.pos,nil)
+  locations, n = mapFunctions.getPlanPositions(dfhack.getDFPath()..'/raw/files/test_plan_5x5_P.txt',unit.pos,nil)
   for _,pos in pairs(locations) do
    if not mapFunctions.getFlow(pos) then 
     flowCheck[#flowCheck+1] = 'Dust was not correctly spawned'
@@ -118,7 +118,7 @@ function script_checks()
   writeall('flow/random-pos -location '..locstr..' -flow mist -density 50 -static -radius [ 10 10 0 ] -number 10 (Should succeed and create 10 50 density dragon fires in a 10x10 block around the unit, fire should not spread)')
   output = dfhack.run_command_silent('flow/random-pos -location '..locstr..' -flow Mist -density 100 -static -radius [ 10 10 0 ] -number 10')
   writeall(output)
-  locations = mapFunctions.getFillPosition({20,20,unit.pos.z+1},{10,10,0})
+  locations, n = mapFunctions.getFillPositions({20,20,unit.pos.z+1},{10,10,0})
   n = 0
   for _,pos in pairs(locations) do
    if mapFunctions.getFlow(pos,'MIST') then

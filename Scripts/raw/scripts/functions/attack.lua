@@ -1,25 +1,54 @@
 --attack based functions, version 42.06a
 --[[
- addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchance,velocity,delay)
- getAttack(unit,main_type,sub_type)
- checkCoverage(unit,bp_id,inventory_item)
- getDefense(unit,main_type,sub_type)
- getAttackItem(unit,item,attack)
- getAttackItemMaterial(item)
- getAttackItemMomentum(unit,velocity,weight)
- getAttackItemVelocity(unit,attack,weight)
- getAttacKItemWeight(unit,item,material)
- getAttackUnit(unit,bp_id,attack)
- getAttackUnitMaterial(unit,bp_id)
- getAttackUnitMomentum(unit,velocity,weight)
- getAttackUnitVelocity(unit,attack)
- getAttackUnitWeight(unit,bp_id,material)
- computeAttackValues(attacker,defender,attack_type,attack_subtype,defense_type,defense_subtype)
- computeAttackValuesItems(attacker,defender,attack,target)
- computeAttackValuesLayers(attacker,defender,attack,target)
- NOTE: All computed values are based on Urist DaVinci's work.
+addAttack(unit,defenderID,attackBodyPartID,targetBodyPartID,attackItemID,attackID,accuracy,velocity,delay)
+  Purpose: Add an attack action to the unit
+  Calls: None
+  Inputs:
+        unit:                   Attacker unit ID or unit struct
+        defenderID:             Defender unit ID
+        attackBodyPartID:       Attacker's attacking body part ID (if using a body part attack)
+        targetBodyPartID:       Defender's targeted body part ID
+        attackItemID:           Attacker's attacking item ID (if using an item attack)
+        attackID:               Attack ID number (found in unit.body.body_plan.attacks or item.subtype.attacks)
+        accuracy:               Percent hit chance of attack
+        velocity:               Velocity of attack
+        delay:                  Time (in ticks) until attack is executed
+  Returns: NA
+
+getAttack(unit,category,type)
+  Purpose: Get attack details of equipped weapons and/or body parts
+  Calls: getAttackItem | getAttackUnit | unit.getInventoryType | unit.getAttack | item.getAttack
+  Inputs:
+        unit:                   Unit ID or unit struct
+        category:               Category of attack (Valid values: Equipped, Created, or BodyPart)
+        type:                   RAW Token of attack (e.g. PUNCH) (Special Value: Random)
+  Returns: Table - { material momentum contact penetration sharpness item body_part }
+
+getDefense(unit,category,type)
+  Purpose: Get layer, tissue, and material information for a given body part
+  Calls: checkCoverage | unit.getBodyRandom | unit.getBodyCategory | unit.getBodyToken | unit.getBodyType
+  Inputs:
+        unit:                   Unit ID or unit struct
+        category:               Category of body part to check for (Valid values: Random, Category, Token, or Type)
+        type:                   RAW token for above category (e.g. EYES, REYE, and SIGHT would all check eyes)
+  Returns: Table - { layers tissues items materials body_part }
+
+computeAttackValues(attacker,defender,attackCategory,attackType,defenseCategory,defenseType)
+  Purpose:
+  Calls: computeAttackValuesItems | computeAttackValuesLayers
+  Inputs:
+        attacker:               Attacking unit ID or unit struct
+        defender:               Defending unit ID or unit struct
+        attackCategory:         Category of attack (see getAttack for more information)
+        attackType:             Type of attack (see getAttack for more information)
+        defenseCategory:        Category of defense (see getDefense for more information)
+        defenseType:            Type of defense (see getDefense for more information)
+  Return: Numbers - momentum_deduction1, momentum_deduction2
+
+NOTE: All computed values are based on Urist DaVinci's work.
 ]]
 ---------------------------------------------------------------------------------------
+--=================================================================================================
 function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchance,velocity,delay,flags)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  action = df.unit_action:new()
@@ -52,12 +81,13 @@ function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchanc
  unit.actions:insert('#',action)
 end
 
+--=================================================================================================
 function getAttack(unit,main_type,sub_type)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local attack = {}
  if main_type == 'Equipped' then
-  item = dfhack.script_environment('functions/unit').checkInventoryType(unit,'WEAPON')[1]
-  attack_id = dfhack.script_environment('functions/item').checkAttack(item,sub_type)
+  item = dfhack.script_environment('functions/unit').getInventoryType(unit,'WEAPON')[1]
+  attack_id = dfhack.script_environment('functions/item').getAttack(item,sub_type)
   momentum,weight,material,velocity,item = getAttackItem(unit,item,attack_id)
   attack.item = item
   attack.material = material
@@ -68,7 +98,7 @@ function getAttack(unit,main_type,sub_type)
  elseif main_type == 'Created' then
 -- Created weapons not yet implemented
  elseif main_type == 'BodyPart' then
-  attack_id, bp_id = dfhack.script_environment('functions/unit').checkAttack(unit,sub_type)
+  attack_id, bp_id = dfhack.script_environment('functions/unit').getAttack(unit,sub_type)
   momentum,weight,material,velocity,body_part = getAttackUnit(unit,bp_id,attack_id)
   attack.body_part = body_part
   attack.material = material
@@ -79,6 +109,82 @@ function getAttack(unit,main_type,sub_type)
  end
  return attack
 end 
+
+function getAttackItem(unit,item,attack)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+
+ material = dfhack.matinfo.decode(item.mat_type,item.mat_index).material
+
+ weight = math.floor(item.subtype.size*material.solid_density/100000)
+ weight_fraction = item.subtype.size*material.solid_density*10 - weight*1000000
+ actweight=weight*1000 + weight_fraction/1000
+ effweight=unit.body.size_info.size_cur/100+weight*100 + weight_fraction/10000
+
+ vel_mod = item.subtype.attacks[attack].velocity_mult
+ velocity = unit.body.size_info.size_base * dfhack.units.getPhysicalAttrValue(unit,0) * vel_mod/1000/effweight/1000
+ if velocity == 0 then velocity = 1 end
+
+ momentum = velocity*actweight/1000 + 1
+
+ return momentum,weight,material,velocity,item
+end
+
+function getAttackUnit(unit,bp_id,attack)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ body_part = unit.body.body_plan.body_parts[bp_id]
+
+ vel_mod = unit.body.body_plan.attacks[attack].velocity_modifier
+ velocity = 100*dfhack.units.getPhysicalAttrValue(unit,0)/1000*vel_mod/1000
+ if velocity == 0 then velocity = 1 end
+
+ attacker_race = df.global.world.raws.creatures.all[unit.race]
+ layerdata = body_part.layers[#body_part.layers-1]
+ tisdata=attacker_race.tissue[layerdata.tissue_id]
+ material = dfhack.matinfo.decode(tisdata.mat_type,tisdata.mat_index).material
+
+ partsize = math.floor(unit.body.size_info.size_cur * body_part.relsize / unit.body.body_plan.total_relsize)
+ weight = math.floor(partsize * material.solid_density/100)
+
+ momentum = velocity*weight/1000 + 1
+
+ return momentum,weight,material,velocity,body_part
+end
+
+--=================================================================================================
+function getDefense(unit,main_type,sub_type)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if main_type == 'Random' then
+  bp_id = dfhack.script_environment('functions/unit').getBodyRandom(unit)
+ elseif main_type == 'Category' then
+  bp_id = dfhack.script_environment('functions/unit').getBodyCategory(unit,sub_type)[1]
+ elseif main_type == 'Token' then
+  bp_id = dfhack.script_environment('functions/unit').getBodyToken(unit,sub_type)[1]
+ elseif main_type == 'Type' then
+  bp_id = dfhack.script_environment('functions/unit').getBodyType(unit,sub_type)[1]
+ end
+ local target = {}
+ target.layers = {}
+ target.tissues = {}
+ target.items = {}
+ target.materials = {}
+ target.body_part = unit.body.body_plan.body_parts[bp_id]
+ for i,x in pairs(target.body_part.layers) do
+  table.insert(target.layers,x)
+  local defender_race = df.global.world.raws.creatures.all[unit.race]
+  local tisdata=defender_race.tissue[x.tissue_id]
+  table.insert(target.tissues,tisdata)
+ end
+ for i,x in pairs(unit.inventory) do
+  if x.mode == 2 then
+   if checkCoverage(unit,bp_id,x) then
+    table.insert(target.items,x.item)
+    table.insert(target.materials,dfhack.matinfo.decode(x.item).material)
+   end
+  end
+ end
+ return target
+end
 
 function checkCoverage(unit,bp_id,inventory_item)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -204,122 +310,7 @@ function checkCoverage(unit,bp_id,inventory_item)
  return covers
 end
 
-function getDefense(unit,main_type,sub_type)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if main_type == 'Random' then
-  bp_id = dfhack.script_environment('functions/unit').checkBodyRandom(unit)
- elseif main_type == 'Category' then
-  bp_id = dfhack.script_environment('functions/unit').checkBodyCategory(unit,sub_type)[1]
- elseif main_type == 'Token' then
-  bp_id = dfhack.script_environment('functions/unit').checkBodyToken(unit,sub_type)[1]
- elseif main_type == 'Type' then
-  bp_id = dfhack.script_environment('functions/unit').checkBodyType(unit,sub_type)[1]
- end
- local target = {}
- target.layers = {}
- target.tissues = {}
- target.items = {}
- target.materials = {}
- target.body_part = unit.body.body_plan.body_parts[bp_id]
- for i,x in pairs(target.body_part.layers) do
-  table.insert(target.layers,x)
-  local defender_race = df.global.world.raws.creatures.all[unit.race]
-  local tisdata=defender_race.tissue[x.tissue_id]
-  table.insert(target.tissues,tisdata)
- end
- for i,x in pairs(unit.inventory) do
-  if x.mode == 2 then
-   if checkCoverage(unit,bp_id,x) then
-    table.insert(target.items,x.item)
-    table.insert(target.materials,dfhack.matinfo.decode(x.item).material)
-   end
-  end
- end
- return target
-end
-
-function getAttackItem(unit,item,attack)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- material = getAttackItemMaterial(item)
- actweight,effweight = getAttackItemWeight(unit,item,material)
- velocity = getAttackItemVelocity(unit,attack,effweight)
- momentum = getAttackItemMomentum(unit,velocity,actweight)
- return momentum,weight,material,velocity,item
-end
-
-function getAttackItemMaterial(item)
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- material = dfhack.matinfo.decode(item.mat_type,item.mat_index).material
- return material
-end
-
-function getAttackItemMomentum(unit,velocity,weight)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- momentum=velocity*weight/1000+1
- return momentum
-end
-
-function getAttackItemVelocity(unit,attack,weight)
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- vel_mod = item.subtype.attacks[attack].velocity_mult
- velocity = unit.body.size_info.size_base * dfhack.units.getPhysicalAttrValue(unit,0) * vel_mod/1000/weight/1000
- if velocity == 0 then velocity = 1 end
- return velocity
-end
-
-function getAttackItemWeight(unit,item,material)
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- weight = math.floor(item.subtype.size*material.solid_density/100000)
- weight_fraction = item.subtype.size*material.solid_density*10 - weight*1000000
- actweight=weight*1000+weight_fraction/1000
- effweight=unit.body.size_info.size_cur/100+weight*100+weight_fraction/10000
- return actweight,effweight
-end
-
-function getAttackUnit(unit,bp_id,attack) 
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- body_part = unit.body.body_plan.body_parts[bp_id]
- velocity = getAttackUnitVelocity(unit,attack)
- material = getAttackUnitMaterial(unit,body_part)
- weight = getAttackUnitWeight(unit,body_part,material)
- momentum = getAttackUnitMomentum(unit,velocity,weight)
- return momentum,weight,material,velocity,body_part
-end
-
-function getAttackUnitMaterial(unit,body_part)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- attacker_race = df.global.world.raws.creatures.all[unit.race]
- layerdata = body_part.layers[#body_part.layers-1]
- tisdata=attacker_race.tissue[layerdata.tissue_id]
- material = dfhack.matinfo.decode(tisdata.mat_type,tisdata.mat_index).material
- return material
-end
-
-function getAttackUnitMomentum(unit,velocity,weight)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- momentum = velocity * weight / 1000 + 1
- return momentum
-end
-
-function getAttackUnitVelocity(unit,attack)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- vel_mod = unit.body.body_plan.attacks[attack].velocity_modifier
- velocity = 100 * dfhack.units.getPhysicalAttrValue(unit,0) / 1000 * vel_mod / 1000
- if velocity == 0 then velocity = 1 end
- return velocity
-end
-
-function getAttackUnitWeight(unit,body_part,material)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- partsize = math.floor(unit.body.size_info.size_cur * body_part.relsize / unit.body.body_plan.total_relsize)
- partweight = math.floor(partsize * material.solid_density / 100)
- return partweight
-end
-
+--=================================================================================================
 function computeAttackValues(attacker,defender,attack_type,attack_subtype,defense_type,defense_subtype)
  if tonumber(attacker) then attacker = df.unit.find(tonumber(attacker)) end
  if tonumber(defender) then defender = df.unit.find(tonumber(defender)) end

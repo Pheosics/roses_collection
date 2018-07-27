@@ -4,7 +4,7 @@ local utils = require 'utils'
 local split = utils.split_string
 local persistTable = require 'persist-table'
 
-validArgs = validArgs or utils.invert({
+validArgs = utils.invert({
  'help',
  'source',
  'target',

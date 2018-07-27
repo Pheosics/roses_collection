@@ -10,8 +10,8 @@ from mwe_code.creatures import creatures
 
 dirs = 'raws/'
 #Type = 'Inorganics'
-#Type = 'Plants'
-Type = 'Items'
+Type = 'Plants'
+#Type = 'Items'
 #Type = 'Buildings'
 #Type = 'Reactions'
 #Type = 'Creatures'

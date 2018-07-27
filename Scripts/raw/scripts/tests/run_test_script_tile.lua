@@ -75,7 +75,7 @@ function script_checks()
   writeall('tile/material-change -material INORGANIC:SLADE -unit '..tostring(unit.id)..' -floor -plan test_plan_5x5_X.txt -dur 50 (Should succeed and change the material of floor in a 5x5 X centered at the unit to slade)')
   output = dfhack.run_command_silent('tile/material-change -material INORGANIC:SLADE -unit '..tostring(unit.id)..' -floor -plan test_plan_5x5_X.txt -dur 50')
   writeall(output)
-  positions = mapFunctions.getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
+  positions, n = mapFunctions.getPlanPositions(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
   for _,pos in pairs(positions) do
    if mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) ~= 'INORGANIC:SLADE' then
     foundType = mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) or "nil"
@@ -122,7 +122,7 @@ function script_checks()
   end
 
   ---- Check that the script succeeds and sets the temerpature in a 5x5 plus centered on the unit to 15000 for 50 ticks
-  positions = mapFunctions.getPositionPlan(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
+  positions, n = mapFunctions.getPlanPositions(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
   it1 = {}
   it2 = {}
   ps1 = {}
