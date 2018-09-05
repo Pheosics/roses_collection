@@ -1,4 +1,41 @@
---unit/attribute-change.lua v1.0 | DFHack 43.05
+--unit/attribute-change.lua
+local usage = [====[
+
+unit/attribute-change
+=====================
+Purpose::
+	Change the attriubute(s) of a unit and track those changes
+	Tracked changes can end naturally or be terminated early using other scripts
+	
+Function Calls::
+	unit.getUnitTable
+	unit.changeAttribute
+	misc.getChange
+	
+Arguments::
+	-unit		UNIT_ID
+		id of unit to change attributes of
+	-attribute	ATTRIBUTE_TOKEN or [ ATTRIBUTE_TOKEN ATTRIBUTE_TOKEN ... ]
+		Attribute(s) to be changed
+	-mode		Change Mode
+		Mode of calculating the change
+		Valid Values:
+			Percent - changes attribute(s) by a given percentage level
+			Fixed   - changes attribute(s) by a flat amount
+			Set     - sets attribute(s) to a given level
+	-amount		# or [ # # ... ]
+		Number(s) to use for attribute changes
+		Must have the same amount of numbers as there are ATTRIBUTE_TOKENS
+	-dur		#
+		Length of time in in=game ticks for the change to last
+	-syndrome	SYN_NAME
+		Attaches a syndrome with the given name to the change for tracking purposes
+
+Examples::
+	unit/attribute-change -unit \\UNIT_ID -mode Fixed -amount 100 -attribute STRENGTH
+	unit/attribute-change -unit \\UNIT_ID -mode Percent -amount [ 10 10 10 ] -attribute [ ENDURANCE TOUGHNESS WILLPOWER ] -dur 3600
+	unit/attribute-change -unit \\UNIT_ID -mode set -amount 5000 -attribute WILLPOWER -dur 1000
+]====]
 
 local utils = require 'utils'
 
@@ -9,40 +46,12 @@ validArgs = utils.invert({
  'amount',
  'dur',
  'unit',
- 'announcement',
- 'track',
  'syndrome',
 })
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then -- Help declaration
- print([[unit/attribute-change.lua
-  Change the attribute(s) of a unit
-  arguments:
-   -help
-     print this help message
-   -unit id
-     REQUIRED
-     id of the target unit
-   -attribute ATTRIBUTE_ID
-     attribute(s) to be changed
-   -mode
-     Valid Types:
-      Fixed
-      Percent
-      Set
-   -amount #
-   -dur #
-     length of time, in in-game ticks, for the change to last
-     0 means the change is permanent
-     DEFAULT: 0
-   -announcement string
-     optional argument to create an announcement and combat log report
-  examples:
-   unit/attribute-change -unit \\UNIT_ID -mode Fixed -amount 100 -attribute STRENGTH
-   unit/attribute-change -unit \\UNIT_ID -mode Percent -amount [ 10 10 10 ] -attribute [ ENDURANCE TOUGHNESS WILLPOWER ] -dur 3600
-   unit/attribute-change -unit \\UNIT_ID -mode set -amount 5000 -attribute WILLPOWER -dur 1000
- ]])
+ print(usage)
  return
 end
 
@@ -64,30 +73,13 @@ if #value ~= #args.attribute then
  return
 end
 
-track = nil
-if args.track then track = 'track' end
-
+unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 for i,attribute in ipairs(args.attribute) do
- if df.physical_attribute_type[attribute] then
-  current = unit.body.physical_attrs[attribute].value
- elseif df.mental_attribute_type[attribute] then
-  current = unit.status.current_soul.mental_attrs[attribute].value
+ if unitTable.Attributes[attribute] then
+  current = unitTable.Attributes[attribute].Base
+  change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
+  dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,track,args.syndrome)
  else
-  persistTable = require 'persist-table'
-  if not persistTable.GlobalTable.roses then
-   print('Invalid attribute id')
-   return
-  end
-  if persistTable.GlobalTable.roses.BaseTable.CustomAttributes[attribute] then
-   _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',attribute)
-  else
-   print('Invalid attribute id')
-   return
-  end
+  print('Invalid Attribute Token: '..attribute)
  end
- change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
- dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,track,args.syndrome)
-end
-if args.announcement then
---add announcement information
 end

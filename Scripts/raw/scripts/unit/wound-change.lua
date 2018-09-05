@@ -1,4 +1,17 @@
 --unit/wound-change.lua v2.0 | DFHack 43.05
+local usage = [====[
+
+xxxxxx
+======
+Purpose::
+
+Function Calls::
+
+Arguments::
+
+Examples::
+
+]====]
 
 local utils = require 'utils'
 

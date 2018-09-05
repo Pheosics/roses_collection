@@ -1,4 +1,30 @@
--- unit/butcher.lua v0.8 | DFHack 43.05
+-- unit/butcher.lua
+local usage = [====[
+
+unit/butcher
+============
+Purpose::
+	Butcher a unit
+	
+Function Calls::
+
+Arguments::
+	Requires -unit, -corpse, or -location to be specified
+	-unit		UNIT_ID
+		Unit id to check for butchering
+		Will check for a given corpse from that unit first
+	-corpse		ITEM_ID
+		Item id to check for butcher
+	-location	[ x y z ]
+		Location to check for butchering
+	-kill
+		If present will kill unit to be butchered if still alive
+	
+Examples::
+	unit/butcher -unit \\UNIT_ID -kill
+	unit/butcher -corpse \\ITEM_ID
+	unit/butcher -location [ \\LOCATION ]
+]====]
 
 local utils=require 'utils'
 local gui = require 'gui'
@@ -13,7 +39,7 @@ validArgs = utils.invert({
 
 local args = utils.processArgs({...}, validArgs)
 if args.help then
-  print('')
+  print(usage)
   return
 end
 

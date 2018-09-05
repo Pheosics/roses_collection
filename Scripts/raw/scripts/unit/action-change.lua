@@ -1,4 +1,41 @@
---unit/action-change.lua v1.0 | DFHack 43.05
+--unit/action-change.lua
+local usage = [====[
+
+unit/action-change
+==================
+Purpose::
+	Changes the timer of a given action or interaction
+
+Function Calls::
+	unit.changeAction
+	unit.changeInteraction
+	
+Arguments::
+	-unit			UNIT_ID
+	-action			Action Type
+		The type of action to modify
+		Valid Values:
+			All
+			Move
+			Attack
+	-interaction	Interaction Type or Token
+		The type of interaction to modify
+		Valid Values:
+			All
+			Innate
+			Learned
+			INTERACTION_TOKEN
+	-timer			#
+		what to set the timer of the action to
+		lower values mean the unit will be able to act again sooner
+		Special Token:
+			clear (erases all actions of the valid action type)
+			clearAll (erases all actions regardless of action type)
+
+Examples::
+	unit/action-change -unit \\UNIT_ID -action All -timer 200
+	unit/action-change -unit 35 -interaction Learned -timer 5000
+]====]
 
 local utils = require 'utils'
 
@@ -11,35 +48,8 @@ validArgs = utils.invert({
 })
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then -- Help declaration
- print([[unit/action-change
-  Change the action timer of a unit
-  arguments:
-   -help
-     print this help message
-   -unit id
-     REQUIRED
-     id of the target unit
-   -action Action Type
-     Valid Types:
-      All
-      Move
-      Attack
-   -interaction Interaction Type
-     Valid Types:
-      All
-      Innate
-      Learned
-      INTERACTION_ID
-   -timer #
-     what to set the timer of the action to
-     lower values mean the unit will be able to act again sooner
-     Special Token:
-      clear (erases all actions of the valid action type)
-      clearAll (erases all actions regardless of action type)   
-  examples:
-   unit/action-change -unit \\UNIT_ID -action All -timer 200
- ]])
+if args.help then
+ print(usage)
  return
 end
 
@@ -52,9 +62,9 @@ end
 
 if args.timer and tonumber(args.timer) then
  timer = tonumber(args.timer)
-elseif args.timer == 'clear' then
+elseif string.lower(args.timer) == 'clear' then
  timer = 'clear'
-elseif args.timer == 'clearAll' then
+elseif string.lower(args.timer) == 'clearall' then
  timer = 'clearAll'
 else
  print('No timer set')
@@ -69,22 +79,20 @@ elseif args.action then
  dfhack.script_environment('functions/unit').changeAction(unit,args.action,timer)
 end
 
-if args.interaction == 'All' then
- for _,id in pairs(unit.curse.own_interaction) do
-  dfhack.script_environment('functions/unit').changeInteraction(unit,id,timer,'Innate')
- end
+interaction = string.lower(args.interaction)
+if interaction == 'learned' or interaction == 'all' then
  for _,id in pairs(unit.curse.interaction_id) do
   dfhack.script_environment('functions/unit').changeInteraction(unit,id,timer,'Learned')
  end
-elseif args.interaction == 'Learned' then
- for _,id in pairs(unit.curse.interaction_id) do
-  dfhack.script_environment('functions/unit').changeInteraction(unit,id,timer,'Learned')
- end
-elseif args.interaction == 'Innate' then
+end
+
+if interaction == 'innate' or interaction == 'all' then
  for _,id in pairs(unit.curse.own_interaction) do
   dfhack.script_environment('functions/unit').changeInteraction(unit,id,timer,'Innate')
  end
-else
+end
+
+if interaction ~= 'all' and interaction ~= 'learned' and interaction ~= 'innate' then
  for _,interaction in pairs(df.global.world.raws.interactions) do
   if interaction.name == args.interaction then
    dfhack.script_environment('functions/unit').changeInteraction(unit,interaction.id,timer,'Both')

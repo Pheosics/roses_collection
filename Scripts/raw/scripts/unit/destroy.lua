@@ -1,4 +1,17 @@
 --unit/destroy.lua v0.8 | DFHack 43.05
+local usage = [====[
+
+xxxxxx
+======
+Purpose::
+
+Function Calls::
+
+Arguments::
+
+Examples::
+
+]====]
 
 local utils = require 'utils'
 

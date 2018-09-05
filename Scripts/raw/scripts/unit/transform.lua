@@ -1,4 +1,17 @@
 --unit/transform.lua version 42.06a
+local usage = [====[
+
+xxxxxx
+======
+Purpose::
+
+Function Calls::
+
+Arguments::
+
+Examples::
+
+]====]
 
 local utils = require 'utils'
 local split = utils.split_string

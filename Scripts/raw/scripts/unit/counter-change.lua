@@ -1,4 +1,46 @@
---unit/counter-change.lua v1.0 | DFHack 43.05
+--unit/counter-change.lua
+local usage = [====[
+
+unit/counter-change
+===================
+Purpose::
+
+Function Calls::
+	unit.changeCounter
+	misc.getChange
+
+Arguments::
+	-unit		UNIT_ID
+	-counter	counter_token
+		Valid Values:
+			webbed
+			stunned
+			winded
+			unconscious
+			suffocation
+			pain
+			nausea
+			dizziness
+			paralysis
+			numbness
+			fever
+			exhaustion
+			hunger
+			thirst
+			sleepiness
+			blood
+			infection
+	-mode		Mode Type
+		Valid Values:
+			Percent
+			Fixed
+			Set
+	-amount		#
+	-dur		#
+	
+Examples::
+
+]====]
 
 local utils = require 'utils'
 
@@ -9,7 +51,6 @@ validArgs = utils.invert({
  'amount',
  'dur',
  'unit',
- 'announcement'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -106,7 +147,4 @@ for i,counter in ipairs(args.counter) do
  
  change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
  dfhack.script_environment('functions/unit').changeCounter(unit,counter,change,dur)
- if args.announcement then
---add announcement information
- end
 end

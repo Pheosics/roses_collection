@@ -1,79 +1,77 @@
 --unit/body-change.lua v1.0 | DFHack 43.05
+local usage = [====[
+
+unit/body-change
+================
+Purpose::
+	Changes the entire body or individual body parts of a given unit
+
+Function Calls::
+	unit.getBodyParts
+	unit.changeBody
+	misc.getChange
+
+Arguments::
+	-unit			UNIT_ID
+		id of unit to target for change
+	-partType		Part Type
+		Type of body part to look for
+		Valid Values:
+			All      - targets whole body (all parts)
+			Category - finds target based on body part CATEGORY
+			Token    - finds target based on body part TOKEN
+			Flag     - finds target based on body part FLAG
+	-bodyPart		CATEGORY, TOKEN, or FLAG
+		Depends on the part type chosen
+		Special Value:
+			All - Targets whole body (all parts)
+	-temperature
+		If present will change the temperature of the body part(s)
+		Special Value:
+			Fire - Sets the body part on fire
+	-size			Size Type
+		Changes the dimensions of given units size
+		Changing sizes of body parts is not currently possible
+		Valid Values:
+			All
+			Length
+			Area
+			Size
+	-mode			Mode Type
+		Method for calculating total amount of change
+		Valid Values:
+			Percent
+			Fixed
+			Set
+	-amount			#
+		Amount of temperature or size change
+	-dur			#
+		Length of time in in-game ticks for change to last
+		If absent change is permanent
+
+Examples::
+	unit/body-change -unit \\UNIT_ID -partType Flag -bodyPart GRASP -temperature fire -dur 1000
+	unit/body-change -unit \\UNIT_ID -partType Category -bodyPart LEG_LOWER -temperature -mode Set -amount 9000
+	unit/body-change -unit \\UNIT_ID -partType All -bodyPart All -size All -mode Percent -amount 200
+]====]
 
 local utils = require 'utils'
 
 validArgs = utils.invert({
  'help',
+ 'bodyPart',
+ 'partType',
  'temperature',
- 'category',
- 'token',
- 'flag',
- 'all',
  'dur',
  'unit',
- 'age',
  'size',
- 'fixed',
- 'set',
- 'percent',
  'mode',
  'amount',
- 'announcement',
 })
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then -- Help declaration
- print([[body-change.lua
-  Change the body parts of a unit (currently only supports changing temperature, size, or setting on fire)
-  arguments:
-   -help
-     print this help message
-   -unit id
-     REQUIRED
-     id of the target unit
-   -category TYPE                           \
-     change body parts of specific category |
-     examples:                              |
-      TENTACLE                              |
-      HOOF_REAR                             |
-      HEAD                                  |
-   -token TYPE                              |
-     change body parts by specific token    | Must at least one of these arguments if changing temperature
-     examples:                              |
-      UB                                    |
-      LB                                    |
-      REYE                                  |
-   -flag FLAG                               |
-     change body parts by specific flag     |
-     examples:                              |
-      SIGHT                                 |
-      LIMB                                  |
-      SMALL                                 /
-   -temperature
-     temperature to set body parts to
-     special token:
-      Fire - sets the body part on fire
-   -size
-     Valid Types:
-      All
-      Size
-      Length
-      Area
-   -age (Not currently supported)
-   -mode (Mode Type)
-     Valid Types:
-      Fixed
-      Percent
-      Set
-   -amount #
-   -dur #
-     length of time, in in-game ticks, for the change to last
-     0 means the change is permanent
-     DEFAULT: 0
-  examples:
-   unit/body-change -unit \\UNIT_ID -flag GRASP -temperature fire -dur 1000
-   unit/body-change -unit \\UNIT_ID -category LEG_LOWER -temperature 8000
- ]])
+ print(usage)
  return
 end
 
@@ -87,38 +85,28 @@ end
 dur = tonumber(args.dur) or 0
 if dur < 0 then return end
 value = args.amount
- 
-if args.temperature then
- changeType = 'Temperature'
- parts = {}
- if args.category == 'ALL' or args.token == 'ALL' or args.flag == 'ALL' then
-  body = unit.body.body_plan.body_parts
-  for k,v in ipairs(body) do
-   parts[k] = k
-  end
- elseif args.category then
-  parts = dfhack.script_environment('functions/unit').getBodyCategory(unit,args.category)
- elseif args.token then
-  parts = dfhack.script_environment('functions/unit').getBodyToken(unit,args.token)
- elseif args.flag then
-  parts = dfhack.script_environment('functions/unit').getBodyFlag(unit,args.flag)
- else
-  print('No body parts declared for temperature change')
-  return
- end
 
+parts = {}
+if args.partType == 'All' or args.bodyPart == 'All' then
+ body = unit.body.body_plan.body_parts
+ for k,v in ipairs(body) do
+  parts[k] = k
+ end
+else
+ parts = dfhack.script_environment('functions/unit').getBodyParts(unit,args.partType,args.bodyPart)
+end
+
+if args.temperature then
  for _,part in ipairs(parts) do
   if args.temperature == 'Fire' or args.temperature == 'fire' then
-   dfhack.script_environment('functions/unit').changeBody(unit,part,changeType,'Fire',dur)
+   dfhack.script_environment('functions/unit').changeBody(unit,part,'Temperature','Fire',dur)
   else
    current = unit.status2.body_part_temperature[part].whole
    change = dfhack.script_environment('functions/misc').getChange(current,value,args.mode)
-   dfhack.script_environment('functions/unit').changeBody(unit,part,changeType,change,dur)
+   dfhack.script_environment('functions/unit').changeBody(unit,part,'Temperature',change,dur)
   end
  end
-elseif args.age then
- changeType = 'age'
-elseif args.size then
+elseif args.size then -- Can't currently change the size of individual body parts without changing entire caste raws
  if args.size == 'Size' or args.size == 'All' then
   current = unit.body.size_info.size_cur
   change = dfhack.script_environment('functions/misc').getChange(current,value,args.mode)
@@ -134,7 +122,4 @@ elseif args.size then
   change = dfhack.script_environment('functions/misc').getChange(current,value,args.mode)
   dfhack.script_environment('functions/unit').changeBody(unit,nil,'Length',change,dur)
  end
-else
- print('Nothing to change declared, choose -age, -size, or -temperature')
- return
 end

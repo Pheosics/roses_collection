@@ -2154,43 +2154,6 @@ function makeItemTable(item,verbose)
  itemTable.Stats.Kills = '0'
 end
 
-function makeUnitTable(unit,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
- local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] = {}
- unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
- if unit.civ_id >= 0 then
-  if safe_index(persistTable,'GlobalTable','roses','EntityTable',tostring(unit.civ_id),'Civilization') then
-   unitTable.Civilization = persistTable.GlobalTable.roses.EntityTable[tostring(unit.civ_id)].Civilization.Name
-  end
- end
- unitTable.SyndromeTrack = {}
- unitTable.Attributes = {}
- unitTable.Skills = {}
- unitTable.Traits = {}
- unitTable.Feats = {}
- unitTable.Resistances = {}
- unitTable.General = {}
- unitTable.Stats = {}
- unitTable.Stats.Kills = '0'
- unitTable.Stats.Deaths = '0'
- 
- unitTable.Classes = {}
- if persistTable.GlobalTable.roses.ClassTable then
-  unitTable.Classes.Current = {}
-  unitTable.Classes.Current.Name = 'NONE'
-  unitTable.Classes.Current.TotalExp = tostring(0)
-  unitTable.Classes.Current.FeatPoints = tostring(0)
- end
-
- unitTable.Spells = {}
- if persistTable.GlobalTable.roses.SpellTable then 
-  unitTable.Spells.Active = {}
- end
-end
-
 function makeUnitTableSecondary(unit,table,token,verbose)
  if tonumber(unit) then
   unit = df.unit.find(tonumber(unit))

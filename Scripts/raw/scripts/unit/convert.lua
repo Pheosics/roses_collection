@@ -1,4 +1,38 @@
---unit/convert.lua v0.8 | DFHack 43.05
+--unit/convert.lua
+local usage = [====[
+
+unit/convert
+============
+Purpose::
+	Changes various ids and flags of a unit
+
+Function Calls::
+	unit.changeSide
+
+Arguments::
+	-unit		UNIT_ID
+		Unit id of target unit
+	-side		UNIT_ID
+		Unit id of reference unit
+	-type		Side Type
+		Changes are based off of the -side unit and -type of change
+		Valid Values:
+			Civilian
+			Ally
+			Friend
+			Neutral
+			Enemy
+			Invader
+			Pet
+	-dur		#
+		Length of time in in-game ticks for the change to last
+	-syndrome	SYN_NAME
+		If present attaches a syndrome to the change for tracking purposes
+
+Examples::
+	unit/convert -unit \\UNIT_ID -side \\UNIT_ID -type Pet -dur 1000
+	unit/convert -unit \\UNIT_ID -side \\UNIT_ID -type Civilian
+]====]
 
 local utils = require 'utils'
 
@@ -13,33 +47,7 @@ validArgs = utils.invert({
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then -- Help declaration
- print([[unit/convert
-   -help
-     print this help message
-   -unit id
-     REQUIRED
-     id of the target unit
-   -side id
-     REQUIRED
-     id of the unit whose side you want to convert from
-   -type Type
-     Valid Types:
-      Civilian
-      Ally
-      Friend
-      Neutral
-      Enemy
-      Invader
-      Pet
-    -dur #
-      length of time, in in-game ticks, for the change to last
-      0 means the change is permanent
-      DEFAULT: 0
-    -syndrome
-      syndrome associated with conversion
-   examples:
-    unit/convert -unit \\UNIT_ID -side \\UNIT_ID -type Pet -dur 1000
- ]])
+ print(usage)
  return
 end
 

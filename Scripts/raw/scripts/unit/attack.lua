@@ -1,4 +1,53 @@
---unit/attack.lua v0.8 | DFHack 43.05
+--unit/attack.lua
+local usage = [====[
+
+unit/attack
+===========
+Purpose::
+	Create a custom attack using either supplied or calculated values
+
+Function Calls::
+	unit.getBodyRandom
+	unit.getBodyParts
+	unit.getInventory
+	unit.getAttack
+	item.getAttack
+	attack.getAttackItemVelocity
+	attack.getAttackUnitVelocity
+	arrack.addAttack
+		
+Arguments::
+	-defender		UNIT_ID
+		Unit ID of defending unit
+	-attacker		UNIT_ID
+		Unit ID of attacking unit
+	-target			CATEGORY
+		Body part category to target for attack
+		If absent it will select a random body part weighted by size
+	-weapon
+		If present it will use the attacker unit's equipped weapon
+		If absent it will assume a body part attack
+	-attack			ATTACK_TOKEN
+		Attack token (e.g. PUNCH) of attack to use
+		If absent it will select a random attack
+	-velocity		#
+		Velocity to use for attack
+		If absent it will calculate the velocity based on various factors
+	-hitchance		#
+		Chance for attack to hitchance
+		DEFAULT VALUE: 100
+	-delay			#
+		Delay time until attack executes
+		DEFAULT VALUE: 1
+	-number			#
+		Number of attacks to executes
+		DEFAULT VALUE: 1
+			
+Examples::
+	unit/attack -attacker \\UNIT_ID -defender \\UNIT_ID
+	unit/attack -attacker \\UNIT_ID -defender \\UNIT_ID -target HEAD -weapon -velocity 1000
+	unit/attack -attacker \\UNIT_ID -defender \\UNIT_ID -target UPPERBODY -attack PUNCH -number 100
+]====]
 
 local utils = require 'utils'
 
@@ -18,8 +67,7 @@ validArgs = utils.invert({
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then -- Help declaration
- print([[unit/attack
- ]])
+ print(usage)
  return
 end
 
@@ -48,7 +96,7 @@ itemFunctions = dfhack.script_environment('functions/item')
 if not args.target then
  target = unitFunctions.getBodyRandom(defender)
 else
- target = unitFunctions.getBodyCategory(defender,args.target)[1]
+ target = unitFunctions.getBodyParts(defender,'Category',args.target)[1]
 end
  
 if not target then
@@ -61,7 +109,7 @@ if args.weapon then
  local item = nil
  args.weapon = 'Equipped'
  if args.weapon == 'Equipped' then
-  item = unitFunctions.getInventoryType(attacker,'WEAPON')[1]
+  item = unitFunctions.getInventory(attacker,'ItemType','WEAPON')[1]
   if not item then
    print('No Equipped Weapon')
    return

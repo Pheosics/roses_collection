@@ -1,4 +1,17 @@
 --unit/propel.lua v1.0 | DFHack 43.05
+local usage = [====[
+
+xxxxxx
+======
+Purpose::
+
+Function Calls::
+
+Arguments::
+
+Examples::
+
+]====]
 
 local utils = require 'utils'
 
