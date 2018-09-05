@@ -1,0 +1,8 @@
+TODO
+unit.makeUnitTable - CustomAttributes needs to respect Enhanced Creature System (CustomResistances, CustomSkills, and CustomStats too!)
+unit.getUnitTable - Need to write this!!!!
+unit.changeSyndrome - Figure out eraseClass option
+unit.changeLife - Complete rewrite
+unit.changeWound - Complete rewrite
+unit.create - Complete rewrite!!!! Reference modtools/create-unit for heavy lifting
+unit.createClass, unit.CreateSkill, unit.createEquipment - All three need to be written
