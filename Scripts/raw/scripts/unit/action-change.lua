@@ -4,41 +4,40 @@ local usage = [====[
 unit/action-change
 ==================
 Purpose::
-	Changes the timer of a given action or interaction
+    Changes the timer of a given action or interaction
 
 Function Calls::
-	unit.changeAction
-	unit.changeInteraction
-	
+    unit.changeAction
+    unit.changeInteraction
+    
 Arguments::
-	-unit			UNIT_ID
-	-action			Action Type
-		The type of action to modify
-		Valid Values:
-			All
-			Move
-			Attack
-	-interaction	Interaction Type or Token
-		The type of interaction to modify
-		Valid Values:
-			All
-			Innate
-			Learned
-			INTERACTION_TOKEN
-	-timer			#
-		what to set the timer of the action to
-		lower values mean the unit will be able to act again sooner
-		Special Token:
-			clear (erases all actions of the valid action type)
-			clearAll (erases all actions regardless of action type)
+    -unit           UNIT_ID
+    -action         Action Type
+        The type of action to modify
+        Valid Values:
+            All
+            Move
+            Attack
+    -interaction    Interaction Type or Token
+        The type of interaction to modify
+        Valid Values:
+            All
+            Innate
+            Learned
+            INTERACTION_TOKEN
+    -timer          #
+        what to set the timer of the action to
+        lower values mean the unit will be able to act again sooner
+        Special Token:
+            clear (erases all actions of the valid action type)
+            clearAll (erases all actions regardless of action type)
 
 Examples::
-	unit/action-change -unit \\UNIT_ID -action All -timer 200
-	unit/action-change -unit 35 -interaction Learned -timer 5000
+    unit/action-change -unit \\UNIT_ID -action All -timer 200
+    unit/action-change -unit 35 -interaction Learned -timer 5000
 ]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'unit',

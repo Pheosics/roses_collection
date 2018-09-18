@@ -1,20 +1,53 @@
---unit/move.lua v1.0 | DFHack 43.05
+--unit/move.lua
 local usage = [====[
 
-xxxxxx
-======
+unit/move
+========
 Purpose::
+    Moves a unit to a given location or a location based on given inputs
 
 Function Calls::
+    unit.move
+    map.getPositionUnitRandom
+    building.findBuilding
+    misc.permute
 
 Arguments::
+    -unit        UNIT_ID
+    -location    [ x y z ]
+        A sprecific location to move to
+    -random      [ x y z ] or #
+        Either a distance in x, y, z about the unit to move to randomly
+        Or a radius about the unit to move to randomly
+    -building    BUILDING_ID or BUILDING_TOKEN or Building Type
+        Either an ID of a building or the building token
+        Valid Types:
+            Random
+            Owned
+            TradeDepot
+            Trap
+    -area        Area Type
+        Valid Types:
+            Idle
+            Destination
+            Opponent
+            Farm
+            Meeting Area
+            WaterSource
+            Hospital
+            Barracks
+            Stockpile
+    -construction    CONSTRUCTION_ID or Construction Type
+        Valid Types:
+            WallTop
 
 Examples::
-
+    unit/move -unit \\UNIT_ID -building SCREW_PRESS
+    unit/move -unit \\UNIT_ID -building \\BUILDING_ID
+    unit/move -unit \\UNIT_ID -area Idle
 ]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'unit',
@@ -23,43 +56,11 @@ validArgs = utils.invert({
  'building',
  'area',
  'construction',
- 'dur'
 })
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then -- Help declaration
- print([[
-   -unit
-   -location [ x y z ]
-     A specific location to move to in x, y, and z coordinates
-   -random [ x y z ] or #
-     Either a distance in x, y, and z about the unit to move to randomly
-     Or a radius # about the unit to move to randomly
-   -building ID or BUILDING_NAME or TYPE
-     Either an ID of a building as found in DFHack
-     Or the name of a custom building (e.g. SCREW_PRESS)
-     Special Types:
-      Random
-      Owned
-      TradeDepot
-      Trap
-   -area AREA_TYPE
-     Valid Types:
-      Idle
-      Destination
-      Opponent
-      Farm
-      MeetingArea
-      WaterSource
-      Hospital
-      Barracks      
-      Stockpile      
-   -construction ID or CONSTRUCTION_TYPE
-     Valid Types:
-      WallTop
-   -dur #
-      
- ]])
+if args.help then
+ print(usage)
  return
 end
 

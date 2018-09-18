@@ -62,6 +62,9 @@ function script_checks()
   unitCheck = {}
   unit = civ[1]
   writeall('unit/action-change checks starting')
+  writeall('unit/action-change -help')
+  output = dfhack.run_command_silent('unit/action-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and adds an action of every type with a 500 tick cooldown
   writeall('unit/action-change -unit '..tostring(unit.id)..' -timer 500 -action All (Should succeed and add an action for every type with a 500 tick cooldown)')
@@ -141,6 +144,9 @@ function script_checks()
   defender.pos.z = attacker.pos.z
   writeall('')
   writeall('unit/attack checks starting')
+  writeall('unit/attack -help')
+  output = dfhack.run_command_silent('unit/attack -help')
+  writeall(output)
 
   ---- Check that the script succeeds and adds an attack action with the calculated velocity, hit chance, and body part target
   writeall('unit/attack -defender '..tostring(defender.id)..' -attacker '..tostring(attacker.id)..' (Should succeed and add an attack action to the attacker unit, with calculated velocity, hit chance, and body part target)')
@@ -197,6 +203,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/attribute-change checks starting')
+  writeall('unit/attribute-change -help')
+  output = dfhack.run_command_silent('unit/attribute-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and adds 50 strength to the unit
   writeall('unit/attribute-change -unit '..tostring(unit.id)..' -attribute STRENGTH -amount 50 -mode fixed (Should succeed and add 50 strength to the unit)')
@@ -208,8 +217,8 @@ function script_checks()
   end
 
   ---- Check that the script succeeds and sets units toughness and endurance to 5000 for 50 ticks and creates a tracking table
-  writeall('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50 -track (Should succeed and set units toughness and endurance to 5000 for 50 ticks and create a persistent unit table)')
-  output = dfhack.run_command_silent('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50 -track')
+  writeall('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50 (Should succeed and set units toughness and endurance to 5000 for 50 ticks and create a persistent unit table)')
+  output = dfhack.run_command_silent('unit/attribute-change -unit '..tostring(unit.id)..' -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50')
   writeall(output)
   if unit.body.physical_attrs.ENDURANCE.value ~= 5000 or unit.body.physical_attrs.TOUGHNESS.value ~= 5000 then
    unitCheck[#unitCheck+1] = 'Failed to set endurance and toughness to 5000'
@@ -243,6 +252,9 @@ function script_checks()
   unit = non[2]
   writeall('')
   writeall('unit/body-change checks starting')
+  writeall('unit/body-change -help')
+  output = dfhack.run_command_silent('unit/body-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and set the eyes of unit on fire for 50 ticks
   writeall('unit/body-change -unit '..tostring(unit.id)..' -flag SIGHT -temperature Fire -dur 50 (Should succeed and set the eyes on fire for 50 ticks)')
@@ -310,6 +322,9 @@ function script_checks()
   unit = non[3]
   writeall('')
   writeall('unit/butcher checks starting')
+  writeall('unit/butcher -help')
+  output = dfhack.run_command_silent('unit/butcher -help')
+  writeall(output)
 
   ---- Check that the script fails because unit is still alive
   writeall('unit/butcher -unit '..tostring(unit.id)..' (Should fail and print "Unit is still alive and has not been ordered -kill")')
@@ -348,48 +363,48 @@ function script_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- START unit/convert --------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  unitCheck = {}
-  unit = non[4]
-  side = civ[1]
-  writeall('')
-  writeall('unit/convert checks starting')
-
-  ---- Check that the script succeeds and changes the unit to a neutral
-  writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Neutral (Should succeed and change the unit to a neutral)')
-  output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Neutral')
-  writeall(output)
-  if unit.civ_id ~= -1 and unit.population_id ~= -1 and unit.training_level ~= 9 then
-   unitCheck[#unitCheck+1] = 'Failed to set unit to Neutral'
-  end
-
-  ---- Check that the script succeeds and changes the unit to a civilian
-  writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Civilian (Should succeed and change the unit to a civilian)')
-  output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Civilian')
-  writeall(output)
-  if unit.civ_id ~= side.civ_id and unit.population_id ~= side.population_id then
-   unitCheck[#unitCheck+1] = 'Failed to set unit to Civilian'
-  end
-
-  ---- Check that the script succeeds and changes the unit to a pet
-  writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Pet (Should succeed and change the unit to a pet of side)')
-  output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Pet')
-  writeall(output)
-  if unit.population_id ~= -1 and not unit.flags1.tame and unit.training_level ~= 7 and unit.relationship_ids.Pet ~= side.id then
-   unitCheck[#unitCheck+1] = 'Failed to set unit to Pet'
-  end
-
-  ---- Print PASS/FAIL
-  if #unitCheck == 0 then
-   printplus('PASSED: unit/convert',COLOR_GREEN)
-  else
-   printplus('FAILED: unit/convert',COLOR_RED)
-   writeall(unitCheck)
-  end
-  
-  ---- FINISH unit/convert
-  scriptCheck['unit_convert'] = unitCheck
-  writeall('unit/convert checks finished')
-
+--  unitCheck = {}
+--  unit = non[4]
+--  side = civ[1]
+--  writeall('')
+--  writeall('unit/convert checks starting')
+--
+--  ---- Check that the script succeeds and changes the unit to a neutral
+--  writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Neutral (Should succeed and change the unit to a neutral)')
+--  output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Neutral')
+--  writeall(output)
+--  if unit.civ_id ~= -1 and unit.population_id ~= -1 and unit.training_level ~= 9 then
+--   unitCheck[#unitCheck+1] = 'Failed to set unit to Neutral'
+--  end
+--
+--  ---- Check that the script succeeds and changes the unit to a civilian
+--  writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Civilian (Should succeed and change the unit to a civilian)')
+--  output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Civilian')
+--  writeall(output)
+--  if unit.civ_id ~= side.civ_id and unit.population_id ~= side.population_id then
+--   unitCheck[#unitCheck+1] = 'Failed to set unit to Civilian'
+--  end
+--
+--  ---- Check that the script succeeds and changes the unit to a pet
+--  writeall('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Pet (Should succeed and change the unit to a pet of side)')
+--  output = dfhack.run_command_silent('unit/convert -unit '..tostring(unit.id)..' -side '..tostring(side.id)..' -type Pet')
+--  writeall(output)
+--  if unit.population_id ~= -1 and not unit.flags1.tame and unit.training_level ~= 7 and unit.relationship_ids.Pet ~= side.id then
+--   unitCheck[#unitCheck+1] = 'Failed to set unit to Pet'
+--  end
+--
+--  ---- Print PASS/FAIL
+--  if #unitCheck == 0 then
+--   printplus('PASSED: unit/convert',COLOR_GREEN)
+--  else
+--   printplus('FAILED: unit/convert',COLOR_RED)
+--   writeall(unitCheck)
+--  end
+--  
+--  ---- FINISH unit/convert
+--  scriptCheck['unit_convert'] = unitCheck
+--  writeall('unit/convert checks finished')
+--
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/counter-change -----------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -397,6 +412,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/counter-change checks starting')
+  writeall('unit/counter-change -help')
+  output = dfhack.run_command_silent('unit/counter-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and increases nausea counter by 1000
   writeall('unit/counter-change -unit '..tostring(unit.id)..' -counter nausea -amount 1000 -mode Fixed (Should succeed and increase the nausea counter by 1000)')
@@ -435,117 +453,113 @@ function script_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/create -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
-  unitCheck = {}
-  loc = {pos2xyz(civ[2].pos)}
-  location = tostring(loc[1])..' '..tostring(loc[2])..' '..tostring(loc[3])
-  side = civ[2]
-  writeall('')
-  writeall('unit/create checks starting')
-
-  ---- Check that the script succeeds and creates a neutral male dwarf at given location
-  writeall('unit/create -creature DWARF:MALE -loc [ '..location..' ] (Should succeed and create a neutral male dwarf at given location)')
-  output = dfhack.run_command_silent('unit/create -creature DWARF:MALE -loc [ '..location..' ]')
-  writeall(output)
-
-  ---- Check that the script succeeds and creates a civilian male dwarf at the given location
-  writeall('unit/create -creature DWARF:MALE -reference '..tostring(side.id)..' -side Civilian -loc [ '..location..' ] (Should succeed and create a civilian male dwarf at the reference units location)')
-  output = dfhack.run_command_silent('unit/create -creature DWARF:MALE -reference '..tostring(side.id)..' -side Civilian -loc [ '..location..' ]')
-  writeall(output)
-
-  ---- Check that the script succeeds and creates a domestic dog (male or female) named Clifford
-  writeall('unit/create -creature DOG:RANDOM -reference '..tostring(side.id)..' -side Domestic -name Clifford -loc [ '..location..' ] (Should succeed and create a domestic dog, male or female, named clifford at the reference units location)')
-  output = dfhack.run_command_silent('unit/create -creature DOG:RANDOM -reference '..tostring(side.id)..' -side Domestic -name Clifford -loc [ '..location..' ]')
-  writeall(output)
-
-  ---- Print PASS/FAIL
-  if #unitCheck == 0 then
-   printplus('PASSED: unit/create',COLOR_GREEN)
-  else
-   printplus('FAILED: unit/create',COLOR_RED)
-   writeall(unitCheck)
-  end
-
-  ---- FINISH unit/create
-  scriptCheck['unit_create'] = unitCheck
-  writeall('unit/create checks finished')
-]]
+--  unitCheck = {}
+--  loc = {pos2xyz(civ[2].pos)}
+--  location = tostring(loc[1])..' '..tostring(loc[2])..' '..tostring(loc[3])
+--  side = civ[2]
+--  writeall('')
+--  writeall('unit/create checks starting')
+--
+--  ---- Check that the script succeeds and creates a neutral male dwarf at given location
+--  writeall('unit/create -creature DWARF:MALE -loc [ '..location..' ] (Should succeed and create a neutral male dwarf at given location)')
+--  output = dfhack.run_command_silent('unit/create -creature DWARF:MALE -loc [ '..location..' ]')
+--  writeall(output)
+--
+--  ---- Check that the script succeeds and creates a civilian male dwarf at the given location
+--  writeall('unit/create -creature DWARF:MALE -reference '..tostring(side.id)..' -side Civilian -loc [ '..location..' ] (Should succeed and create a civilian male dwarf at the reference units location)')
+--  output = dfhack.run_command_silent('unit/create -creature DWARF:MALE -reference '..tostring(side.id)..' -side Civilian -loc [ '..location..' ]')
+--  writeall(output)
+--
+--  ---- Check that the script succeeds and creates a domestic dog (male or female) named Clifford
+--  writeall('unit/create -creature DOG:RANDOM -reference '..tostring(side.id)..' -side Domestic -name Clifford -loc [ '..location..' ] (Should succeed and create a domestic dog, male or female, named clifford at the reference units location)')
+--  output = dfhack.run_command_silent('unit/create -creature DOG:RANDOM -reference '..tostring(side.id)..' -side Domestic -name Clifford -loc [ '..location..' ]')
+--  writeall(output)
+--
+--  ---- Print PASS/FAIL
+--  if #unitCheck == 0 then
+--   printplus('PASSED: unit/create',COLOR_GREEN)
+--  else
+--   printplus('FAILED: unit/create',COLOR_RED)
+--   writeall(unitCheck)
+--  end
+--
+--  ---- FINISH unit/create
+--  scriptCheck['unit_create'] = unitCheck
+--  writeall('unit/create checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/destory ------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
-  unitCheck = {}
-  unit1 = df.unit.find(df.global.unit_next_id - 1)
-  unit2 = df.unit.find(df.global.unit_next_id - 2)
-  unit3 = df.unit.find(df.global.unit_next_id - 3)
-  writeall('')
-  writeall('unit/destroy checks starting')
-
-  ---- Check that the script succeeds and removes Clifford the dog
-  writeall('unit/destroy -unit '..tostring(unit3.id)..' -type Created (Should succeed and remove Clifford the dog and all references formed in the creation)')
-  output = dfhack.run_command_silent('unit/destroy -unit '..tostring(unit3.id)..' -type Created')
-  writeall(output)
-
-  ---- Check that the script succeeds and kills the civilian dwarf as a normal kill
-  writeall('unit/destory -unit '..tostring(unit2.id)..' -type Kill (Should succeed and kill the civilian dwarf as a normal kill)')
-  output = dfhack.run_command_silent('unit/destory -unit '..tostring(unit2.id)..' -type Kill')
-  writeall(output)
-
-  ---- Check that the script succeeds and kills the neutral dwarf as a resurrected kill
-  writeall('unit/destroy -unit '..tostring(unit1.id)..' -type Resurrected (Should succeed and kill the netural dwarf as if it were a resurrected unit)')
-  output = dfhack.run_command_silent('unit/destroy -unit '..tostring(unit1.id)..' -type Resurrected')
-  writeall(output)
-
-  ---- Print PASS/FAIL
-  if #unitCheck == 0 then
-   printplus('PASSED: unit/destroy',COLOR_GREEN)
-  else
-   printplus('FAILED: unit/destroy',COLOR_RED)
-   writeall(unitCheck)
-  end
-
-  ---- FINISH unit/destroy
-  scriptCheck['unit_destroy'] = unitCheck
-  writeall('unit/destroy checks finished')
-]]
+--  unitCheck = {}
+--  unit1 = df.unit.find(df.global.unit_next_id - 1)
+--  unit2 = df.unit.find(df.global.unit_next_id - 2)
+--  unit3 = df.unit.find(df.global.unit_next_id - 3)
+--  writeall('')
+--  writeall('unit/destroy checks starting')
+--
+--  ---- Check that the script succeeds and removes Clifford the dog
+--  writeall('unit/destroy -unit '..tostring(unit3.id)..' -type Created (Should succeed and remove Clifford the dog and all references formed in the creation)')
+--  output = dfhack.run_command_silent('unit/destroy -unit '..tostring(unit3.id)..' -type Created')
+--  writeall(output)
+--
+--  ---- Check that the script succeeds and kills the civilian dwarf as a normal kill
+--  writeall('unit/destory -unit '..tostring(unit2.id)..' -type Kill (Should succeed and kill the civilian dwarf as a normal kill)')
+--  output = dfhack.run_command_silent('unit/destory -unit '..tostring(unit2.id)..' -type Kill')
+--  writeall(output)
+--
+--  ---- Check that the script succeeds and kills the neutral dwarf as a resurrected kill
+--  writeall('unit/destroy -unit '..tostring(unit1.id)..' -type Resurrected (Should succeed and kill the netural dwarf as if it were a resurrected unit)')
+--  output = dfhack.run_command_silent('unit/destroy -unit '..tostring(unit1.id)..' -type Resurrected')
+--  writeall(output)
+--
+--  ---- Print PASS/FAIL
+--  if #unitCheck == 0 then
+--   printplus('PASSED: unit/destroy',COLOR_GREEN)
+--  else
+--   printplus('FAILED: unit/destroy',COLOR_RED)
+--   writeall(unitCheck)
+--  end
+--
+--  ---- FINISH unit/destroy
+--  scriptCheck['unit_destroy'] = unitCheck
+--  writeall('unit/destroy checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/emotion-change -----------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  unitCheck = {}
-  unit = civ[1]
-  writeall('')
-  writeall('unit/emotion-change checks starting')
-
-  ---- Check that the script succeeds and adds emotion XXXX with thought WWWW and severity and strength 0 to unit
-  writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion ACCEPTANCE (Should succeed and add emotion XXXX with thought WWWW and severity and strength 0 to unit)')
-  output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion ACCEPTANCE')
-  writeall(output)
-  emotion = unit.status.current_soul.personality.emotions[#unit.status.current_soul.personality.emotions-1]
-  if df.emotion_type[emotion.type] ~= 'ACCEPTANCE' then
-   unitCheck[#unitCheck+1] = 'Failed to add an ACCEPTANCE emotion'
-  end
-
-  ---- Check that the script succeeds and adds emotion XXXX with thought ZZZZ and severity and strength 1000 to unit
-  writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion AGONY -thought Conflict -severity 100 -strength 100 -add (Should succeed and add emotion XXXX with thought ZZZZ and severity and strength 100 to unit)')
-  output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion AGONY -thought Conflict -severity 100 -strength 100 -add')
-  writeall(output)
-  emotion = unit.status.current_soul.personality.emotions[#unit.status.current_soul.personality.emotions-1]
-  if df.emotion_type[emotion.type] ~= 'AGONY' and df.unit_thought_type[emotion.thought] ~= 'Conflict' then
-   unitCheck[#unitCheck+1] = 'Failed to add an AGONY emotion with Conflict thought'
-  end
-
-  ---- Print PASS/FAIL
-  if #unitCheck == 0 then
-   printplus('PASSED: unit/emotion-change',COLOR_GREEN)
-  else
-   printplus('FAILED: unit/emotion-change',COLOR_RED)
-   writeall(unitCheck)
-  end
-
-  ---- FINISH unit/emotion-change
-  scriptCheck['unit_emotion_change'] = unitCheck
-  writeall('unit/emotion-change checks finished')
-
+--  unitCheck = {}
+--  unit = civ[1]
+--  writeall('')
+--  writeall('unit/emotion-change checks starting')
+--
+--  ---- Check that the script succeeds and adds emotion XXXX with thought WWWW and severity and strength 0 to unit
+--  writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion ACCEPTANCE (Should succeed and add emotion XXXX with thought WWWW and severity and strength 0 to unit)')
+--  output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion ACCEPTANCE')
+--  writeall(output)
+--  emotion = unit.status.current_soul.personality.emotions[#unit.status.current_soul.personality.emotions-1]
+--  if df.emotion_type[emotion.type] ~= 'ACCEPTANCE' then
+--   unitCheck[#unitCheck+1] = 'Failed to add an ACCEPTANCE emotion'
+--  end
+--
+--  ---- Check that the script succeeds and adds emotion XXXX with thought ZZZZ and severity and strength 1000 to unit
+--  writeall('unit/emotion-change -unit '..tostring(unit.id)..' -emotion AGONY -thought Conflict -severity 100 -strength 100 -add (Should succeed and add emotion XXXX with thought ZZZZ and severity and strength 100 to unit)')
+--  output = dfhack.run_command_silent('unit/emotion-change -unit '..tostring(unit.id)..' -emotion AGONY -thought Conflict -severity 100 -strength 100 -add')
+--  writeall(output)
+--  emotion = unit.status.current_soul.personality.emotions[#unit.status.current_soul.personality.emotions-1]
+--  if df.emotion_type[emotion.type] ~= 'AGONY' and df.unit_thought_type[emotion.thought] ~= 'Conflict' then
+--   unitCheck[#unitCheck+1] = 'Failed to add an AGONY emotion with Conflict thought'
+--  end
+--
+--  ---- Print PASS/FAIL
+--  if #unitCheck == 0 then
+--   printplus('PASSED: unit/emotion-change',COLOR_GREEN)
+--  else
+--   printplus('FAILED: unit/emotion-change',COLOR_RED)
+--   writeall(unitCheck)
+--  end
+--
+--  ---- FINISH unit/emotion-change
+--  scriptCheck['unit_emotion_change'] = unitCheck
+--  writeall('unit/emotion-change checks finished')
+--
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/flag-change --------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -553,6 +567,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/flag-change checks starting')
+  writeall('unit/flag-change -help')
+  output = dfhack.run_command_silent('unit/flag-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and hides the unit
   writeall('unit/flag-change -unit '..tostring(unit.id)..' -flag hidden_in_ambush -True (Should succeed and hide unit)')
@@ -589,6 +606,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/move checks starting')
+  writeall('unit/move -help')
+  output = dfhack.run_command_silent('unit/move -help')
+  writeall(output)
 
   ---- Check that the script succeeds and moves the unit to a random position within a 5x5 square
   writeall('unit/move -unit '..tostring(unit.id)..' -random [ 5 5 0 ] (Should succeed and move the unit to a random position within a 5x5 square)')
@@ -644,6 +664,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/propel checks starting')
+  writeall('unit/propel -help')
+  output = dfhack.run_command_silent('unit/propel -help')
+  writeall(output)
 
   ---- Check that the script succeeds and turns the unit into a projectile
   writeall('unit/propel -unitTarget '..tostring(unit.id)..' -velocity [ 0 0 100 ] -mode Fixed (Should succeed and turn the unitTarget into a projectile with velocity 100 in the z direction)')
@@ -672,6 +695,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/resistance-change checks starting')
+  writeall('unit/resistance-change -help')
+  output = dfhack.run_command_silent('unit/resistance-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and increases units fire resistance by 50 and creates tracking table
   writeall('unit/resistance-change -unit '..tostring(unit.id)..' -resistance FIRE -amount 50 -mode fixed (Should succeed and increase units fire resistance by 50, will also create unit persist table since there is no vanilla resistances)')
@@ -705,6 +731,9 @@ function script_checks()
   skill = dfhack.units.getNominalSkill(unit,df.job_skill['DODGING'])
   writeall('')
   writeall('unit/skill-change checks starting')
+  writeall('unit/skill-change -help')
+  output = dfhack.run_command_silent('unit/skill-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and increases units dodging skill by 5 levels
   writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 5 -mode Fixed (Should succeed and increase units dodging skill by 5 levels)')
@@ -716,8 +745,8 @@ function script_checks()
   skill = skill + 5
 
   ---- Check that the script succeeds and doubles units dodging skill and creates tracking table
-  writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 200 -mode Percent -track (Should succeed and double units dodging skill, will also create unit persist table)')
-  output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 200 -mode Percent -track')
+  writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 200 -mode Percent (Should succeed and double units dodging skill, will also create unit persist table)')
+  output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill DODGING -amount 200 -mode Percent')
   writeall(output)
   if dfhack.units.getNominalSkill(unit,df.job_skill['DODGING']) ~= skill*2 then
    unitCheck[#unitCheck+1] = 'Failed to increase units dodging skill by 200 percent'
@@ -726,12 +755,6 @@ function script_checks()
    unitCheck[#unitCheck+1] = 'Failed to create DODGING skill persistant table'
   end
 
-  -- EXPERIENCE MODE NOT CURRENTLY WORKING
-  ---- Check that the script succeeds and adds 500 experience to the units mining skill
-  --    writeall('unit/skill-change -unit '..tostring(unit.id)..' -skill MINING -amount 500 -mode Experience (Should succeed and add 500 experience to the units mining skill)')
-  --output = dfhack.run_command_silent('unit/skill-change -unit '..tostring(unit.id)..' -skill MINING -amount 500 -mode Experience')
-  --writeall(output)
-  --
   ---- Print PASS/FAIL
   if #unitCheck == 0 then
    printplus('PASSED: unit/skill-change',COLOR_GREEN)
@@ -751,6 +774,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/stat-change checks starting')
+  writeall('unit/stat-change -help')
+  output = dfhack.run_command_silent('unit/stat-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and increases unit magical hit chance stat by 50 and creates tracking table
   writeall('unit/stat-change -unit '..tostring(unit.id)..' -stat CRITICAL_CHANCE -amount 50 -mode fixed (Should succeed and increase units magical hit chance by 50, will also create unit persist table since there is no vanilla stats)')
@@ -783,6 +809,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/syndrome-change checks starting')
+  writeall('unit/syndrome-change -help')
+  output = dfhack.run_command_silent('unit/syndrome-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and adds TEST_SYNDROME_1 to the unit
   writeall('unit/syndrome-change -unit '..tostring(unit.id)..' -syndrome TEST_SYNDROME_1 -add (Should succeed and add TEST_SYNDROME_1 to the unit)')
@@ -844,6 +873,9 @@ function script_checks()
   unit = civ[1]
   writeall('')
   writeall('unit/trait-change checks starting')
+  writeall('unit/trait-change -help')
+  output = dfhack.run_command_silent('unit/trait-change -help')
+  writeall(output)
 
   ---- Check that the script succeeds and lowers the units greed trait by 5
   s = unit.status.current_soul.personality.traits.GREED
@@ -856,8 +888,8 @@ function script_checks()
 
   ---- Check that the script succeeds and quarters the units bravery trait, also creates a tracking table
   s = unit.status.current_soul.personality.traits.BRAVERY
-  writeall('unit/trait-change -unit '..tostring(unit.id)..' -trait BRAVERY -amount 25 -mode Percent -track (Should succeed and quarter units bravery trait, will also create unit persist table)')
-  output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait BRAVERY -amount 25 -mode Percent -track')
+  writeall('unit/trait-change -unit '..tostring(unit.id)..' -trait BRAVERY -amount 25 -mode Percent (Should succeed and quarter units bravery trait, will also create unit persist table)')
+  output = dfhack.run_command_silent('unit/trait-change -unit '..tostring(unit.id)..' -trait BRAVERY -amount 25 -mode Percent')
   writeall(output)
   if s/unit.status.current_soul.personality.traits.BRAVERY > 5.0 or s/unit.status.current_soul.personality.traits.BRAVERY < 3.0 then
    unitCheck[#unitCheck+1] = 'Failed to quarter BRAVERY trait. Previous BRAVERY = '..tostring(s)..'. New BRAVERY = '..tostring(unit.status.current_soul.personality.traits.BRAVERY)
@@ -885,6 +917,9 @@ function script_checks()
   unit = civ[2]
   writeall('')
   writeall('unit/transform checks starting')
+  writeall('unit/transform -help')
+  output = dfhack.run_command_silent('unit/transform -help')
+  writeall(output)
 
   ---- Check that the script succeeds and changes the unit into a male elf
   writeall('unit/transform -unit '..tostring(unit.id)..' -creature ELF:MALE (Should succeed and change the unit to a male elf)')
@@ -896,8 +931,8 @@ function script_checks()
   end
 
   ---- Check that the script succeeds and changes the unit into a female dwarf for 50 ticks
-  writeall('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:FEMALE -dur 50 -track (Should succeed and change the unit to a female dwarf for 50 ticks and create a unit persist table)')
-  output = dfhack.run_command_silent('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:FEMALE -dur 50 -track')
+  writeall('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:FEMALE -dur 50 (Should succeed and change the unit to a female dwarf for 50 ticks and create a unit persist table)')
+  output = dfhack.run_command_silent('unit/transform -unit '..tostring(unit.id)..' -creature DWARF:FEMALE -dur 50')
   writeall(output)
   script.sleep(2,'ticks')
   if not unitFunctions.checkCreatureRace(unit,'DWARF:FEMALE') then
@@ -925,52 +960,52 @@ function script_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START unit/wound-change -------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  unitCheck = {}
-  unit = non[1]
-  writeall('')
-  writeall('unit/wound-change checks starting')
-
-  ---- Check that the script succeeds and removes the most recent wound
-  writeall('unit/wound-change -unit '..tostring(unit.id)..' -remove 1 -recent (Should succeed and remove the most recent wounds)')
-  output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -remove 1 -recent')
-  writeall(output)
-
-  ---- Check that the script succeeds and regrows any lost limbs
-  writeall('unit/wound-change -unit '..tostring(unit.id)..' -remove All -regrow (Should succeed and remove all wounds and return any lost limbs)')
-  output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -remove All -regrow')
-  writeall(output)
-
-  ---- Kills the unit
-  writeall('Killing unit')
-  output = dfhack.run_command_silent('unit/counter-change -unit '..tostring(unit.id)..' -counter blood -amount 0 -mode set')
-  writeall(output)
-  script.sleep(1,'ticks')
-
-  ---- Checks that the script succeeds and brings the unit back to life
-  writeall('unit/wound-change -unit '..tostring(unit.id)..' -resurrect (Should succeed and bring unit back to life)')
-  output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -resurrect')
-  writeall(output)
-  ---- Kills and butchers the unit
-  writeall('Killing and Butcher unit')
-  output = dfhack.run_command_silent('unit/butcher -unit '..tostring(unit.id)..' -kill')
-  writeall(output)
-
-  ---- Check that the script succeeds and brings back all corpse parts as zombies
-  writeall('unit/wound-change -unit '..tostring(unit.id)..' -animate (Should succeed and bring all corpse parts back as zombies)')
-  output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -animate')
-  writeall(output)
-
-  ---- Print PASS/FAIL
-  if #unitCheck == 0 then
-   printplus('PASSED: unit/wound-change',COLOR_GREEN)
-  else
-   printplus('FAILED: unit/wound-change',COLOR_RED)
-   writeall(unitCheck)
-  end
-
-  ---- FINISH unit/wound-change
-  scriptCheck['unit_wound_change'] = unitCheck
-  writeall('unit/wound-change checks finished')
+--  unitCheck = {}
+--  unit = non[1]
+--  writeall('')
+--  writeall('unit/wound-change checks starting')
+--
+--  ---- Check that the script succeeds and removes the most recent wound
+--  writeall('unit/wound-change -unit '..tostring(unit.id)..' -remove 1 -recent (Should succeed and remove the most recent wounds)')
+--  output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -remove 1 -recent')
+--  writeall(output)
+--
+--  ---- Check that the script succeeds and regrows any lost limbs
+--  writeall('unit/wound-change -unit '..tostring(unit.id)..' -remove All -regrow (Should succeed and remove all wounds and return any lost limbs)')
+--  output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -remove All -regrow')
+--  writeall(output)
+--
+--  ---- Kills the unit
+--  writeall('Killing unit')
+--  output = dfhack.run_command_silent('unit/counter-change -unit '..tostring(unit.id)..' -counter blood -amount 0 -mode set')
+--  writeall(output)
+--  script.sleep(1,'ticks')
+--
+--  ---- Checks that the script succeeds and brings the unit back to life
+--  writeall('unit/wound-change -unit '..tostring(unit.id)..' -resurrect (Should succeed and bring unit back to life)')
+--  output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -resurrect')
+--  writeall(output)
+--  ---- Kills and butchers the unit
+--  writeall('Killing and Butcher unit')
+--  output = dfhack.run_command_silent('unit/butcher -unit '..tostring(unit.id)..' -kill')
+--  writeall(output)
+--
+--  ---- Check that the script succeeds and brings back all corpse parts as zombies
+--  writeall('unit/wound-change -unit '..tostring(unit.id)..' -animate (Should succeed and bring all corpse parts back as zombies)')
+--  output = dfhack.run_command_silent('unit/wound-change -unit '..tostring(unit.id)..' -animate')
+--  writeall(output)
+--
+--  ---- Print PASS/FAIL
+--  if #unitCheck == 0 then
+--   printplus('PASSED: unit/wound-change',COLOR_GREEN)
+--  else
+--   printplus('FAILED: unit/wound-change',COLOR_RED)
+--   writeall(unitCheck)
+--  end
+--
+--  ---- FINISH unit/wound-change
+--  scriptCheck['unit_wound_change'] = unitCheck
+--  writeall('unit/wound-change checks finished')
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  printplus('Unit script checks finished',COLOR_CYAN)
 

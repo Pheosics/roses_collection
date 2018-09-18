@@ -1,9 +1,35 @@
---item/create.lua v1.0 | DFHack 43.05
---author expwnent, modified by roses (added item duration)
---creates an item of a given type and material
+--item/create.lua
+local usage = [====[
+
+item/create
+===========
+Purpose::
+    Creates an item and it's cooresponding item table for tracking
+
+Function Calls::
+    item.create
+      
+Arguments::
+    -creator     UNIT_ID
+        id of creator unit, set to 0 if not present
+    -item        ITEM_TYPE:ITEM_SUBTYPE
+        Item to be created
+    -material    MATERIAL_TYPE:MATERIAL_SUBTYPE
+        Material to make item out of
+    -quality     #
+        Quality to create the item at
+    -dur         #
+        Length of time for item to exist
+    -matchingGloves
+        If present it will create two gloves with correct handedness
+    -matchingShoes
+        If present it will create two shoes
+
+Examples::
+    -item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:SUPER_INORGANIC -quality 7 -dur 3600
+]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'creator',
@@ -13,41 +39,11 @@ validArgs = utils.invert({
  'matchingShoes',
  'dur',
  'quality',
- 'verbose'
 })
-
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then
- print(
-[[item/create.lua
-arguments:
-    -help
-        print this help message
-    -creator id
-        specify the id of the unit who will create the item
-        examples:
-            0
-            2
-    -material matstring
-        specify the material of the item to be created
-        examples:
-            INORGANIC:IRON
-            CREATURE_MAT:DWARF:BRAIN
-            PLANT_MAT:MUSHROOM_HELMET_PLUMP:DRINK
-    -item itemstr
-        specify the itemdef of the item to be created
-        examples:
-            WEAPON:ITEM_WEAPON_PICK
-    -matchingShoes
-        create two of this item
-    -matchingGloves
-        create two of this item, and set handedness appropriately
-    -dur #
-        length of time, in in-game ticks, for the item to exist
-        0 means the item is permanent
-        DEFAULT: 0
- ]])
+ print(usage)
  return
 end
 

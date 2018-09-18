@@ -1,20 +1,35 @@
---unit/propel.lua v1.0 | DFHack 43.05
+--unit/propel.lua
 local usage = [====[
 
-xxxxxx
-======
+unit/propel
+===========
 Purpose::
+    Turns a unit into a projectile with a given velocity
 
 Function Calls::
+    unit.makeProjectile
 
 Arguments::
+    -unitTarget    UNIT_ID
+        ID of the unit to turn into a projectile
+    -unitSource    UNIT_ID
+        ID of the unit to use for positioning when using -mode Relative
+    -velocity      [ x y z ]
+        Velocity in x,y,z
+    -mode          Propel Type
+        Method for calculation actual projectile velocity
+        Valid Types:
+            Fixed
+            Random
+            Relative
 
 Examples::
-
+    unit/propel -unitSource \\UNIT_ID -velocity [ 0 0 100 ] -mode Fixed
+    unit/propel -unitSource \\UNIT_ID -velocity [ 50 50 0 ] -mode Random
+    unit/propel -unitSource \\UNIT_ID -unitTarget \\UNIT_ID -velocity [ 10 10 10 ] -mode Relative
 ]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'unitSource',
@@ -24,27 +39,8 @@ validArgs = utils.invert({
 })
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then -- Help declaration
- print([[unit/propel.lua
-  Flings a unit by turning them into a projectile
-  arguments:
-   -help
-     print this help message
-   -unitTarget id
-     REQUIRED
-     id of the unit to use turn into a projectile
-   -unitSource id
-     id of the unit to use to use for positioning
-     required if using -relative
-   -velocity [ # # # ]
-     velocity in x,y,z coordinates
-     DEFAULT [ 0 0 0 ]
-   -mode Type
-     Valid Types:
-      Fixed
-      Random
-      Relative
- ]])
+if args.help then
+ print(usage)
  return
 end
 

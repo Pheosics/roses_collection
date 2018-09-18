@@ -1,7 +1,45 @@
---item/material-change.lua v1.0 | DFHack 43.05
+--item/material-change.lua
+local usage = [====[
+
+item/material-change
+====================
+Purpose::
+    Change the material of a given item or equipped item(s)
+    Changes are tracked
+
+Function Calls::
+    unit.getInventoryType
+    item.changeMaterial
+      
+Arguments::
+    -item        ITEM_ID
+        id of item to change
+    -mat         MATERIAL_TYPE:MATERIAL_SUBTYPE
+        Material to change item into
+    -unit        UNIT_ID
+        id of unit to change if using -equipment
+    -equipment   Equipment Type
+        Type of equipment to check for
+        Valid Types:
+            ALL
+            WEAPON
+            ARMOR
+            HELM
+            SHOES
+            SHIELD
+            GLOVES
+            PANTS
+            AMMO
+    -dur         #
+        Length of time for change to last
+
+Examples::
+    item/material-change -item \\ITEM_ID -mat INORGANIC:DIAMOND -dur 3600
+    item/material-change -unit \\UNIT_ID -equipment WEAPON -mat INORGANIC:SLADE
+
+]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'unit',
@@ -9,49 +47,15 @@ validArgs = utils.invert({
  'equipment',
  'mat',
  'dur',
- 'track',
- 'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then -- Help declaration
- print([[item/material-change.lua
-  Change the material a equipped item is made out of
-  arguments:
-   -help
-     print this help message
-   -unit id                   \
-     id of the target unit    |
-   -item id                   | Must have one and only one of them
-     id of the target item    /
-   -equipment Type
-     Valid Types:
-      WEAPON
-      ARMOR
-      HELM
-      SHOES
-      SHIELD
-      GLOVES
-      PANTS
-      AMMO
-   -mat matstring
-     specify the material of the item to be changed to
-     examples:
-      INORGANIC:IRON
-      CREATURE_MAT:DWARF:BRAIN
-      PLANT_MAT:MUSHROOM_HELMET_PLUMP:DRINK
-   -dur #
-     length of time, in in-game ticks, for the material change to last
-     0 means the change is permanent
-     DEFAULT: 0
-  examples:
-   item/material-change -unit \\UNIT_ID -weapon -ammo -mat INORGANIC:IMBUE_FIRE -dur 3600
-   item/material-change -unit \\UNIT_ID -armor -helm -shoes -pants -gloves -mat INORGANIC:IMBUE_STONE -dur 1000
-   item/material-change -unit \\UNIT_ID -shield -mat INORGANIC:IMBUE_AIR
- ]])
+if args.help then
+ print(usage)
  return
 end
 
+items = {}
 if args.unit and tonumber(args.unit) then
  unit = df.unit.find(tonumber(args.unit))
  local types = args.equipment
@@ -66,9 +70,6 @@ else
 end
 
 dur = tonumber(args.dur) or 0
-track = nil
-if args.track then track = 'track' end
-
 for _,item in pairs(items) do
- dfhack.script_environment('functions/item').changeMaterial(item,args.mat,dur,track)
+ dfhack.script_environment('functions/item').changeMaterial(item,args.mat,dur,'track')
 end

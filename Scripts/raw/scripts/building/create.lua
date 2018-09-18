@@ -1,16 +1,44 @@
---building/create.lua v0.1 | DFHack 43.05
+--building/create.lua
+local usage = [====[
+
+building/create
+===============
+Purpose::
+    Create a fully functioning building
+    Vanilla buildings are not currently supported
+
+Function Calls::
+    map.checkFree
+    building.addItem
+    item.create
+
+Arguments::
+    -location      [ x y z ]
+    -type          Building Type
+        Building type to create
+        Valid Types:
+            Furnace
+            Workshop
+    -subtype       BUILDING_TOKEN
+        Building token to create
+    -item          ITEM_ID or ITEM_TYPE:ITEM_SUBTYPE
+        id(s) of item(s) to be added to created building or item(s) to be created
+    -material      MATERIAL_TYPE:MATERIAL_SUBTYPE
+        If creating item(s) provides material for the item
+
+Examples::
+    building/create -location [ \\LOCATION ] -type Workshop -subtype SCREW_PRESS
+]====]
+
 local utils = require 'utils'
 require 'dfhack.buildings'
-
 validArgs = utils.invert({
  'help',
  'type',
  'subtype',
- 'custom',
  'location',
  'item',
  'material',
- 'clear',
 })
 
 local args = utils.processArgs({...}, validArgs)
@@ -23,13 +51,8 @@ local dimy = nil
 local stages = nil
 
 if args.help then
-print(
-[[building/subtype-change.lua
- arguments:
-  -help
-   print this help message
-]])
-return
+ print(usage)
+ return
 end
 
 if not args.location then
@@ -43,31 +66,22 @@ if not args.subtype then
  return
 end
 
---if args.custom then
- for i,bldg in pairs(df.global.world.raws.buildings.all) do
-  if bldg.code == args.subtype then
-   mtype = bldg.building_type
-   stype = bldg.building_subtype
-   ctype = i
-   dimx = bldg.dim_x
-   dimy = bldg.dim_y
-   stages = bldg.build_stages
-  end
+for i,bldg in pairs(df.global.world.raws.buildings.all) do
+ if bldg.code == args.subtype then
+  mtype = bldg.building_type
+  stype = bldg.building_subtype
+  ctype = i
+  dimx = bldg.dim_x
+  dimy = bldg.dim_y
+  stages = bldg.build_stages
  end
+end
 
- if not mtype then
-  print('Custom building not found')
-  return
- end
+if not mtype then
+ print('Custom building not found')
+ return
+end
 
---else
--- mtype = df.building_type[args.type]
--- stype = tonumber(args.subtype) -- How to get vanilla building subtype
--- ctype = -1
--- dimx = 1 -- How to get vanilla building sizes
--- dimy = 1
--- stages = 1 -- How to get vanilla building stages
---end
 
 local x = args.location[1]
 local y = args.location[2]

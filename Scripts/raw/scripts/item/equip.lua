@@ -1,15 +1,56 @@
--- equip an item on a unit with a particular body part
-local utils = require 'utils'
+-- item/equip.lua
+local usage = [====[
 
+item/equip
+==========
+Purpose::
+    Equip an item to a unit, bypassing normal equipment rules
+
+Function Calls::
+    unit.getBodyParts
+    item.equip
+
+Arguments::
+    -unit        UNIT_ID
+        id of unit to equip item to
+    -item        ITEM_ID
+        id of item to equip
+        Special Tokens:
+            GROUND
+            MOST_RECENT
+    -bodyType    Body Part Type
+        Body part type to find to equip to
+        Valid Values:
+            Category
+            Flag
+            Token
+    -bodyPart
+        Body part to equip to (based on -bodyType)
+    -mode
+        Method for equiping
+        Valid Values:
+            Worn
+
+Examples::
+    item/equip -unit \\UNIT_ID -item MOST_RECENT -bodyType Flag -bodyPart GRASP
+    item/equip -unit \\UNIT_ID -item \\ITEM_ID -bodyType Category -bodyPart UPPERBODY
+
+]====]
+
+local utils = require 'utils'
 validArgs = utils.invert({
   'unit',
   'item',
   'bodyPart',
-  'type',
+  'bodytype',
   'mode',
-  'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
+
+if args.help then
+ print(usage)
+ return
+end
 
 local unitId = tonumber(args.unit)
 local unit = df.unit.find(unitId)
@@ -32,16 +73,8 @@ if not item then
 end
 
 local bodyPartName = args.bodyPart
-
-if args.type == 'Category' then
- parts = dfhack.script_environment('functions/unit').getBodyCategory(unit,bodyPartName)
-elseif args.type == 'Flag' then
- parts = dfhack.script_environment('functions/unit').getBodyFlag(unit,bodyPartName)
-else
- parts = dfhack.script_environment('functions/unit').getBodyToken(unit,bodyPartName)
-end
+parts = dfhack.script_environment('functions/unit').getBodyParts(unit,args.bodyType,args.bodyPart)
 local partId = parts[1]
-
 if not partId then
   error('invalid body part name: ', bodyPartName)
 end
@@ -50,4 +83,3 @@ local mode = args.mode or 'Worn'
 mode = df.unit_inventory_item.T_mode[mode]
 
 dfhack.script_environment('functions/item').equip(item, unit, partId, mode)
---require('plugins.eventful').onInventoryChange.equipmentTrigger(unit.id,item.id,nil,item.id)

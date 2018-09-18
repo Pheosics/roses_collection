@@ -1,20 +1,43 @@
---unit/resistance-change.lua v1.0 | DFHack 43.05
+--unit/resistance-change.lua
 local usage = [====[
 
-xxxxxx
-======
+unit/resistance-change
+======================
 Purpose::
-
+    Change the resistance(s) of a unit and track those changes
+    Tracked changes can end naturally or be terminated early using other scripts
+        
 Function Calls::
-
+    unit.getUnitTable
+    unit.changeResistance
+    misc.getChange
+        
 Arguments::
+    -unit           UNIT_ID
+        id of unit to change attributes of
+    -resistance     RESISTANCE_TOKEN or [ RESISTANCE_TOKEN RESISTANCE_TOKEN ... ]
+        Resistance(s) to be changed
+    -mode           Change Mode
+        Mode of calculating the change
+        Valid Values:
+           Percent - changes resistance(s) by a given percentage level
+           Fixed   - changes resistance(s) by a flat amount
+           Set     - sets resistance(s) to a given level
+    -amount         # or [ # # ... ]
+        Number(s) to use for resistance changes
+        Must have the same amount of numbers as there are RESISTANCE_TOKENs
+    -dur            #
+        Length of time in in=game ticks for the change to last
+    -syndrome       SYN_NAME
+        Attaches a syndrome with the given name to the change for tracking purposes
 
 Examples::
-
+    unit/resistance-change -unit \\UNIT_ID -mode Fixed -amount 100 -resistance WATER
+    unit/resistance-change -unit \\UNIT_ID -mode Percent -amount [ 10 10 10 ] -resistance [ STORM AIR FIRE ] -dur 3600
+    unit/resistance-change -unit \\UNIT_ID -mode set -amount 50 -resistance ICE -dur 1000
 ]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'resistance',
@@ -22,37 +45,12 @@ validArgs = utils.invert({
  'amount',
  'dur',
  'unit',
- 'announcement',
- 'track',
  'syndrome',
 })
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then -- Help declaration
- print([[unit/resistance-change.lua
-  Change the resistance(s) of a unit
-  arguments:
-   -help
-     print this help message
-   -unit id
-     REQUIRED
-     id of the target unit
-   -resistance RESISTANCE_ID
-     resistance(s) to be changed
-   -mode Type
-     Valid Types:
-      Fixed
-      Percent
-      Set
-   -amount #
-   -dur #
-     length of time, in in-game ticks, for the change to last
-     0 means the change is permanent
-     DEFAULT: 0
-   -announcement string
-     optional argument to create an announcement and combat log report
-  examples:
- ]])
+if args.help then
+ print(usage)
  return
 end
 
@@ -74,13 +72,13 @@ if #value ~= #args.resistance then
  return
 end
 
-track = args.track or 'track'
-
+unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 for i,resistance in ipairs(args.resistance) do
- _,current = dfhack.script_environment('functions/unit').getUnit(unit,'Resistances',resistance)
- change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
- dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,dur,track,args.syndrome)
-end
-if args.announcement then
---add announcement information
+ if unitTable.Resistances[resistance] then
+  current = unitTable.Resistance[resistance].Base
+  change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
+  dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,dur,'track',args.syndrome)
+ else
+  print('Invalid Resistance Token: '..resistance)
+ end
 end

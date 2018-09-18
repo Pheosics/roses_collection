@@ -1,117 +1,13 @@
---map based functions, version 42.06a
---[[
-changeInorganic(x,y,z,inorganicToken,duration)
-  Purpose: Changes the inorganic at specified position
-  Calls: persist-delay.environmentDelay
-  Inputs:
-        x:                      X Location or Table of x,y,z coordinates
-        y:                      Y location if x isn't a table
-        z:                      Z location if x isn't a table
-        inorganicToken:         RAW Token of inorganic
-        duration:               Time (in ticks) for the change to last
-  Returns: Boolean - Was the change successful?
+-- Map Based Functions
 
-changeTemperature(x,y,z,temperature,duration)
-  Purpose: Changes the temperature at specified position (doesn't really work well since the game constantly reupdates temperatures)
-  Calls: persist-delay.environmentDelay
-  Inputs:
-        x:                      X Location or Table of x,y,z coordinates
-        y:                      Y location if x isn't a table
-        z:                      Z location if x isn't a table
-        temperature:            Number to set temperature to
-        duration:               Time (in ticks) for the change to last
-  Returns: Boolean - Was the change successful?
+--[[ Map Changing Functions =======================================================================
+function                                 Map Changing Functions
+changeInorganic
 
-getPosition(Type,options)
-  Purpose: Returns a single position { x y z } depending on the given type and options
-  Calls: getPositionCenter | getPositionEdge | getPositionRandom | getPositionCavern | getPositionSurface | getPositionSky
-         getPositionUnderground | getPositionLocationRandom | getPositionUnitRandom | checkBounds | checkFree | checkSurface
-  Inputs:
-	Type:			Type of position to return (Valid Values: Center, Edge, Random, Cavern, Surface, SurfaceFree, Sky, Underground, LocationRandom, UnitRandom)
-        options:		An array of optional arguments depending on the Type
-		unit:		(If using UnitRandom) The unit struct or unitID to center the position on
-		location:	(If using Surface, Sky, Underground, or LocationRandom) The location { x y z } to center the position on
-                radius:		(If using Center, LocationRandom, or UnitRandom) The radius ( x y z ) around the central location
-		caveNumber:	(If using Cavern) The cave number to search for a position in
-  Returns: Table { x, y, z}
-
-getPositions(Type,options)
-  Purpose: Returns a table of positions { { x y z } } depending on the given type and options
-  Calls: getEdgesPositions | getFillPositions | getPlanPositions
-  Inputs:
-	Type:			Type of positions to return (Valid Values: Edges, Fill, Plan)
-	Options:		An array of optional arguments depending on the Type
-		target:		(If using Edges, Fill, or Plan) The position { x y z } to center on
-		radius:		(If using Edges or Fill) The radius { x y z } around the center to include
-		origin:		(If using Plan) The position { x y z } to reference as the origin for rotation
-		file:		(If using Plan) The file to read for the positional information
-  Returns: Table, Number - { position[s] }, # of positions
-
-getFlow(position,flowType)
-  Purpose: Get all flows of a specific type and the given position
-  Calls: None
-  Inputs:
-         Position:		Table of { x y z } coordinate
-         FlowType:		(Optional) If present it will restrict the flow check to that specific flow type
-  Returns: Table - { flow[s] }
-
-getTileFeature(type,position,array)
-  Purpose: Get the table entry of the specified feature type at a given positions
-  Calls: getTree | getShrub
-  Inputs:
-         Type:			Type of feature/object to look for (Valid Values: Tree or Shrub)
-         Position:		Table of { x y z } coordinate
-         Array:			(Optional) The DFHack array to check against (e.g. df.global.world.plants.all)
-  Returns: Number, Struct - # of Struct Entry, DFHack Struct
-
-getTileMat(x,y,z)		**Taken from Milo Christianson's Rubble Utility and translated to work without that framework
-  Purpose: Get the material string that cooresponds with that is seen in game
-  Calls: getTileTypeMat | getLayerMat | getLavaStone | getVeinMat | getConstructionMat | getConstructOriginalTileMat | getTreeMat
-         getShrubMat | getFeatureMat
-  Inputs:
-         x:			Either a table of { x y z } coordinates or the x coordinate
-         y:			The y coordinate if x is not a table
-         z:			The z coordinate if x is not a table
-  Returns: String - RAW material token
-
-spawnFlow(edges,offset,flowType,inorganicToken,density,static)
-  Purpose: Spawns a flow with given characteristics
-  Calls: None
-  Inputs:
-        edges:                  Table of x,y,zmin and x,y,zmax
-        offset:                 Table of x,y,z distances
-        flowType:               Flow Token (Valid Values: MIASMA, STEAM, MIST, MATERIALDUST, MAGMAMIST, SMOKE, DRAGONFIRE, FIRE, WEB, MATERIALGAS, MATERIALVAPOR, OCEANWAVE, SEAFOAM, or ITEMCLOUD)
-        inorganicToken:         RAW inorganic token
-        density:                Number of flow density
-        static:                 Boolean for whether the flow can move or not
-  Returns: NA
-
-spawnLiquid(edges,offset,depth,magma,circle,taper)
-  Purpose: Spawns water or magma with given characteristics
-  Calls: None
-  Inputs:
-        edges:                  Table of x,y,zmin and x,y,zmax
-        offset:                 Table of x,y,z distances
-        depth:                  Number of liquid depth
-        magma:                  Boolean for whether magma or not (i.e. water)
-        circle:                 Boolean for if the liquid should be spawned in a circle
-        taper:                  Boolean for if the liquid should have a maximum depth at the center and taper off
-  Returns: NA
-
-findLocation(searchTable)
-  Purpose: Find a location that satisfies a specific search criteria
-  Calls: misc.permute
-  Inputs:
-        searchTable:            Table of strings to search for a location on the map (NEED TO ADD MORE INFORMATION)
-  Returns: Table - { location[s] }
+changeTemperature
 ]]
-
----------------------------------------------------------------------------------------
 function changeInorganic(x,y,z,inorganic,dur)
  pos = {}
- change = false
- cb_id = -1
- dur = dur or 0
  if y == nil and z == nil then
   pos.x = x.x or x[1]
   pos.y = x.y or x[2]
@@ -127,7 +23,6 @@ function changeInorganic(x,y,z,inorganic,dur)
   for k = #block.block_events-1,0,-1 do
    if df.block_square_event_mineralst:is_instance(block.block_events[k]) then
     block.block_events:erase(k)
-    change = true
    end
   end
   return
@@ -143,18 +38,13 @@ function changeInorganic(x,y,z,inorganic,dur)
    ev.flags.cluster_one=true
    block.block_events:insert("#",ev)
    dfhack.maps.setTileAssignment(ev.tile_bitmask,pos.x%16,pos.y%16,true)
-   change = true
   end
  end
- if dur > 0 then 
-  cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeInorganic',{pos.x,pos.y,pos.z,current_inorganic,0})
- end
- return change, cb_id
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeInorganic',{pos.x,pos.y,pos.z,current_inorganic,0}) end
 end
 
 function changeTemperature(x,y,z,temperature,dur)
  pos = {}
- change = true
  if y == nil and z == nil then
   pos.x = x.x or x[1]
   pos.y = x.y or x[2]
@@ -167,16 +57,23 @@ function changeTemperature(x,y,z,temperature,dur)
  local block = dfhack.maps.ensureTileBlock(pos)
  local current_temperature = block.temperature_2[pos.x%16][pos.y%16]
  block.temperature_1[pos.x%16][pos.y%16] = temperature
--- if dur > 0 then
-  block.temperature_2[pos.x%16][pos.y%16] = temperature
-  block.flags.update_temperature = false
--- end
- if dur > 0 then 
-  cb_id = dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) 
- end
- return change, cb_id
+ block.temperature_2[pos.x%16][pos.y%16] = temperature
+ block.flags.update_temperature = false
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) end 
 end
 
+--[[ Position Functions ===========================================================================
+function                                 Position Functions
+checkBounds
+
+checkFreee
+
+checkSurface
+
+getPositions(posType,options)
+
+getPosition(posType,options)
+]]
 function checkBounds(x,y,z)
  pos = {}
  if y == nil and z == nil then
@@ -692,6 +589,22 @@ function getPositionUnitRandom(unit,radius)
  return pos
 end
 
+--[[ Flow and Liquid Functions =======================================================================
+function                                 Flow and Liquid Functions
+spawnFlow
+
+spawnLiquid
+
+flowSource
+
+flowSink
+
+liquidSource
+
+liquidSink
+
+getFlow
+]]
 function spawnFlow(edges,offset,flowType,inorganic,density,static)
  local ox = offset.x or offset[1] or 0
  local oy = offset.y or offset[2] or 0
@@ -791,6 +704,117 @@ function spawnLiquid(edges,offset,depth,magma,circle,taper)
  end
 end
 
+function flowSource(n)
+ n = tostring(n)
+ local persistTable = require 'persist-table'
+ flowTable = persistTable.GlobalTable.roses.FlowTable
+ flow = flowTable[n]
+ if flow then
+  x = tonumber(flow.x)
+  y = tonumber(flow.y)
+  z = tonumber(flow.z)
+  density = tonumber(flow.Density)
+  inorganic = tonumber(flow.Inorganic)
+  flowType = tonumber(flow.FlowType)
+  check = tonumber(flow.Check)
+  pos = xyz2pos(x,y,z)
+  flows = getFlow(pos,flowType)
+  if #flows == 0 then
+   dfhack.maps.spawnFlow(pos,flowType,0,inorganic,density)
+  else
+   flows[1].density = density
+  end
+  dfhack.timeout(check,'ticks',
+                 function ()
+                  dfhack.script_environment('functions/map').flowSource(n)
+                 end
+                )
+ end
+end
+
+function flowSink(n)
+ n = tostring(n)
+ local persistTable = require 'persist-table'
+ flowTable = persistTable.GlobalTable.roses.FlowTable
+ flow = flowTable[n]
+ if flow then
+  x = tonumber(flow.x)
+  y = tonumber(flow.y)
+  z = tonumber(flow.z)
+  density = tonumber(flow.Density)
+  inorganic = tonumber(flow.Inorganic)
+  flowType = tonumber(flow.FlowType)
+  check = tonumber(flow.Check)
+  pos = xyz2pos(x,y,z)
+  for _,flow in pairs(getFlow(pos,flowType)) do
+   flow.density = density
+  end
+  dfhack.timeout(check,'ticks',
+                 function ()
+                  dfhack.script_environment('functions/map').flowSink(n)
+                 end
+                )
+ end
+end
+
+function liquidSource(n)
+ n = tostring(n)
+ local persistTable = require 'persist-table'
+ liquidTable = persistTable.GlobalTable.roses.LiquidTable
+ liquid = liquidTable[n]
+ if liquid then
+  x = tonumber(liquid.x)
+  y = tonumber(liquid.y)
+  z = tonumber(liquid.z)
+  depth = tonumber(liquid.Depth)
+  magma = liquid.Magma
+  check = tonumber(liquid.Check)
+  block = dfhack.maps.ensureTileBlock(x,y,z)
+  dsgn = block.designation[x%16][y%16]
+  flow = block.liquid_flow[x%16][y%16]
+  flow.temp_flow_timer = 10
+  flow.unk_1 = 10
+  if dsgn.flow_size < depth then dsgn.flow_size = depth end
+  if magma then dsgn.liquid_type = true end
+  block.flags.update_liquid = true
+  block.flags.update_liquid_twice = true
+  dfhack.timeout(check,'ticks',
+                 function ()
+                  dfhack.script_environment('functions/map').liquidSource(n)
+                 end
+                )
+ end                
+end
+
+function liquidSink(n)
+ n = tostring(n)
+ local persistTable = require 'persist-table'
+ liquidTable = persistTable.GlobalTable.roses.LiquidTable
+ liquid = liquidTable[n]
+ if liquid then
+  x = tonumber(liquid.x)
+  y = tonumber(liquid.y)
+  z = tonumber(liquid.z)
+  depth = tonumber(liquid.Depth)
+  magma = liquid.Magma
+  check = tonumber(liquid.Check)
+  block = dfhack.maps.ensureTileBlock(x,y,z)
+  dsgn = block.designation[x%16][y%16]
+  flow = block.liquid_flow[x%16][y%16]
+  flow.temp_flow_timer = 10
+  flow.unk_1 = 10
+  if dsgn.flow_size > depth then dsgn.flow_size = depth end
+  if magma then dsgn.liquid_type = true end
+  block.flags.update_liquid = true
+  block.flags.update_liquid_twice = true
+  dfhack.timeout(check,'ticks',
+                 function ()
+                  dfhack.script_environment('functions/map').liquidSink(n)
+                 end
+                )
+ end
+end
+
 function getFlow(pos,flowType)
  flowType = flowType or 'ALL'
  flowType = string.upper(flowType)
@@ -807,6 +831,18 @@ function getFlow(pos,flowType)
  return flowOut
 end
 
+--[[ Plant Functions =======================================================================
+function                                 Plant Functions
+getTree
+
+getTreePositions
+
+getShrub
+
+removeTree
+
+removeShrub
+]]
 function getTileFeature(objType,options)
  options = options or {}
  if not options.position then return end
@@ -904,6 +940,55 @@ function removeShrub(pos)
  if n then map_block_column:erase(n) end
 end
 
+function getTreePositions(tree)
+ n = 0
+ nTrunk = 0
+ nTwigs = 0
+ nBranches = 0
+ nTBranches = 0
+ positions = {}
+ positionsTrunk = {}
+ positionsTwigs = {}
+ positionsBranches = {}
+ positionsTBranches = {}
+ local x1 = tree.pos.x - math.floor(tree.tree_info.dim_x / 2)
+ local x2 = tree.pos.x + math.floor(tree.tree_info.dim_x / 2)
+ local y1 = tree.pos.y - math.floor(tree.tree_info.dim_y / 2)
+ local y2 = tree.pos.y + math.floor(tree.tree_info.dim_y / 2)
+ local z1 = tree.pos.z
+ local z2 = tree.pos.z + math.floor(tree.tree_info.body_height / 2)
+ for x = x1,x2 do
+  for y = y1,y2 do
+   for z = z1,z2 do
+    pos = {x=x,y=y,z=z}
+    body = tree.tree_info.body[pos.z-z1]:_displace((pos.y - y1) * tree.tree_info.dim_x + (pos.x - x1))
+    if body.trunk then
+     n = n + 1
+     positions[n] = pos
+     nTrunk = nTrunk + 1
+     positionsTrunk[nTrunk] = pos
+    elseif body.twigs then
+     n = n + 1
+     positions[n] = pos
+     nTwigs = nTwigs + 1
+     positionsTwigs[nTwigs] = pos
+    elseif body.branches then
+     n = n + 1
+     positions[n] = pos
+     nBranches = nBranches + 1
+     positionsBranches[nBranches] = pos
+    elseif body.thick_branches_1 or body.thick_branches_2 or body.thick_branches_3 or body.thick_branches_4 then
+     n = n + 1
+     positions[n] = pos
+     nTBranches = nTBranches + 1
+     positionsTBranches[nTBranches] = pos
+    end
+   end
+  end
+ end
+ return positions,positionsTrunk,positionsTBranches,positionsBranches,positionsTwigs
+end
+
 function getGrassMaterial(pos)
  events = dfhack.maps.ensureTileBlock(pos).block_events
  for _,event in ipairs(events) do
@@ -921,28 +1006,87 @@ function getGrassMaterial(pos)
  end
 end
 
---=============================================================================
---[[ This is taken from Milo Christianson's Rubble Utility and translated to work without that framework
+--[[ Miscellanious Functions =======================================================================
+function                                 Miscellanious Functions
+findLocation
+
+]]
+function findLocation(search)
+ local primary = search[1]
+ local secondary = search[2] or 'NONE'
+ local tertiary = search[3] or 'NONE'
+ local quaternary = search[4] or 'NONE'
+ local x_map, y_map, z_map = dfhack.maps.getTileSize()
+ x_map = x_map - 1
+ y_map = y_map - 1
+ z_map = z_map - 1
+ local targetList = {}
+ local target = nil
+ local found = false
+ local n = 1
+ local rando = dfhack.random.new()
+ if primary == 'RANDOM' then
+  if secondary == 'NONE' or secondary == 'ALL' then
+   n = 1
+   targetList = {{x = rando:random(x_map-1)+1,y = rando:random(y_map-1)+1,z = rando:random(z_map-1)+1}}
+  elseif secondary == 'SURFACE' then
+   if tertiary == 'ALL' or tertiary == 'NONE' then
+    targetList[n] = getPositionRandom()
+    targetList[n] = getPositionSurface(targetList[n])
+   elseif tertiary == 'EDGE' then
+    targetList[n] = getPositionEdge()
+    targetList[n] = getPositionSurface(targetList[n])
+   elseif tertiary == 'CENTER' then
+    targetList[n] = getPositionCenter(quaternary)
+    targetList[n] = getPositionSurface(targetList[n])
+   end
+  elseif secondary == 'UNDERGROUND' then
+   if tertiary == 'ALL' or tertiary == 'NONE' then
+    targetList[n] = getPositionRandom()
+    targetList[n] = getPositionUnderground(targetList[n])
+   elseif tertiary == 'CAVERN' then
+    targetList[n] = getPositionCavern(quaternary)
+   end
+  elseif secondary == 'SKY' then
+   if tertiary == 'ALL' or tertiary == 'NONE' then
+    targetList[n] = getPositionRandom()
+    targetList[n] = getPositionSky(targetList[n])
+   elseif tertiary == 'EDGE' then
+    targetList[n] = getPositionEdge()
+    targetList[n] = getPositionSky(targetList[n])
+   elseif tertiary == 'CENTER' then
+    targetList[n] = getPositionCenter(quaternary)
+    targetList[n] = getPositionSky(targetList[n])
+   end
+  end
+ end
+ target = targetList[1]
+ return {target}
+end
+
+--[[ Milo's Tile Mat Functions ====================================================================
+function                                 Milo's Tile Mat Functions
+This is taken from Milo Christianson's Rubble Utility and translated to work without that framework
 This module contains functions for finding the material of a tile.
-		
+
 There is a function that will find the material of the tile based on it's type (in other words
 it will return the material DF is using for that tile), and there are functions that will attempt
 to return only a certain class of materials.
-						
+
 Most users will be most interested in the generic "GetTileMat" function, but the other functions
 should be useful in certain cases. For example "GetLayerMat" will always return the material of
 the stone (or soil) in the current layer, ignoring any veins or other inclusions.
-										
+
 Some tile types/materials have special behavior with the "GetTileMat" function.
-												
+
 * Open space and other "material-less" tiles (such as semi-molten rock or eerie glowing pits) will return nil.
 * Ice will return the hard-coded water material ("WATER:NONE").
 * Grass is ignored.
-														  			
+
 The specialized functions will return nil if a material of their type is not possible for a tile.
 For example calling "GetVeinMat" for a tile that does not have (and has never had) a mineral vein
 will always return nil.
-														  							
+
 There are two functions for dealing with constructions, one to get the material of the construction
 and one that gets the material of the tile the construction was built over.
 I am not sure how caved in tiles are handled, but after some quick testing it appears that the
@@ -1248,215 +1392,3 @@ function getTileTypeMat(typ, x, y, z)
 end
 --=============================================================================
 
-function getTreePositions(tree)
- n = 0
- nTrunk = 0
- nTwigs = 0
- nBranches = 0
- nTBranches = 0
- positions = {}
- positionsTrunk = {}
- positionsTwigs = {}
- positionsBranches = {}
- positionsTBranches = {}
- local x1 = tree.pos.x - math.floor(tree.tree_info.dim_x / 2)
- local x2 = tree.pos.x + math.floor(tree.tree_info.dim_x / 2)
- local y1 = tree.pos.y - math.floor(tree.tree_info.dim_y / 2)
- local y2 = tree.pos.y + math.floor(tree.tree_info.dim_y / 2)
- local z1 = tree.pos.z
- local z2 = tree.pos.z + math.floor(tree.tree_info.body_height / 2)
- for x = x1,x2 do
-  for y = y1,y2 do
-   for z = z1,z2 do
-    pos = {x=x,y=y,z=z}
-    body = tree.tree_info.body[pos.z-z1]:_displace((pos.y - y1) * tree.tree_info.dim_x + (pos.x - x1))
-    if body.trunk then
-     n = n + 1
-     positions[n] = pos
-     nTrunk = nTrunk + 1
-     positionsTrunk[nTrunk] = pos
-    elseif body.twigs then
-     n = n + 1
-     positions[n] = pos
-     nTwigs = nTwigs + 1
-     positionsTwigs[nTwigs] = pos
-    elseif body.branches then
-     n = n + 1
-     positions[n] = pos
-     nBranches = nBranches + 1
-     positionsBranches[nBranches] = pos
-    elseif body.thick_branches_1 or body.thick_branches_2 or body.thick_branches_3 or body.thick_branches_4 then
-     n = n + 1
-     positions[n] = pos
-     nTBranches = nTBranches + 1
-     positionsTBranches[nTBranches] = pos
-    end
-   end
-  end
- end
- return positions,positionsTrunk,positionsTBranches,positionsBranches,positionsTwigs
-end
-
-function flowSource(n)
- n = tostring(n)
- local persistTable = require 'persist-table'
- flowTable = persistTable.GlobalTable.roses.FlowTable
- flow = flowTable[n]
- if flow then
-  x = tonumber(flow.x)
-  y = tonumber(flow.y)
-  z = tonumber(flow.z)
-  density = tonumber(flow.Density)
-  inorganic = tonumber(flow.Inorganic)
-  flowType = tonumber(flow.FlowType)
-  check = tonumber(flow.Check)
-  pos = xyz2pos(x,y,z)
-  flows = getFlow(pos,flowType)
-  if #flows == 0 then
-   dfhack.maps.spawnFlow(pos,flowType,0,inorganic,density)
-  else
-   flows[1].density = density
-  end
-  dfhack.timeout(check,'ticks',
-                 function ()
-                  dfhack.script_environment('functions/map').flowSource(n)
-                 end
-                )
- end                
-end
-
-function flowSink(n)
- n = tostring(n)
- local persistTable = require 'persist-table'
- flowTable = persistTable.GlobalTable.roses.FlowTable
- flow = flowTable[n]
- if flow then
-  x = tonumber(flow.x)
-  y = tonumber(flow.y)
-  z = tonumber(flow.z)
-  density = tonumber(flow.Density)
-  inorganic = tonumber(flow.Inorganic)
-  flowType = tonumber(flow.FlowType)
-  check = tonumber(flow.Check)
-  pos = xyz2pos(x,y,z)
-  for _,flow in pairs(getFlow(pos,flowType)) do
-   flow.density = density
-  end
-  dfhack.timeout(check,'ticks',
-                 function ()
-                  dfhack.script_environment('functions/map').flowSink(n)
-                 end
-                )
- end                
-end
-
-function liquidSource(n)
- n = tostring(n)
- local persistTable = require 'persist-table'
- liquidTable = persistTable.GlobalTable.roses.LiquidTable
- liquid = liquidTable[n]
- if liquid then
-  x = tonumber(liquid.x)
-  y = tonumber(liquid.y)
-  z = tonumber(liquid.z)
-  depth = tonumber(liquid.Depth)
-  magma = liquid.Magma
-  check = tonumber(liquid.Check)
-  block = dfhack.maps.ensureTileBlock(x,y,z)
-  dsgn = block.designation[x%16][y%16]
-  flow = block.liquid_flow[x%16][y%16]
-  flow.temp_flow_timer = 10
-  flow.unk_1 = 10
-  if dsgn.flow_size < depth then dsgn.flow_size = depth end
-  if magma then dsgn.liquid_type = true end
-  block.flags.update_liquid = true
-  block.flags.update_liquid_twice = true
-  dfhack.timeout(check,'ticks',
-                 function ()
-                  dfhack.script_environment('functions/map').liquidSource(n)
-                 end
-                )
- end                
-end
-
-function liquidSink(n)
- n = tostring(n)
- local persistTable = require 'persist-table'
- liquidTable = persistTable.GlobalTable.roses.LiquidTable
- liquid = liquidTable[n]
- if liquid then
-  x = tonumber(liquid.x)
-  y = tonumber(liquid.y)
-  z = tonumber(liquid.z)
-  depth = tonumber(liquid.Depth)
-  magma = liquid.Magma
-  check = tonumber(liquid.Check)
-  block = dfhack.maps.ensureTileBlock(x,y,z)
-  dsgn = block.designation[x%16][y%16]
-  flow = block.liquid_flow[x%16][y%16]
-  flow.temp_flow_timer = 10
-  flow.unk_1 = 10
-  if dsgn.flow_size > depth then dsgn.flow_size = depth end
-  if magma then dsgn.liquid_type = true end
-  block.flags.update_liquid = true
-  block.flags.update_liquid_twice = true
-  dfhack.timeout(check,'ticks',
-                 function ()
-                  dfhack.script_environment('functions/map').liquidSink(n)
-                 end
-                )
- end            
-end
-
-function findLocation(search)
- local primary = search[1]
- local secondary = search[2] or 'NONE'
- local tertiary = search[3] or 'NONE'
- local quaternary = search[4] or 'NONE'
- local x_map, y_map, z_map = dfhack.maps.getTileSize()
- x_map = x_map - 1
- y_map = y_map - 1
- z_map = z_map - 1
- local targetList = {}
- local target = nil
- local found = false
- local n = 1
- local rando = dfhack.random.new()
- if primary == 'RANDOM' then
-  if secondary == 'NONE' or secondary == 'ALL' then
-   n = 1
-   targetList = {{x = rando:random(x_map-1)+1,y = rando:random(y_map-1)+1,z = rando:random(z_map-1)+1}}
-  elseif secondary == 'SURFACE' then
-   if tertiary == 'ALL' or tertiary == 'NONE' then
-    targetList[n] = getPositionRandom()
-    targetList[n] = getPositionSurface(targetList[n])
-   elseif tertiary == 'EDGE' then
-    targetList[n] = getPositionEdge()
-    targetList[n] = getPositionSurface(targetList[n])
-   elseif tertiary == 'CENTER' then
-    targetList[n] = getPositionCenter(quaternary)
-    targetList[n] = getPositionSurface(targetList[n])
-   end
-  elseif secondary == 'UNDERGROUND' then
-   if tertiary == 'ALL' or tertiary == 'NONE' then
-    targetList[n] = getPositionRandom()
-    targetList[n] = getPositionUnderground(targetList[n])
-   elseif tertiary == 'CAVERN' then
-    targetList[n] = getPositionCavern(quaternary)
-   end
-  elseif secondary == 'SKY' then
-   if tertiary == 'ALL' or tertiary == 'NONE' then
-    targetList[n] = getPositionRandom()
-    targetList[n] = getPositionSky(targetList[n])
-   elseif tertiary == 'EDGE' then
-    targetList[n] = getPositionEdge()
-    targetList[n] = getPositionSky(targetList[n])
-   elseif tertiary == 'CENTER' then
-    targetList[n] = getPositionCenter(quaternary)
-    targetList[n] = getPositionSky(targetList[n])
-   end
-  end
- end
- target = targetList[1]
- return {target}
-end

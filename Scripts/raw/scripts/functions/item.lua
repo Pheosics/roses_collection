@@ -1,185 +1,246 @@
--- Item based functions, version 42.06a
---[[
-changeMaterial(item,materialTokens,duration,track)
-  Purpose: Change the material an item is made of
-  Calls: trackMaterial | tables.makeItemTable | persist-delay.environmentDelay
-  Inputs:
-        item:                   Item ID or item struct
-        materialTokens:         RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
-        duration:               Time (in ticks) for change to last
-        track:                  How to track the material change (Valid Values: track, end, or nil)
-  Returns: NA
+-- Item Based Functions
+persistTable = require 'persist-table'
+if not persistTable.GlobalTable.roses then return end
+itemPersist = persistTable.GlobalTable.roses.ItemTable
 
-changeQuality(item,quality,duration,track)
-  Purpose: Change the quality of an item
-  Calls: trackQuality | tables.makeItemTable | persist-delay.environmentDelay
+--[[ Item Table Functions =========================================================================
+function                                 Item Table Functions
+makeItemTable(item)
+  Purpose: Create a persistant table to track information of a given item
+  Calls:   NONE
   Inputs:
-        item:                   Item ID or item struct
-        quality:                Number of quality to set item to
-        duration:               Time (in ticks) for change to last
-        track:                  How to track the quality change (Valid Values: track, end, or nil)
-  Returns: NA
+           item = Item struct or item id
+  Returns: NONE
 
-changeSubtype(item,subtype,duration,track)
-  Purpose: Change the subtype of an item
-  Calls: trackSubtype | tables.makeItemTable | persist-delay.environmentDelay
+getItemTable(item)
+  Purpose: Collects all information from the game and the items persistant table into an easily accessible lua table
+  Calls:   NONE
   Inputs:
-        item:                   Item ID or item struct
-        subtype:                RAW Token of item subtype
-        duration:               Time (in ticks) for change to last
-        track:                  How to track the subtype change (Valid Values: track, end, or nil)
-  Returns: NA
-
-create(item,material,creatorID,quality,duration)
-  Purpose: Creates an item of the given material for a set duration
-  Calls: removal | persist-delay.environmentDelay
-  Inputs:
-        item:			RAW Token item (e.g. WEAPON:ITEM_WEAPON_SWORD_SHORT)
-        material:               RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
-        creatorID:              Unit ID
-        quality:                Quality number
-        duration:               Time (in ticks) for item to last
-  Returns: NA
-
-equip(item,unit,bodyPart,mode)
-  Purpose: Move an item from the ground into a unit's inventory
-  Calls: None
-  Inputs:
-        item:			Item ID or item struct
-        unit:			Unit ID or unit struct
-        bodyPart:		Body part ID
-        mode:			Inventory mode number
-  Returns: NA
-
-unequip(item,unit)
-  Purpose: Move an item from the unit's inventory to the ground
-  Calls: None
-  Inputs:
-        item:			Item ID or item struct
-        unit:			Unit ID or unit struct
-  Returns: NA
-
-getAttack(item,attackToken)
-  Purpose: Find the given attack of an item
-  Calls: None
-  Inputs:
-        item:                   Item ID or item struct
-        attackToken:            RAW Token of an attack (e.g. PUNCH) (Special Value: Random)
-  Returns: Number - AttackID
-
-makeProjectileFall(item,origin,velocity)
-  Purpose: Turn an item into a falling projectile
-  Calls: None
-  Inputs:
-        item:                   Item ID or item struct
-        origin:                 Table of x,y,z coordinates
-        velocity:               Table of x,y,z velocities
-  Returns: NA
-
-makeProjectileShot(item,origin,target,options)
-  Purpose: Turn an item into a shot projectile
-  Calls: None
-  Inputs:
-        item:                   Item ID or item struct
-        origin:                 Table of x,y,z coordinates
-        target:                 Table of x,y,z coordinates
-        options:                Table of special values { velocity accuracy range minimumDistance firer }
-  Returns: NA
-
-findItem(searchTable)
-  Purpose: Find an item given a specific search string
-  Calls: misc.permute
-  Inputs:
-        searchTable:            Table of strings to search for an item on the map (NEED TO ADD MORE INFORMATION)
-  Returns: Table - { item[s] }
-
+           item = Item struct or item id
+  Returns: Table of information about the item
 ]]
----------------------------------------------------------------------------------------
---=================================================================================================
+function makeItemTable(item)
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ itemPersist[tostring(item.id)] = {}
+ itemTable = itemPersist[tostring(item.id)]
+
+ itemTable.Material = {}
+ itemTable.Material.Base = dfhack.matinfo.getToken(item.mat_type,item.mat_index)
+ itemTable.Material.StatusEffects = {}
+
+ itemTable.Quality = {}
+ itemTable.Quality.Base = tostring(item.quality)
+ itemTable.Quality.StatusEffects = {}
+
+ itemTable.Subtype = {}
+ itemTable.Subtype.Base = dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id
+ itemTable.Subtype.StatusEffects = {}
+
+ itemTable.Stats = {}
+ itemTable.Stats.Kills = '0'
+end
+
+function getItemTable(item)
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ itemTable = itemPersist[tostring(item.id)]
+ local outTable = {}
+ return outTable
+end
+
+--[[ Item Table Functions =========================================================================
+function                                 Tracking Functions
+trackMaterial(item,material,dur,alter)
+  Purpose: Tracks material changes to an item
+  Calls:   changeMaterial
+  Inputs:
+           item     = Item struct or item id
+           material = MATERIAL_TYPE:MATERIAL_SUBTYPE
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+trackQuality(item,quality,dur,alter)
+  Purpose: Tracks quality changes to an item
+  Calls:   changeQuality
+  Inputs:
+           item     = Item struct or item id
+           quality  = Quality number (0-7)
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+trackSubtype(item,material,dur,alter)
+  Purpose: Tracks subtype changes to an item
+  Calls:   changeSubtype
+  Inputs:
+           item     = Item struct or item id
+           subtype  = ITEM_SUBTYPE
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+]]
+
+function trackMaterial(item,material,dur,alter)
+ if alter == 'terminated' then return end
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ Table = itemPersist[tostring(item.id)]
+ if not Table then makeItemTable(item) end
+ Table = itemPersist[tostring(item.id)]['Material']
+ func = changeMaterial
+ 
+ alter = alter or 'track'
+ alter = string.lower(alter)
+ if alter == 'track' then
+  if dur > 0 then
+   statusTable = Table.StatusEffects
+   local statusNumber = #statusTable._children
+   statusTable[tostring(statusNumber+1)] = {}
+   statusTable[tostring(statusNumber+1)].End = tostring(math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur))
+   statusTable[tostring(statusNumber+1)].Change = material
+   statusTable[tostring(statusNumber+1)].Linked = 'False'
+  else
+   Table.Base = material
+  end
+ elseif alter == 'end' then
+  statusTable = Table.StatusEffects
+  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+   if statusTable[i] then
+    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+     statusTable[i] = nil
+    end
+   end
+  end
+ elseif alter == 'terminate' or alter == 'terminateclass' then
+  -- Termination not currently supported for items
+ end
+end
+
+function trackQuality(item,quality,dur,alter)
+ if alter == 'terminated' then return end
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ Table = itemPersist[tostring(item.id)]
+ if not Table then makeItemTable(item) end
+ Table = itemPersist[tostring(item.id)]['Quality']
+ func = changeQuality
+
+ alter = alter or 'track'
+ alter = string.lower(alter)
+ if alter == 'track' then
+  if dur > 0 then
+   statusTable = Table.StatusEffects
+   local statusNumber = #statusTable._children
+   statusTable[tostring(statusNumber+1)] = {}
+   statusTable[tostring(statusNumber+1)].End = tostring(math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur))
+   statusTable[tostring(statusNumber+1)].Change = tostring(quality)
+   statusTable[tostring(statusNumber+1)].Linked = 'False'
+  else
+   Table.Base = tostring(quality)
+  end
+ elseif alter == 'end' then
+  statusTable = Table.StatusEffects
+  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+   if statusTable[i] then
+    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+     statusTable[i] = nil
+    end
+   end
+  end
+ elseif alter == 'terminate' or alter == 'terminateclass' then
+  -- Termination not currently supported for items
+ end
+end
+
+function trackSubtype(item,subtype,dur,alter)
+ if alter == 'terminated' then return end
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ Table = itemPersist[tostring(item.id)]
+ if not Table then makeItemTable(item) end
+ Table = itemPersist[tostring(item.id)]['Subtype']
+ func = changeSubtype
+
+ alter = alter or 'track'
+ alter = string.lower(alter)
+ if alter == 'track' then
+  if dur > 0 then
+   statusTable = Table.StatusEffects
+   local statusNumber = #statusTable._children
+   statusTable[tostring(statusNumber+1)] = {}
+   statusTable[tostring(statusNumber+1)].End = tostring(math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur))
+   statusTable[tostring(statusNumber+1)].Change = subtype
+   statusTable[tostring(statusNumber+1)].Linked = 'False'
+  else
+   Table.Base = subtype
+  end
+ elseif alter == 'end' then
+  statusTable = Table.StatusEffects
+  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+   if statusTable[i] then
+    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+     statusTable[i] = nil
+    end
+   end
+  end
+ elseif alter == 'terminate' or alter == 'terminateclass' then
+  -- Termination not currently supported for items
+ end
+end
+--[[ Item Changing Functions ======================================================================
+function                                 Changing Functions
+changeMaterial(item,material,dur,track)
+  Purpose: Change the material an item is made from (temporarily or permanently) and track the change
+  Calls:   trackMaterial
+  Inputs:
+           item     = Item struct or item id
+           material = Material string (MATERIAL_TYPE:MATERIAL_SUBTYPE) to change item to
+           dur      = Length of change in in-game ticks
+           track    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+changeQuality(item,quality,dur,track)
+  Purpose: Change the quality of an item (temporarily or permanently) and track the change
+  Calls:   trackQuality
+  Inputs:
+           item    = Item struct or item id
+           quality = Quality number (0-7)
+           dur     = Length of change in in-game ticks
+           track   = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+changeSubtype(item,subtype,dur,track)
+  Purpose: Change the subtype of an item (temporarily or permanently) and track the change
+  Calls:   trackSubtype
+  Inputs:
+           item    = Item struct or item id
+           subtype = ITEM_SUBTYPE to change item into
+           dur     = Length of change in in-game ticks
+           track   = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+]]
 function changeMaterial(item,material,dur,track)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ itemTable = getItemTable(item)
  mat = dfhack.matinfo.find(material)
  save = dfhack.matinfo.getToken(item.mat_type,item.mat_index)
  item.mat_type = mat.type
  item.mat_index = mat.index
- if tonumber(dur) and tonumber(dur) > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeMaterial',{item.id,save,0,'end'}) end
- if track then trackMaterial(item.id,material,dur,track) end
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeMaterial',{item.id,save,0,'end'}) end
+ trackMaterial(item,material,dur,track)
 end
 
-function trackMaterial(itemID,change,dur,alter)
- local persistTable = require 'persist-table'
- local itemTable = persistTable.GlobalTable.roses.ItemTable
- if not itemTable[tostring(itemID)] then dfhack.script_environment('functions/tables').makeItemTable(itemID) end
- if alter == 'track' then
-  local materialTable = itemTable[tostring(itemID)].Material
-  materialTable.Current = change
-  if dur >= 0 then
-   local statusTable = materialTable.StatusEffects
-   local number = #statusTable._children
-   statusTable[tostring(number+1)] = {}
-   statusTable[tostring(number+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
-   statusTable[tostring(number+1)].Change = tostring(change)
-  else
-   materialTable.Base = change
-  end
- elseif alter == 'end' then
-  local materialTable = itemTable[tostring(itemID)].Material
-  materialTable.Current = tostring(change)
-  local statusTable = materialTable.StatusEffects
-  for i = #statusTable._children,1,-1 do
-   if statusTable[i] then
-    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
-     statusTable[i] = nil
-    end
-   end
-  end
- end
-end
-
---=================================================================================================
 function changeQuality(item,quality,dur,track)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ itemTable = getItemTable(item)
  save = item.quality
  if quality > 5 then quality = 5 end
  if quality < 0 then quality = 0 end
  item:setQuality(quality)
- if tonumber(dur) and tonumber(dur) > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeQuality',{item.id,save,0,'end'}) end
- if track then trackQuality(item.id,quality,dur,track) end
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeQuality',{item.id,save,0,'end'}) end
+ trackQuality(item,quality,dur,track)
 end
 
-function trackQuality(itemID,change,dur,alter)
- local persistTable = require 'persist-table'
- local itemTable = persistTable.GlobalTable.roses.ItemTable
- if not itemTable[tostring(itemID)] then dfhack.script_environment('functions/tables').makeItemTable(itemID) end
- if alter == 'track' then
-  local qualityTable = itemTable[tostring(itemID)].Quality
-  qualityTable.Current = tostring(change)
-  if dur >= 0 then
-   local statusTable = qualityTable.StatusEffects
-   local number = #statusTable._children
-   statusTable[tostring(number+1)] = {}
-   statusTable[tostring(number+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
-   statusTable[tostring(number+1)].Change = tostring(change)
-  else
-   qualityTable.Base = tostring(change)
-  end
- elseif alter == 'end' then
-  local qualityTable = itemTable[tostring(itemID)].Quality
-  qualityTable.Current = tostring(change)
-  local statusTable = qualityTable.StatusEffects
-  for i = #statusTable._children,1,-1 do
-   if statusTable[i] then
-    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
-     statusTable[i] = nil
-    end
-   end
-  end
- end
-end
-
---=================================================================================================
 function changeSubtype(item,subtype,dur,track)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ itemTable = getItemTable(item)
  local itemType = item:getType()
  local itemSubtype = item:getSubtype()
  itemSubtype = dfhack.items.getSubtypeDef(itemType,itemSubtype).id
@@ -195,41 +256,20 @@ function changeSubtype(item,subtype,dur,track)
   print('Incompatable item type and subtype')
   return
  end
- if tonumber(dur) and tonumber(dur) > 0 and found then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeSubtype',{item.id,itemSubtype,0,'end'}) end
- if track then trackSubtype(item.id,subtype,dur,track) end
+ if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','changeSubtype',{item.id,itemSubtype,0,'end'}) end
+ trackSubtype(item,subtype,dur,track)
 end
 
-function trackSubtype(itemID,change,dur,alter)
- local persistTable = require 'persist-table'
- local itemTable = persistTable.GlobalTable.roses.ItemTable
- if not itemTable[tostring(itemID)] then dfhack.script_environment('functions/tables').makeItemTable(itemID) end
- if alter == 'track' then
-  local subtypeTable = itemTable[tostring(itemID)].Quality
-  subtypeTable.Current = tostring(change)
-  if dur >= 0 then
-   local statusTable = subtypeTable.StatusEffects
-   local number = #statusTable._children
-   statusTable[tostring(number+1)] = {}
-   statusTable[tostring(number+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
-   statusTable[tostring(number+1)].Change = tostring(change)
-  else
-   subtypeTable.Base = tostring(change)
-  end
- elseif alter == 'end' then
-  local subtypeTable = itemTable[tostring(itemID)].Quality
-  subtypeTable.Current = tostring(change)
-  local statusTable = subtypeTable.StatusEffects
-  for i = #statusTable._children,1,-1 do
-   if statusTable[i] then
-    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
-     statusTable[i] = nil
-    end
-   end
-  end
- end
-end
-
---=================================================================================================
+--[[ Item Attack Functions ======================================================================
+function                                 Attack Functions
+getAttack(item,attack)
+  Purpose: Gets the attack number of an item
+  Calls:   NONE
+  Inputs:
+           item   = Item struct or item id
+           attack = ATTACK_TOKEN (e.g. PUNCH), attack verb, or Random
+  Returns: Attack ID number
+]]
 function getAttack(item,attack)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  attackID = false
@@ -262,7 +302,44 @@ function getAttack(item,attack)
  return attackID
 end
 
---=================================================================================================
+--[[ Item Creation Functions ======================================================================
+function                                 Creation Functions
+create(item,material,creatorID,quality,dur)
+  Purpose: Creates an item of the given material and quality
+  Calls:   NONE
+  Inputs:
+           item      = ITEM_TYPE:ITEM_SUBTYPE
+           material  = MATERIAL_TYPE:MATERIAL_SUBTYPE
+           creatorID = Unit ID to use as item creator
+           quality   = Quality number of item (0-7)
+           dur       = Length of time in in-game ticks for item to exist
+  Returns: ID of created item
+
+removal(item)
+  Purpose: Destroys an item correctly
+  Calls:   NONE
+  Inputs:
+           item = Item struct or item id to destroy
+  Returns: NONE
+
+equip(item,unit,bodyPart,mode)
+  Purpose: Equips an item to a unit ignoring normal equipment requirements
+  Calls:   NONE
+  Inputs:
+           item     = Item struct or item id to equip
+           unit     = Unit struct or unit id to equip item to
+           bodyPart = Body Part id to equip item to
+           mode     = Equip mode (e.g. Worn)
+  Returns: NONE
+
+unequip(item,unit)
+  Purpose: Unequips an item from a unit
+  Calls:   NONE
+  Inputs:
+           item = Item struct or item id to unequip
+           unit = Unit struct or unit id to unequip item from
+  Returns: NONE
+]]
 function create(item,material,a,b,c) --from modtools/create-item
  quality = b or 0
  creatorID = a or -1
@@ -289,6 +366,11 @@ function create(item,material,a,b,c) --from modtools/create-item
  end
  if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/item','removal',{item}) end
  return item
+end
+
+function removal(item)
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ dfhack.items.remove(item)
 end
 
 function equip(item,unit,bodyPart,mode) --from modtools/equip-item
@@ -344,7 +426,28 @@ function unequip(item,unit) --basically just reversed modtools/equip-item
  occupancy.item = true
 end
 
---=================================================================================================
+--[[ Item Projectile Functions ======================================================================
+function                                 Projectile Functions
+makeProjectileFall(item,origin,velocity)
+  Purpose: Turn an item into a falling projectile
+  Calls:   NONE
+  Inputs:
+           item     = Item struct or item id
+           origin   = { x y z }
+           velocity = { x y z } (falling projectiles use a three component velocity)
+  Returns: NONE
+
+makeProjectileShoot(item,origin,target,options)
+  Purpose: Turn an item into a shooting projectile
+  Calls:   NONE
+  Inputs:
+           item    = Item struct or item id
+           origin  = { x y z }
+           target  = { x y z }
+           options = { velocity=#, accuracy=#, range=#, minimum=#, firer=# } (shooting projectiles use a single component velocity)
+  Returns: NONE
+
+]]
 function makeProjectileFall(item,origin,velocity)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  proj = dfhack.items.makeProjectile(item)
@@ -417,12 +520,15 @@ function makeProjectileShot(item,origin,target,options)
  proj.speed_z=0
 end
 
-function removal(item)
- if tonumber(item) then item = df.item.find(tonumber(item)) end
- dfhack.items.remove(item)
-end
-
---=================================================================================================
+--[[ Miscellanious Functions ======================================================================
+function                                 Miscellanious Functions
+findItem(search)
+  Purpose: Find an item on the map that satisfies the search criteria
+  Calls:   NONE
+  Inputs:
+           search = Search table (e.g. { RANDOM, WEAPON, ITEM_WEAPON_SWORD_SHORT })
+  Returns: Table of all items that meet search criteria
+]]
 function findItem(search)
  local primary = search[1]
  local secondary = search[2] or 'NONE'

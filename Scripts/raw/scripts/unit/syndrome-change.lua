@@ -1,20 +1,41 @@
---unit/syndrome-change.lua v1.0 | DFHack 43.05
+--unit/syndrome-change.lua
 local usage = [====[
 
-xxxxxx
-======
+unit/syndrome-change
+====================
 Purpose::
+    Change the syndrome(s) of a unit
+    Also changes duration of syndromes
 
 Function Calls::
+    unit.changeSyndrome
 
 Arguments::
+    -unit             UNIT_ID
+        id of unit to change syndrome(s) of
+    -syndrome         SYN_NAME or [ SYN_NAME SYN_NAME ]
+        Name of syndrome(s) to be changed
+    -class            SYN_CLASS or [ SYN_CLASS SYN_CLASS ]
+        Class of syndrome(s) to be changed
+    -add
+        Adds syndrome(s) to unit
+    -erase
+        Erases syndrome(s) from unit
+    -terminate
+        Terminates syndrome(s) of unit (see Feature: Tracking for information on termination)
+    -alterDuration    #
+        Changes the duration of syndrome(s) on unit
+    -dur              #
+        Length of tiem for the syndrome to last if added
 
 Examples::
-
+    unit/syndrome-change -unit \\UNIT_ID -class BUFF -terminate
+    unit/syndrome-change -unit \\UNIT_ID -syndrome HASTE -add -dur 3600
+    unit/syndrome-change -unit \\UNIT_ID -class [ SPEED_CHANGE ATTRIBUTE_CHANGE ] -alterDuration 1000
+    unit/syndrome-change -unit \\UNIT_ID -class BUFF -syndrome UNHOLY -erase
 ]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'unit',
@@ -25,38 +46,11 @@ validArgs = utils.invert({
  'terminate',
  'alterDuration',
  'dur',
- 'announcement',
 })
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then -- Help declaration
- print([[unit/syndrome-change
-  Change the syndrome(s) of a unit
-  arguments:
-   -help
-     print this help message
-   -unit id
-     REQUIRED
-     id of the target unit
-   -syndrome SYN_NAME
-     declares the given SYN_NAME to be changed (can be a table of syndrome names)
-   -class SYN_CLASS
-     declares the given SYN_CLASS to be changed (can be a table of syndrome classes)
-   -add
-     adds syndromes to unit
-   -erase
-     removes syndromes from unit
-   -terminate
-     triggers termination
-   -alterDuration #
-   -dur #
-     length of time, in in-game ticks, for the syndrome to last if added
-     0 means the syndrome is permanent
-     DEFAULT: 0
-   -announcement string
-     optional argument to create an announcement and combat log report
-  examples:
- ]])
+if args.help then
+ print(usage)
  return
 end
 

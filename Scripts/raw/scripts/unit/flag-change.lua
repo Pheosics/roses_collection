@@ -1,34 +1,42 @@
---unit/flag-change.lua v0.8 | DFHack 43.05
+--unit/flag-change.lua
 local usage = [====[
 
-xxxxxx
+unit/flag-change
 ======
 Purpose::
+    Changes the boolean value of a given flag
 
 Function Calls::
+    None
 
 Arguments::
-
+    -unit        UNIT_ID
+    -flag        Unit Flag
+        Valid Values:
+            Any flag in flags1, flags2, or flags3
+    -True
+        If present it will set the flag to true
+    -False
+        If present it will set the flag to false
+    -reverse
+        If present it will reverse the value of the flag (True->False or False->True)
 Examples::
-
+    unit/flag-change -unit \\UNIT_ID -flag hidden -True
 ]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'unit',
  'flag',
- 'dur',
  'reverse',
  'True',
  'False',
 })
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then -- Help declaration
- print([[unit/flag-change
- ]])
+if args.help then
+ print(usage)
  return
 end
 
@@ -38,8 +46,6 @@ else
  print('No unit selected')
  return
 end
-
-dur = tonumber(args.dur) or 0
 
 f1 = unit.flags1
 f2 = unit.flags2

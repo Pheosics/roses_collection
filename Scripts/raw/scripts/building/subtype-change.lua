@@ -1,46 +1,52 @@
---building/subtype-change.lua v1.0 | DFHack 43.05
+--building/subtype-change.lua
+local usage = [====[
+
+building/subtype-change
+=======================
+Purpose::
+    Change the subtype of a building from one custom building to a different custom building
+    Currently does not support changing vanilla buildings
+ 
+Function Calls::
+    building.changeSubtype
+    building.addItem
+
+Arguments::
+    -building      BUILDING_ID
+        id of building to be changed
+    -unit          UNIT_ID
+        id of unit to check location for building (if you have a unit id and no building id)
+    -subtype       BUILDING_TOKEN
+        Building token (only custom buildings currently supported)
+    -item          ITEM_ID or [ ITEM_ID ITEM_ID ]
+        id(s) of item(s) to be added to the buildings build materials
+    -dur           #
+        Length of time in in-game ticks for the change to last
+        Added items will be removed at end of duration
+
+Examples::
+    building/subtype-change -building \\BUILDING_ID -subtype NEW_CUSTOM_BUILDING -dur 7200
+    building/subtype-change -unit \\UNIT_ID -subtype CUSTOM_BUILDING -item \\ITEM_ID    
+]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'building',
  'unit',
  'item',
- 'reagent',
- 'type',
+ 'subtype',
  'dur',
- 'label',
 })
-
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then
-print(
-[[building/subtype-change.lua
- arguments:
-  -help
-   print this help message
-  -building id
-    specify the building to be changed
-  -unit id
-    specify the unit to use as location to find the building
-  -item ids
-    table of item ids to be added to the building
-  -reagent codes
-    table of reagent codes, used in conjunction with -label and -item
-  -label code
-    specific reagent code of item to be added to building
-  -type TOKEN
-    building to change the other into
-  -dur #
-    length of time in in-game ticks for the change to last, any items added will be removed
-  -examples
-    building/subtype-change -building \\BUILDING_ID -type NEW_BUILDING_ID -item [ \\INPUT_ITEMS ] -dur 1000
-    building/subtpye-change -building \\BUILDING_ID -type NEW_BUILDING_ID -label add -item [ \\INPUT_ITEMS ] -reagent [ \\INPUT_REAGENTS ]
-]])
-return
+ print(usage)
+ return
 end
+
+if not args.subtype then print('No specified subtype chosen') return end
+if type(args.item) == 'string' then args.item = {args.item} end
 
 if args.building then
  building = df.building.find(tonumber(args.building))
@@ -51,33 +57,14 @@ else
  return
 end
 if not building then print('No valid building') return end
-
 if building.custom_type < 0 then print('Changing vanilla buildings not currently supported') return end
-if not args.type then print('No specified subtype chosen') return end
 
 dur = args.dur or 0
-if type(args.reagent) == 'string' then args.reagent = {args.reagent} end
-if type(args.item) == 'string' then args.item = {args.item} end
-
-check = dfhack.script_environment('functions/building').changeSubtype(building,args.type,dur)
-
+check = dfhack.script_environment('functions/building').changeSubtype(building,args.subtype,dur,'track')
 if check then
  if args.item then
-  if args.label then
-   if args.reagent then
-    for i,code in ipairs(args.reagent) do
-     if code == args.label then
-      dfhack.script_environment('functions/building').addItem(building,args.item[i],dur)
-     end
-    end
-   else
-    print('When using a label, must provide both items and reagents')
-    return
-   end
-  else
-   for _,item in ipairs(args.item) do
-    dfhack.script_environment('functions/building').addItem(building,item,dur)
-   end
+  for _,item in ipairs(args.item) do
+   dfhack.script_environment('functions/building').addItem(building,item,dur)
   end
  end
 end

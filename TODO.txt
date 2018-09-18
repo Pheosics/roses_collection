@@ -1,8 +1,42 @@
 TODO
-unit.makeUnitTable - CustomAttributes needs to respect Enhanced Creature System (CustomResistances, CustomSkills, and CustomStats too!)
-unit.getUnitTable - Need to write this!!!!
-unit.changeSyndrome - Figure out eraseClass option
-unit.changeLife - Complete rewrite
-unit.changeWound - Complete rewrite
-unit.create - Complete rewrite!!!! Reference modtools/create-unit for heavy lifting
-unit.createClass, unit.CreateSkill, unit.createEquipment - All three need to be written
+==================================== UNIT STUFF ====================================
+Functions:
+unit.changeSide 	- Complete rewrite + tracking info
+unit.changeLife 	- Complete rewrite + tracking info
+unit.changeWound 	- Complete rewrite + tracking info
+unit.create 		- Complete rewrite!!!! Reference modtools/create-unit for heavy lifting
+unit.createClass 	- Needs to be written
+unit.createSkill 	- Needs to be written
+unit.createEquipment 	- Needs to be written
+
+Scripts:
+unit/convert.lua 	- The required functions don't exist
+unit/create.lua 	- The required functions don't exist
+unit/destroy.lua 	- The required functions don't exist
+unit/emotion-change.lua	- The required functions don't exist
+unit/wound-change.lua 	- The required functions don't exist
+
+
+==================================== ITEM STUFF ====================================
+Functions:
+item.getItemTable	- Need to write this!!!!
+item.tracking           - Termination???
+item.equip		- Make sure item triggering is correctly happening
+item.unequip		- Make sure item triggering is correctly happening
+
+Scripts:
+item/equip.lua		- Allow equiping all items on ground
+
+==================================== BUILDING STUFF ================================
+Functions:
+building.makeItemTable  - Need to be written
+building.getItemTable   - Need to be written
+buliding.trackSubtype   - Building tracking?
+
+Scripts:
+building/subtype-change - Add item selection based on reaction reagents and labels?
+
+==================================== MAP STUFF =====================================
+Functions:
+
+Scripts:

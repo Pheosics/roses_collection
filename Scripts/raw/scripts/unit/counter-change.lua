@@ -4,46 +4,48 @@ local usage = [====[
 unit/counter-change
 ===================
 Purpose::
+    Change a units counter value
 
 Function Calls::
-	unit.changeCounter
-	misc.getChange
+    unit.changeCounter
+    misc.getChange
 
 Arguments::
-	-unit		UNIT_ID
-	-counter	counter_token
-		Valid Values:
-			webbed
-			stunned
-			winded
-			unconscious
-			suffocation
-			pain
-			nausea
-			dizziness
-			paralysis
-			numbness
-			fever
-			exhaustion
-			hunger
-			thirst
-			sleepiness
-			blood
-			infection
-	-mode		Mode Type
-		Valid Values:
-			Percent
-			Fixed
-			Set
-	-amount		#
-	-dur		#
-	
+    -unit       UNIT_ID
+    -counter    counter_token
+        Valid Values:
+            webbed
+            stunned
+            winded
+            unconscious
+            suffocation
+            pain
+            nausea
+            dizziness
+            paralysis
+            numbness
+            fever
+            exhaustion
+            hunger
+            thirst
+            sleepiness
+            blood
+            infection
+    -mode       Mode Type
+        Valid Values:
+            Percent
+            Fixed
+            Set
+    -amount     #
+    -dur        #
+    
 Examples::
-
+    unit/counter-change -unit \\UNIT_ID -counter webbed -mode Set -amount 10000
+    unit/counter-change -unit \\UNIT_ID -counter [ thirst hunger exhaustion sleepiness ] -mode Fixed -amount [ 1000 1000 1000 1000 ]
+    unit/counter-change -unit \\UNIT_ID -counter blood -mode Percent -amount 50
 ]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'counter',
@@ -54,51 +56,8 @@ validArgs = utils.invert({
 })
 local args = utils.processArgs({...}, validArgs)
 
-if args.help then -- Help declaration
- print([[unit/counter-change.lua
-  Change the value(s) of a unit
-  arguments:
-   -help
-     print this help message
-   -unit id
-     REQUIRED
-     id of the target unit
-   -counter TYPE
-     REQUIRED
-     token to be changed
-     valid types:
-      webbed
-      stunned
-      winded
-      unconscious
-      suffocation
-      pain
-      nausea
-      dizziness
-      paralysis
-      numbness
-      fever
-      exhaustion
-      hunger
-      thirst
-      sleepiness
-      blood
-      infection
-   -mode Mode Type
-     Valid Types:
-      Fixed
-      Percent
-      Set
-   -amount #
-   -dur #
-     length of time, in in-game ticks, for the change to last
-     0 means the change is permanent
-     DEFAULT: 0
-  examples:
-   unit/counter-change -unit \\UNIT_ID -mode fixed -amount 10000 -counter stunned -dur 10
-   unit/counter-change -unit \\UNIT_ID -mode set -amount [ 0 0 0 0 ] -counter [ nausea dizziness numbness fever ]
-   unit/counter-change -unit \\UNIT_ID -mode percent -amount \-100 -counter blood
- ]])
+if args.help then
+ print(usage)
  return
 end
 

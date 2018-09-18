@@ -63,8 +63,11 @@ function script_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   buildingCheck = {}
   writeall('building/create checks starting')
+  writeall('building/create -help')
+  output = dfhack.run_command_silent('building/create -help')
+  writeall(output)
 
-  ---- Check that the script creates a quern (only vanilla building it can make
+  ---- Check that the script creates a quern (only vanilla building it can make)
   location = mapFunctions.getPositionSurfaceFree()
   locstr = tostring(location.x)..' '..tostring(location.y)..' '..tostring(location.z)
   writeall('building/create -location [ '..locstr..' ] -type Workshop -subtype 17')
@@ -106,18 +109,21 @@ function script_checks()
   if buildingVanilla and buildingCustom then
    buildingCheck = {}
    writeall('building/subtype-change checks starting')
+   writeall('building/subtype-change -help')
+   output = dfhack.run_command_silent('building/subtype-change -help')
+   writeall(output)
 
    ---- Check that script fails to change vanilla building
-   writeall('building/subtype-change -building '..tostring(buildingVanilla.id)..' -type TEST_BUILDING_2 (Should fail and print "Changing vanilla buildings not currently supported")')
-   output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingVanilla.id)..' -type TEST_BUILDING_2')
+   writeall('building/subtype-change -building '..tostring(buildingVanilla.id)..' -subtype TEST_BUILDING_2 (Should fail and print "Changing vanilla buildings not currently supported")')
+   output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingVanilla.id)..' -subtype TEST_BUILDING_2')
    writeall(output)
    if buildingVanilla.custom_type > 0 then 
     buildingCheck[#buildingCheck+1] = 'Vanilla building incorrectly changed to a custom building'
    end
 
    ---- Check that the script succeeds in changing the subtype from TEST_BUILDING_1 to TEST_BUILDING_2 for 50 ticks
-   writeall('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_2 -dur 50 (Should succeed and change building subtype for 50 ticks)')
-   output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_2 -dur 50')
+   writeall('building/subtype-change -building '..tostring(buildingCustom.id)..' -subtype TEST_BUILDING_2 -dur 50 (Should succeed and change building subtype for 50 ticks)')
+   output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -subtype TEST_BUILDING_2 -dur 50')
    writeall(output)
    if buildingCustom.custom_type ~= ctype2 then
     buildingCheck[#buildingCheck+1] = 'Test Building 1 did not correctly change to Test Building 2'
@@ -131,8 +137,8 @@ function script_checks()
    end
 
    ---- Check that the script succeeds in changing the subtype from TEST_BUILDING_1 to TEST_BUILDING_3 and adding a handaxe to the building item list
-   writeall('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(buildingitem.id)..' (Should succeed, change building subtype, and add a battle axe to the building item list)')
-   output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -type TEST_BUILDING_3 -item '..tostring(buildingitem.id))
+   writeall('building/subtype-change -building '..tostring(buildingCustom.id)..' -subtype TEST_BUILDING_3 -item '..tostring(buildingitem.id)..' (Should succeed, change building subtype, and add a battle axe to the building item list)')
+   output = dfhack.run_command_silent('building/subtype-change -building '..tostring(buildingCustom.id)..' -subtype TEST_BUILDING_3 -item '..tostring(buildingitem.id))
    writeall(output)
    if buildingCustom.custom_type ~= ctype3 then 
     buildingCheck[#buildingCheck+1] = 'Test Building 1 did not correctly change to Test Building 3'

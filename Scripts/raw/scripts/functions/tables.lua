@@ -2126,49 +2126,6 @@ function makeGlobalTable(verbose)
  persistTable.GlobalTable.roses.GlobalTable.Sieges = {}
 end
 
-function makeItemTable(item,verbose)
- if tonumber(item) then
-  item = df.item.find(tonumber(item))
- end
- itemID = item.id
- local persistTable = require 'persist-table'
- persistTable.GlobalTable.roses.ItemTable[tostring(itemID)] = {}
- itemTable = persistTable.GlobalTable.roses.ItemTable[tostring(itemID)]
-
- itemTable.Material = {}
- itemTable.Material.Base = dfhack.matinfo.getToken(item.mat_type,item.mat_index)
- itemTable.Material.Current = dfhack.matinfo.getToken(item.mat_type,item.mat_index)
- itemTable.Material.StatusEffects = {}
-
- itemTable.Quality = {}
- itemTable.Quality.Base = tostring(item.quality)
- itemTable.Quality.Current = tostring(item.quality)
- itemTable.Quality.StatusEffects = {}
-
- itemTable.Subtype = {}
- itemTable.Subtype.Base = dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id
- itemTable.Subtype.Current = dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id
- itemTable.Subtype.StatusEffects = {}
-
- itemTable.Stats = {}
- itemTable.Stats.Kills = '0'
-end
-
-function makeUnitTableSecondary(unit,table,token,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
- local persistTable = require 'persist-table'
- unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
- unitTable[table][token] = {}
- unitTable[table][token].Base = '0'
- unitTable[table][token].Change = '0'
- unitTable[table][token].Class = '0'
- unitTable[table][token].Item = '0'
- unitTable[table][token].StatusEffects = {}
- _,base = dfhack.script_environment('functions/unit').getUnit(unit,table,token,true)
- unitTable[table][token].Base = tostring(base)
-end
 
 function makeUnitTableClass(unit,class,test,verbose)
  if tonumber(unit) then
@@ -2199,32 +2156,4 @@ function makeUnitTableSide(unit,verbose)
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  unitTable.General.Side = {}
  unitTable.General.Side.StatusEffects = {}
-end
-
-function makeUnitTableTransform(unit,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
- local persistTable = require 'persist-table'
- unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
- unitTable.General.Transform = {}
- unitTable.General.Transform.Race = {}
- unitTable.General.Transform.Race.Base = tostring(unit.race)
- unitTable.General.Transform.Race.Current = tostring(unit.race)
- unitTable.General.Transform.Caste = {}
- unitTable.General.Transform.Caste.Base = tostring(unit.caste)
- unitTable.General.Transform.Caste.Current = tostring(unit.caste)
- unitTable.General.Transform.StatusEffects = {}
-end
-
-function makeUnitTableSummon(unit,verbose)
- if tonumber(unit) then
-  unit = df.unit.find(tonumber(unit))
- end
- local persistTable = require 'persist-table'
- unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
- unitTable.General.Summoned = {}
- unitTable.General.Summoned.Creator = tostring(-1)
- unitTable.General.Summoned.End = tostring(-1)
- unitTable.General.Summoned.Syndrome = tostring(-1)
 end

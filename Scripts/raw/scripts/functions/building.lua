@@ -1,40 +1,56 @@
---building based functions, version 42.06a
---[[
-addItem(building,item,duration)
-  Purpose: Adds an item to a buildings item list
-  Calls: persistDelay.environmentDelay
-  Inputs:
-        building:               Building ID or building struct
-        item:                   Item ID or item struct
-        duration:               Time (in ticks) for the item to remain in the building
-  Returns: NA
+-- Building Based Functions
+persistTable = require 'persist-table'
+if not persistTable.GlobalTable.roses then return end
+buildingPersist = persistTable.GlobalTable.roses.BuildingTable
 
-removeItem(building,item,duration)
-  Purpose: Removes an item from a buildings item list
-  Calls: persistDelay.environmentDelay
+--[[ Building Table Functions =====================================================================
+function                                 Building Table Functions
+makeBuildingTable(building)
+  Purpose: 
+  Calls:   
   Inputs:
-        building:               Building ID or building struct
-        item:                   Item ID or item struct
-        duration:               Time (in ticks) for the item to remain outside of building
-  Returns: NA
+  Returns: 
 
-changeSubtype(building,subtype,duration)
-  Purpose: Changes the subtype of a building
-  Calls: persistDelay.environmentDelay
+getBuildingTable(building)
+  Purpose:
+  Calls:
   Inputs:
-        building:               Building ID or building struct
-        subtype:                RAW Token of custom building
-        duration:               Time (in ticks) for the change to last
-  Returns: Boolean - Did the building successfully change?
-
-findBuilding(searchTable)
-  Purpose: Finds a building that satisfies certain criteria
-  Calls: misc.permute
-  Inputs:
-        searchTable:            Table of strings to search for a building on the map (NEED TO ADD MORE INFORMATION)
-  Returns: Table - { target[s] )
+  Returns:
 ]]
----------------------------------------------------------------------------------------
+function makeBuildingTable(building)
+
+end
+
+function getBuidingTable(building)
+
+end
+
+--[[ Tracking Functions =====================================================================
+function                                 Tracking Functions
+trackSubtype(building,subtype,dur,alter)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns:
+]]
+function trackSubtype(building,subtype,dur,alter)
+
+end
+
+--[[ Building Item Functions =====================================================================
+function                                 Building Item Functions
+addItem(building,item,dur)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+ 
+removeItem(building,item,dur)
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+]]
 function addItem(building,item,dur)
  dur = dur or '0'
  dur = tonumber(dur)
@@ -54,7 +70,15 @@ function removeItem(building,item,dur)
  if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/building','addItem',{building.id,item.id,0}) end
 end
 
-function changeSubtype(building,subtype,dur)
+--[[ Building Changing Functions =====================================================================
+function                                 Building Changing Functions
+changeSubtype(building,subtype,dur,track)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+]]
+function changeSubtype(building,subtype,dur,track)
  dur = dur or '0'
  dur = tonumber(dur)
  if tonumber(building) then building = df.building.find(tonumber(building)) end
@@ -71,6 +95,14 @@ function changeSubtype(building,subtype,dur)
  return true
 end
 
+--[[ Miscellanious Functions =====================================================================
+function                                 Miscellanious Functions
+findBuilding(search)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+]]
 function findBuilding(search)
  local primary = search[1]
  local secondary = search[2] or 'NONE'

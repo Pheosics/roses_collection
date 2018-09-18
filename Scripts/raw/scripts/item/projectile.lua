@@ -1,7 +1,70 @@
---item/projectile.lua v1.0 | DFHack 43.05
+--item/projectile.lua
+local usage = [====[
+
+item/projectile
+===============
+Purpose::
+    Turn an item into a projectile
+    Either creates an item from scratch or checks a units inventory
+    Projectile mechanics are either Falling or Shooting
+
+Function Calls::
+    item.create
+    item.makeProjectileFall
+    item.makeProjectileShot
+
+Arguments::
+    -type        Projectile Type
+        Type of projectile to create (changes number meanings)
+        Valid Types:
+            Falling
+            Shooting
+    -unitSource    UNIT_ID
+        id of source unit of projectile
+    -unitTarget    UNIT_ID
+        id of target unit of projectile
+    -locationSource    [ x y z ]
+        Location of starting point of projectile
+    -locationTarget    [ x y z ]
+        Location of targets point of projectile
+    -item        ITEM_TYPE:ITEM_SUBTYPE
+        Item to be created or checked for
+    -mat        MATERIAL_TYPE:MATERIAL_SUBTYPE
+        Material of item to be created (if not using -equipped)
+    -height        #
+        Number of tiles above target to start projectile if using -type Falling
+    -equipped
+        If present will check unitSource's inventory
+        If not present will create necessary items
+    -number        #
+        Number of items to fire
+        If creating will create this many
+        If using equipped with use up to this many
+        DEFAULT 1
+    -velocity    # or [ # # # ]
+        If using -type Shooting velocity is a single number
+        If using -type Falling velcoity is an [ x y z ] triplet
+        DEFAULT 20 or [ 0 0 0 ]
+    -maxrange    #
+        Maximum range the projectile can travel in tiles and still hit
+        DEFAULT 10
+    -minrange    #
+        Minimum range the projectile must travel to hit
+        DEFAULT 1
+    -hitchance    #
+        Chance for projectile to hit target
+        DEFAULT 50
+    -quality    #
+        If creating items will create items at given quality
+        DEFAULT 0
+
+Examples::
+    item/projectile -unitSource \\UNIT_ID -unitTarget \\UNIT_ID -item AMMO:ITEM_AMMO_BOLT -equipped -type Falling -height 10
+    item/projectile -unitSource \\UNIT_ID -locationTarget [ \\LOCATION ] -item WEAPON:ITEM_WEAPON_SWORD_SHORT -mat INORGANIC:STEEL -number 10 -velocity 50 -maxrange 4 -hitchance 10
+
+]====]
 
 local utils = require 'utils'
-
 validArgs = utils.invert({
  'help',
  'unitSource',
@@ -20,60 +83,11 @@ validArgs = utils.invert({
  'equipped',
  'type',
  'quality',
- 'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then -- Help declaration
- print([[item/projectile.lua
-  Creates an item that shoots as a projectile
-  arguments:
-   -help
-     print this help message
-   -unitSource id                                                   \
-     id of the unit to use for position of origin of projectile     |
-   -locationSource [#,#,#]                                          | Must have one and only one of these arguments, if both, ignore -locationSource
-     x,y,z coordinates to use for position for origin of projectile /
-   -unitTarget id                                                  \
-     id of the unit to use for position of target of projectile    |
-   -locationTarget [#,#,#]                                         | Must have one and only one of these arguments, if both, ignore -locationTarget
-     x,y,z coordinates to use for position of target of projectile /
-   -creator id
-     id of unit to use as creator of item, if not included assumes unitSource as creator
-   -item itemstr
-     specify the itemdef of the item to be created or checked for
-     examples:
-      WEAPON:ITEM_WEAPON_PICK
-      AMMO:ITEM_AMMO_BOLT
-   -mat matstring
-     specify the material of the item to be created
-     examples:
-      INORGANIC:IRON
-      CREATURE_MAT:DWARF:BRAIN
-      PLANT_MAT:MUSHROOM_HELMET_PLUMP:DRINK
-   -number #
-     number of items to fire as projectiles
-     DEFAULT 1
-   -maxrange #
-     maximum range in tiles that the projectile can travel to hit its target
-     DEFAULT 10
-   -minrange #
-     minimum range in tiles that the projectile needs to travel to hit its target
-     DEFAULT 1
-   -velocity # for shooting mechanics, [ # # # ] for falling mechanics
-     speed of projectile (does not affect how fast it moves across the map, only force that it hits the target with)
-     DEFAULT 20 or [ 0 0 0 ]
-   -hitchance #
-     chance for projectile to hit target (assume %?)
-     DEFAULT 50
-   -height #
-     height above the source location to start the item
-     DEFAULT 0
-   -equipped
-     whether to check unitSource (or creatore) for the equipped item, if absent assumes you want the item to be created
-  examples:
-   item/projectile -unit_source \\UNIT_ID -location_target [\\LOCATION] -item AMMO:ITEM_AMMO_ARROWS -mat STEEL -number 10 -maxrange 50 -minrange 10 -velocity 30 -hitchance 10
- ]])
+ print(usage)
  return
 end
 
@@ -85,6 +99,7 @@ if args.unitTarget and args.locationTarget then
  print("Can't have unit and location specified as target at same time")
  args.locationTarget = nil
 end
+
 if args.unitSource then -- Check for source declaration !REQUIRED
  origin = df.unit.find(tonumber(args.unitSource)).pos
 elseif args.locationSource then
@@ -117,23 +132,12 @@ if itemType == -1 then
 end
 local itemSubtype = dfhack.items.findSubtype(args.item)
 local create = true
-if args.equipped and (not args.unitSource and not args.creator) then
+if args.equipped and (not args.unitSource) then
  print('No unit to check for equipment')
  return
 elseif args.equipped and args.unitSource then
  create = false
- if args.unitSource and not args.creator then
-  args.creator = args.unitSource
- end
-end
-
-if not args.creator or not tonumber(args.creator) or not df.unit.find(tonumber(args.creator)) then
- if args.unitSource then
-  args.creator = args.unitSource
- else
-  print('Invalid creator')
-  return
- end
+ args.creator = args.unitSource
 end
 
 number = tonumber(args.number) or 1 -- Specify number of projectiles (default 1)
@@ -144,10 +148,12 @@ for n = 1, number, 1 do
    print('Invalid material')
    return
   end
+  if not args.creator then args.creator = 0 end
   item = dfhack.script_environment('functions/item').create(args.item,args.mat,args.creator,args.quality)
   item = df.item.find(item)
  else
-  local inventory = args.creator.inventory
+  unit = df.unit.find(tonumber(args.creator))
+  local inventory = unit.inventory
   for k,v in ipairs(inventory) do
    if v.item:getType() == itemType and v.item:getSubtype() == itemSubtype then
     item = v.item
@@ -162,7 +168,6 @@ for n = 1, number, 1 do
    end
   end
   if not item then
-   print('Needed item not equipped')
    return
   end
   if item.stack_size == 1 then
@@ -174,7 +179,7 @@ for n = 1, number, 1 do
   end
  end
 
- if args.type == 'falling' then
+ if args.type == 'Falling' then
   velocity = args.velocity or {0,0,0}
   height = tonumber(args.height) or 0
   dfhack.items.moveToGround(item,{x=tonumber(target.x),y=tonumber(target.y),z=tonumber(target.z+height)})
