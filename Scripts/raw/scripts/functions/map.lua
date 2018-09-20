@@ -1,11 +1,30 @@
 -- Map Based Functions
+local persistTable = require 'persist-table'
+if not persistTable.GlobalTable.roses then return end
+flowTable = persistTable.GlobalTable.roses.FlowTable
+liquidTable = persistTable.GlobalTable.roses.LiquidTable
+usages = {}
 
---[[ Map Changing Functions =======================================================================
-function                                 Map Changing Functions
-changeInorganic
+--=                     Tile Changing Functions
+usages[#usages+1] = [===[
 
-changeTemperature
-]]
+Map Changing Functions
+======================
+
+changeInorganic(x,y,z,inorganic,dur)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+changeTemperature(x,y,z,temperature,dur)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+]===]
+
 function changeInorganic(x,y,z,inorganic,dur)
  pos = {}
  if y == nil and z == nil then
@@ -62,18 +81,44 @@ function changeTemperature(x,y,z,temperature,dur)
  if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) end 
 end
 
---[[ Position Functions ===========================================================================
-function                                 Position Functions
-checkBounds
+--=                     Position Functions
+usages[#usages+1] = [===[
 
-checkFreee
+Position Functions
+==================
 
-checkSurface
+checkBounds(x,y,z)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+checkFree(x,y,z)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+checkSurface(x,y,z)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
 getPositions(posType,options)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
 getPosition(posType,options)
-]]
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+]===]
+
 function checkBounds(x,y,z)
  pos = {}
  if y == nil and z == nil then
@@ -589,22 +634,56 @@ function getPositionUnitRandom(unit,radius)
  return pos
 end
 
---[[ Flow and Liquid Functions =======================================================================
-function                                 Flow and Liquid Functions
-spawnFlow
+--=                     Flow and Liquid Functions
+usages[#usages+1] = [===[
 
-spawnLiquid
+Flow and Liquid Functions
+=========================
 
-flowSource
+spawnFlow(edges,offset,flowType,inorganic,density,static)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
-flowSink
+spawnLiquid(edges,offset,depth,magma,circle,taper)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
-liquidSource
+flowSource(n)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
-liquidSink
+flowSink(n)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
-getFlow
-]]
+liquidSource(n)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+liquidSink(n)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+getFlow(pos,flowType)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+]===]
+
 function spawnFlow(edges,offset,flowType,inorganic,density,static)
  local ox = offset.x or offset[1] or 0
  local oy = offset.y or offset[2] or 0
@@ -706,8 +785,6 @@ end
 
 function flowSource(n)
  n = tostring(n)
- local persistTable = require 'persist-table'
- flowTable = persistTable.GlobalTable.roses.FlowTable
  flow = flowTable[n]
  if flow then
   x = tonumber(flow.x)
@@ -734,8 +811,6 @@ end
 
 function flowSink(n)
  n = tostring(n)
- local persistTable = require 'persist-table'
- flowTable = persistTable.GlobalTable.roses.FlowTable
  flow = flowTable[n]
  if flow then
   x = tonumber(flow.x)
@@ -759,8 +834,6 @@ end
 
 function liquidSource(n)
  n = tostring(n)
- local persistTable = require 'persist-table'
- liquidTable = persistTable.GlobalTable.roses.LiquidTable
  liquid = liquidTable[n]
  if liquid then
   x = tonumber(liquid.x)
@@ -788,8 +861,6 @@ end
 
 function liquidSink(n)
  n = tostring(n)
- local persistTable = require 'persist-table'
- liquidTable = persistTable.GlobalTable.roses.LiquidTable
  liquid = liquidTable[n]
  if liquid then
   x = tonumber(liquid.x)
@@ -831,18 +902,44 @@ function getFlow(pos,flowType)
  return flowOut
 end
 
---[[ Plant Functions =======================================================================
-function                                 Plant Functions
-getTree
+--=                     Plant Functions
+usages[#usages+1] = [===[
 
-getTreePositions
+Plant Functions
+===============
 
-getShrub
+getTree(pos,array)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
-removeTree
+getTreePositions(tree)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
-removeShrub
-]]
+getShrub(pos,array)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+removeTree(pos)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+removeShrub(pos)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+]===]
+
 function getTileFeature(objType,options)
  options = options or {}
  if not options.position then return end
@@ -1006,11 +1103,20 @@ function getGrassMaterial(pos)
  end
 end
 
---[[ Miscellanious Functions =======================================================================
-function                                 Miscellanious Functions
-findLocation
+--=                     Miscellanious Functions
+usages[#usages+1] = [===[
 
-]]
+Miscellanious Functions
+=======================
+
+findLocation(search)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+]===]
+
 function findLocation(search)
  local primary = search[1]
  local secondary = search[2] or 'NONE'
@@ -1064,8 +1170,12 @@ function findLocation(search)
  return {target}
 end
 
---[[ Milo's Tile Mat Functions ====================================================================
-function                                 Milo's Tile Mat Functions
+--=                     Milo's Tile Mat Functions
+usages[#usages+1] = [===[
+
+Milo's Tile Mat Functions
+=========================
+
 This is taken from Milo Christianson's Rubble Utility and translated to work without that framework
 This module contains functions for finding the material of a tile.
 
@@ -1092,7 +1202,14 @@ and one that gets the material of the tile the construction was built over.
 I am not sure how caved in tiles are handled, but after some quick testing it appears that the
 game creates mineral veins for them. I am not 100% sure if these functions will reliably work
 with all caved in tiles, but I can confirm that they do in at least some cases...
---]]
+
+getTileMat(x,y,z)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+]===]
 
 function getLayerMat(x, y, z)
 -- GetLayerMat returns the layer material for the given tile.
@@ -1390,5 +1507,5 @@ function getTileTypeMat(typ, x, y, z)
  end
  return mat_getter(pos)
 end
---=============================================================================
+
 

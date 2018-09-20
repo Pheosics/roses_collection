@@ -2,9 +2,14 @@
 persistTable = require 'persist-table'
 if not persistTable.GlobalTable.roses then return end
 itemPersist = persistTable.GlobalTable.roses.ItemTable
+usages = {}
 
---[[ Item Table Functions =========================================================================
-function                                 Item Table Functions
+--=                     Item Table Functions
+usages[#usages+1] = [===[
+
+Item Table Functions
+====================
+
 makeItemTable(item)
   Purpose: Create a persistant table to track information of a given item
   Calls:   NONE
@@ -18,7 +23,8 @@ getItemTable(item)
   Inputs:
            item = Item struct or item id
   Returns: Table of information about the item
-]]
+]===]
+
 function makeItemTable(item)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  itemPersist[tostring(item.id)] = {}
@@ -47,8 +53,12 @@ function getItemTable(item)
  return outTable
 end
 
---[[ Item Table Functions =========================================================================
-function                                 Tracking Functions
+--=                     Item Table Functions
+usages[#usages+1] = [===[
+
+Tracking Functions
+==================
+
 trackMaterial(item,material,dur,alter)
   Purpose: Tracks material changes to an item
   Calls:   changeMaterial
@@ -78,7 +88,7 @@ trackSubtype(item,material,dur,alter)
            dur      = Length of change in in-game ticks
            alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
   Returns: NONE
-]]
+]===]
 
 function trackMaterial(item,material,dur,alter)
  if alter == 'terminated' then return end
@@ -184,8 +194,13 @@ function trackSubtype(item,subtype,dur,alter)
   -- Termination not currently supported for items
  end
 end
---[[ Item Changing Functions ======================================================================
-function                                 Changing Functions
+
+--=                     Item Changing Functions
+usages[#usages+1] = [===[
+
+Changing Functions
+==================
+
 changeMaterial(item,material,dur,track)
   Purpose: Change the material an item is made from (temporarily or permanently) and track the change
   Calls:   trackMaterial
@@ -215,7 +230,8 @@ changeSubtype(item,subtype,dur,track)
            dur     = Length of change in in-game ticks
            track   = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
   Returns: NONE
-]]
+]===]
+
 function changeMaterial(item,material,dur,track)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  itemTable = getItemTable(item)
@@ -260,8 +276,12 @@ function changeSubtype(item,subtype,dur,track)
  trackSubtype(item,subtype,dur,track)
 end
 
---[[ Item Attack Functions ======================================================================
-function                                 Attack Functions
+--=                     Item Attack Functions
+usages[#usages+1] = [===[
+
+Attack Functions
+================
+
 getAttack(item,attack)
   Purpose: Gets the attack number of an item
   Calls:   NONE
@@ -269,7 +289,8 @@ getAttack(item,attack)
            item   = Item struct or item id
            attack = ATTACK_TOKEN (e.g. PUNCH), attack verb, or Random
   Returns: Attack ID number
-]]
+]===]
+
 function getAttack(item,attack)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  attackID = false
@@ -302,8 +323,12 @@ function getAttack(item,attack)
  return attackID
 end
 
---[[ Item Creation Functions ======================================================================
-function                                 Creation Functions
+--=                     Item Creation Functions
+usages[#usages+1] = [===[
+
+Creation Functions
+==================
+
 create(item,material,creatorID,quality,dur)
   Purpose: Creates an item of the given material and quality
   Calls:   NONE
@@ -339,7 +364,8 @@ unequip(item,unit)
            item = Item struct or item id to unequip
            unit = Unit struct or unit id to unequip item from
   Returns: NONE
-]]
+]===]
+
 function create(item,material,a,b,c) --from modtools/create-item
  quality = b or 0
  creatorID = a or -1
@@ -426,8 +452,12 @@ function unequip(item,unit) --basically just reversed modtools/equip-item
  occupancy.item = true
 end
 
---[[ Item Projectile Functions ======================================================================
-function                                 Projectile Functions
+--=                     Item Projectile Functions
+usages[#usages+1] = [===[
+
+Projectile Functions
+====================
+
 makeProjectileFall(item,origin,velocity)
   Purpose: Turn an item into a falling projectile
   Calls:   NONE
@@ -446,8 +476,8 @@ makeProjectileShoot(item,origin,target,options)
            target  = { x y z }
            options = { velocity=#, accuracy=#, range=#, minimum=#, firer=# } (shooting projectiles use a single component velocity)
   Returns: NONE
+]===]
 
-]]
 function makeProjectileFall(item,origin,velocity)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  proj = dfhack.items.makeProjectile(item)
@@ -520,15 +550,20 @@ function makeProjectileShot(item,origin,target,options)
  proj.speed_z=0
 end
 
---[[ Miscellanious Functions ======================================================================
-function                                 Miscellanious Functions
+--=                     Miscellanious Functions
+usages[#usages+1] = [===[
+
+Miscellanious Functions
+=======================
+
 findItem(search)
   Purpose: Find an item on the map that satisfies the search criteria
   Calls:   NONE
   Inputs:
            search = Search table (e.g. { RANDOM, WEAPON, ITEM_WEAPON_SWORD_SHORT })
   Returns: Table of all items that meet search criteria
-]]
+]===]
+
 function findItem(search)
  local primary = search[1]
  local secondary = search[2] or 'NONE'

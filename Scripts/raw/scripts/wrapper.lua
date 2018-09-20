@@ -1,9 +1,72 @@
 --wrapper.lua v2.0 | DFHack 43.05
+local usage = [====[
 
-local utils = require 'utils'
+wrapper
+=======
+Purpose::
+
+Function Calls::
+
+Arguments::
+    BASIC INPUTS:
+        -sourceUnit
+        -sourceLocation
+        -targetUnit
+        -targetLocation
+        -targetPlan
+        -template
+
+    SCRIPT INPUTS
+        -script
+        -chain
+        -maxTargets
+        -radius
+        -delay
+        -value
+        -silence
+        -replace
+        -center
+        -resetCooldown
+
+    UNIT BASED INPUTS
+        -getUnit
+        -reflect
+        -exclude
+        -checkClass
+        -checkCreature
+        -checkSyndrome
+        -checkToken
+        -checkNoble
+        -checkProfession
+        -checkEntity
+        -checkPathing
+        -checkAttribute
+        -checkSkill
+        -checkTrait
+        -checkAge
+        -checkSpeed
+
+    LOCATION BASED INPUTS
+        -getLocation
+        -checkTree
+        -checkPlant
+        -checkGrass
+        -checkInorganic
+        -checkFlow
+        -checkLiquid 
+
+    ITEM BASED INPUTS
+        -getItem
+        -checkItem
+        -checkMaterial
+        -checkCorpse
+
+Examples::
+
+]====]
 
 input = {...}
-
+local utils = require 'utils'
 validArgs = utils.invert({
  'help',
  'verbose',
@@ -27,74 +90,20 @@ validArgs = utils.invert({
  'center',
  'resetCooldown',
  -- unit based inputs
- 'checkUnit',
- 'reflect',
- 'exclude',
- 'requiredClass',
- 'requiredCreature',
- 'requiredSyndrome',
- 'requiredToken',
- 'requiredNoble',
- 'requiredProfession',
- 'requiredEntity',
- 'requiredPathing',
- 'immuneClass',
- 'immuneCreature',
- 'immuneSyndrome',
- 'immuneToken',
- 'immuneNoble',
- 'immuneProfession',
- 'immuneEntity',
- 'immunePathing',
- 'maxAttribute',
- 'minAttribute',
- 'gtAttribute',
- 'ltAttribute',
- 'maxSkill',
- 'minSkill',
- 'gtSkill',
- 'ltSkill',
- 'maxTrait',
- 'minTrait',
- 'gtTrait',
- 'ltTrait',
- 'maxAge',
- 'minAge',
- 'gtAge',
- 'ltAge',
- 'maxSpeed',
- 'minSpeed',
- 'gtSpeed',
- 'ltSpeed',
  -- location based inputs
- 'checkLocation',
- 'requiredTree',
- 'requiredPlant',
- 'requiredGrass',
- 'requiredInorganic',
- 'requiredFlow',
- 'requiredLiquid',
- 'forbiddenTree',
- 'forbiddenPlant',
- 'forbiddenGrass',
- 'forbiddenInorganic',
- 'forbiddenFlow',
- 'forbiddenLiquid',
  -- item based inputs
- 'checkItem',
- 'requiredItem',
- 'requiredMaterial',
- 'requiredCorpse',
- 'forbiddenItem',
- 'forbiddenMaterial',
- 'forbiddenCorpse',
 })
 local args = utils.processArgs(input, validArgs)
 
+if args.help then
+ print(usage)
+ return
+end
+
 num = 0
-if args.checkUnit then num = num + 1 end
-if args.checkLocation then num = num + 1 end
-if args.checkItem then num = num + 1 end
+if args.getUnit then num = num + 1 end
+if args.getLocation then num = num + 1 end
+if args.getItem then num = num + 1 end
 if not num == 1 then 
  if args.verbose then print('One and only one check required') end
  return
@@ -164,7 +173,7 @@ elseif args.targetLocation then
  centerLocation.z = args.targetLocation[3]
 end
 
-if args.checkUnit then
+if args.getUnit then
  if not centerUnit then 
   if args.verbose then print('No valid center unit declared. Use either -targetUnit or -center arguments') end
   return
@@ -174,8 +183,8 @@ if args.checkUnit then
   if count >= 0 then
    -- Step 1: Get all units within a specified radius of the center unit (which is the source unit if -center is used, or the target unit if -targetUnit is used)
    targetList,n = dfhack.script_environment('functions/wrapper').checkUnitLocation(centerUnit,args.radius)
-   -- Step 2: Trim the target list down to units that meet the -checkUnit declaration
-   targetList,n = dfhack.script_environment('functions/wrapper').checkTarget(sourceUnit,targetList,args.checkUnit,args.verbose)
+   -- Step 2: Trim the target list down to units that meet the -getUnit declaration
+   targetList,n = dfhack.script_environment('functions/wrapper').checkTarget(sourceUnit,targetList,args.getUnit)
    -- Step 3: Determine eligible targets from list based on age/speed/attributes/skills/etc... Any comparisons are made between the source unit and perspective target
    selected = {}
    for n,unit in pairs(targetList) do
@@ -246,7 +255,7 @@ if args.checkUnit then
  end
 end
 
-if args.checkLocation then
+if args.getLocation then
  if not centerLocation then
   if args.verbose then print('No valid center location declared. Use -targetUnit, -targetLocation or -center arguments') end
   return
@@ -264,8 +273,8 @@ if args.checkLocation then
      positions = {centerLocation}
     end
    end
-   -- Step 2: Determine which positions to target based on -checkLocation
-   positionList,n = dfhack.script_environment('functions/wrapper').checkPosition(sourceLocation,positions,args.checkLocation,args.verbose)
+   -- Step 2: Determine which positions to target based on -getLocation
+   positionList,n = dfhack.script_environment('functions/wrapper').checkPosition(sourceLocation,positions,args.getLocation)
    -- Step 3: Determine eligible targets from list based on what is at the tile
    selected = {}
    for n,pos in pairs(positionList) do
@@ -314,7 +323,7 @@ if args.checkLocation then
  end
 end
 
-if args.checkItem then
+if args.getItem then
  if centerUnit then
   center = centerUnit.pos
  elseif centerLocation then
@@ -328,8 +337,8 @@ if args.checkItem then
   if count >= 0 then
    -- Step 1: Get all items within a specified radius of the center unit or center location
    targetList,n = dfhack.script_environment('functions/wrapper').checkItemLocation(center,args.radius)
-   -- Step 2: Trim the target list down to items that meet the -checkItem declaration
-   targetList,n = dfhack.script_environment('functions/wrapper').checkItem(sourceUnit,targetList,args.checkItem,args.verbose)
+   -- Step 2: Trim the target list down to items that meet the -getItem declaration
+   targetList,n = dfhack.script_environment('functions/wrapper').checkItem(sourceUnit,targetList,args.getItem)
    -- Step 3: Determine eligible targets from list based on type/subtype/material/etc...
    selected = {}
    for n,item in pairs(targetList) do

@@ -60,35 +60,35 @@ function script_checks()
   targ = civ[2]
 
   ----
-  writeall('wrapper -checkUnit RACE -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -script [ devel/print-args TARGET_UNIT_ID ]')
-  output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit RACE -script [ devel/print-args TARGET_UNIT_ID ]')
+  writeall('wrapper -getUnit RACE -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -script [ devel/print-args TARGET_UNIT_ID ]')
+  output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -getUnit RACE -script [ devel/print-args TARGET_UNIT_ID ]')
   writeall(output)
 
   ----
-  writeall('wrapper -checkUnit DOMESTIC -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -script [ devel/print-args TARGET_UNIT_LOCATION ]')
-  output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -checkUnit DOMESTIC -script [ devel/print-args TARGET_UNIT_LOCATION ]')
+  writeall('wrapper -getUnit DOMESTIC -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -script [ devel/print-args TARGET_UNIT_LOCATION ]')
+  output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center -radius [ 50 50 5 ] -getUnit DOMESTIC -script [ devel/print-args TARGET_UNIT_LOCATION ]')
   writeall(output)
 
   ----
-  writeall('wrapper -checkUnit CIV -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -requiredCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
-  output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkUnit CIV -requiredCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
+  writeall('wrapper -getUnit CIV -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
+  output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -getUnit CIV -checkCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
   writeall(output)
 
   ----
-  checks = '-checkUnit ANY -radius 100 '
-  checks = checks..'-requiredClass GENERAL_POISON -immuneClass [ TEST_CLASS_1 TEST_SYNCLASS_1 ] '
-  checks = checks..'-requiredCreature DWARF:ALL -immuneCreature [ DONKEY:FEMALE HORSE:MALE ] '
-  checks = checks..'-requiredSyndrome "test syndrome" -immuneSyndrome [ syndromeOne syndromeTwo ] '
-  checks = checks..'-requiredToken COMMON_DOMESTIC -immuneToken [ FLIER MEGABEAST ] '
-  checks = checks..'-requiredNoble MONARCH -immuneNoble [ BARON DUKE ] '
-  checks = checks..'-requiredProfession MINER -immuneProfession [ MILLING PLANT ] '
-  checks = checks..'-requiredEntity MOUNTAIN -immuneEntity [ FOREST PLAIN ] '
-  checks = checks..'-requiredPathing FLEEING -immunePathing [ PATROL IDLE ] '
-  checks = checks..'-maxAttribute STRENGTH:5000 -minAttribute [ TOUGHNESS:500 ENDURANCE:500 ] -gtAttribute WILLPOWER:2 -ltAttribute AGILITY:1 '
-  checks = checks..'-maxSkill MINING:5 -minSkill [ BUTCHER:2 TANNER:2 ] -gtSkill MASONRY:1 -ltSkill CARPENTRY:1 '
-  checks = checks..'-maxTrait ANGER_PROPENSITY:50 -minTrait [ LOVE_PROPENSITY:10 HATE_PROPENSITY:10 ] -gtTrait LUST_PROPENSITY:1 -ltTrait ENVY_PROPENSITY:1 '
-  checks = checks..'-maxAge 100 -minAge 1 -gtAge 1 -ltAge 1 '
-  checks = checks..'-maxSpeed 500 -minSpeed 1 -gtSpeed 1 -ltSpeed 1'
+  checks = '-getUnit ANY -radius 100 '
+  checks = checks..'-checkClass [ REQUIRED:GENERAL_POISON IMMUNE:TEST_CLASS_1 IMMUNE:TEST_SYNCLASS_1 ]'
+  checks = checks..'-checkCreature [ REQUIRED:DWARF:ALL IMMUNE:DONKEY:FEMALE IMMUNE:HORSE:MALE ] '
+  checks = checks..'-checkSyndrome [ "REQUIRED:test syndrome" IMMUNE:syndromeOne IMMUNE:syndromeTwo ] '
+  checks = checks..'-checkToken [ REQUIRED:COMMON_DOMESTIC IMMUNE:FLIER MEGABEAST ] '
+  checks = checks..'-checkNoble [ REQUIRED:MONARCH IMMUNE:BARON DUKE ] '
+  checks = checks..'-checkProfession [ REQUIRED:MINER IMMUNE:MILLING PLANT ] '
+  checks = checks..'-checkEntity [ REQUIRED:MOUNTAIN IMMUNE:FOREST PLAIN ] '
+  checks = checks..'-checkPathing [ REQUIRED:FLEEING IMMUNE:PATROL IDLE ] '
+  checks = checks..'-checkAttribute [ MAX:STRENGTH:5000 MIN:TOUGHNESS:500 MIN:ENDURANCE:500 GREATER:WILLPOWER:2 LESS:AGILITY:1 ] '
+  checks = checks..'-checkSkill [ MAX:MINING:5 MIN:BUTCHER:2 MIN:TANNER:2 GREATER:MASONRY:1 LESS:CARPENTRY:1 ] '
+  checks = checks..'-checkTrait [ MAX:ANGER_PROPENSITY:50 MIN:LOVE_PROPENSITY:10 MIN:HATE_PROPENSITY:10 GREATER:LUST_PROPENSITY:1 LESS:ENVY_PROPENSITY:1 ] '
+  checks = checks..'-checkAge [ MAX:100 MIN:1 GREATER:1 LESS:1 ] '
+  checks = checks..'-checkSpeed [ MAX:500 MIN:1 GREATER:1 LESS:1 ] '
   writeall('wrapper -sourceUnit '..tostring(unit.id)..' '..checks..' -test -script [ devel/print-args TARGET_UNIT_ID ]')
   output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ devel/print-args TARGET_UNIT_ID ]')
   writeall(output)
@@ -115,28 +115,28 @@ function script_checks()
   tar = '[ '..tostring(pos.x)..' '..tostring(pos.y)..' '..tostring(pos.z)..' ]'
 
   ----
-  writeall('wrapper -checkLocation LEVEL -sourceLocation '..loc..' -targetLocation '..tar..' -requiredLiquid WATER -script [ devel/print-args TARGET_POSITION ]')
-  output = dfhack.run_command_silent('wrapper -checkLocation LEVEL -sourceLocation '..loc..' -targetLocation '..tar..' -requiredLiquid WATER -script [ devel/print-args TARGET_POSITION ]')
+  writeall('wrapper -getLocation LEVEL -sourceLocation '..loc..' -targetLocation '..tar..' -checkLiquid REQUIRED:WATER -script [ devel/print-args TARGET_POSITION ]')
+  output = dfhack.run_command_silent('wrapper -getLocation LEVEL -sourceLocation '..loc..' -targetLocation '..tar..' -checkLiquid REQUIRED:WATER -script [ devel/print-args TARGET_POSITION ]')
   writeall(output)
 
   ----
-  writeall('wrapper -checkLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -forbiddenFLOW DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
-  output = dfhack.run_command_silent('wrapper -checkLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -forbiddenFLOW DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
+  writeall('wrapper -getLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -checkFLOW FORBIDDEN:DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
+  output = dfhack.run_command_silent('wrapper -getLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -checkFLOW FORBIDDEN:DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
   writeall(output)
 
   ----
-  writeall('wrapper -checkLocation BELOW -sourceLocation '..loc..' -center -forbiddenTree [CEDAR MAPLE OAK ] -script [ devel/print-args TARGET_POSITION ]')
-  output = dfhack.run_command_silent('wrapper -checkLocation BELOW -sourceLocation '..loc..' -center -forbiddenTree [CEDAR MAPLE OAK ] -script [ devel/print-args TARGET_POSITION ]')
+  writeall('wrapper -getLocation BELOW -sourceLocation '..loc..' -center -checkTree [ FORBIDDEN:CEDAR FORBIDDEN:MAPLE FORBIDDEN:OAK ] -script [ devel/print-args TARGET_POSITION ]')
+  output = dfhack.run_command_silent('wrapper -getLocation BELOW -sourceLocation '..loc..' -center -checkTree [ FORBIDDEN:CEDAR FORBIDDEN:MAPLE FORBIDDEN:OAK ] -script [ devel/print-args TARGET_POSITION ]')
   writeall(output)
 
   ----
-  checks = '-checkLocation ANY -radius 100 '
-  checks = checks..'-requiredTree CEDAR -forbiddenTree [ MAPLE OAK ] '
-  checks = checks..'-requiredGrass GRASS_1 -forbiddenGrass [ GRASS_2 GRASS_3 ] '
-  checks = checks..'-requiredPlant STRAWBERRY -forbiddenPlant [ BLUEBERRY BLACKBERRY ] '
-  checks = checks..'-requiredLiquid WATER -forbiddenLiquid MAGMA '
-  checks = checks..'-requiredInorganic OBSIDIAN -forbiddenInorganic [ SLADE MARBLE ] '
-  checks = checks..'-requiredFlow MIST -forbiddenFlow [ MIASMA DRAGONFIRE ] '
+  checks = '-getLocation ANY -radius 100 '
+  checks = checks..'-checkTree [ REQUIRED:CEDAR FORBIDDEN:MAPLE FORBIDDEN:OAK ] '
+  checks = checks..'-checkGrass [ REQUIRED:GRASS_1 FORBIDDEN:GRASS_2 FORBIDDEN:GRASS_3 ] '
+  checks = checks..'-checkPlant [ REQUIRED:STRAWBERRY FORBIDDEN:BLUEBERRY FORBIDDEN:BLACKBERRY ] '
+  checks = checks..'-checkLiquid [ REQUIRED:WATER FORBIDDEN:MAGMA ] '
+  checks = checks..'-checkInorganic [ REQUIRED:OBSIDIAN FORBIDDEN:SLADE FORBIDDEN:MARBLE ] '
+  checks = checks..'-checkFlow [ REQUIRED:MIST FORBIDDEN:MIASMA FORBIDDEN:DRAGONFIRE ] '
   writeall('wrapper -sourceLocation '..loc..' -center '..checks..' -test -script [ devel/print-args TARGET_POSITION ]')
   output = dfhack.run_command_silent('wrapper -sourceLocation '..loc..' -center '..checks..' -test -script [ devel/print-args TARGET_POSITION ]')
   writeall(output)
@@ -159,25 +159,25 @@ function script_checks()
   wrapCheck = {}
 
   ----
-  writeall('wrapper -checkItem INVENTORY -sourceUnit '..tostring(civ[2].id)..' -targetUnit '..tostring(civ[3].id)..' -requiredItem WEAPON:ITEM_SWORD_SHORT -script [ devel/print-args TARGET_ITEM_ID ]')
-  output = dfhack.run_command_silent('wrapper -checkItem INVENTORY -sourceUnit '..tostring(civ[2].id)..' -targetUnit '..tostring(civ[3].id)..' -requiredItem WEAPON:ITEM_SWORD_SHORT -script [ devel/print-args TARGET_ITEM_ID ]')
+  writeall('wrapper -getItem INVENTORY -sourceUnit '..tostring(civ[2].id)..' -targetUnit '..tostring(civ[3].id)..' -checkItemType REQUIERD:WEAPON:ITEM_SWORD_SHORT -script [ devel/print-args TARGET_ITEM_ID ]')
+  output = dfhack.run_command_silent('wrapper -getItem INVENTORY -sourceUnit '..tostring(civ[2].id)..' -targetUnit '..tostring(civ[3].id)..' -checkItemType REQUIRED:WEAPON:ITEM_SWORD_SHORT -script [ devel/print-args TARGET_ITEM_ID ]')
   writeall(output)
 
   ----
-  writeall('wrapper -checkItem ONGROUND -sourceUnit '..tostring(civ[2].id)..' -center -radius [ 20 20 20 ] -requiredCorpse ALL -script [ devel/print-args TARGET_ITEM_ID ]')
-  output = dfhack.run_command_silent('wrapper -checkItem ONGROUND -sourceUnit '..tostring(civ[2].id)..' -center -radius [ 20 20 20 ] -requiredCorpse ALL -script [ devel/print-args TARGET_ITEM_ID ]')
+  writeall('wrapper -getItem ONGROUND -sourceUnit '..tostring(civ[2].id)..' -center -radius [ 20 20 20 ] -checkCorpse REQUIRED:ALL -script [ devel/print-args TARGET_ITEM_ID ]')
+  output = dfhack.run_command_silent('wrapper -getItem ONGROUND -sourceUnit '..tostring(civ[2].id)..' -center -radius [ 20 20 20 ] -checkCorpse REQUIRED:ALL -script [ devel/print-args TARGET_ITEM_ID ]')
   writeall(output)
 
   ----
-  writeall('wrapper -checkItem PROJECTILE -sourceLocation '..loc..' -center -radius [2 2 1 ] -requiredMaterial INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
-  output = dfhack.run_command_silent('wrapper -checkItem PROJECTILE -sourceLocation '..loc..' -center -radius [2 2 1 ] -requiredMaterial INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
+  writeall('wrapper -getItem PROJECTILE -sourceLocation '..loc..' -center -radius [2 2 1 ] -checkMaterial REQUIRED:INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
+  output = dfhack.run_command_silent('wrapper -getItem PROJECTILE -sourceLocation '..loc..' -center -radius [2 2 1 ] -checkMaterial REQUIRED:INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
   writeall(output)
 
   ----
-  checks = '-checkItem ANY -radius 100 '
-  checks = checks..'-requiredItem STATUE -forbiddenItem [ WEAPON:ITEM_WEAPON_LONGSWORD AMMO:ITEM_AMMO_BOLT ] '
-  checks = checks..'-requiredMaterial STEEL -forbiddenMaterial [ SILVER GOLD ] '
-  checks = checks..'-requiredCorpse DWARF -forbiddenCorpse [ HUMAN:MALE ELF:FEMALE ] '
+  checks = '-getItem ANY -radius 100 '
+  checks = checks..'-checkItemType [ REQUIRED:STATUE FORBIDDEN:WEAPON:ITEM_WEAPON_LONGSWORD FORBIDDEN:AMMO:ITEM_AMMO_BOLT ] '
+  checks = checks..'-checkMaterial [ REQUIRED:STEEL FORBIDDEN:SILVER FORBIDDEN:GOLD ] '
+  checks = checks..'-checkCorpse [ REQUIRED:DWARF FORBIDDEN:HUMAN:MALE FORBIDDEN:ELF:FEMALE ] '
   writeall('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ devel/print-args TARGET_ITEM_ID ]')
   output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -center '..checks..' -test -script [ devel/print-args TARGET_ITEM_ID ]')
   writeall(output)

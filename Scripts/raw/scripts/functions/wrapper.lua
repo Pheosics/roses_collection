@@ -1,43 +1,21 @@
 -- Functions used in the wrapper script, v42.06a
---[[
- checkPosition(source,targetList,target,verbose)
- checkTree(source,pos,argument,relation,verbose)
- checkPlant(source,pos,argument,relation,verbose)
- checkGrass(source,pos,argument,relation,verbose)
- checkInorganic(source,pos,argument,relation,verbose)
- checkLiquid(source,pos,argument,relation,verbose)
- isSelectedLocation(source,pos,args)
+local utils = require 'utils'
+local split = utils.split_string
+usages = {}
 
- checkTarget(source,targetList,target,verbose)
- checkUnitLocation(source,radius,verbose)
- checkAttribute(source,unit,args.maxAttribute,relation,args.verbose)
- checkSkill(source,unit,args.maxSkill,relation,args.verbose)
- checkTrait(source,unit,args.maxTrait,relation,args.verbose)
- checkAge(source,unit,args.maxAge,relation,args.verbose)
- checkSpeed(source,unit,args.gtSpeed,relation,args.verbose)
- checkClass(source,unit,args.requiredClass,relation,args.verbose)
- checkCreature(source,unit,args.requiredCreature,relation,args.verbose)
- checkSyndrome(source,unit,args.requiredSyndrome,relation,args.verbose)
- checkToken(source,unit,args.requiredToken,relation,args.verbose)
- checkNoble(source,unit,args.requiredNoble,relation,args.verbose)
- checkProfession(source,unit,args.requiredProfesion,relation,args.verbose)
- checkEntity(source,unit,args.requiredEntity,relation,args.verbose)
- checkPathing(source,unit,args.requiredPathing,relation,args.verbose)
- isSelectedUnit(source,target,args)
- 
- checkItem(source,targetList,target,verbose)
- checkItemLocation(center,radius,verbose)
- checkItemType(source,pos,args.requiredItem,relation,args.verbose)
- checkMaterial(source,pos,args.requiredMaterial,relation,args.verbose)
- checkCorpse(source,pos,args.requiredCorpse,relation,args.verbose)
- isSelectedItem(source,item,args)
+--=                     Location Based Targeting Checks
+usages[#usages+1] = [===[
 
- getValue(equation,target,source,center,targetList,selected,verbose)
-]]
----------------------------------------------------------------------------------------------
--- position based checks and conditions
----- get list of positions meeting major criteria of -checkLocation
-function checkPosition(source,targetList,target,verbose) -- checks list of positions for major condition
+Location Based Targeting Checks
+===============================
+
+checkPosition(source,targetList,target,verbose)
+
+isSelectedLocation(source,pos,args)
+
+]===] 
+
+function checkPosition(source,targetList,target)
  if not target then target = 'all' end
  n = 0
  list = {}
@@ -87,21 +65,36 @@ function checkPosition(source,targetList,target,verbose) -- checks list of posit
  return list,n
 end
 
----- check individual positions for targeting criteria
-function checkTree(source,pos,argument,relation,verbose) -- checks for a tree at target position
- tiletype = dfhack.maps.getTileType(pos)
- type_mat = df.tiletype_material[df.tiletype.attrs[tiletype].material]
- if type_mat ~= 'TREE' then
-  if relation == 'required' then
-   return false
-  elseif relation == 'forbidden' then
-   return true
+function isSelectedLocation(source,pos,args)
+ local selected = true
+ if args.test then test = true end
+
+ checks = ['checkTree','checkPlant','checkInorganic','checkFlow','checkLiquid'] 
+
+ for _,check in ipairs(hecks) do
+  if args[check] and (selected or test) then
+   selected = _G[check](source,unit,args[check])
   end
  end
+  
+ return selected
+end
+
+function checkTree(source,pos,argument,relation)
+ tiletype = dfhack.maps.getTileType(pos)
+ type_mat = df.tiletype_material[df.tiletype.attrs[tiletype].material]
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
-  arg = string.upper(arg)
-  if arg == 'ANY' then
+  relation = string.lower(split(arg,':')[1])
+  tree = string.upper(split(arg,':')[2])
+  if type_mat ~= 'TREE' then
+   if relation == 'required' then
+    return false
+   elseif relation == 'forbidden' then
+    return true
+   end
+  end
+  if tree == 'ANY' then
    if relation == 'required' then
     return true
    elseif relation == 'forbidden' then
@@ -109,7 +102,7 @@ function checkTree(source,pos,argument,relation,verbose) -- checks for a tree at
    end   
   else
    tree_mat = dfhack.script_environment('functions/map').getTreeMaterial(pos)
-   if tree_mat.plant.id == arg then
+   if tree_mat.plant.id == tree then
     if relation == 'required' then
      return true
     elseif relation == 'forbidden' then
@@ -118,14 +111,9 @@ function checkTree(source,pos,argument,relation,verbose) -- checks for a tree at
    end
   end
  end
- if relation == 'required' then
-  return false
- elseif relation == 'forbidden' then
-  return true
- end
 end
 
-function checkPlant(source,pos,argument,relation,verbose) -- checks for a plant at target position
+function checkPlant(source,pos,argument)
  tiletype = dfhack.maps.getTileType(pos)
  type_mat = df.tiletype_material[df.tiletype.attrs[tiletype].material]
  if type_mat ~= 'PLANT' then
@@ -137,8 +125,16 @@ function checkPlant(source,pos,argument,relation,verbose) -- checks for a plant 
  end
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
-  arg = string.upper(arg)
-  if arg == 'ANY' then
+  relation = string.lower(split(arg,':')[1])
+  plant = string.upper(split(arg,':')[2])
+  if type_mat ~= 'PLANT' then
+   if relation == 'required' then
+    return false
+   elseif relation == 'forbidden' then
+    return true
+   end
+  end
+  if plant == 'ANY' then
    if relation == 'required' then
     return true
    elseif relation == 'forbidden' then
@@ -146,7 +142,7 @@ function checkPlant(source,pos,argument,relation,verbose) -- checks for a plant 
    end   
   else
    shrub_mat = dfhack.script_environment('functions/map').getShrubMaterial(pos)
-   if shrub_mat.plant.id == arg then
+   if shrub_mat.plant.id == plant then
     if relation == 'required' then
      return true
     elseif relation == 'forbidden' then
@@ -155,6 +151,9 @@ function checkPlant(source,pos,argument,relation,verbose) -- checks for a plant 
    end
   end
  end
+end
+
+function checkInorganic(source,pos,argument)
  if relation == 'required' then
   return false
  elseif relation == 'forbidden' then
@@ -162,56 +161,12 @@ function checkPlant(source,pos,argument,relation,verbose) -- checks for a plant 
  end
 end
 
-function checkGrass(source,pos,argument,relation,verbose) -- checks for grass at target position
- tiletype = dfhack.maps.getTileType(pos)
- type_mat = df.tiletype_material[df.tiletype.attrs[tiletype].material]
- if type_mat ~= 'GRASS_LIGHT' and type_mat ~= 'GRASS_DARK' and type_mat ~= 'GRASS_DEAD' and type_mat ~= 'GRASS_DRY' then
-  if relation == 'required' then
-   return false
-  elseif relation == 'forbidden' then
-   return true
-  end
- end
+function checkFlow(source,pos,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
-  arg = string.upper(arg)
-  if arg == 'ANY' then
-   if relation == 'required' then
-    return true
-   elseif relation == 'forbidden' then
-    return false
-   end   
-  else
-   grass_mat = dfhack.script_environment('functions/map').getGrassMaterial(pos)
-   if grass_mat.plant.id == arg then
-    if relation == 'required' then
-     return true
-    elseif relation == 'forbidden' then
-     return false
-    end
-   end
-  end
- end
- if relation == 'required' then
-  return false
- elseif relation == 'forbidden' then
-  return true
- end
-end
-
-function checkInorganic(source,pos,argument,relation,verbose) -- not done
- if relation == 'required' then
-  return false
- elseif relation == 'forbidden' then
-  return true
- end
-end
-
-function checkFlow(source,pos,argument,relation,verbose) -- checks for flow at given position
- if type(argument) ~= 'table' then argument = {argument} end
- for i,arg in ipairs(argument) do
-  arg = string.upper(arg)
-  flows = dfhack.script_environment('functions/map').getFlow(pos,arg)
+  relation = string.lower(split(arg,':')[1])
+  flow = string.upper(split(arg,':')[2])
+  flows = dfhack.script_environment('functions/map').getFlow(pos,flow)
   if #flows > 0 then
    if relation == 'required' then
     return true
@@ -227,8 +182,9 @@ function checkFlow(source,pos,argument,relation,verbose) -- checks for flow at g
  end
 end
 
-function checkLiquid(source,pos,argument,relation,verbose) -- checks for liquid at given position
- liquidtype = string.upper(argument)
+function checkLiquid(source,pos,argument)
+ relation = string.lower(split(argument,':')[1])
+ liquidtype = string.upper(split(argument,':')[2])
  block = dfhack.maps.ensureTileBlock(pos)
  designation = block.designation[pos.x%16][pos.y%16]
  if liquidtype == 'ANY' then
@@ -256,66 +212,23 @@ function checkLiquid(source,pos,argument,relation,verbose) -- checks for liquid 
    end
   end 
  end
- if relation == 'required' then
-  return false
- elseif relation == 'forbidden' then
-  return true
- end
 end
 
----- base call for all position targeting checks
-function isSelectedLocation(source,pos,args)
- local selected = true
- if args.test then test = true end
- 
- if args.requiredTree and (selected or test) then
-  selected = checkTree(source,pos,args.requiredTree,'required',args.verbose)
- end
- if args.forbiddenTree and (selected or test) then
-  selected = checkTree(source,pos,args.forbiddenTree,'forbidden',args.verbose)
- end
- 
- if args.requiredPlant and (selected or test) then
-  selected = checkPlant(source,pos,args.requiredPlant,'required',args.verbose)
- end
- if args.forbiddenPlant and (selected or test) then
-  selected = checkPlant(source,pos,args.forbiddenPlant,'forbidden',args.verbose)
- end
- 
- if args.requiredGrass and (selected or test) then
-  selected = checkTree(source,pos,args.requiredGrass,'required',args.verbose)
- end
- if args.forbiddenGrass and (selected or test) then
-  selected = checkGrass(source,pos,args.forbiddenGrass,'forbidden',args.verbose)
- end
- 
- if args.requiredInorganic and (selected or test) then
-  selected = checkInorganic(source,pos,args.requiredInorganic,'required',args.verbose)
- end
- if args.forbiddenInorganic and (selected or test) then
-  selected = checkInorganic(source,pos,args.forbiddenInorganic,'forbidden',args.verbose)
- end
+--=                     Unit Based Targeting Checks
+usages[#usages+1] = [===[
 
- if args.requiredFlow and (selected or test) then
-  selected = checkFlow(source,pos,args.requiredFlow,'required',args.verbose)
- end
- if args.forbiddenFlow and (selected or test) then
-  selected = checkFlow(source,pos,args.forbiddenFlow,'forbidden',args.verbose)
- end
- 
- if args.requiredLiquid and (selected or test) then
-  selected = checkLiquid(source,pos,args.requiredLiquid,'required',args.verbose)
- end
- if args.forbiddenLiquid and (selected or test) then
-  selected = checkLiquid(source,pos,args.forbiddenLiquid,'forbidden',args.verbose)
- end
- 
- return selected
-end
+Unit Based Targeting Checks
+===========================
 
--- unit based checks and conditions
----- get list of units meeting major criteria of location and -checkUnit
-function checkUnitLocation(center,radius,verbose) -- checks for units within radius of center
+checkUnitLocation(center,radius)
+
+checkTarget(source,targetList,target)
+
+isSelectedUnit(source,unit,args)
+
+]===]
+
+function checkUnitLocation(center,radius)
  if radius then
   rx = tonumber(radius.x) or tonumber(radius[1]) or 0
   ry = tonumber(radius.y) or tonumber(radius[2]) or 0
@@ -349,7 +262,7 @@ function checkUnitLocation(center,radius,verbose) -- checks for units within rad
  return targetList,n
 end
 
-function checkTarget(source,targetList,target,verbose) -- checks list of units for major condition
+function checkTarget(source,targetList,target)
  if not target then target = 'all' end
  n = 0
  list = {}
@@ -404,33 +317,51 @@ function checkTarget(source,targetList,target,verbose) -- checks list of units f
  return list,n
 end
 
----- check individual units for targeting criteria
-function checkAge(source,target,argument,relation,verbose) -- checks age of target unit
+function isSelectedUnit(source,unit,args)
  local selected = true
- sage = dfhack.units.getAge(source)
- tage = dfhack.units.getAge(target)
- value = tonumber(argument)
- if relation == 'max' then
-  if tage > value then return false end
- elseif relation == 'min' then
-  if tage < value then return false end
- elseif relation == 'greater' then
-  if tage/sage < value then return false end
- elseif relation == 'less' then
-  if sage/tage < value then return false end
+ if args.test then test = true end
+
+ checks = ['checkAttribute','checkSkill','checkTrait','checkAge','checkSpeed',
+           'checkClass','checkCreature','checkSyndrome','checkToken',
+           'checkNoble','checkProfession','checkEntity','checkPathing']
+
+ for _,check in ipairs(checks) do
+  if args[check] and (selected or test) then
+   selected = _G[check](source,unit,args[check])
+  end
  end
+
  return selected
 end
 
-function checkAttribute(source,target,argument,relation,verbose) -- checks attributes of target unit
- local utils = require 'utils'
- local split = utils.split_string
+function checkAge(source,target,argument)
+ sage = dfhack.units.getAge(source)
+ tage = dfhack.units.getAge(target)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in pairs(argument) do
-  attribute = split(x,':')[1]
+  relation = string.lower(split(x,':')[1])
   value = tonumber(split(x,':')[2])
-  sattribute = dfhack.script_environment('functions/unit').getUnit(source,'Attributes',attribute)
-  tattribute = dfhack.script_environment('functions/unit').getUnit(target,'Attributes',attribute)
+  if relation == 'max' then
+   if tage > value then return false end
+  elseif relation == 'min' then
+   if tage < value then return false end
+  elseif relation == 'greater' then
+   if tage/sage < value then return false end
+  elseif relation == 'less' then
+   if sage/tage < value then return false end
+  end
+ end
+ return true
+end
+
+function checkAttribute(source,target,argument)
+ if type(argument) ~= 'table' then argument = {argument} end
+ for i,x in pairs(argument) do
+  relation = string.lower(split(x,':')[1])
+  attribute = split(x,':')[2]
+  value = tonumber(split(x,':')[3])
+  sattribute = dfhack.script_environment('functions/unit').getUnitTable(source).Attributes[attribute]
+  tattribute = dfhack.script_environment('functions/unit').getUnitTable(target).Attributes[attribute]
   if relation == 'max' then
    if tattribute > value then return false end
   elseif relation == 'min' then
@@ -444,10 +375,12 @@ function checkAttribute(source,target,argument,relation,verbose) -- checks attri
  return true
 end
 
-function checkClass(source,target,argument,relation,verbose) -- checks classes (creature and sndrome) of target unit
+function checkClass(source,target,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
-  selected = dfhack.script_environment('functions/unit').checkClass(target,x)
+  relation = string.lower(split(x,':')[1])
+  check = split(x,':')[2]
+  selected = dfhack.script_environment('functions/unit').checkClass(target,class)
   if relation == 'required' then   
    if selected then return true end
   elseif relation == 'immune' then
@@ -461,10 +394,12 @@ function checkClass(source,target,argument,relation,verbose) -- checks classes (
  end
 end
 
-function checkCreature(source,target,argument,relation,verbose) -- checks creature and caste of target unit
+function checkCreature(source,target,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
-  selected = dfhack.script_environment('functions/unit').checkCreatureRace(target,x)
+  relation = string.lower(split(x,':')[1])
+  check = split(x,':')[2]
+  selected = dfhack.script_environment('functions/unit').checkCreatureRace(target,check)
   if relation == 'required' then   
    if selected then return true end
   elseif relation == 'immune' then
@@ -478,13 +413,15 @@ function checkCreature(source,target,argument,relation,verbose) -- checks creatu
  end
 end
 
-function checkEntity(source,target,argument,relation,verbose) -- checks entity of target unit
+function checkEntity(source,target,argument)
 -- sentity = df.global.world.entities[source.civ_id].entity_raw.code
  if target.civ_id < 0 then return false end
  tentity = df.global.world.entities.all[target.civ_id].entity_raw.code
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
-  selected = x == tentity
+  relation = string.lower(split(x,':')[1])
+  check = split(x,':')[2]
+  selected = check == tentity
   if relation == 'required' then   
    if selected then return true end
   elseif relation == 'immune' then
@@ -498,15 +435,17 @@ function checkEntity(source,target,argument,relation,verbose) -- checks entity o
  end
 end
 
-function checkNoble(source,target,argument,relation,verbose) -- checks noble positions of target unit
+function checkNoble(source,target,argument)
 -- snoble = dfhack.units.getNoblePositions(source)
  tnoble = dfhack.units.getNoblePositions(target)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in pairs(argument) do
+  relation = string.lower(split(x,':')[1])
+  check = split(x,':')[2]
   if tnoble then
    for j,y in pairs(tnoble) do
     position = y.position.code
-    selected = position == x
+    selected = position == check
     if relation == 'required' then
 	 if selected then return true end
     elseif relation == 'immune' then
@@ -528,11 +467,13 @@ function checkNoble(source,target,argument,relation,verbose) -- checks noble pos
  end
 end
 
-function checkPathing(source,target,argument,relation,verbose) -- checks pathing of target unit
+function checkPathing(source,target,argument)
  tgoal = target.path.goal
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
-  n = df.unit_path_goal[x]
+  relation = string.lower(split(x,':')[1])
+  check = split(x,':')[2]
+  n = df.unit_path_goal[check]
   selected = n == tgoal
   if relation == 'required' then   
    if selected then return true end
@@ -547,12 +488,14 @@ function checkPathing(source,target,argument,relation,verbose) -- checks pathing
  end
 end
 
-function checkProfession(source,target,argument,relation,verbose) -- checks profession of target unit
+function checkProfession(source,target,argument)
 -- sprof = source.profession
  tprof = target.profession
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
-  n = df.profession[x]
+  relation = string.lower(split(x,':')[1])
+  check = split(x,':')[2]
+  n = df.profession[check]
   selected = n == tprof
   if relation == 'required' then   
    if selected then return true end
@@ -567,15 +510,14 @@ function checkProfession(source,target,argument,relation,verbose) -- checks prof
  end
 end
 
-function checkSkill(source,target,argument,relation,verbose) -- checks skills of target unit
- local utils = require 'utils'
- local split = utils.split_string
+function checkSkill(source,target,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in pairs(argument) do
-  skill = split(x,':')[1]
-  value = tonumber(split(x,':')[2])
-  sskill = dfhack.script_environment('functions/unit').getUnit(source,'Skills',skill)
-  tskill = dfhack.script_environment('functions/unit').getUnit(target,'Skills',skill)
+  relation = string.lower(split(x,':')[1])
+  skill = split(x,':')[2]
+  value = tonumber(split(x,':')[3])
+  sskill = dfhack.script_environment('functions/unit').getUnitTable(source).Skills[skill]
+  tskill = dfhack.script_environment('functions/unit').getUnitTable(target).Skills[skill]
   if relation == 'max' then
    if tskill > value then return false end
   elseif relation == 'min' then
@@ -589,26 +531,32 @@ function checkSkill(source,target,argument,relation,verbose) -- checks skills of
  return true
 end
 
-function checkSpeed(source,target,argument,relation,verbose) -- checks speed of target unit (using dfhack.units.computeMovementSpeed())
+function checkSpeed(source,target,argument)
  sspeed = dfhack.units.computeMovementSpeed(source)
  tspeed = dfhack.units.computeMovementSpeed(target)
- value = tonumber(argument)
- if relation == 'max' then
-  if tspeed > value then return false end
- elseif relation == 'min' then
-  if tspeed < value then return false end
- elseif relation == 'greater' then
-  if tspeed/sspeed < value then return false end
- elseif relation == 'less' then
-  if sspeed/tspeed < value then return false end
+ if type(argument) ~= 'table' then argument = {argument} end
+ for i,x in pairs(argument) do
+  relation = string.lower(split(x,':')[1])
+  value = tonumber(split(x,':')[2])
+  if relation == 'max' then
+   if tspeed > value then return false end
+  elseif relation == 'min' then
+   if tspeed < value then return false end
+  elseif relation == 'greater' then
+   if tspeed/sspeed < value then return false end
+  elseif relation == 'less' then
+   if sspeed/tspeed < value then return false end
+  end
  end
  return true
 end
 
-function checkSyndrome(source,target,argument,relation,verbose) -- checks syndromes (names) of target unit
+function checkSyndrome(source,target,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
-  selected = dfhack.script_environment('functions/unit').checkCreatureSyndrome(target,x)
+  relation = string.lower(split(x,':')[1])
+  check = split(x,':')[2]
+  selected = dfhack.script_environment('functions/unit').checkCreatureSyndrome(target,check)
   if relation == 'required' then   
    if selected then return true end
   elseif relation == 'immune' then
@@ -622,10 +570,12 @@ function checkSyndrome(source,target,argument,relation,verbose) -- checks syndro
  end
 end
 
-function checkToken(source,target,argument,relation,verbose) -- checks tokens of target unit (e.g. MEGABEAST, FLIER, etc...)
+function checkToken(source,target,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in ipairs(argument) do
-  selected = dfhack.script_environment('functions/unit').checkCreatureToken(target,x)
+  relation = string.lower(split(x,':')[1])
+  check = split(x,':')[2]
+  selected = dfhack.script_environment('functions/unit').checkCreatureToken(target,check)
   if relation == 'required' then   
    if selected then return true end
   elseif relation == 'immune' then
@@ -639,15 +589,14 @@ function checkToken(source,target,argument,relation,verbose) -- checks tokens of
  end
 end
 
-function checkTrait(source,target,argument,relation,verbose) -- checks traits of target unit
- local utils = require 'utils'
- local split = utils.split_string
+function checkTrait(source,target,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,x in pairs(argument) do
-  trait = split(x,':')[1]
-  value = tonumber(split(x,':')[2])
-  strait = dfhack.script_environment('functions/unit').getUnit(source,'Traits',trait)
-  ttrait = dfhack.script_environment('functions/unit').getUnit(target,'Traits',trait)
+  relation = string.lower(split(x,':')[1])
+  trait = split(x,':')[2]
+  value = tonumber(split(x,':')[3])
+  strait = dfhack.script_environment('functions/unit').getUnitTable(source).Traits[trait]
+  ttrait = dfhack.script_environment('functions/unit').getUnitTable(target).Traits[trait]
   if relation == 'max' then
    if ttrait > value then return false end
   elseif relation == 'min' then
@@ -661,137 +610,21 @@ function checkTrait(source,target,argument,relation,verbose) -- checks traits of
  return true
 end
 
----- base call for all unit targeting checks
-function isSelectedUnit(source,unit,args)
- local selected = true
- if args.test then test = true end
+--=                     Item Based Targeting Checks
+usages[#usages+1] = [===[
 
- if args.maxAttribute and (selected or test) then
-  selected = checkAttribute(source,unit,args.maxAttribute,'max',args.verbose)
- end
- if args.minAttribute and (selected or test) then
-  selected = checkAttribute(source,unit,args.minAttribute,'min',args.verbose)
- end
- if args.gtAttribute and (selected or test) then
-  selected = checkAttribute(source,unit,args.gtAttribute,'greater',args.verbose)
- end
- if args.ltAttribute and (selected or test) then
-  selected = checkAttribute(source,unit,args.ltAttribute,'less',args.verbose)
- end
- 
- if args.maxSkill and (selected or test) then
-  selected = checkSkill(source,unit,args.maxSkill,'max',args.verbose)
- end
- if args.minSkill and (selected or test) then
-  selected = checkSkill(source,unit,args.minSkill,'min',args.verbose)
- end
- if args.gtSkill and (selected or test) then
-  selected = checkSkill(source,unit,args.gtSkill,'greater',args.verbose)
- end
- if args.ltSkill and (selected or test) then
-  selected = checkSkill(source,unit,args.ltSkill,'less',args.verbose)
- end
- 
- if args.maxTrait and (selected or test) then
-  selected = checkTrait(source,unit,args.maxTrait,'max',args.verbose)
- end
- if args.mintrait and (selected or test) then
-  selected = checkTrait(source,unit,args.minTrait,'min',args.verbose)
- end
- if args.gtTrait and (selected or test) then
-  selected = checkTrait(source,unit,args.gtTrait,'greater',args.verbose)
- end
- if args.ltTrait and (selected or test) then
-  selected = checkTrait(source,unit,args.ltTrait,'less',args.verbose)
- end
- 
- if args.maxAge and (selected or test) then
-  selected = checkAge(source,unit,args.maxAge,'max',args.verbose)
- end
- if args.minAge and (selected or test) then
-  selected = checkAge(source,unit,args.minAge,'min',args.verbose)
- end
- if args.gtAge and (selected or test) then
-  selected = checkAge(source,unit,args.gtAge,'greater',args.verbose)
- end
- if args.ltAge and (selected or test) then
-  selected = checkAge(source,unit,args.ltAge,'less',args.verbose)
- end
- 
- if args.maxSpeed and (selected or test) then
-  selected = checkSpeed(source,unit,args.maxSpeed,'max',args.verbose)
- end
- if args.minSpeed and (selected or test) then
-  selected = checkSpeed(source,unit,args.minSpeed,'min',args.verbose)
- end
- if args.gtSpeed and (selected or test) then
-  selected = checkSpeed(source,unit,args.gtSpeed,'greater',args.verbose)
- end
- if args.ltSpeed and (selected or test) then
-  selected = checkSpeed(source,unit,args.ltSpeed,'less',args.verbose)
- end
- 
- if args.requiredClass and (selected or test) then
-  selected = checkClass(source,unit,args.requiredClass,'required',args.verbose)
- end 
- if args.immuneClass and (selected or test) then
-  selected = checkClass(source,unit,args.immuneClass,'immune',args.verbose)
- end 
- 
- if args.requiredCreature and (selected or test) then
-  selected = checkCreature(source,unit,args.requiredCreature,'required',args.verbose)
- end 
- if args.immuneCreature and (selected or test) then
-  selected = checkCreature(source,unit,args.immuneCreature,'immune',args.verbose)
- end
- 
- if args.requiredSyndrome and (selected or test) then
-  selected = checkSyndrome(source,unit,args.requiredSyndrome,'required',args.verbose)
- end 
- if args.immuneSyndrome and (selected or test) then
-  selected = checkSyndrome(source,unit,args.immuneSyndrome,'immune',args.verbose)
- end
+Item Based Targeting Checks
+===========================
 
- if args.requiredToken and (selected or test) then
-  selected = checkToken(source,unit,args.requiredToken,'required',args.verbose)
- end 
- if args.immuneToken and (selected or test) then
-  selected = checkToken(source,unit,args.immuneToken,'immune',args.verbose)
- end
- 
- if args.requiredNoble and (selected or test) then
-  selected = checkNoble(source,unit,args.requiredNoble,'required',args.verbose)
- end 
- if args.inoble and (selected or test) then
-  selected = checkNoble(source,unit,args.inoble,'immune',args.verbose)
- end
- 
- if args.requiredProfesion and (selected or test) then
-  selected = checkProfession(source,unit,args.requiredProfesion,'required',args.verbose)
- end 
- if args.immuneProfession and (selected or test) then
-  selected = checkProfession(source,unit,args.immuneProfession,'immune',args.verbose)
- end
- 
- if args.requiredEntity and (selected or test) then
-  selected = checkEntity(source,unit,args.requiredEntity,'required',args.verbose)
- end 
- if args.immuneEntity and (selected or test) then
-  selected = checkEntity(source,unit,args.immuneEntity,'immune',args.verbose)
- end
+checkItemLocation(center,radius)
 
- if args.requiredPathing and (selected or test) then
-  selected = checkPathing(source,unit,args.requiredPathing,'required',args.verbose)
- end 
- if args.immunePathing and (selected or test) then
-  selected = checkPathing(source,unit,args.immunePathing,'immune',args.verbose)
- end 
- 
- return selected
-end
+checkItem(source,targetList,target)
 
--- item based checks and conditions ----
-function checkItemLocation(center,radius,verbose) -- checks for units within radius of center
+isSelectedItem(source,item,args)
+
+]===]
+
+function checkItemLocation(center,radius)
  if radius then
   rx = tonumber(radius.x) or tonumber(radius[1]) or 0
   ry = tonumber(radius.y) or tonumber(radius[2]) or 0
@@ -826,7 +659,7 @@ function checkItemLocation(center,radius,verbose) -- checks for units within rad
  return targetList,n
 end
 
-function checkItem(source,targetList,target,verbose) -- check list of items for major condition
+function checkItem(source,targetList,target)
  if not target then target = 'all' end
  n = 0
  list = {}
@@ -866,14 +699,28 @@ function checkItem(source,targetList,target,verbose) -- check list of items for 
  return list,n
 end
 
-function checkItemType(source,item,argument,relation,verbose)
- local utils = require 'utils'
- local split = utils.split_string
+function isSelectedItem(source,item,args)
+ local selected = true
+ if args.test then test = true end
+ 
+ checks = ['checkItemType','checkMaterial','checkCorpse']
+ 
+ for _,check in ipairs(checks) do 
+  if args[check] and (selected or test) then
+   selected = _G[check](source,item,args[check])
+  end
+ end
+
+ return selected
+end
+
+function checkItemType(source,item,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
   splitArg = split(temp,':')
-  if #splitArg == 1 then
+  relation = splitArg[1]
+  if #splitArg == 2 then
    if item:getType() == dfhack.items.findType(temp) then
     if relation == 'required' then
      return true
@@ -881,7 +728,7 @@ function checkItemType(source,item,argument,relation,verbose)
      return false
     end      
    end
-  elseif #splitArg == 2 then
+  elseif #splitArg == 3 then
    if item:getType() == dfhack.items.findType(temp) and item:getSubtype() == dfhack.items.findSubType(temp) then
     if relation == 'required' then
      return true
@@ -891,21 +738,15 @@ function checkItemType(source,item,argument,relation,verbose)
    end
   end
  end
- if relation == 'required' then
-  return false
- elseif relation == 'forbidden' then
-  return true
- end
 end
 
-function checkMaterial(source,item,argument,relation,verbose)
- local utils = require 'utils'
- local split = utils.split_string
+function checkMaterial(source,item,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
   splitArg = split(temp,':')
-  if #splitArg == 1 then
+  relation = splitArg[1]
+  if #splitArg == 2 then
    if item.mat_type() == dfhack.matinfo.find(temp)['type'] then
     if relation == 'required' then
      return true
@@ -913,7 +754,7 @@ function checkMaterial(source,item,argument,relation,verbose)
      return false
     end      
    end
-  elseif #splitArg == 2 then
+  elseif #splitArg == 3 then
    if item.mat_type() == dfhack.matinfo.find(temp)['type'] and item.mat_index() == dfhack.matinfo.find(temp)['index'] then
     if relation == 'required' then
      return true
@@ -923,37 +764,31 @@ function checkMaterial(source,item,argument,relation,verbose)
    end
   end
  end
- if relation == 'required' then
-  return false
- elseif relation == 'forbidden' then
-  return true
- end
 end
 
-function checkCorpse(source,item,argument,relation,verbose)
- local utils = require 'utils'
- local split = utils.split_string
- if not df.item_corpsest:is_instance(item) then
-  if relation == 'required' then
-   return false
-  elseif relation == 'forbidden' then
-   return true
-  end
- end
+function checkCorpse(source,item,argument)
  if type(argument) ~= 'table' then argument = {argument} end
  for i,arg in ipairs(argument) do
   temp = string.upper(arg)
   splitArg = split(temp,':')
-  if #splitArg == 1 then
-   if df.global.world.raws.creatures.all[item.race].creature_id == splitArg[1] then
+  relation = splitArg[1]
+  if not df.item_corpsest:is_instance(item) then
+   if relation == 'required' then
+    return false
+   elseif relation == 'forbidden' then
+    return true
+   end
+  end 
+  if #splitArg == 2 then
+   if df.global.world.raws.creatures.all[item.race].creature_id == splitArg[2] then
     if relation == 'required' then
      return true
     elseif relation == 'forbidden' then
      return false
     end      
    end
-  elseif #splitArg == 2 then
-   if df.global.world.raws.creatures.all[item.race].creature_id == splitArg[1] and df.global.world.raws.creatures.all[item.race].caste[item.caste].caste_id == splitArg[2] then
+  elseif #splitArg == 3 then
+   if df.global.world.raws.creatures.all[item.race].creature_id == splitArg[2] and df.global.world.raws.creatures.all[item.race].caste[item.caste].caste_id == splitArg[3] then
     if relation == 'required' then
      return true
     elseif relation == 'forbidden' then
@@ -962,41 +797,17 @@ function checkCorpse(source,item,argument,relation,verbose)
    end
   end
  end
- if relation == 'required' then
-  return false
- elseif relation == 'forbidden' then
-  return true
- end
 end
 
+--=                     Equation Functions
+usages[#usages+1] = [===[
 
-function isSelectedItem(source,item,args)
- local selected = true
- if args.test then test = true end
- 
- if args.requiredItem and (selected or test) then
-  selected = checkItemType(source,pos,args.requiredItem,'required',args.verbose)
- end
- if args.forbiddenItem and (selected or test) then
-  selected = checkItemType(source,pos,args.forbiddenItem,'forbidden',args.verbose)
- end
+Equation Functions
+==================
 
- if args.requiredMaterial and (selected or test) then
-  selected = checkMaterial(source,pos,args.requiredMaterial,'required',args.verbose)
- end
- if args.forbiddenMaterial and (selected or test) then
-  selected = checkMaterial(source,pos,args.forbiddenMaterial,'forbidden',args.verbose)
- end
+getValue
 
- if args.requiredCorpse and (selected or test) then
-  selected = checkCorpse(source,pos,args.requiredCorpse,'required',args.verbose)
- end
- if args.forbiddenCorpse and (selected or test) then
-  selected = checkCorpse(source,pos,args.forbiddenCorpse,'forbidden',args.verbose)
- end
-
- return selected
-end
+]===]
 
 function getValue(equation,target,source,center,targetList,selected,verbose)
  local utils = require 'utils'

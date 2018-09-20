@@ -2,9 +2,14 @@
 persistTable = require 'persist-table'
 if not persistTable.GlobalTable.roses then return end
 buildingPersist = persistTable.GlobalTable.roses.BuildingTable
+usages = {}
 
---[[ Building Table Functions =====================================================================
-function                                 Building Table Functions
+--=                     Building Table Functions
+usages[#usages+1] = [===[
+
+Building Table Functions
+========================
+
 makeBuildingTable(building)
   Purpose: 
   Calls:   
@@ -16,7 +21,8 @@ getBuildingTable(building)
   Calls:
   Inputs:
   Returns:
-]]
+]===]
+
 function makeBuildingTable(building)
 
 end
@@ -25,20 +31,29 @@ function getBuidingTable(building)
 
 end
 
---[[ Tracking Functions =====================================================================
-function                                 Tracking Functions
+--=                     Tracking Functions
+usages[#usages+1] = [===[
+
+Tracking Functions
+==================
+
 trackSubtype(building,subtype,dur,alter)
   Purpose: 
   Calls:   
   Inputs:
   Returns:
-]]
+]===]
+
 function trackSubtype(building,subtype,dur,alter)
 
 end
 
---[[ Building Item Functions =====================================================================
-function                                 Building Item Functions
+--=                     Building Item Functions
+usages[#usages+1] = [===[
+
+Building Item Functions
+=======================
+
 addItem(building,item,dur)
   Purpose: 
   Calls:   
@@ -50,7 +65,8 @@ removeItem(building,item,dur)
   Calls:
   Inputs:
   Returns:
-]]
+]===]
+
 function addItem(building,item,dur)
  dur = dur or '0'
  dur = tonumber(dur)
@@ -70,14 +86,19 @@ function removeItem(building,item,dur)
  if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/building','addItem',{building.id,item.id,0}) end
 end
 
---[[ Building Changing Functions =====================================================================
-function                                 Building Changing Functions
+--=                     Building Changing Functions
+usages[#usages+1] = [===[
+
+Building Changing Functions
+===========================
+
 changeSubtype(building,subtype,dur,track)
   Purpose: 
   Calls:   
   Inputs:
   Returns: 
-]]
+]===]
+
 function changeSubtype(building,subtype,dur,track)
  dur = dur or '0'
  dur = tonumber(dur)
@@ -95,14 +116,19 @@ function changeSubtype(building,subtype,dur,track)
  return true
 end
 
---[[ Miscellanious Functions =====================================================================
-function                                 Miscellanious Functions
+--=                     Miscellanious Functions
+usages[#usages+1] = [===[
+
+Miscellanious Functions
+=======================
+
 findBuilding(search)
   Purpose: 
   Calls:   
   Inputs:
   Returns: 
-]]
+]===]
+
 function findBuilding(search)
  local primary = search[1]
  local secondary = search[2] or 'NONE'

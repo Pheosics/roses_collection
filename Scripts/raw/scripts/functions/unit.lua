@@ -5,9 +5,15 @@ skillCap = 20
 persistTable = require 'persist-table'
 if not persistTable.GlobalTable.roses then return end
 unitPersist = persistTable.GlobalTable.roses.UnitTable
+usages = {}
 
---[[ UnitTable Functions ==========================================================================
-function                                 Unit Table Functions
+
+--=                     Unit Table Functions
+usages[#usages+1] = [===[
+
+Unit Table Functions 
+====================
+
 makeUnitTable(unit)
   Purpose: Create a persistant table to track information of a given unit
   Calls:   NONE
@@ -21,7 +27,8 @@ getUnitTable(unit)
   Inputs:
            unit = The unit struct or unit ID to gather information for
   Returns: Table of information about the unit
-]]
+]===]
+
 function makeUnitTable(unit)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  unitPersist[tostring(unit.id)] = {}
@@ -137,8 +144,12 @@ function getUnitTable(unit)
  return outTable
 end
 
---[[ Tracking Functions ===========================================================================
-function                                 Tracking Functions
+--=                     Tracking Functions
+usages[#usages+1] = [===[
+
+Tracking Functions                                
+==================
+
 trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
   Purpose: Tracks all changes to a units attributes, resistances, skills, stats, and traits 
   Calls:   trackStart, trackEnd, trackTerminate, changeAttribute, changeResistance, changeSkill, changeStat, changeTrait
@@ -165,7 +176,8 @@ trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
            syndrome = SYN_NAME of a syndrome to associate with the change
            cb_id    = If dur > 0 then the cb_id is needed to properly track the change
   Returns:
-]]
+]===]
+
 function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
  if alter == 'terminated' then return end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -397,8 +409,12 @@ function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
  end
 end
 
---[[ Number Changing Functions ====================================================================
-function                                 Number Changing Functions
+--=                     Number Changing Functions
+usages[#usages+1] = [===[
+
+Number Changing Functions 
+=========================
+
 changeAttribute(unit,attribute,change,dur,track,syndrome)
   Purpose: Change a units attribute (temporarily or permanently) and track the change
   Calls:   trackCore
@@ -468,7 +484,8 @@ changeTrait(unit,trait,change,dur,track,syndrome)
            track    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
            syndrome = SYN_NAME of a syndrome to associate with the change
   Returns: NONE
-]]
+]===]
+
 function changeAttribute(unit,attribute,change,dur,track,syndrome)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  unitTable = getUnitTable(unit)
@@ -634,8 +651,12 @@ function changeTrait(unit,trait,change,dur,track,syndrome)
  trackCore(unit,'Trait',trait,change,syndrome,dur,track,cb_id)
 end
 
---[[ Action Changing Functions ====================================================================
-function                                 Action Changing Functions
+--=                     Action Changing Functions
+usages[#usages+1] = [===[
+
+Action Changing Functions
+=========================
+
 changeAction(unit,action_type,timer)
   Purpose: Changes the timer on a units action, allowing them to act more often
   Calls:   NONE
@@ -654,7 +675,8 @@ changeInteraction(unit,interaction_id,timer,types)
            timer          = Number to set timer on action to (Special Values: clear, clearAll)
            types          = Interaction Type (Valid Values: Innate, Learned, Both)
   Returns: NONE
-]]
+]===]
+
 function changeAction(unit,action_type,timer)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if timer == 'clear' then
@@ -711,8 +733,12 @@ function changeInteraction(unit,interaction_id,timer,types)
  end
 end
 
---[[ Body Changing Functions ======================================================================
-function                                 Body Changing Functions
+--=                     Body Changing Functions
+usages[#suages+1] = [===[ 
+
+Body Changing Functions
+=======================
+
 changeBody(unit,part,changeType,change,dur)
   Purpose: Changes a units body and body parts size or temperature
   Calls:   NONE
@@ -747,7 +773,8 @@ changeWound()
   Calls:
   Inputs:
   Returns: NONE
-]]
+]===]
+
 function changeBody(unit,part,changeType,change,dur)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  changeType = string.upper(changeType)
@@ -817,8 +844,12 @@ function changeWound()
 
 end
 
---[[ Syndrome Changing Functions ==================================================================
-function                                 Syndrome Changing Functions
+--=                     Syndrome Changing Functions
+usages[#usages+1] = [===[
+
+Syndrome Changing Functions
+===========================
+
 changeSyndrome(unit,syndromes,change,dur)
   Purpose: Make changes to a units syndromes by adding, erasing, terminating, or altering their duration
   Calls:   modtools/add-syndrome | trackCore | checkSyndrome
@@ -828,7 +859,8 @@ changeSyndrome(unit,syndromes,change,dur)
            change    = Type of change (Valid Values: add, erase, eraseClass, terminate, terminateClass, alterDuration, alterDurationClass)
            dur       = Length syndrome will last in in-game ticks (or amount of ticks to change syndrome length by)
   Returns: NONE
-]]
+]===]
+
 function changeSyndrome(unit,syndromes,change,dur)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(syndromes) ~= 'table' then syndromes = {syndromes} end
@@ -887,8 +919,12 @@ function changeSyndrome(unit,syndromes,change,dur)
  end
 end
 
---[[ Boolean Functions ============================================================================
-function                                 Boolean Functions
+--=                     Boolean Functions
+usages[#usages+1] = [===[
+
+Boolean Functions
+=================
+
 checkClass(unit,class)
   Purpose: Checks if a unit has the given class, either as a CREATURE_CLASS or SYNDROME_CLASS
   Calls:   checkClassCreature | checkClassSyndrome
@@ -929,7 +965,8 @@ checkDistance(unit,location,distance)
            location = { x, y, z }
            distance = # or { x, y, z }
   Returns: True/False
-]]
+]===]
+
 function checkClass(unit,class)
  check, x = checkClassCreature(unit,class)
  if check then return true,x end
@@ -1066,8 +1103,12 @@ function checkDistance(unit,location,distance)
  return false
 end
 
---[[ Body Part Functions ==========================================================================
-function                                 Body Part Functions
+--=                     Body Part Functions
+usages[#usages+1] = [===[
+
+Body Part Functions
+===================
+
 getBodyParts(unit,partType,partSubType)
   Purpose: Get a table of body part ids that match the given Type and SubType search
   Calls:   getBodyCategory | getBodyToken | getBodyFlag | getBodyConnectedParts | getBodyPartGlobalLayers
@@ -1083,7 +1124,8 @@ getBodyRandom(unit)
   Inputs:
            unit = Unit struct or unit ID
   Returns: Body Part ID
-]]
+]===]
+
 function getBodyParts(unit,partType,partSubType)
  partType = string.lower(partType)
  if partType == 'category' then
@@ -1205,8 +1247,12 @@ function getBodyRandom(unit)
  return target
 end
 
---[[ Corpse Functions =============================================================================
-function                                 Corpse Functions
+--=                     Corpse Functions
+usages[#usages+1] = [===[
+
+Corpse Functions
+================
+
 getBodyCorpseParts(unit)
   Purpose: Get a list of all the units corpse part IDs and corpse ID
   Calls:   NONE
@@ -1219,9 +1265,9 @@ getItemCorpse(caste)
   Calls:   NONE
   Inputs:
            unit = Unit struct or unit ID
-  Returns: String of item corpse item and mat or 'Corpse'
-  
-]]
+  Returns: String of item corpse item and mat or 'Corpse'  
+]===]
+
 function getBodyCorpseParts(unit)
  if df.item_corpsest:is_instance(unit) then
   unit = df.unit.find(unit.unit_id)
@@ -1261,8 +1307,12 @@ function getItemCorpse(caste)
  return itemcorpse
 end
 
---[[ Inventory Functions ==========================================================================
-function                                 Inventory Functions
+--=                     Inventory Functions
+usages[#usages+1] = [===[
+
+Inventory Functions
+===================
+
 getInventory(unit,inventoryType,inventorySubType)
   Purpose: Get the item ids of a unit inventory based on given criteria
   Calls:   getInventoryType | getInventoryBodyPart | getInventoryMode
@@ -1271,7 +1321,8 @@ getInventory(unit,inventoryType,inventorySubType)
            inventoryType    = Inventory search type (Valid Values: ItemType, BodyPart, Mode)
            inventorySubType = Inventory search subtype, depends on inventory search type
   Returns: Table of item IDs
-]]
+]===]
+
 function getInventory(unit,inventoryType,inventorySubType)
  inventoryType = string.lower(inventoryType)
  if inventoryType == 'itemtype' then
@@ -1337,8 +1388,12 @@ function getInventoryMode(unit,mode)
  return items
 end
 
---[[ Miscellanious Get Functions ==================================================================
-function                                 Miscellanious Get Functions
+--=                     Miscellanious Get Functions
+usages[#usages+1] = [===[
+
+Miscellanious Get Functions
+===========================
+
 getAttack(unit,attack_type)
   Purpose: Get the attack ID and associated body part ID of a random or specific attack
   Calls:   NONE
@@ -1372,7 +1427,8 @@ getCounter(unit,counter)
            unit    = Unit struct or unit ID
            counter = Counter token (e.g. webbed)
   Returns: Value of counter
-]]
+]===]
+
 function getAttack(unit,attack_type)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if attack_type == 'Random' then
@@ -1502,8 +1558,12 @@ function getCounter(unit,counter)
  return location[counter] 
 end
 
---[[ Miscellanious Functions ======================================================================
-function                                 Miscellanious Functions
+--=                     Miscellanious Functions
+usages[#usages+1] = [===[
+
+Miscellanious Functions
+=======================
+
 makeProjectile(unit,velocity)
   Purpose: Turn a unit into a projectile
   Calls:   NONE
@@ -1518,7 +1578,7 @@ findUnit(search)
   Inputs:
            search = Search table (e.g. { RANDOM, PROFESSION, CARPENTER })
   Returns: Table of all units that meet search criteria
-]]
+]===]
 
 function makeProjectile(unit,velocity)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -1667,8 +1727,12 @@ function findUnit(search)
  end
 end
 
---[[ Unit Creation Functions ======================================================================
-function                                 Unit Creation Functions
+--=                     Unit Creation Functions
+usages[#usages+1] = [===[
+
+Unit Creation Functions 
+=======================
+
 create()
   Purpose:
   Calls:
@@ -1692,7 +1756,8 @@ createSkills(unit,skills)
   Calls:
   Inputs:
   Returns:
-]]
+]===]
+
 function create()
 
 end
