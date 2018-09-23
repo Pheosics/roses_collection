@@ -1,3 +1,6 @@
+local utils = require 'utils'
+local split = utils.split_string
+
 function printplus(text,color)
  color = color or COLOR_WHITE
  dfhack.color(color)
@@ -19,6 +22,7 @@ function writeall(tbl)
  end
 end
 
+dfhack.run_command('base/roses-init -testRun')
 -- FUNCTIONS HELP FILE
 file = io.open('Functions.txt','w')
 io.output(file)
@@ -41,14 +45,15 @@ dir = dfhack.getDFPath()..'/raw/scripts/'
 file = io.open('Scripts.txt','w')
 io.output(file)
 
-s = ['unit','map','building','item']
+s = {'unit','map','building','item'}
 for _,folder in pairs(s) do
  writeall(string.upper(folder).. ' SCRIPTS')
  for _,fname in pairs(dfhack.internal.getDir(dir..folder..'/')) do
   if string.match(fname,'lua') then
-   output = dfhack.run_command_silent(folder..'/'..fname..' -help')
+   f = split(fname,'.lua')[1]
+   output = dfhack.run_command_silent(folder..'/'..f..' -help')
    writeall(output)
   end
  end
 end
-
+io.close()

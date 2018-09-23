@@ -26,7 +26,7 @@ Arguments::
         If present it will create two shoes
 
 Examples::
-    -item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:SUPER_INORGANIC -quality 7 -dur 3600
+    item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:SUPER_INORGANIC -quality 7 -dur 3600
 ]====]
 
 local utils = require 'utils'

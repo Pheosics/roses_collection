@@ -734,7 +734,7 @@ function changeInteraction(unit,interaction_id,timer,types)
 end
 
 --=                     Body Changing Functions
-usages[#suages+1] = [===[ 
+usages[#usages+1] = [===[ 
 
 Body Changing Functions
 =======================

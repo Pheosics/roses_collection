@@ -69,7 +69,7 @@ function isSelectedLocation(source,pos,args)
  local selected = true
  if args.test then test = true end
 
- checks = ['checkTree','checkPlant','checkInorganic','checkFlow','checkLiquid'] 
+ checks = {'checkTree','checkPlant','checkInorganic','checkFlow','checkLiquid'}
 
  for _,check in ipairs(hecks) do
   if args[check] and (selected or test) then
@@ -321,9 +321,9 @@ function isSelectedUnit(source,unit,args)
  local selected = true
  if args.test then test = true end
 
- checks = ['checkAttribute','checkSkill','checkTrait','checkAge','checkSpeed',
+ checks = {'checkAttribute','checkSkill','checkTrait','checkAge','checkSpeed',
            'checkClass','checkCreature','checkSyndrome','checkToken',
-           'checkNoble','checkProfession','checkEntity','checkPathing']
+           'checkNoble','checkProfession','checkEntity','checkPathing'}
 
  for _,check in ipairs(checks) do
   if args[check] and (selected or test) then
@@ -703,7 +703,7 @@ function isSelectedItem(source,item,args)
  local selected = true
  if args.test then test = true end
  
- checks = ['checkItemType','checkMaterial','checkCorpse']
+ checks = {'checkItemType','checkMaterial','checkCorpse'}
  
  for _,check in ipairs(checks) do 
   if args[check] and (selected or test) then

@@ -39,6 +39,7 @@ Examples::
 
 local utils = require 'utils'
 validArgs = utils.invert({
+  'help',
   'unit',
   'item',
   'bodyPart',
