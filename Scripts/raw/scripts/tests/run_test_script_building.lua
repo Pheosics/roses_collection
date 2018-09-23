@@ -23,7 +23,7 @@ function writeall(tbl)
 end
 
 -- Open external output file
-file = io.open('run_test_output.txt','w')
+file = io.open('rto_building.txt','w')
 io.output(file)
 
 -- Initialize base/roses-init
@@ -63,9 +63,6 @@ function script_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   buildingCheck = {}
   writeall('building/create checks starting')
-  writeall('building/create -help')
-  output = dfhack.run_command_silent('building/create -help')
-  writeall(output)
 
   ---- Check that the script creates a quern (only vanilla building it can make)
   location = mapFunctions.getPositionSurfaceFree()
@@ -82,8 +79,8 @@ function script_checks()
   ---- Check that the script creates TEST_BUILDING_1 with an iron short sword inside it
   location = mapFunctions.getPositionSurfaceFree()
   locstr = tostring(location.x)..' '..tostring(location.y)..' '..tostring(location.z)
-  writeall('building/create -location [ '..locstr..' ] -type Workshop -subtype TEST_BUILDING_1 -custom -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:IRON')
-  output = dfhack.run_command_silent('building/create -location [ '..locstr..' ] -type Workshop -subtype TEST_BUILDING_1 -custom -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:IRON')
+  writeall('building/create -location [ '..locstr..' ] -type Workshop -subtype TEST_BUILDING_1 -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:IRON')
+  output = dfhack.run_command_silent('building/create -location [ '..locstr..' ] -type Workshop -subtype TEST_BUILDING_1 -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:IRON')
   writeall(output)
   if not dfhack.buildings.findAtTile(location) then
    buildingCheck[#buildingCheck+1] = 'Failed to create TEST_BUILDING_1'
@@ -109,9 +106,6 @@ function script_checks()
   if buildingVanilla and buildingCustom then
    buildingCheck = {}
    writeall('building/subtype-change checks starting')
-   writeall('building/subtype-change -help')
-   output = dfhack.run_command_silent('building/subtype-change -help')
-   writeall(output)
 
    ---- Check that script fails to change vanilla building
    writeall('building/subtype-change -building '..tostring(buildingVanilla.id)..' -subtype TEST_BUILDING_2 (Should fail and print "Changing vanilla buildings not currently supported")')

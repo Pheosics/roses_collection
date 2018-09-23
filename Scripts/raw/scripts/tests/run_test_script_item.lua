@@ -25,7 +25,7 @@ function writeall(tbl)
 end
 
 -- Open external output file
-file = io.open('run_test_output.txt','w')
+file = io.open('rto_item.txt','w')
 io.output(file)
 
 
@@ -67,10 +67,7 @@ function script_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   itemCheck = {}
   writeall('item/create checks starting')
-  writeall('item/create -help')
-  output = dfhack.run_command_silent('item/create -help')
-  writeall(output)
-
+  
   ---- Checks that the script succeeds and creates a steel short sword
   writeall('item/create -creator '..tostring(civ[1].id)..' -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL (Should succeed and create a steel short sword)')
   output = dfhack.run_command_silent('item/create -creator '..tostring(civ[1].id)..' -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL')
@@ -114,13 +111,6 @@ function script_checks()
   item = mostRecentItem()
   writeall('')
   writeall('item/equip and item/unequip checks starting')
-  writeall('item/equip -help')
-  output = dfhack.run_command_silent('item/equip -help')
-  writeall(output)
-  writeall('')
-  writeall('item/unequip -help')
-  output = dfhack.run_command_silent('item/unequip -help')
-  writeall(output)
 
   ---- Check that the script succeeds and moves the item into the inventory of the unit
   writeall('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPart GRASP -bodyType Flag -mode Weapon (Should succeed and move item into inventory of unit carrying in hand)')
@@ -171,9 +161,6 @@ function script_checks()
   item = mostRecentItem()
   writeall('')
   writeall('item/material-change checks starting')
-  writeall('item/material-change -help')
-  output = dfhack.run_command_silent('item/material-change -help')
-  writeall(output)
 
   ---- Check that the script succeeds and changes the steel short sword into a brain short sword
   writeall('item/material-change -item '..tostring(item.id)..' -mat CREATURE_MAT:DWARF:BRAIN (Should succeed and change the material of item to dwarf brain)')
@@ -240,9 +227,6 @@ function script_checks()
   item = mostRecentItem()
   writeall('')
   writeall('item/quality-change checks starting')
-  writeall('item/quality-change -help')
-  output = dfhack.run_command_silent('item/quality-change -help')
-  writeall(output)
 
   ---- Check that the script succeeds and changes the quality of the item to masterwork and creates a tracking table
   writeall('item/quality-change -item '..tostring(item.id)..' -quality 5 (Should succeed and change the quality of the item to masterwork and track the change in the persistent item table)')
@@ -322,9 +306,6 @@ function script_checks()
   item = mostRecentItem()
   writeall('')
   writeall('item/subtype-change checks starting')
-  writeall('item/subtype-change -help')
-  output = dfhack.run_command_silent('item/subtype-change -help')
-  writeall(output)
 
   ---- Check that the script succeeds and changes short sword to long sword and creates a tracking table
   writeall('item/subtype-change -item '..tostring(item.id)..' -subtype ITEM_WEAPON_SWORD_LONG (Should succeed and change the short sword to a long sword and track the change in the persistent item table)')
@@ -401,9 +382,6 @@ function script_checks()
   unitSource.pos.z = unitTarget.pos.z
   writeall('')
   writeall('item/projectile checks starting')
-  writeall('item/projectile -help')
-  output = dfhack.run_command_silent('item/projectile -help')
-  writeall(output)
 
   ---- Check that the script succeeds and creates an iron bolt shooting from source to target
   writeall('item/projectile -unitSource '..tostring(unitSource.id)..' -unitTarget '..tostring(unitTarget.id)..' -item AMMO:ITEM_AMMO_BOLT -mat INORGANIC:IRON (Should succeed and create an iron bolt shooting from source to target)')

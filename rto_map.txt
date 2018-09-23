@@ -1,0 +1,96 @@
+Running base/roses-init with no systems loaded
+base/roses-init -verbose -testRun
+
+Map script checks starting
+map/flow-plan checks starting
+map/flow-plan -plan test_plan_5x5_X.txt -unit 246 -liquid water -depth 3 (Should succeed and create water of depth 3 in a 5x5 X centered on unit)
+
+map/flow-plan -plan test_plan_5x5_P.txt -unit 246 -flow MATERIALDUST -inorganic OBSIDIAN -density 100 -static (Should succeed and create obsidian dust in a 5x5 plus centered on unit, dust should not expand)
+
+PASSED: map/flow-plan
+map/flow-plan checks finished
+
+map/flow-pos checks starting
+map/flow-pos -location [ 20 20 165 ] -liquid water -depth 7 -radius [ 5 5 0 ] -circle -taper (Should succeed and create a circle of water of radius 5 with a depth of 7 in the middle and tapering out)
+
+map/flow-pos -location [ 20 20 166 ] -flow mist -density 50 -static -radius [ 10 10 0 ] -number 10 (Should succeed and create 10 50 density dragon fires in a 10x10 block around the unit, fire should not spread)
+...\Desktop\DwarfFortress\44X/raw/scripts/functions/map.lua:594: attempt to index a nil value (local 'location')
+stack traceback:
+	...\Desktop\DwarfFortress\44X/raw/scripts/functions/map.lua:594: in global 'getPositionLocationRandom'
+	...\Desktop\DwarfFortress\44X/raw/scripts/functions/map.lua:447: in field 'getPosition'
+	...s\Desktop\DwarfFortress\44X/raw/scripts/map/flow-pos.lua:153: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+FAILED: map/flow-pos
+Mist was not spawned correctly. Number spawned = 0
+map/flow-pos checks finished
+
+map/flow-surface checks starting
+map/flow-surface -liquid -depth 5 -dur 500 -frequency 100 -number 50 (Should succeed and create 50 depth 5 water spots every 100 ticks for 500 ticks, 250 total)
+
+Pausing run_test.lua for 500 in-game ticks
+Resuming run_test.lua
+map/flow-surface -flow miasma -density 100 -dur 250 -frequency 100 -number 200 -static (Should succeed and create 200 density 100 miasma spots that spread every 100 ticks for 250 ticks, 400 total)
+
+Pausing run_test.lua for 250 in-game ticks
+Resuming run_test.lua
+PASSED: map/flow-surface
+map/flow-surface checks finished
+
+map/flow-source checks starting
+map/flow-source -unit 248 -source 3 -check 1 (Should succeed and create a source that creates a depth 3 water at unit)
+
+map/flow-source -unit 248 -offset [ 1 0 0 ] -sink 0 -check 1 (Should succeed and create a sink the removes all water one tile right of unit)
+
+map/flow-source -unit 248 -offset [ 0 5 0 ] -source 100 -flow MIST -check 1 (Should succeed and create a source that creates 100 density mist 5 tiles below unit)
+
+map/flow-source -unit 248 -offset [ 0 4 0 ] -sink 0 -flow MIST -check 1 (Should succeed and create a sink that removes all mist flow four tiles below unit)
+
+Pausing run_test.lua for 240 in-game ticks
+Resuming run_test.lua
+FAILED: map/flow-source
+Water source was not created correctly
+Water sink was not created correctly
+Mist source was not created correctly
+Mist sink was not created correctly
+map/flow-source checks finished
+map/material-change checks starting
+map/material-change -material INORGANIC:OBSIDIAN -unit 248 -floor (Should succeed and change the material of the floor at unit location to obsidian)
+
+map/material-change -material INORGANIC:SLADE -unit 248 -floor -plan test_plan_5x5_X.txt -dur 50 (Should succeed and change the material of floor in a 5x5 X centered at the unit to slade)
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+FAILED: map/material-change
+Failed to change the desired location to INORGANIC:OBSIDIAN. Location material = INORGANIC:SAND_WHITE
+Failed to change the desired location to INORGANIC:SLADE. Location material = INORGANIC:SAND_WHITE
+Failed to change the desired location to INORGANIC:SLADE. Location material = INORGANIC:SAND_WHITE
+Failed to change the desired location to INORGANIC:SLADE. Location material = INORGANIC:SAND_WHITE
+Failed to change the desired location to INORGANIC:SLADE. Location material = INORGANIC:SAND_WHITE
+Failed to change the desired location to INORGANIC:SLADE. Location material = INORGANIC:SAND_WHITE
+Failed to change the desired location to INORGANIC:SLADE. Location material = INORGANIC:SAND_WHITE
+Failed to change the desired location to INORGANIC:SLADE. Location material = INORGANIC:SAND_WHITE
+map/material-change checks finished
+
+map/temperature-change checks starting
+map/temperature-change -unit 248 -temperature 9000 (Should succeed and set the temperature at the units location to 9000)
+
+map/temperature-change -unit 248 -plan test_plan_5x5_P.txt -temperature 15000 -dur 50 (Should succeed and set the temperature in a 5x5 plus centered at the unit to 15000 for 50 ticks)
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+FAILED: map/temperature-change
+Temperature in 5x5 Plus not correctly set to 15000. Position = 20 20 165. Temperature 1/2 = 10008/10008
+Temperature in 5x5 Plus not correctly set to 15000. Position = 21 21 165. Temperature 1/2 = 10008/10008
+Temperature in 5x5 Plus not correctly set to 15000. Position = 23 21 165. Temperature 1/2 = 10008/10008
+Temperature in 5x5 Plus not correctly reset to initial temperature. Position = 22 22 165. Temperature 1/2 = 9036/9000
+Temperature in 5x5 Plus not correctly set to 15000. Position = 21 23 165. Temperature 1/2 = 10008/10008
+Temperature in 5x5 Plus not correctly set to 15000. Position = 23 23 165. Temperature 1/2 = 10008/10008
+Temperature in 5x5 Plus not correctly set to 15000. Position = 24 24 165. Temperature 1/2 = 10008/10008
+map/temperature-change checks finished
+Map script checks finished

@@ -1,581 +1,1259 @@
-#######################################
-######### BUILDING SCRIPTS ############
-#######################################
-    create
-      Purpose:
-      Functions: map.checkFree | building.addItem | item.create
-      Arguments:
-          -subtype		BUILDING_TOKEN
-          -location		[ x y z ]
-          -item			(Optional) Item ID number or ITEM_TOKEN
-          -material		(Optional) If ITEM_TOKEN is used specify the MATERIAL_TOKEN
-      Examples:
-          building/create -subtype CUSTOM_BUILDING -location \\TILE_LOCATION -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:IRON
+UNIT SCRIPTS
 
-    subtype-change
-      Purpose:
-      Functions: building.changeSubtype | building.addItem
-      Arguments:
-          -building		Building ID
-          -unit			Unit ID
-          -type			BUILDING_TOKEN
-          -dur			#
-          -item			Item ID
-      Examples:
-          building/subtype-change -building \\BUILDING_ID -type NEW_BUILDING_TOKEN -item [ \\INPUT_ITEMS ] -dur 1000
+unit/action-change
+==================
+Purpose::
+    Changes the timer of a given action or interaction
 
+Function Calls::
+    unit.changeAction
+    unit.changeInteraction
+    
+Arguments::
+    -unit           UNIT_ID
+    -action         Action Type
+        The type of action to modify
+        Valid Values:
+            All
+            Move
+            Attack
+    -interaction    Interaction Type or Token
+        The type of interaction to modify
+        Valid Values:
+            All
+            Innate
+            Learned
+            INTERACTION_TOKEN
+    -timer          #
+        what to set the timer of the action to
+        lower values mean the unit will be able to act again sooner
+        Special Token:
+            clear (erases all actions of the valid action type)
+            clearAll (erases all actions regardless of action type)
 
-#######################################
-########## ENTITY SCRIPTS #############
-#######################################
-
-    resource-change
-      Purpose:
-      Functions: entity.changeResource
-      Arguments:
-          -civ			Entity ID or ENTITY_TOKEN
-          -type			TYPE:SUBTYPE
-          -obj			OBJECT:SUBOBJECT
-          -add
-          -remove
-      Examples:
-
-#######################################
-########### FLOW SCRIPTS ##############
-#######################################
-
-    random-plan
-      Purpose:
-      Functions: map.getPlanPositions | map.spawnFlow | map.spawnLiquid
-      Arguments:
-          -plan			Filename
-          -unit			Unit ID
-          -location		[ x y z ]
-          -flow			FLOW_TYPE
-          -inorganic		INORGANIC_TOKEN
-          -density		#
-          -static
-          -liquid		water or magma
-          -depth		#
-          -offset		[ x y z ]
-          -number		#
-          -origin		[ x y z ]
-      Examples:
-          flow/random-plan -plan 5x5_X.txt -unit \\UNIT_ID -flow web -inorganic STEEL -density 50 -static -origin [ \\LOCATION ]
-          flow/random-plan -plan spiral.txt -location [ \\LOCATION ] -liquid magma -depth 4 -number 10
-
-    random-pos
-      Purpose:
-      Functions: map.getEdgesPositions | map.getPositionLocationRandom | map.spawnFlow | map.spawnLiquid
-      Arguments:
-          -unit                 Unit ID
-          -location             [ x y z ]
-          -flow                 FLOW_TYPE
-          -inorganic            INORGANIC_TOKEN
-          -density              #
-          -static
-          -liquid               water or magma
-          -depth                #
-          -offset               [ x y z ]
-          -number               #
-          -radius               [ x y z ]
-          -circle
-          -taper
-      Examples:
-          flow/random-pos -unit \\UNIT_ID -flow firebreath -density 25 -radius [ 10 10 0 ] -number 3
-          flow/random-pos -unit \\UNIT_ID -flow web -inorganic STEEL -density 10 -number 1
-          flow/random-pos -location [ \\LOCATION ] -liquid magma -depth 7 -radius [ 3 3 0 ] -offset [ 0 0 1 ] -circle -taper 
-
-    random-surface
-      Purpose:
-      Functions: map.getPositionRandom | map.getPositionSurface | map.getEdgesPositions | map.spawnFlow | map.spawnLiquid | persist-delay.commandDelay
-      Arguments:
-          -frequency		#
-          -dur			#
-          -flow                 FLOW_TYPE
-          -inorganic            INORGANIC_TOKEN
-          -density              #
-          -static
-          -liquid               water or magma
-          -depth                #
-          -offset               [ x y z ]
-          -number               #
-          -radius               [ x y z ]
-          -circle
-          -taper
-      Examples:
-          flow/random-surface -flow DRAGONFIRE -density 25 -frequency 200 -number 50 -dur 7200
-          flow/random-surface -flow WEB -inorganic GOLD -density 50 -frequency 500 -number 100 -dur 1000
-          flow/random-surface -liquid magma -depth 1 -radius [ 1 1 0 ] -circle -number 50 -frequency 500 -dur 5000
-
-    source
-      Purpose:
-      Functions: map.flowSource | map.flowSink | map.liquidSource | map.liquidSink
-      Arguments:
-          -unit			Unit ID
-          -location		[ x y z ]
-          -offset		[ x y z ]
-          -source		#
-          -sink			#
-          -magma
-          -flow			FLOW_TYPE
-          -inorganic		INORGANIC_TOKEN
-          -check		#
-          -remove
-          -removeAll
-          -removeAllSource
-          -removeAllSink
-      Examples:
-
-#######################################
-########### ITEM SCRIPTS ##############
-#######################################
-
-    create
-      Purpose:
-      Functions: item.create
-      Arguments:
-          -creator		Unit ID
-          -item			ITEM_TOKEN
-          -material		MATERIAL_TOKEN
-          -matchingGloves
-          -matchingShoes
-          -dur			#
-      Examples:
-
-    equip
-      Purpose:
-      Functions: unit.getBodyCategory | unit.getBodyToken | unit.getBodyFlag | item.equip
-      Arguments:
-          -item			Item ID (or MOST_RECENT)
-          -bodyPart		BODYPART_TOKEN
-          -type			Body Part Type (Valid Values: Category, Flag, or Token)
-          -mode			Inventory Mode
-      Examples:
-
-    material-change
-      Purpose:
-      Functions: unit.getInventoryType | item.changeMaterial
-      Arguments:
-          -unit			Unit ID
-          -item			Item ID
-          -equipment		Equipment type (Valid Values: WEAPON, ARMOR, HELM, SHOES, GLOVES, PANTS, SHIELD, or AMMO)
-          -mat			MATERIAL_TOKEN
-          -dur			#
-      Examples:
-          item/material-change -unit \\UNIT_ID -weapon -ammo -mat INORGANIC:IMBUE_FIRE -dur 3600
-          item/material-change -unit \\UNIT_ID -armor -helm -shoes -pants -gloves -mat INORGANIC:IMBUE_STONE -dur 1000
-          item/material-change -unit \\UNIT_ID -shield -mat INORGANIC:IMBUE_AIR
-
-    projectile
-      Purpose:
-      Functions: item.create | item.makeProjectileFall | item.makeProjectileShot
-      Arguments:
-          -unitSource		Unit ID
-          -unitTarget		Unit ID
-          -locationSource	[ x y z ]
-          -locationTarget	[ x y z ]
-          -creator		Unit ID
-          -mat			MATERIAL_TOKEN
-          -item			ITEM_TOKEN
-          -number		#
-          -maxrange		#
-          -velocity		# or [ # # # ]
-          -minrange		#
-          -hitchance		#
-          -height		#
-          -equipped
-      Examples:
-          item/projectile -unit_source \\UNIT_ID -location_target [\\LOCATION] -item AMMO:ITEM_AMMO_ARROWS -mat STEEL -number 10 -maxrange 50 -minrange 10 -velocity 30 -hitchance 10
-
-    quality-change
-      Purpose:
-      Functions: unit.getInventoryType | item.changeQuality
-      Arguments:
-          -unit			Unit ID
-          -item			Item ID
-          -type			ITEM_TOKEN
-          -equipment		Equipment type (Valid Values: WEAPON, ARMOR, HELM, SHOES, GLOVES, PANTS, SHIELD, or AMMO)
-          -quality		#
-          -upgrade
-          -downgrade
-          -dur			#
-      Examples:
-          item/quality-change -unit \\UNIT_ID -weapon -quality 6 -dur 1000
-          item/quality-change -type WEAPON:ITEM_WEAPON_GIANTS -downgrade
+Examples::
+    unit/action-change -unit \\UNIT_ID -action All -timer 200
+    unit/action-change -unit 35 -interaction Learned -timer 5000
 
 
-    subtype-change
-      Purpose:
-      Functions: unit.getInventoryType | item.changeSubtype
-      Arguments:
-          -unit                 Unit ID
-          -item                 Item ID
-          -type                 ITEM_TOKEN
-          -equipment            Equipment type (Valid Values: WEAPON, ARMOR, HELM, SHOES, GLOVES, PANTS, SHIELD, or AMMO)
-          -subtype              ITEM_TOKEN
-          -upgrade
-          -downgrade
-          -dur                  #
-      Examples:
-          item/subtype-change -unit \\UNIT_ID -equipment WEAPON -upgrade -dur 1000
-          item/subtype-change -type WEAPON:ITEM_WEAPON_GIANTS -subtype ITEM_WEAPON_GIANTS_WEAK -dur 1000
 
-    unequip
-      Purpose:
-      Functions: unit.getInventoryType | unit.getInventoryMode | unit.getBodyCategory | unit.getBodyToken | unit.getBodyFlag | item.unequip
-      Arguments:
-          -unit			Unit ID
-          -item			Item ID or ALL
-          -itemType		ITEM_TYPE or ALL
-          -bodyPart		BODYPART_TOKEN
-          -partType		Body Part Type (Valid Values: Category, Flag, or Token)
-          -mode			Inventory Mode
-      Examples:
+unit/attack
+===========
+Purpose::
+    Create a custom attack using either supplied or calculated values
 
-#######################################
-########### TILE SCRIPTS ##############
-#######################################
+Function Calls::
+    unit.getBodyRandom
+    unit.getBodyParts
+    unit.getInventory
+    unit.getAttack
+    item.getAttack
+    attack.getAttackItemVelocity
+    attack.getAttackUnitVelocity
+    arrack.addAttack
+        
+Arguments::
+    -defender        UNIT_ID
+        Unit ID of defending unit
+    -attacker        UNIT_ID
+        Unit ID of attacking unit
+    -target          CATEGORY
+        Body part category to target for attack
+        If absent it will select a random body part weighted by size
+    -weapon
+        If present it will use the attacker unit's equipped weapon
+        If absent it will assume a body part attack
+    -attack          ATTACK_TOKEN
+        Attack token (e.g. PUNCH) of attack to use
+        If absent it will select a random attack
+    -velocity        #
+        Velocity to use for attack
+        If absent it will calculate the velocity based on various factors
+    -hitchance       #
+        Chance for attack to hitchance
+        DEFAULT VALUE: 100
+    -delay           #
+        Delay time until attack executes
+        DEFAULT VALUE: 1
+    -number          #
+        Number of attacks to executes
+        DEFAULT VALUE: 1
+            
+Examples::
+    unit/attack -attacker \\UNIT_ID -defender \\UNIT_ID
+    unit/attack -attacker \\UNIT_ID -defender \\UNIT_ID -target HEAD -weapon -velocity 1000
+    unit/attack -attacker \\UNIT_ID -defender \\UNIT_ID -target UPPERBODY -attack PUNCH -number 100
 
-    material-change
-      Purpose:
-      Functions: map.getPlanPositions | map.changeInorganic
-      Arguments:
-          -plan			Filename
-          -unit			Unit ID
-          -location		[ x y z ]
-          -offset		[ x y z ]
-          -material		INORGANIC_TOKEN
-          -floor
-          -dur			#
-      Examples:
-          tile/material-change -location [ \\LOCATION ] -material RUBY
-          tile/material-change -plan 5x5_X -unit \\UNIT_ID -material SLADE -floor -dur 3000
 
-    temperature-change
-      Purpose:
-      Functions: map.getPlanPositions | map.changeTemperature
-      Arguments:
-          -plan                 Filename
-          -unit                 Unit ID
-          -location             [ x y z ]
-          -offset               [ x y z ]
-          -temperature          #
-          -dur                  #
-      Examples:
-          tile/temperature-change -unit \\UNIT_ID -plan 5x5_X -temperature 15000 -dur 1000
-          tile/temperature-change -location [ \\LOCATION ] -temperature 8000
 
-#######################################
-########## TRIGGER SCRIPTS ############
-#######################################
+unit/attribute-change
+=====================
+Purpose::
+    Change the attriubute(s) of a unit and track those changes
+    Tracked changes can end naturally or be terminated early using other scripts
+    
+Function Calls::
+    unit.getUnitTable
+    unit.changeAttribute
+    misc.getChange
+    
+Arguments::
+    -unit        UNIT_ID
+        id of unit to change attributes of
+    -attribute   ATTRIBUTE_TOKEN or [ ATTRIBUTE_TOKEN ATTRIBUTE_TOKEN ... ]
+        Attribute(s) to be changed
+    -mode        Change Mode
+        Mode of calculating the change
+        Valid Values:
+            Percent - changes attribute(s) by a given percentage level
+            Fixed   - changes attribute(s) by a flat amount
+            Set     - sets attribute(s) to a given level
+    -amount      # or [ # # ... ]
+        Number(s) to use for attribute changes
+        Must have the same amount of numbers as there are ATTRIBUTE_TOKENS
+    -dur         #
+        Length of time in in=game ticks for the change to last
+    -syndrome    SYN_NAME
+        Attaches a syndrome with the given name to the change for tracking purposes
 
-    action
-      Purpose:
-      Functions: None
-      Arguments:
-          -actionType		Action Type (Valid Values: Attack, Shoot, Block, Dodge, Equip, Move, Parry, Unequip, Wound)
-          -item			ITEM_TOKEN
-          -material		MATERIAL_TOKEN
-          -contaminant		MATERIAL_TOKEN
-          -creature		CREATURE_TOKEN
-          -attack		ATTACK_TOKEN
-          -command		Script
-      Examples:
+Examples::
+    unit/attribute-change -unit \\UNIT_ID -mode Fixed -amount 100 -attribute STRENGTH
+    unit/attribute-change -unit \\UNIT_ID -mode Percent -amount [ 10 10 10 ] -attribute [ ENDURANCE TOUGHNESS WILLPOWER ] -dur 3600
+    unit/attribute-change -unit \\UNIT_ID -mode Set -amount 5000 -attribute WILLPOWER -dur 1000
 
-    building
-      Purpose:
-      Functions: None
-      Arguments:
-          -building		BUILDING_TOKEN
-          -location		OUTSIDE or INSIDE
-          -zLevels		#
-          -requiredBuilding	BUILDING_TOKEN:#
-          -forbiddenBuilding	BUILDING_TOKEN:#
-          -maxNumber		#
-          -requiredWater	#
-          -requiredMagma	#
-          -command		Script
-      Examples:
 
-    projectile
-      Purpose:
-      Functions: None
-      Arguments:
-          -type			Move, Hit or Fired
-          -item			ITEM_TOKEN
-          -material		MATERIAL_TOKEN
-          -contaminant		MATERIAL_TOKEN
-          -remove
-          -command		Script
-      Examples:
 
-    reaction
-      Purpose:
-      Functions: None
-      Arguments:
-          -trigger		onStart, onFinish, or onProduct
-          -reaction		REACTION_TOKEN
-          -delay		#
-          -requiredWater	#
-          -requiredMagma	#
-          -command		Script
-      Examples:
+unit/body-change
+================
+Purpose::
+    Changes the entire body or individual body parts of a given unit
 
-#######################################
-########### UNIT SCRIPTS ##############
-#######################################
+Function Calls::
+    unit.getBodyParts
+    unit.changeBody
+    misc.getChange
 
-    action-change
-      Purpose:
-      Functions: unit.changeAction | unit.changeInteraction
-      Arguments:
-          -unit			Unit ID
-          -action		Action Type (Valid Values: All, Move, or Attack)
-          -interaction		Interaction Type (Valid Values: All, Innate, Learned, or INTERACTION_TOKEN)
-          -timer		#
-      Examples:
-          unit/action-change -unit \\UNIT_ID -action All -timer 200
+Arguments::
+    -unit            UNIT_ID
+        id of unit to target for change
+    -partType        Part Type
+        Type of body part to look for
+        Valid Values:
+            All      - targets whole body (all parts)
+            Category - finds target based on body part CATEGORY
+            Token    - finds target based on body part TOKEN
+            Flag     - finds target based on body part FLAG
+    -bodyPart        CATEGORY, TOKEN, or FLAG
+        Depends on the part type chosen
+        Special Value:
+            All - Targets whole body (all parts)
+    -temperature
+        If present will change the temperature of the body part(s)
+        Special Value:
+            Fire - Sets the body part on fire
+    -size            Size Type
+        Changes the dimensions of given units size
+        Changing sizes of body parts is not currently possible
+        Valid Values:
+            All
+            Length
+            Area
+            Size
+    -mode            Mode Type
+        Method for calculating total amount of change
+        Valid Values:
+            Percent
+            Fixed
+            Set
+    -amount          #
+        Amount of temperature or size change
+    -dur             #
+        Length of time in in-game ticks for change to last
+        If absent change is permanent
 
-    attack
-      Purpose:
-      Functions: unit.getBodyRandom | unit.getBodyCategory | unit.getInventoryType | unit.getAttack | item.getAttack
-                 attack.getAttackItemVelocity | attack.getAttackUnitVelocity | attack.addAttack
-      Arguments:
-          -defender		Unit ID
-          -attacker		Unit ID
-          -target		BODYPART_CATEGORY
-          -attack		ATTACK_TOKEN
-          -velocity		#
-          -hitchance		#
-          -weapon		Equipped
-          -delay		#
-          -number		#
-          -flags		Attack Flags
-      Examples:
+Examples::
+    unit/body-change -unit \\UNIT_ID -partType Flag -bodyPart GRASP -temperature fire -dur 1000
+    unit/body-change -unit \\UNIT_ID -partType Category -bodyPart LEG_LOWER -temperature -mode Set -amount 9000
+    unit/body-change -unit \\UNIT_ID -partType All -bodyPart All -size All -mode Percent -amount 200
 
-    attribute-change
-      Purpose:
-      Functions: unit.getUnit | misc.getChange | unit.changeAttribute
-      Arguments:
-          -attribute		ATTRIBUTE TOKEN
-          -mode			Fixed, Percent, or Set
-          -amount		#
-          -dur			#
-          -unit			Unit ID
-      Examples:
-          unit/attribute-change -unit \\UNIT_ID -mode Fixed -amount 100 -attribute STRENGTH
-          unit/attribute-change -unit \\UNIT_ID -mode Percent -amount [ 10 10 10 ] -attribute [ ENDURANCE TOUGHNESS WILLPOWER ] -dur 3600
-          unit/attribute-change -unit \\UNIT_ID -mode set -amount 5000 -attribute WILLPOWER -dur 1000
 
-    body-change
-      Purpose:
-      Functions: unit.getBodyCategory | unit.getBodyToken | unit.getBodyFlag | unit.changeBody | misc.getChange
-      Arguments:
-          -unit			Unit ID
-          -category		BODYPART_CATEGORY
-          -token		BODYPART_TOKEN
-          -flag			BODYPART_FLAG
-          -temperature		# or Fire
-          -size			All, Size, Length, or Area
-          -mode			Fixed, Percent, or Set
-          -amount		#
-          -dur			#
-      Examples:
-          unit/body-change -unit \\UNIT_ID -flag GRASP -temperature fire -dur 1000
-          unit/body-change -unit \\UNIT_ID -category LEG_LOWER -temperature 8000
 
-    butcher
-      Purpose:
-      Functions: None
-      Arguments:
-          -unit			Unit ID
-          -corpse		Corpse Item ID
-          -location		[ x y z ]
-          -kill
-      Examples:
+unit/butcher
+============
+Purpose::
+    Butcher a unit
+    
+Function Calls::
+    None
 
-    convert
-      Purpose:
-      Functions: unit.changeSide
-      Arguments:
-          -unit			Unit ID
-          -side			Unit ID
-          -type			Civilian, Ally, Friend, Neutral, Enemy, Invader, or Pet
-          -dur			#
-      Examples:
-          unit/convert -unit \\UNIT_ID -side \\UNIT_ID -type Pet -dur 1000
+Arguments::
+    Requires -unit, -corpse, or -location to be specified
+    -unit        UNIT_ID
+        Unit id to check for butchering
+        Will check for a given corpse from that unit first
+    -corpse      ITEM_ID
+        Item id to check for butcher
+    -location    [ x y z ]
+        Location to check for butchering
+    -kill
+        If present will kill unit to be butchered if still alive
+    
+Examples::
+    unit/butcher -unit \\UNIT_ID -kill
+    unit/butcher -corpse \\ITEM_ID
+    unit/butcher -location [ \\LOCATION ]
 
-    counter-change
-      Purpose:
-      Functions: misc.getChange | unit.changeCounter
-      Arguments:
-          -unit			Unit ID
-          -counter		webbed, stunned, winded, unconcious, suffocation, pain, nausea, dizziness, paralysis, numbness, fever, exhaustion, hunger, thirst, sleepiness, blood, or infection
-          -mode			Fixed, Percent, or Set
-          -amount		#
-          -dur			#
-      Examples:
-          unit/counter-change -unit \\UNIT_ID -mode fixed -amount 10000 -counter stunned -dur 10
-          unit/counter-change -unit \\UNIT_ID -mode set -amount [ 0 0 0 0 ] -counter [ nausea dizziness numbness fever ]
-          unit/counter-change -unit \\UNIT_ID -mode percent -amount \-100 -counter blood
 
-    create
-      Purpose:
-      Functions: misc.permute | unit.create
-      Arguments:
-          -loc			[ x y z ]
-          -creature		CREATURE_TOKEN
-          -reference		Unit ID
-          -side			Civilian, Ally, Friendly, Neutral, Enemy, Pet, or Domestic
-          -name			Random, ENTITY_TOKEN, or First Name
-          -syndrome		SYN_NAME
-          -dur			#
-      Examples:
 
-    destroy
-      Purpose:
-      Functions: unit.removal
-      Arguments:
-          -unit			Unit ID
-          -type			Created, Resurrected, or Animated
-      Examples:
+unit/counter-change
+===================
+Purpose::
+    Change a units counter value
 
-    emotion-change
-      Purpose:
-      Functions: unit.changeEmotion
-      Arguments:
-          -unit			Unit ID
-          -thought		Thought Type (Valid Values: ???)
-          -subthought		Subthought Type (Valid Values: ???)
-          -emotion		EMOTION_TOKEN
-          -number		#
-          -severity		#
-          -strength		#
-          -remove		Recent, Random, or All
-          -add
-          -dur			#
-      Examples:
+Function Calls::
+    unit.changeCounter
+    misc.getChange
 
-    flag-change
-      Purpose:
-      Functions: None
-      Arguments:
-          -unit			Unit ID
-          -flag			Flag
-          -dur			#
-          -reverse
-          -True
-          -False
-      Examples:
+Arguments::
+    -unit       UNIT_ID
+    -counter    counter_token
+        Valid Values:
+            webbed
+            stunned
+            winded
+            unconscious
+            suffocation
+            pain
+            nausea
+            dizziness
+            paralysis
+            numbness
+            fever
+            exhaustion
+            hunger
+            thirst
+            sleepiness
+            blood
+            infection
+    -mode       Mode Type
+        Valid Values:
+            Percent
+            Fixed
+            Set
+    -amount     #
+    -dur        #
+    
+Examples::
+    unit/counter-change -unit \\UNIT_ID -counter webbed -mode Set -amount 10000
+    unit/counter-change -unit \\UNIT_ID -counter [ thirst hunger exhaustion sleepiness ] -mode Fixed -amount [ 1000 1000 1000 1000 ]
+    unit/counter-change -unit \\UNIT_ID -counter blood -mode Percent -amount 50
 
-    move
-      Purpose:
-      Functions: misc.permute | map.getPositionUnitRandom | building.findBuilding | unit.move
-      Arguments:
-          -location		[ x y z ]
-          -random		[ x y z ] or #
-          -building		Building ID, BUILDING_TOKEN, or Building Type (Valid Values: Random, Owned, TradeDepot, or Trap)
-          -area			Area Type (Valid Values: Idle, Destination, Opponent, Farm, MeetingArea, WaterSource, Hospital, Barracks, or Stockpile)
-          -construction		Construction ID or Construction Type (Valid Values: Walltop)
-          -dur			#
-      Examples:
 
-    propel
-      Purpose:
-      Functions: unit.makeProjectile
-      Arguments:
-          -unitSource		Unit ID
-          -unitTarget		Unit ID
-          -velocity		[ x y z ]
-          -mode			Fixed, Random, or Relative
-      Examples:
 
-    resistance-change
-      Purpose:
-      Functions: unit.getUnit | misc.getChange | unit.changeResistance
-      Arguments:
-          -resistance           RESISTANCE_TOKEN
-          -mode                 Fixed, Percent, or Set
-          -amount               #
-          -dur                  #
-          -unit                 Unit ID
-      Examples:
+unit/flag-change
+======
+Purpose::
+    Changes the boolean value of a given flag
 
-    skill-change
-      Purpose:
-      Functions: unit.getUnit | misc.getChange | unit.changeSkill
-      Arguments:
-          -skill                SKILL_TOKEN
-          -mode                 Fixed, Percent, or Set
-          -amount               #
-          -dur                  #
-          -unit                 Unit ID
-      Examples:
+Function Calls::
+    None
 
-    stat-change
-      Purpose:
-      Functions: unit.getUnit | misc.getChange | unit.changeStat
-      Arguments:
-          -stat                 STAT_TOKEN
-          -mode                 Fixed, Percent, or Set
-          -amount               #
-          -dur                  #
-          -unit                 Unit ID
-      Examples:
+Arguments::
+    -unit        UNIT_ID
+    -flag        Unit Flag
+        Valid Values:
+            Any flag in flags1, flags2, or flags3
+    -True
+        If present it will set the flag to true
+    -False
+        If present it will set the flag to false
+    -reverse
+        If present it will reverse the value of the flag (True->False or False->True)
+Examples::
+    unit/flag-change -unit \\UNIT_ID -flag hidden -True
 
-    syndrome-change
-      Purpose:
-      Functions: unit.changeSyndrome
-      Arguments:
-          -unit			Unit ID
-          -syndrome		SYN_NAME
-          -class		SYN_CLASS
-          -add
-          -erase
-          -terminate
-          -alterDuration	#
-          -dur			#
-      Examples:
 
-    trait-change
-      Purpose:
-      Functions: unit.getUnit | misc.getChange | unit.changeTrait
-      Arguments:
-          -trait                TRAIT_TOKEN
-          -mode                 Fixed, Percent, or Set
-          -amount               #
-          -dur                  #
-          -unit                 Unit ID
-      Examples:
 
-    transform
-      Purpose:
-      Functions: unit.checkCreatureRace | unit.transform
-      Arguments:
-          -unit			Unit ID
-          -creature		CREATURE_TOKEN
-          -dur			#
-      Examples:
+unit/move
+========
+Purpose::
+    Moves a unit to a given location or a location based on given inputs
 
-    wound-change
-      Purpose:
-      Functions: unit.changeWound | misc.permute | unit.getConnectedParts | unit.getBodyCorpseParts | unit.changeLife
-      Arguments:
-          -unit			Unit ID
-          -corpse		Item ID
-          -remove		# or All
-          -recent
-          -animate		Unit ID or nothing
-          -resurrect		Unit ID or nothing
-          -regrow
-          -fitForResurrect
-          -fitForAnimate
-          -syndrome		SYN_NAME
-          -dur			#
-      Examples:
-          unit/wound-change -unit \\UNIT_ID -remove All regrow (completely heals a unit)
-          unit/wound-change -unit \\UNIT_ID -remove 2 -recent (heal the last two wounds the unit suffered, doesn't regrow lost limbs)
-          unit/wound-change -unit \\UNIT_ID -resurrect -fitForResurrect -regrow (fully restores a unit to life, including all of their lost body parts)
-          unit/wound-change -unit \\UNIT_ID -animate -dur 1000 (animates all body parts and main body of unit for 1000 ticks)
-          unit/wound-change -unit \\UNIT_ID -resurrect -fitForAnimate -regrow (if unit was chopped into 4 pieces, would create one original and 3 copies, all complete units)
+Function Calls::
+    unit.move
+    map.getPositionUnitRandom
+    building.findBuilding
+    misc.permute
+
+Arguments::
+    -unit        UNIT_ID
+    -location    [ x y z ]
+        A sprecific location to move to
+    -random      [ x y z ] or #
+        Either a distance in x, y, z about the unit to move to randomly
+        Or a radius about the unit to move to randomly
+    -building    BUILDING_ID or BUILDING_TOKEN or Building Type
+        Either an ID of a building or the building token
+        Valid Types:
+            Random
+            Owned
+            TradeDepot
+            Trap
+    -area        Area Type
+        Valid Types:
+            Idle
+            Destination
+            Opponent
+            Farm
+            Meeting Area
+            WaterSource
+            Hospital
+            Barracks
+            Stockpile
+    -construction    CONSTRUCTION_ID or Construction Type
+        Valid Types:
+            WallTop
+
+Examples::
+    unit/move -unit \\UNIT_ID -building SCREW_PRESS
+    unit/move -unit \\UNIT_ID -building \\BUILDING_ID
+    unit/move -unit \\UNIT_ID -area Idle
+
+
+
+unit/propel
+===========
+Purpose::
+    Turns a unit into a projectile with a given velocity
+
+Function Calls::
+    unit.makeProjectile
+
+Arguments::
+    -unitTarget    UNIT_ID
+        ID of the unit to turn into a projectile
+    -unitSource    UNIT_ID
+        ID of the unit to use for positioning when using -mode Relative
+    -velocity      [ x y z ]
+        Velocity in x,y,z
+    -mode          Propel Type
+        Method for calculation actual projectile velocity
+        Valid Types:
+            Fixed
+            Random
+            Relative
+
+Examples::
+    unit/propel -unitSource \\UNIT_ID -velocity [ 0 0 100 ] -mode Fixed
+    unit/propel -unitSource \\UNIT_ID -velocity [ 50 50 0 ] -mode Random
+    unit/propel -unitSource \\UNIT_ID -unitTarget \\UNIT_ID -velocity [ 10 10 10 ] -mode Relative
+
+
+
+unit/resistance-change
+======================
+Purpose::
+    Change the resistance(s) of a unit and track those changes
+    Tracked changes can end naturally or be terminated early using other scripts
+        
+Function Calls::
+    unit.getUnitTable
+    unit.changeResistance
+    misc.getChange
+        
+Arguments::
+    -unit           UNIT_ID
+        id of unit to change attributes of
+    -resistance     RESISTANCE_TOKEN or [ RESISTANCE_TOKEN RESISTANCE_TOKEN ... ]
+        Resistance(s) to be changed
+    -mode           Change Mode
+        Mode of calculating the change
+        Valid Values:
+           Percent - changes resistance(s) by a given percentage level
+           Fixed   - changes resistance(s) by a flat amount
+           Set     - sets resistance(s) to a given level
+    -amount         # or [ # # ... ]
+        Number(s) to use for resistance changes
+        Must have the same amount of numbers as there are RESISTANCE_TOKENs
+    -dur            #
+        Length of time in in=game ticks for the change to last
+    -syndrome       SYN_NAME
+        Attaches a syndrome with the given name to the change for tracking purposes
+
+Examples::
+    unit/resistance-change -unit \\UNIT_ID -mode Fixed -amount 100 -resistance WATER
+    unit/resistance-change -unit \\UNIT_ID -mode Percent -amount [ 10 10 10 ] -resistance [ STORM AIR FIRE ] -dur 3600
+    unit/resistance-change -unit \\UNIT_ID -mode set -amount 50 -resistance ICE -dur 1000
+
+
+
+unit/skill-change
+=================
+Purpose::
+    Change the skill(s) of a unit and track those changes
+    Tracked changes can end naturally or be terminated early using other scripts
+    Only use for level changes currently
+
+Function Calls::
+    unit.getUnitTable
+    unit.changeSkill
+    misc.getChange
+        
+Arguments::
+    -unit           UNIT_ID
+        id of unit to change attributes of
+    -skill      SKILL_TOKEN or [ SKILL_TOKEN SKILL_TOKEN ... ]
+        Skill(s) to be changed
+    -mode           Change Mode
+        Mode of calculating the change
+        Valid Values:
+           Percent - changes skill(s) by a given percentage level
+           Fixed   - changes skill(s) by a flat amount
+           Set     - sets skill(s) to a given level
+    -amount         # or [ # # ... ]
+        Number(s) to use for skill changes
+        Must have the same amount of numbers as there are SKILL_TOKENs
+    -dur            #
+        Length of time in in=game ticks for the change to last
+    -syndrome       SYN_NAME
+        Attaches a syndrome with the given name to the change for tracking purposes
+
+Examples::
+    unit/skill-change -unit \\UNIT_ID -mode Fixed -amount 1 -skill MINING
+    unit/skill-change -unit \\UNIT_ID -mode Percent -amount [ 50 50 ] -skill [ ENGRAVING MASONRY  ] -dur 3600
+    unit/skill-change -unit \\UNIT_ID -mode Set -amount 0 -skill DODGING -dur 1000
+
+
+
+unit/stat-change
+================
+Purpose::
+    Change the stat(s) of a unit and track those changes
+    Tracked changes can end naturally or be terminated early using other scripts
+        
+Function Calls::
+    unit.getUnitTable
+    unit.changeStat
+    misc.getChange
+        
+Arguments::
+    -unit      UNIT_ID
+        id of unit to change stats of
+    -stat      STAT_TOKEN or [ STAT_TOKEN STAT_TOKEN ... ]
+        Stat(s) to be changed
+    -mode      Change Mode
+        Mode of calculating the change
+        Valid Values:
+            Percent - changes stat(s) by a given percentage level
+            Fixed   - changes stat(s) by a flat amount
+            Set     - sets stat(s) to a given level
+    -amount    # or [ # # ... ]
+        Number(s) to use for stat changes
+        Must have the same amount of numbers as there are STAT_TOKENs
+    -dur       #
+        Length of time in in=game ticks for the change to last
+    -syndrome  SYN_NAME
+        Attaches a syndrome with the given name to the change for tracking purposes
+
+Examples::
+    unit/stat-change -unit \\UNIT_ID -mode Fixed -amount 10 -stat PARRY_CHANCE
+    unit/stat-change -unit \\UNIT_ID -mode Percent -amount [ 80 120 ] -stat [ CRIT_CHANCE CRIT_DAMAGE ] -dur 3600
+    unit/stat-change -unit \\UNIT_ID -mode Set -amount 100 -stat DODGE_CHANCE -dur 1000
+
+
+
+unit/syndrome-change
+====================
+Purpose::
+    Change the syndrome(s) of a unit
+    Also changes duration of syndromes
+
+Function Calls::
+    unit.changeSyndrome
+
+Arguments::
+    -unit             UNIT_ID
+        id of unit to change syndrome(s) of
+    -syndrome         SYN_NAME or [ SYN_NAME SYN_NAME ]
+        Name of syndrome(s) to be changed
+    -class            SYN_CLASS or [ SYN_CLASS SYN_CLASS ]
+        Class of syndrome(s) to be changed
+    -add
+        Adds syndrome(s) to unit
+    -erase
+        Erases syndrome(s) from unit
+    -terminate
+        Terminates syndrome(s) of unit (see Feature: Tracking for information on termination)
+    -alterDuration    #
+        Changes the duration of syndrome(s) on unit
+    -dur              #
+        Length of tiem for the syndrome to last if added
+
+Examples::
+    unit/syndrome-change -unit \\UNIT_ID -class BUFF -terminate
+    unit/syndrome-change -unit \\UNIT_ID -syndrome HASTE -add -dur 3600
+    unit/syndrome-change -unit \\UNIT_ID -class [ SPEED_CHANGE ATTRIBUTE_CHANGE ] -alterDuration 1000
+    unit/syndrome-change -unit \\UNIT_ID -class BUFF -syndrome UNHOLY -erase
+
+
+
+unit/trait-change
+=====================
+Purpose::
+    Change the trait(s) of a unit and track those changes
+    Tracked changes can end naturally or be terminated early using other scripts
+        
+Function Calls::
+    unit.getUnitTable
+    unit.changeTrait
+    misc.getChange
+        
+Arguments::
+    -unit       UNIT_ID
+        id of unit to change traits of
+    -trait      TRAIT_TOKEN or [ TRAIT_TOKEN TRAIT_TOKEN ... ]
+        Trait(s) to be changed
+    -mode       Change Mode
+        Mode of calculating the change
+        Valid Values:
+            Percent - changes trait(s) by a given percentage level
+            Fixed   - changes trait(s) by a flat amount
+            Set     - sets trait(s) to a given level
+    -amount     # or [ # # ... ]
+        Number(s) to use for trait changes
+        Must have the same amount of numbers as there are TRAIT_TOKENS
+    -dur        #
+        Length of time in in=game ticks for the change to last
+    -syndrome   SYN_NAME
+        Attaches a syndrome with the given name to the change for tracking purposes
+
+Examples::
+    unit/trait-change -unit \\UNIT_ID -mode Fixed -amount 20 -trait ELOQUENCY
+    unit/trait-change -unit \\UNIT_ID -mode Percent -amount [ 200 200 ] -trait [ FRIENDSHIP FAMILY ] -dur 3600
+    unit/trait-change -unit \\UNIT_ID -mode Set -amount 0 -trait SELF_CONTROL -dur 1000
+
+
+
+unit/transform
+==============
+Purpose::
+    Change a units creature and caste
+    Any changes are tracked for easy removal
+
+Function Calls::
+    unit.checkCreatureRace
+    unit.changeRace
+    misc.permute
+
+Arguments::
+    -unit        UNIT_ID
+        id of unit to change attributes of
+    -creature    CREATURE:CASTE
+        Creature/Caste combination to transform into
+        Special Values (for CASTE)
+            !RANDOM!
+            !GENDER!
+    -dur         #
+        Length of time in in=game ticks for the change to last
+    -syndrome    SYN_NAME
+        Attaches a syndrome with the given name to the change for tracking purposes
+
+Examples::
+    unit/transform -unit \\UNIT_ID -creature ELEMENTAL:!RANDOM! -dur 3600
+    unit/transform -unit \\UNIT_ID -creature DWARF:!GENDER!
+
+
+MAP SCRIPTS
+
+map/flow-plan
+=============
+Purpose::
+    Spawn flows or liquids based on an external file
+ 
+Function Calls::
+    map.getPositions
+    map.spawnFlow
+    map.spawnLiquid
+
+Arguments::
+    -plan           filename.txt
+        Name of plan file
+    -unit           UNIT_ID
+        id of unit to use as target in plan
+    -location       [ x y z ]
+        Location to use as target in plan
+
+    FOR FLOWS:
+        -flow           Flow Type
+            Type of flow to create
+            Valid Types:
+                Miasma
+                Steam
+                Mist
+                MaterialDust
+                MagmaMist
+                Smoke
+                Dragonfire
+                Fire
+                Web
+                MaterialGas
+                MaterialVapor
+                OceanWave
+                SeaFoam
+                ItemCloud
+        -inorganic      INORGANIC_TOKEN
+            Inorganic to create flow from (only works for some flow types)
+        -density        #
+            Density of flow to create
+        -static
+            If present flow will not spread
+
+    FOR LIQUIDS:
+        -liquid         Liquid Type
+            Type of liquid to create
+            Valid Types:
+                Water
+                Magma
+        -depth          #
+            Depth of liquid to spawn
+
+    FOR BOTH:
+        -origin         UNIT_ID or [ x y z ]
+            Unit id or location to use as origin (required in some plan files)
+        -offset         [ x y z ]
+            Offset from target location
+        -number         #
+            If present will not completely fill the plan and only place the given number of tiles
+
+Examples::
+    map/flow-plan -plan 5x5_X.txt -unit \\UNIT_ID -liquid Magma -depth 7
+    map/flow-plan -plan 9x5_Cone.txt -location [ \\LOCATION_ID ] -flow Dragonfire -density 100 -static -origin \\UNIT_ID
+
+
+
+map/flow-pos
+============
+Purpose::
+    Spawns flows/liquids in a radius around given position
+    Can fill radius or spawn randomly in radius
+ 
+Function Calls::
+    map.getPositions
+    map.getPosition
+    map.spawnFlow
+    map.spawnLiquid
+
+Arguments::
+    -unit           UNIT_ID
+        id of unit to use as target in plan
+    -location       [ x y z ]
+        Location to use as target in plan
+
+    FOR FLOWS:
+        -flow           Flow Type
+            Type of flow to create
+            Valid Types:
+                Miasma
+                Steam
+                Mist
+                MaterialDust
+                MagmaMist
+                Smoke
+                Dragonfire
+                Fire
+                Web
+                MaterialGas
+                MaterialVapor
+                OceanWave
+                SeaFoam
+                ItemCloud
+        -inorganic      INORGANIC_TOKEN
+            Inorganic to create flow from (only works for some flow types)
+        -density        #
+            Density of flow to create
+        -static
+            If present flow will not spread
+
+    FOR LIQUIDS:
+        -liquid         Liquid Type
+            Type of liquid to create
+            Valid Types:
+                Water
+                Magma
+        -depth          #
+            Depth of liquid to spawn
+        -circle
+            If present will translate -radius into a circle instead of a square
+        -taper
+            If present will set the center to -depth and the edge of radius to 1
+
+    FOR BOTH:
+        -radius         [ x y z ]
+            Distance from target in x y z to create flows/liquids in
+        -offset         [ x y z ]
+            Offset from target location
+        -number         #
+            Number of flows/liquids to place within -radius
+            If not included or 0 fills entire -radius
+
+Examples::
+    map/flow-pos -unit \\UNIT_ID -radius [ 5 5 0 ] -flow MagmaMist -density 100 -liquid Magma -depth 7 -circle -taper
+    map/flow-pos -location [ \\LOCATION ] -flow Web -inorganic STEEL -density 500 -radius [ 10 10 5 ] -number 15
+
+
+
+map/flow-source
+===============
+Purpose::
+    Creates a source/sink for a given flow/liquid
+    Sources will constantly create flows of given density or top liquids to given depth
+    Sinks will constantly remove flow density or lower liquids to given depth
+
+Function Calls::
+    map.flowSource
+    map.flowSink
+    map.liquidSource
+    map.liquidSink
+
+Arguments::
+    -unit             UNIT_ID
+        id of unit to use for location targeting
+    -location         [ x y z ]
+        Location to place flow/liquid source/sink
+    -offset           [ x y z ]
+        Offset from either -unit or -location position
+    -source           #
+        If making a flow source this sets the density of source
+        If making a liquid source this sets the depth of source
+    -sink             #
+        If making a flow sink this sets the denstiy of sink
+        If making a liquid sink this sets the depth of sink
+    -flow             Flow Type
+        Type of flow to create source/sink for
+        If absent it will create a liquid source/sink
+        Valid Types:
+            Miasma
+            Steam
+            Mist
+            MaterialDust
+            MagmaMist
+            Smoke
+            Dragonfire
+            Fire
+            Web
+            MaterialGas
+            MaterialVapor
+            OceanWave
+            SeaFoam
+            ItemCloud
+    -inorganic        INORGANIC_TOKEN
+        Inorganic to create flow from (only works for some flow types)
+    -magma
+        If present and no -flow will create a magma source/sink
+        If not present and no -flow will create a water source/sink
+    -remove
+        If present will remove all source/sinks at given position
+    -removeAll
+        If present will remove all source/sinks on the map
+    -removeAllSource
+        If present will remove all sources on the map
+    -removeAllSink
+        If present will remove all sinks on the map
+   
+Examples::
+    map/flow-source -location [ \\LOCATION ] -flow Mist -source 100
+    map/flow-source -unit \\UNIT_ID -sink 0
+
+
+
+map/flow-surface
+================
+Purpose::
+    Create "weather-like" effect of flow/liquid spawning on surface
+    Frequency and total duration can be specified
+
+Function Calls::
+    map.getPositions
+    map.getPosition
+    map.spawnFlow
+    map.spawnLiquid
+
+Arguments::
+    FOR FLOWS:
+        -flow           Flow Type
+            Type of flow to create
+            Valid Types:
+                Miasma
+                Steam
+                Mist
+                MaterialDust
+                MagmaMist
+                Smoke
+                Dragonfire
+                Fire
+                Web
+                MaterialGas
+                MaterialVapor
+                OceanWave
+                SeaFoam
+                ItemCloud
+        -inorganic      INORGANIC_TOKEN
+            Inorganic to create flow from (only works for some flow types)
+        -density        #
+            Density of flow to create
+        -static
+            If present flow will not spread
+
+    FOR LIQUIDS:
+        -liquid         Liquid Type
+            Type of liquid to create
+            Valid Types:
+                Water
+                Magma
+        -depth          #
+            Depth of liquid to spawn
+        -radius         [ x y z ]
+            Size of liquid spawned
+        -circle
+            If present will translate -radius into a circle instead of a square
+        -taper
+            If present will set the center to -depth and the edge of radius to 1
+
+    FOR BOTH:
+        -dur            #
+            How long the spawnings continue for
+        -frequency      #
+            How often flows/liquids are spawned
+        -number         #
+            Number of flows/liquids spawned at each frequency
+
+Examples::
+    map/flow-surface -flow DRAGONFIRE -density 25 -frequency 200 -number 50 -dur 7200
+    map/flow-surface -flow WEB -inorganic GOLD -density 50 -frequency 500 -number 100 -dur 1000
+    map/flow-surface -liquid magma -depth 1 -radius [ 1 1 0 ] -circle -number 50 -frequency 500 -dur 5000
+
+
+
+map/material-change
+===================
+Purpose::
+    Changes the inorganic material a tile is made out of
+ 
+Function Calls::
+    map.getPositions
+    map.changeInorganic
+
+Arguments::
+     -plan           filename.txt
+         File name of plan to use for finding locations
+     -unit           UNIT_ID
+         id of unit to use for position targeting
+     -location       [ x y z ]
+         Location to use for position targeting
+     -offset         [ x y z ]
+         Offset in x, y, z to use with position targeting
+     -floor
+         If present will target location z-1
+     -material       INORGANIC_TOKEN
+         Material token to change to
+     -dur            #
+         Length of time in in-game ticks for change to last
+
+Examples::
+
+
+
+
+map/temperature-change
+======================
+Purpose::
+    Changes the temperature of a tile
+    Doesn't really work well since the game constantly updates temperatures
+ 
+Function Calls::
+    map.getPositions
+    map.changeTemperature
+
+Arguments::
+     -plan           filename.txt
+         File name of plan to use for finding locations
+     -unit           UNIT_ID
+         id of unit to use for position targeting
+     -location       [ x y z ]
+         Location to use for position targeting
+     -offset         [ x y z ]
+         Offset in x, y, z to use with position targeting
+     -floor
+         If present will target location z-1
+     -temperature    #
+         Temperature to set tile to
+     -dur            #
+         Length of time in in-game ticks for change to last
+         Doesn't really work since the game constantly updates temperatures
+
+Examples::
+
+
+
+BUILDING SCRIPTS
+
+building/create
+===============
+Purpose::
+    Create a fully functioning building
+    Vanilla buildings are not currently supported
+
+Function Calls::
+    map.checkFree
+    building.addItem
+    item.create
+
+Arguments::
+    -location      [ x y z ]
+    -type          Building Type
+        Building type to create
+        Valid Types:
+            Furnace
+            Workshop
+    -subtype       BUILDING_TOKEN
+        Building token to create
+    -item          ITEM_ID or ITEM_TYPE:ITEM_SUBTYPE
+        id(s) of item(s) to be added to created building or item(s) to be created
+    -material      MATERIAL_TYPE:MATERIAL_SUBTYPE
+        If creating item(s) provides material for the item
+
+Examples::
+    building/create -location [ \\LOCATION ] -type Workshop -subtype SCREW_PRESS
+
+
+
+building/subtype-change
+=======================
+Purpose::
+    Change the subtype of a building from one custom building to a different custom building
+    Currently does not support changing vanilla buildings
+ 
+Function Calls::
+    building.changeSubtype
+    building.addItem
+
+Arguments::
+    -building      BUILDING_ID
+        id of building to be changed
+    -unit          UNIT_ID
+        id of unit to check location for building (if you have a unit id and no building id)
+    -subtype       BUILDING_TOKEN
+        Building token (only custom buildings currently supported)
+    -item          ITEM_ID or [ ITEM_ID ITEM_ID ]
+        id(s) of item(s) to be added to the buildings build materials
+    -dur           #
+        Length of time in in-game ticks for the change to last
+        Added items will be removed at end of duration
+
+Examples::
+    building/subtype-change -building \\BUILDING_ID -subtype NEW_CUSTOM_BUILDING -dur 7200
+    building/subtype-change -unit \\UNIT_ID -subtype CUSTOM_BUILDING -item \\ITEM_ID    
+
+
+ITEM SCRIPTS
+
+item/create
+===========
+Purpose::
+    Creates an item and it's cooresponding item table for tracking
+
+Function Calls::
+    item.create
+      
+Arguments::
+    -creator     UNIT_ID
+        id of creator unit, set to 0 if not present
+    -item        ITEM_TYPE:ITEM_SUBTYPE
+        Item to be created
+    -material    MATERIAL_TYPE:MATERIAL_SUBTYPE
+        Material to make item out of
+    -quality     #
+        Quality to create the item at
+    -dur         #
+        Length of time for item to exist
+    -matchingGloves
+        If present it will create two gloves with correct handedness
+    -matchingShoes
+        If present it will create two shoes
+
+Examples::
+    item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:SUPER_INORGANIC -quality 7 -dur 3600
+
+
+
+item/equip
+==========
+Purpose::
+    Equip an item to a unit, bypassing normal equipment rules
+
+Function Calls::
+    unit.getBodyParts
+    item.equip
+
+Arguments::
+    -unit        UNIT_ID
+        id of unit to equip item to
+    -item        ITEM_ID
+        id of item to equip
+        Special Tokens:
+            GROUND
+            MOST_RECENT
+    -bodyType    Body Part Type
+        Body part type to find to equip to
+        Valid Values:
+            Category
+            Flag
+            Token
+    -bodyPart
+        Body part to equip to (based on -bodyType)
+    -mode
+        Method for equiping
+        Valid Values:
+            Worn
+
+Examples::
+    item/equip -unit \\UNIT_ID -item MOST_RECENT -bodyType Flag -bodyPart GRASP
+    item/equip -unit \\UNIT_ID -item \\ITEM_ID -bodyType Category -bodyPart UPPERBODY
+
+
+
+
+item/material-change
+====================
+Purpose::
+    Change the material of a given item or equipped item(s)
+    Changes are tracked
+
+Function Calls::
+    unit.getInventoryType
+    item.changeMaterial
+      
+Arguments::
+    -item        ITEM_ID
+        id of item to change
+    -mat         MATERIAL_TYPE:MATERIAL_SUBTYPE
+        Material to change item into
+    -unit        UNIT_ID
+        id of unit to change if using -equipment
+    -equipment   Equipment Type
+        Type of equipment to check for
+        Valid Types:
+            ALL
+            WEAPON
+            ARMOR
+            HELM
+            SHOES
+            SHIELD
+            GLOVES
+            PANTS
+            AMMO
+    -dur         #
+        Length of time for change to last
+
+Examples::
+    item/material-change -item \\ITEM_ID -mat INORGANIC:DIAMOND -dur 3600
+    item/material-change -unit \\UNIT_ID -equipment WEAPON -mat INORGANIC:SLADE
+
+
+
+
+item/projectile
+===============
+Purpose::
+    Turn an item into a projectile
+    Either creates an item from scratch or checks a units inventory
+    Projectile mechanics are either Falling or Shooting
+
+Function Calls::
+    item.create
+    item.makeProjectileFall
+    item.makeProjectileShot
+
+Arguments::
+    -type        Projectile Type
+        Type of projectile to create (changes number meanings)
+        Valid Types:
+            Falling
+            Shooting
+    -unitSource    UNIT_ID
+        id of source unit of projectile
+    -unitTarget    UNIT_ID
+        id of target unit of projectile
+    -locationSource    [ x y z ]
+        Location of starting point of projectile
+    -locationTarget    [ x y z ]
+        Location of targets point of projectile
+    -item        ITEM_TYPE:ITEM_SUBTYPE
+        Item to be created or checked for
+    -mat        MATERIAL_TYPE:MATERIAL_SUBTYPE
+        Material of item to be created (if not using -equipped)
+    -height        #
+        Number of tiles above target to start projectile if using -type Falling
+    -equipped
+        If present will check unitSource's inventory
+        If not present will create necessary items
+    -number        #
+        Number of items to fire
+        If creating will create this many
+        If using equipped with use up to this many
+        DEFAULT 1
+    -velocity    # or [ # # # ]
+        If using -type Shooting velocity is a single number
+        If using -type Falling velcoity is an [ x y z ] triplet
+        DEFAULT 20 or [ 0 0 0 ]
+    -maxrange    #
+        Maximum range the projectile can travel in tiles and still hit
+        DEFAULT 10
+    -minrange    #
+        Minimum range the projectile must travel to hit
+        DEFAULT 1
+    -hitchance    #
+        Chance for projectile to hit target
+        DEFAULT 50
+    -quality    #
+        If creating items will create items at given quality
+        DEFAULT 0
+
+Examples::
+    item/projectile -unitSource \\UNIT_ID -unitTarget \\UNIT_ID -item AMMO:ITEM_AMMO_BOLT -equipped -type Falling -height 10
+    item/projectile -unitSource \\UNIT_ID -locationTarget [ \\LOCATION ] -item WEAPON:ITEM_WEAPON_SWORD_SHORT -mat INORGANIC:STEEL -number 10 -velocity 50 -maxrange 4 -hitchance 10
+
+
+
+
+item/quality-change
+===================
+Purpose::
+        Change the quality of a given item or equipped item(s)
+        Changes are tracked
+
+Function Calls::
+        unit.getInventoryType
+        item.changeQuality
+      
+Arguments::
+    -item           ITEM_ID
+        id of item to change
+    -quality        #
+        Quality to change item into
+    -upgrade
+        If present will increase quality by 1
+    -downgrade
+        If present will decrease quality by 1
+    -unit           UNIT_ID
+        id of unit to change if using -equipment
+    -equipment      Equipment Type
+        Type of equipment to check for
+        Valid Types:
+            ALL
+            WEAPON
+            ARMOR
+            HELM
+            SHOES
+            SHIELD
+            GLOVES
+            PANTS
+            AMMO
+     -dur           #
+        Length of time for change to last
+
+Examples::
+    item/quality-change -unit \\UNIT_ID -equipment ALL -upgrade -dur 3600
+    item/quality-change -item \\ITEM_ID -quality 7
+
+
+
+
+item/subtype-change
+===================
+Purpose::
+    Change the subtype of a given item or equipped item(s)
+    Changes are tracked
+
+Function Calls::
+    unit.getInventoryType
+    item.changeSubtype
+      
+Arguments::
+    -item           ITEM_ID
+        id of item to change
+    -subtype        ITEM_SUBTYPE
+        Subtype to change item into
+    -unit           UNIT_ID
+        id of unit to change if using -equipment
+    -equipment      Equipment Type
+        Type of equipment to check for
+        Valid Types:
+           ALL
+           WEAPON
+           ARMOR
+           HELM
+           SHOES
+           SHIELD
+           GLOVES
+           PANTS
+           AMMO
+    -dur            #
+        Length of time for change to last
+
+Examples::
+    item/subtype-change -unit \\UNIT_ID -equipment WEAPON -subtype ITEM_WEAPON_RARE -dur 3600
+    item/subtype-change -item \\ITEM_ID -subtype ITEM_ARMOR_BETTER
+
+
+
+
+item/unequip
+============
+Purpose::
+    Equip an item to a unit, bypassing normal equipment rules
+
+Function Calls::
+    unit.getBodyParts
+    unit.getInventory
+    item.unequip
+
+Arguments::
+    -unit           UNIT_ID
+        id of unit to equip item to
+    -item           ITEM_ID
+        id of item to equip
+        Special Tokens:
+                ALL
+    -itemType       Item Type
+        Type of item to check inventory for
+        Valid Types:
+            ALL
+            WEAPON
+            ARMOR
+            HELM
+            SHOES
+            SHIELD
+            GLOVES
+            PANTS
+            AMMO
+    -bodyType
+        Body part type to find to unequip from
+        Valid Values:
+            Category
+            Flag
+            Token
+    -bodyPart
+        Body part to equip to (based on -bodyType)
+    -mode
+        Mode of item to check inventory for
+        Valid Values:
+            Worn
+
+Examples::
+    item/unequip -unit \\UNIT_ID -itemType WEAPON
+    item/unequip -unit \\UNIT_ID -item \\ITEM_ID 
+    item/unequip -unit \\UNIT_ID -bodyType Category -bodyPart UPPERBODY
+
+
+

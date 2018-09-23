@@ -1,0 +1,304 @@
+Running base/roses-init with no systems loaded
+base/roses-init -verbose -testRun
+
+Unit script checks starting
+unit/action-change checks starting
+unit/action-change -unit 246 -timer 500 -action All (Should succeed and add an action for every type with a 500 tick cooldown)
+...top\DwarfFortress\44X/raw/scripts/unit/action-change.lua:81: bad argument #1 to 'lower' (string expected, got nil)
+stack traceback:
+	[C]: in function 'string.lower'
+	...top\DwarfFortress\44X/raw/scripts/unit/action-change.lua:81: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/action-change -unit 246 action ALL -timer clearAll (Should succeed and remove all actions from unit)
+...top\DwarfFortress\44X/raw/scripts/unit/action-change.lua:81: bad argument #1 to 'lower' (string expected, got nil)
+stack traceback:
+	[C]: in function 'string.lower'
+	...top\DwarfFortress\44X/raw/scripts/unit/action-change.lua:81: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/action-change -unit 246 -timer 100 -action Attack -interaction All (Should succeed and add an attack action with a 100 tick cooldown and add 100 ticks to all interaction cooldowns)
+
+PASSED: unit/action-change
+unit/action-change checks finished
+
+unit/attack checks starting
+unit/attack -defender 253 -attacker 246 (Should succeed and add an attack action to the attacker unit, with calculated velocity, hit chance, and body part target)
+...es\Desktop\DwarfFortress\44X/raw/scripts/unit/attack.lua:147: attempt to call a nil value (field 'getAttackUnitVelocity')
+stack traceback:
+	...es\Desktop\DwarfFortress\44X/raw/scripts/unit/attack.lua:147: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/attack -defender 253 -attacker 246 -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10 (Should succeed and add 10 punch attacks targeting defender head with velocity 100 and calculated hit chance)
+
+FAILED: unit/attack
+Failed to assign attack action to attacking unit targeting defending unit
+unit/attack checks finished
+
+unit/attribute-change checks starting
+unit/attribute-change -unit 246 -attribute STRENGTH -amount 50 -mode fixed (Should succeed and add 50 strength to the unit)
+...\DwarfFortress\44X/raw/scripts/unit/attribute-change.lua:78: attempt to index a number value (field '?')
+stack traceback:
+	...\DwarfFortress\44X/raw/scripts/unit/attribute-change.lua:78: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/attribute-change -unit 246 -attribute [ TOUGHNESS ENDURANCE ] -amount [ 5000 5000 ] -mode set -dur 50 (Should succeed and set units toughness and endurance to 5000 for 50 ticks and create a persistent unit table)
+...\DwarfFortress\44X/raw/scripts/unit/attribute-change.lua:78: attempt to index a number value (field '?')
+stack traceback:
+	...\DwarfFortress\44X/raw/scripts/unit/attribute-change.lua:78: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+FAILED: unit/attribute-change
+Failed to add 50 strength to unit
+Failed to set endurance and toughness to 5000
+Failed to create tracking table
+unit/attribute-change checks finished
+
+unit/body-change checks starting
+unit/body-change -unit 254 -flag SIGHT -temperature Fire -dur 50 (Should succeed and set the eyes on fire for 50 ticks)
+C:\Users\miles\Desktop\DwarfFortress\44X\hack\lua\utils.lua:595: error: invalid arg: 3: flag
+stack traceback:
+	[C]: in function 'error'
+	C:\Users\miles\Desktop\DwarfFortress\44X\hack\lua\utils.lua:595: in function 'utils.processArgs'
+	...sktop\DwarfFortress\44X/raw/scripts/unit/body-change.lua:70: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+unit/body-change -unit 254 -size All -amount 50 -mode Percent (Should succeed and set all sizes, size, length, and area, of the unit to 50 percent of the current)
+...Desktop\DwarfFortress\44X/raw/scripts/functions/unit.lua:1132: bad argument #1 to 'lower' (string expected, got nil)
+stack traceback:
+	[C]: in function 'string.lower'
+	...Desktop\DwarfFortress\44X/raw/scripts/functions/unit.lua:1132: in field 'getBodyParts'
+	...sktop\DwarfFortress\44X/raw/scripts/unit/body-change.lua:95: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/body-change -unit 254 -token UB -temperature -mode Set -amount 9000 (Should succeed and set the upper body temperature to 9000)
+C:\Users\miles\Desktop\DwarfFortress\44X\hack\lua\utils.lua:595: error: invalid arg: 3: token
+stack traceback:
+	[C]: in function 'error'
+	C:\Users\miles\Desktop\DwarfFortress\44X\hack\lua\utils.lua:595: in function 'utils.processArgs'
+	...sktop\DwarfFortress\44X/raw/scripts/unit/body-change.lua:70: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+FAILED: unit/body-change
+Failed to set SIGHT body parts on fire
+Failed to set SIGHT body parts on fire
+Failed to set current size to 50% of previous size. Size ratio = 1.0
+Failed to set current area to 50% of previous area. Area ratio = 1.0
+Failed to set current length to 50% of previous length. Length ratio = 1.0
+Failed to set upper body temperature to 9000. Temperature = 10064
+unit/body-change checks finished
+
+unit/butcher checks starting
+unit/butcher -unit 255 (Should fail and print "Unit is still alive and has not been ordered -kill")
+
+unit/butcher -unit 255 -kill (Should succeed and kill unit then butcher it)
+
+Pausing run_test.lua for 5 in-game ticks
+Resuming run_test.lua
+FAILED: unit/butcher
+Incorrectly killed the unit
+unit/butcher checks finished
+
+unit/counter-change checks starting
+unit/counter-change -unit 246 -counter nausea -amount 1000 -mode Fixed (Should succeed and increase the nausea counter by 1000)
+
+unit/counter-change -unit 246 -counter [ hunger thirst sleepiness ] -amount [ 0 0 0 ] -mode set (Should succeed and set hunger_timer, thirst_timer, and sleepiness_timer to 0)
+
+PASSED: unit/counter-change
+unit/counter-change checks finished
+
+unit/flag-change checks starting
+unit/flag-change -unit 246 -flag hidden_in_ambush -True (Should succeed and hide unit)
+
+unit/flag-change -unit 246 -flag hidden_in_ambush -reverse (Should succeed and reveal hidden unit)
+
+PASSED: unit/flag-change
+unit/flag-change checks finished
+
+unit/move checks starting
+unit/move -unit 246 -random [ 5 5 0 ] (Should succeed and move the unit to a random position within a 5x5 square)
+...iles\Desktop\DwarfFortress\44X/raw/scripts/unit/move.lua:224: attempt to call a nil value (field 'move')
+stack traceback:
+	...iles\Desktop\DwarfFortress\44X/raw/scripts/unit/move.lua:224: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/move -unit 246 -building Wagon (Should succeed and move the unit to the wagon)
+...iles\Desktop\DwarfFortress\44X/raw/scripts/unit/move.lua:224: attempt to call a nil value (field 'move')
+stack traceback:
+	...iles\Desktop\DwarfFortress\44X/raw/scripts/unit/move.lua:224: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/move -unit 246 -area Idle (Should succeed and move the unit to its idle position)
+...iles\Desktop\DwarfFortress\44X/raw/scripts/unit/move.lua:224: attempt to call a nil value (field 'move')
+stack traceback:
+	...iles\Desktop\DwarfFortress\44X/raw/scripts/unit/move.lua:224: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+FAILED: unit/move
+Failed to move unit to TEST_BUILDING_3. Unit pos = [ 23 23 165 ]. Building pos = [ 24 23 165 ]
+unit/move checks finished
+
+unit/propel checks starting
+unit/propel -unitTarget 246 -velocity [ 0 0 100 ] -mode Fixed (Should succeed and turn the unitTarget into a projectile with velocity 100 in the z direction)
+
+PASSED: unit/propel
+unit/propel checks finished
+
+unit/resistance-change checks starting
+unit/resistance-change -unit 246 -resistance FIRE -amount 50 -mode fixed (Should succeed and increase units fire resistance by 50, will also create unit persist table since there is no vanilla resistances)
+Invalid Resistance Token: FIRE
+
+s)
+Invalid Resistance Token: FIRE
+
+FAILED: unit/resistance-change
+Failed to increase units FIRE resistance to 50
+Failed to create FIRE resistance persistant table
+unit/resistance-change checks finished
+
+unit/skill-change checks starting
+unit/skill-change -unit 246 -skill DODGING -amount 5  a nil value (global 'unitTable')
+stack traceback:
+	...Desktop\DwarfFortress\44X/raw/scripts/functions/unit.lua:94: in field 'getUnitTable'
+	...DwarfFortress\44X/raw/scripts/unit/resistance-change.lua:75: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+s magical hit chance by 50, will also create unit persist table since there is no vanilla stats)
+Invalid Stat Token: CRITICAL_CHANCE
+
+FAILED: unit/stat-change
+Failed to increase units stat CRITICAL_CHANCE by 50
+Failed to create CRITICAL_CHANCE stat persistant table
+unit/stat-change checks finished
+
+unit/syndrome-change checks starting
+unit/syndrome-change -unit 246 -syndrome TEST_SYNDROME_1 -add (Should succeed and add TEST_SYNDROME_1 to the unit)
+
+unit/syndrome-change -unit 246 -syndrome TEST_SYNDROME_1 -alterDuration 500 (Should succeed and add 500 ticks to TEST_SYNDROME_1 on the unit)
+
+unit/syndrome-change -unit 246 -syndrome TEST_SYNDROME_1 -erase (Should succeed and remove TEST_SYNDROME_1 to the unit)
+
+unit/syndrome-change -unit 246 -syndrome TEST_SYNDROME_2 -add -dur 50 (Should succeed and add TEST_SYNDROME_2 to the unit for 50 ticks)
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+PASSED: unit/syndrome-change
+unit/syndrome-change checks finished
+
+unit/trait-change checks starting
+unit/trait-change -unit 246 -trait GREED -amount 5 -mode Fixed (Should succeed and lower units greed trait by 5)'
+...ktop\DwarfFortress\44X/raw/scripts/unit/trait-change.lua:77: attempt to index a nil value (field 'Traits')
+stack traceback:
+	...ktop\DwarfFortress\44X/raw/scripts/unit/trait-change.lua:77: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/trait-change -unit 246 -trait BRAVERY -amount 25 -mode Percent (Should succeed and quarter units bravery trait, will also create unit persist table)
+...ktop\DwarfFortress\44X/raw/scripts/unit/trait-change.lua:77: attempt to index a nil value (field 'Traits')
+stack traceback:
+	...ktop\DwarfFortress\44X/raw/scripts/unit/trait-change.lua:77: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+FAILED: unit/trait-change
+Failed to increase GREED trait by 5. Previous GREED = 52. New GREED = 52
+Failed to quarter BRAVERY trait. Previous BRAVERY = 42. New BRAVERY = 42
+Failed to create BRAVERY trait persistant table
+unit/trait-change checks finished
+
+unit/transform checks starting
+unit/transform -unit 247 -creature ELF:MALE (Should succeed and change the unit to a male elf)
+...Desktop\DwarfFortress\44X/raw/scripts/functions/unit.lua:326: attempt to index a nil value (field '?')
+stack traceback:
+	...Desktop\DwarfFortress\44X/raw/scripts/functions/unit.lua:326: in global 'trackTransformation'
+	...Desktop\DwarfFortress\44X/raw/scripts/functions/unit.lua:820: in field 'changeRace'
+	...Desktop\DwarfFortress\44X/raw/scripts/unit/transform.lua:106: in local 'script_code'
+	...sers\miles\Desktop\DwarfFortress\44X\hack\lua\dfhack.lua:562: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:62: in function <...\miles\Desktop\DwarfFortress\44X\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+unit/transform -unit 247 -creature DWARF:FEMALE -dur 50 (Should succeed and change the unit to a female dwarf for 50 ticks and create a unit persist table)
+Unit already the desired creature
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+FAILED: unit/transform
+Failed to transform unit into ELF:MALE. Unit race/case = 572/0
+Failed to transform unit back into ELF:MALE from DWARF:FEMALE. Unit race/caste = 572/0
+unit/transform checks finished
+Unit script checks finished

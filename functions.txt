@@ -1,391 +1,841 @@
-#######################################
-######### ATTACK FUNCTIONS ############
-#######################################
-    addAttack(unit,defenderID,attackBodyPartID,targetBodyPartID,attackItemID,attackID,accuracy,velocity,delay)
-      Purpose: Add an attack action to the unit
-      Calls: None
-      Inputs:
-            unit:                   Attacker unit ID or unit struct
-            defenderID:             Defender unit ID
-            attackBodyPartID:       Attacker's attacking body part ID (if using a body part attack)
-            targetBodyPartID:       Defender's targeted body part ID
-            attackItemID:           Attacker's attacking item ID (if using an item attack)
-            attackID:               Attack ID number (found in unit.body.body_plan.attacks or item.subtype.attacks)
-            accuracy:               Percent hit chance of attack
-            velocity:               Velocity of attack
-            delay:                  Time (in ticks) until attack is executed
-      Returns: NA
-    
-    getAttack(unit,category,type)
-      Purpose: Get attack details of equipped weapons and/or body parts
-      Calls: getAttackItem | getAttackUnit | unit.getInventoryType | unit.getAttack | item.getAttack 
-      Inputs:
-            unit:                   Unit ID or unit struct
-            category:               Category of attack (Valid values: Equipped, Created, or BodyPart)
-            type:                   RAW Token of attack (e.g. PUNCH) (Special Value: Random)
-      Returns: Table - { material momentum contact penetration sharpness item body_part }
-    
-    getDefense(unit,category,type)
-      Purpose: Get layer, tissue, and material information for a given body part
-      Calls: checkCoverage | unit.getBodyRandom | unit.getBodyCategory | unit.getBodyToken | unit.getBodyType
-      Inputs:
-            unit:                   Unit ID or unit struct
-            category:               Category of body part to check for (Valid values: Random, Category, Token, or Type)
-            type:                   RAW token for above category (e.g. EYES, REYE, and SIGHT would all check eyes)
-      Returns: Table - { layers tissues items materials body_part }
-    
-    computeAttackValues(attacker,defender,attackCategory,attackType,defenseCategory,defenseType)
-      Purpose:
-      Calls: computeAttackValuesItems, computeAttackValuesLayers
-      Inputs:
-            attacker:               Attacking unit ID or unit struct
-            defender:               Defending unit ID or unit struct
-            attackCategory:         Category of attack (see getAttack for more information)
-            attackType:             Type of attack (see getAttack for more information)
-            defenseCategory:        Category of defense (see getDefense for more information)
-            defenseType:            Type of defense (see getDefense for more information)
-      Return: Numbers - momentum_deduction1, momentum_deduction2
+WRAPPER FUNCTIONS
 
-#######################################
-######## BUILDING FUNCTIONS ###########
-#######################################
-    addItem(building,item,duration)
-      Purpose: Adds an item to a buildings item list
-      Calls: persist-delay.environmentDelay
-      Inputs:
-            building:               Building ID or building struct
-            item:                   Item ID or item struct
-            duration:               Time (in ticks) for the item to remain in the building
-      Returns: NA
-    
-    removeItem(building,item,duration)
-      Purpose: Removes an item from a buildings item list
-      Calls: persist-delay.environmentDelay
-      Inputs:
-            building:               Building ID or building struct
-            item:                   Item ID or item struct
-            duration:               Time (in ticks) for the item to remain outside of building
-      Returns: NA
-    
-    changeSubtype(building,subtype,duration)
-      Purpose: Changes the subtype of a building
-      Calls: persist-delay.environmentDelay
-      Inputs:
-            building:               Building ID or building struct
-            subtype:                RAW Token of custom building
-            duration:               Time (in ticks) for the change to last
-      Returns: Boolean - Did the building successfully change?
-    
-    findBuilding(searchTable)
-      Purpose: Finds a building that satisfies certain criteria
-      Calls: misc.permute
-      Inputs:
-            searchTable:            Table of strings to search for a building on the map (NEED TO ADD MORE INFORMATION)
-      Returns: Table - { target[s] )
+Location Based Targeting Checks
+===============================
 
-#######################################
-######### ENTITY FUNCTIONS ############
-#######################################
-    changeResources(entity,group,category,mainToken,subToken,direction,verbose)
-      Purpose: Add or remove a given resource from an entity
-      Calls: changeCreature | changeInorganic | changeItem | changeMisc | changeOrganic | changeRefuse | changeProduct | changeSkill | changeEthic | changeValue
-      Inputs:
-            entity:                 Entity ID or entity struct
-            group:                  Group of resources to change (Valid Values: CREATURE, INORGANIC, ITEM, MISC, ORGANIC, REFUSE, PRODUCT, SKILLS, ETHICS, or VALUES)
-            category:               Category of group to change (see above functions for valid values)
-            mainToken:              Depends on the group and category
-            subToken:               Depends on the group and category
-            direction:              add or remove
-            verbose:                Boolean, whether to print extra debugging information
-      Returns: NA
+checkPosition(source,targetList,target,verbose)
 
-#######################################
-########## ITEM FUNCTIONS #############
-#######################################
-    changeMaterial(item,materialTokens,duration,track)
-      Purpose: Change the material an item is made of
-      Calls: trackMaterial | tables.makeItemTable | persist-delay.environmentDelay
-      Inputs:
-            item:                   Item ID or item struct
-            materialTokens:         RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
-            duration:               Time (in ticks) for change to last
-            track:                  How to track the material change (Valid Values: track, end, or nil)
-      Returns: NA
-    
-    changeQuality(item,quality,duration,track)
-      Purpose: Change the quality of an item
-      Calls: trackQuality | tables.makeItemTable | persist-delay.environmentDelay
-      Inputs:
-            item:                   Item ID or item struct
-            quality:                Number of quality to set item to
-            duration:               Time (in ticks) for change to last
-            track:                  How to track the quality change (Valid Values: track, end, or nil)
-      Returns: NA
-    
-    changeSubtype(item,subtype,duration,track)
-      Purpose: Change the subtype of an item
-      Calls: trackSubtype | tables.makeItemTable | persist-delay.environmentDelay
-      Inputs:
-            item:                   Item ID or item struct
-            subtype:                RAW Token of item subtype
-            duration:               Time (in ticks) for change to last
-            track:                  How to track the subtype change (Valid Values: track, end, or nil)
-      Returns: NA
-    
-    create(item,material,creatorID,quality,duration)
-      Purpose: Creates an item of the given material for a set duration
-      Calls: removal | persist-delay.environmentDelay
-      Inputs:
-            item:                   RAW Token item (e.g. WEAPON:ITEM_WEAPON_SWORD_SHORT)
-            material:               RAW Token material (e.g. INORGANIC:IRON, CREATURE_MAT:DWARF:BONE, etc..)
-            creatorID:              Unit ID
-            quality:                Quality number
-            duration:               Time (in ticks) for item to last
-      Returns: NA
-    
-    equip(item,unit,bodyPart,mode)
-      Purpose: Move an item from the ground into a unit's inventory
-      Calls: None
-      Inputs:
-            item:                   Item ID or item struct
-            unit:                   Unit ID or unit struct
-            bodyPart:               Body part ID
-            mode:                   Inventory mode number
-      Returns: NA
-    
-    unequip(item,unit)
-      Purpose: Move an item from the unit's inventory to the ground
-      Calls: None
-      Inputs:
-            item:                   Item ID or item struct
-            unit:                   Unit ID or unit struct
-      Returns: NA
-    
-    getAttack(item,attackToken)
-      Purpose: Find the given attack of an item
-      Calls: None
-      Inputs:
-            item:                   Item ID or item struct
-            attackToken:            RAW Token of an attack (e.g. PUNCH) (Special Value: Random)
-      Returns: Number - AttackID
-    
-    makeProjectileFall(item,origin,velocity)
-      Purpose: Turn an item into a falling projectile
-      Calls: None
-      Inputs:
-            item:                   Item ID or item struct
-            origin:                 Table of x,y,z coordinates
-            velocity:               Table of x,y,z velocities
-      Returns: NA
-    
-    makeProjectileShot(item,origin,target,options)
-      Purpose: Turn an item into a shot projectile
-      Calls: None
-      Inputs:
-            item:                   Item ID or item struct
-            origin:                 Table of x,y,z coordinates
-            target:                 Table of x,y,z coordinates
-            options:                Table of special values { velocity accuracy range minimumDistance firer }
-      Returns: NA
-    
-    findItem(searchTable)
-      Purpose: Find an item given a specific search string
-      Calls: misc.permute
-      Inputs:
-            searchTable:            Table of strings to search for an item on the map (NEED TO ADD MORE INFORMATION)
-      Returns: Table - { item[s] }
+isSelectedLocation(source,pos,args)
+
+
+
+Unit Based Targeting Checks
+===========================
+
+checkUnitLocation(center,radius)
+
+checkTarget(source,targetList,target)
+
+isSelectedUnit(source,unit,args)
+
+
+
+Item Based Targeting Checks
+===========================
+
+checkItemLocation(center,radius)
+
+checkItem(source,targetList,target)
+
+isSelectedItem(source,item,args)
+
+
+
+Equation Functions
+==================
+
+getValue
+
+
+ITEM FUNCTIONS
+
+Item Table Functions
+====================
+
+makeItemTable(item)
+  Purpose: Create a persistant table to track information of a given item
+  Calls:   NONE
+  Inputs:
+           item = Item struct or item id
+  Returns: NONE
+
+getItemTable(item)
+  Purpose: Collects all information from the game and the items persistant table into an easily accessible lua table
+  Calls:   NONE
+  Inputs:
+           item = Item struct or item id
+  Returns: Table of information about the item
+
+
+Tracking Functions
+==================
+
+trackMaterial(item,material,dur,alter)
+  Purpose: Tracks material changes to an item
+  Calls:   changeMaterial
+  Inputs:
+           item     = Item struct or item id
+           material = MATERIAL_TYPE:MATERIAL_SUBTYPE
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+trackQuality(item,quality,dur,alter)
+  Purpose: Tracks quality changes to an item
+  Calls:   changeQuality
+  Inputs:
+           item     = Item struct or item id
+           quality  = Quality number (0-7)
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+trackSubtype(item,material,dur,alter)
+  Purpose: Tracks subtype changes to an item
+  Calls:   changeSubtype
+  Inputs:
+           item     = Item struct or item id
+           subtype  = ITEM_SUBTYPE
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+
+Changing Functions
+==================
+
+changeMaterial(item,material,dur,track)
+  Purpose: Change the material an item is made from (temporarily or permanently) and track the change
+  Calls:   trackMaterial
+  Inputs:
+           item     = Item struct or item id
+           material = Material string (MATERIAL_TYPE:MATERIAL_SUBTYPE) to change item to
+           dur      = Length of change in in-game ticks
+           track    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+changeQuality(item,quality,dur,track)
+  Purpose: Change the quality of an item (temporarily or permanently) and track the change
+  Calls:   trackQuality
+  Inputs:
+           item    = Item struct or item id
+           quality = Quality number (0-7)
+           dur     = Length of change in in-game ticks
+           track   = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+changeSubtype(item,subtype,dur,track)
+  Purpose: Change the subtype of an item (temporarily or permanently) and track the change
+  Calls:   trackSubtype
+  Inputs:
+           item    = Item struct or item id
+           subtype = ITEM_SUBTYPE to change item into
+           dur     = Length of change in in-game ticks
+           track   = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+
+
+Attack Functions
+================
+
+getAttack(item,attack)
+  Purpose: Gets the attack number of an item
+  Calls:   NONE
+  Inputs:
+           item   = Item struct or item id
+           attack = ATTACK_TOKEN (e.g. PUNCH), attack verb, or Random
+  Returns: Attack ID number
+
+
+Creation Functions
+==================
+
+create(item,material,creatorID,quality,dur)
+  Purpose: Creates an item of the given material and quality
+  Calls:   NONE
+  Inputs:
+           item      = ITEM_TYPE:ITEM_SUBTYPE
+           material  = MATERIAL_TYPE:MATERIAL_SUBTYPE
+           creatorID = Unit ID to use as item creator
+           quality   = Quality number of item (0-7)
+           dur       = Length of time in in-game ticks for item to exist
+  Returns: ID of created item
+
+removal(item)
+  Purpose: Destroys an item correctly
+  Calls:   NONE
+  Inputs:
+           item = Item struct or item id to destroy
+  Returns: NONE
+
+equip(item,unit,bodyPart,mode)
+  Purpose: Equips an item to a unit ignoring normal equipment requirements
+  Calls:   NONE
+  Inputs:
+           item     = Item struct or item id to equip
+           unit     = Unit struct or unit id to equip item to
+           bodyPart = Body Part id to equip item to
+           mode     = Equip mode (e.g. Worn)
+  Returns: NONE
+
+unequip(item,unit)
+  Purpose: Unequips an item from a unit
+  Calls:   NONE
+  Inputs:
+           item = Item struct or item id to unequip
+           unit = Unit struct or unit id to unequip item from
+  Returns: NONE
+
+
+Projectile Functions
+====================
+
+makeProjectileFall(item,origin,velocity)
+  Purpose: Turn an item into a falling projectile
+  Calls:   NONE
+  Inputs:
+           item     = Item struct or item id
+           origin   = { x y z }
+           velocity = { x y z } (falling projectiles use a three component velocity)
+  Returns: NONE
+
+makeProjectileShoot(item,origin,target,options)
+  Purpose: Turn an item into a shooting projectile
+  Calls:   NONE
+  Inputs:
+           item    = Item struct or item id
+           origin  = { x y z }
+           target  = { x y z }
+           options = { velocity=#, accuracy=#, range=#, minimum=#, firer=# } (shooting projectiles use a single component velocity)
+  Returns: NONE
+
+
+Miscellanious Functions
+=======================
+
+findItem(search)
+  Purpose: Find an item on the map that satisfies the search criteria
+  Calls:   NONE
+  Inputs:
+           search = Search table (e.g. { RANDOM, WEAPON, ITEM_WEAPON_SWORD_SHORT })
+  Returns: Table of all items that meet search criteria
+
+MAP FUNCTIONS
+
+Map Changing Functions
+======================
+
+changeInorganic(x,y,z,inorganic,dur)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+changeTemperature(x,y,z,temperature,dur)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+
+
+Position Functions
+==================
+
+checkBounds(x,y,z)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+checkFree(x,y,z)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+checkSurface(x,y,z)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+getPositions(posType,options)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+getPosition(posType,options)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+
+
+Flow and Liquid Functions
+=========================
+
+spawnFlow(edges,offset,flowType,inorganic,density,static)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+spawnLiquid(edges,offset,depth,magma,circle,taper)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+flowSource(n)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+flowSink(n)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+liquidSource(n)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+liquidSink(n)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+getFlow(pos,flowType)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+
+
+Plant Functions
+===============
+
+getTree(pos,array)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+getTreePositions(tree)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+getShrub(pos,array)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+removeTree(pos)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+removeShrub(pos)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+
+
+Miscellanious Functions
+=======================
+
+findLocation(search)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+
+
+Milo's Tile Mat Functions
+=========================
+
+This is taken from Milo Christianson's Rubble Utility and translated to work without that framework
+This module contains functions for finding the material of a tile.
+
+There is a function that will find the material of the tile based on it's type (in other words
+it will return the material DF is using for that tile), and there are functions that will attempt
+to return only a certain class of materials.
+
+Most users will be most interested in the generic "GetTileMat" function, but the other functions
+should be useful in certain cases. For example "GetLayerMat" will always return the material of
+the stone (or soil) in the current layer, ignoring any veins or other inclusions.
+
+Some tile types/materials have special behavior with the "GetTileMat" function.
+
+* Open space and other "material-less" tiles (such as semi-molten rock or eerie glowing pits) will return nil.
+* Ice will return the hard-coded water material ("WATER:NONE").
+* Grass is ignored.
+
+The specialized functions will return nil if a material of their type is not possible for a tile.
+For example calling "GetVeinMat" for a tile that does not have (and has never had) a mineral vein
+will always return nil.
+
+There are two functions for dealing with constructions, one to get the material of the construction
+and one that gets the material of the tile the construction was built over.
+I am not sure how caved in tiles are handled, but after some quick testing it appears that the
+game creates mineral veins for them. I am not 100% sure if these functions will reliably work
+with all caved in tiles, but I can confirm that they do in at least some cases...
+
+getTileMat(x,y,z)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+
+BUILDING FUNCTIONS
+
+Building Table Functions
+========================
+
+makeBuildingTable(building)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
+
+getBuildingTable(building)
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+
+
+Tracking Functions
+==================
+
+trackSubtype(building,subtype,dur,alter)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns:
+
+
+Building Item Functions
+=======================
+
+addItem(building,item,dur)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
  
-#######################################
-########### MAP FUNCTIONS #############
-#######################################
-    changeInorganic(x,y,z,inorganicToken,duration)
-      Purpose: Changes the inorganic at specified position
-      Calls: persist-delay.environmentDelay
-      Inputs:
-            x:                      X Location or Table of x,y,z coordinates
-            y:                      Y location if x isn't a table
-            z:                      Z location if x isn't a table
-            inorganicToken:         RAW Token of inorganic
-            duration:               Time (in ticks) for the change to last
-      Returns: Boolean - Was the change successful?
-    
-    changeTemperature(x,y,z,temperature,duration)
-      Purpose: Changes the temperature at specified position (doesn't really work well since the game constantly reupdates temperatures)
-      Calls: persist-delay.environmentDelay
-      Inputs:
-            x:                      X Location or Table of x,y,z coordinates
-            y:                      Y location if x isn't a table
-            z:                      Z location if x isn't a table
-            temperature:            Number to set temperature to
-            duration:               Time (in ticks) for the change to last
-      Returns: Boolean - Was the change successful?
-    
-    getPosition(Type,options)
-      Purpose: Returns a single position { x y z } depending on the given type and options
-      Calls: getPositionCenter | getPositionEdge | getPositionRandom | getPositionCavern | getPositionSurface | getPositionSky
-             getPositionUnderground | getPositionLocationRandom | getPositionUnitRandom | checkBounds | checkFree | checkSurface
-      Inputs:
-            Type:                   Type of position to return (Valid Values: Center, Edge, Random, Cavern, Surface, SurfaceFree, Sky, Underground, LocationRandom, UnitRandom)
-            options:                An array of optional arguments depending on the Type
-                    unit:           (If using UnitRandom) The unit struct or unitID to center the position on
-                    location:       (If using Surface, Sky, Underground, or LocationRandom) The location { x y z } to center the position on
-                    radius:         (If using Center, LocationRandom, or UnitRandom) The radius ( x y z ) around the central location
-                    caveNumber:     (If using Cavern) The cave number to search for a position in
-      Returns: Table { x, y, z}
-    
-    getPositions(Type,options)
-      Purpose: Returns a table of positions { { x y z } } depending on the given type and options
-      Calls: getEdgesPositions | getFillPositions | getPlanPositions
-      Inputs:
-            Type:                   Type of positions to return (Valid Values: Edges, Fill, Plan)
-            Options:                An array of optional arguments depending on the Type
-                    target:         (If using Edges, Fill, or Plan) The position { x y z } to center on
-                    radius:         (If using Edges or Fill) The radius { x y z } around the center to include
-                    origin:         (If using Plan) The position { x y z } to reference as the origin for rotation
-                    file:           (If using Plan) The file to read for the positional information
-      Returns: Table, Number - { position[s] }, # of positions
-    
-    getFlow(position,flowType)
-      Purpose: Get all flows of a specific type and the given position
-      Calls: None
-      Inputs:
-             Position:              Table of { x y z } coordinate
-             FlowType:              (Optional) If present it will restrict the flow check to that specific flow type
-      Returns: Table - { flow[s] }
-    
-    getTileFeature(type,position,array)
-      Purpose: Get the table entry of the specified feature type at a given positions
-      Calls: getTree | getShrub
-      Inputs:
-             Type:                  Type of feature/object to look for (Valid Values: Tree or Shrub)
-             Position:              Table of { x y z } coordinate
-             Array:                 (Optional) The DFHack array to check against (e.g. df.global.world.plants.all)
-      Returns: Number, Struct - # of Struct Entry, DFHack Struct
-    
-    getTileMat(x,y,z)               **Taken from Milo Christianson's Rubble Utility and translated to work without that framework
-      Purpose: Get the material string that cooresponds with that is seen in game
-      Calls: getTileTypeMat | getLayerMat | getLavaStone | getVeinMat | getConstructionMat | getConstructOriginalTileMat | getTreeMat
-             getShrubMat | getFeatureMat
-      Inputs:
-             x:                     Either a table of { x y z } coordinates or the x coordinate
-             y:                     The y coordinate if x is not a table
-             z:                     The z coordinate if x is not a table
-      Returns: String - RAW material token
-    
-    spawnFlow(edges,offset,flowType,inorganicToken,density,static)
-      Purpose: Spawns a flow with given characteristics
-      Calls: None
-      Inputs:
-            edges:                  Table of x,y,zmin and x,y,zmax
-            offset:                 Table of x,y,z distances
-            flowType:               Flow Token (Valid Values: MIASMA, STEAM, MIST, MATERIALDUST, MAGMAMIST, SMOKE, DRAGONFIRE, FIRE, WEB, MATERIALGAS, MATERIALVAPOR, OCEANWAVE, SEAFOAM, or ITEMCLOUD)
-            inorganicToken:         RAW inorganic token
-            density:                Number of flow density
-            static:                 Boolean for whether the flow can move or not
-      Returns: NA
-    
-    spawnLiquid(edges,offset,depth,magma,circle,taper)
-      Purpose: Spawns water or magma with given characteristics
-      Calls: None
-      Inputs:
-            edges:                  Table of x,y,zmin and x,y,zmax
-            offset:                 Table of x,y,z distances
-            depth:                  Number of liquid depth
-            magma:                  Boolean for whether magma or not (i.e. water)
-            circle:                 Boolean for if the liquid should be spawned in a circle
-            taper:                  Boolean for if the liquid should have a maximum depth at the center and taper off
-      Returns: NA
-    
-    findLocation(searchTable)
-      Purpose: Find a location that satisfies a specific search criteria
-      Calls: misc.permute
-      Inputs:
-            searchTable:            Table of strings to search for a location on the map (NEED TO ADD MORE INFORMATION)
-      Returns: Table - { location[s] }
+removeItem(building,item,dur)
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
 
-#######################################
-########## UNIT FUNCTIONS #############
-#######################################
-	changeAttribute(unit,attribute,change,duration,track,syndrome)
 
-	changeCounter(unit,counter,change,duration)
+Building Changing Functions
+===========================
 
-	changeResistance(unit,resistance,change,duration,track,syndrome)
+changeSubtype(building,subtype,dur,track)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
-	changeSkill(unit,skill,change,duration,track,syndrome)
 
-	changeStat(unit,stat,change,duration,track,syndrome)
+Miscellanious Functions
+=======================
 
-	changeTrait(unit,trait,change,duration,track,syndrome)
+findBuilding(search)
+  Purpose: 
+  Calls:   
+  Inputs:
+  Returns: 
 
-	changeBody(unit,part,changeType,change,duration)
+UNIT FUNCTIONS
 
-	changeLife(unit,corpsePart,change,reference,regrow,syndrome,duration)
+Unit Table Functions 
+====================
 
-	changeWound(unit,bodyPartID,globalLayerID,regrow)
+makeUnitTable(unit)
+  Purpose: Create a persistant table to track information of a given unit
+  Calls:   NONE
+  Inputs:
+           unit = The unit struct or unit ID to make the table for
+  Returns: NONE
 
-	changeAction(unit,actionType,timer)
+getUnitTable(unit)
+  Purpose: Collects all information from the game and the units persistant table into an easily accessible lua table
+  Calls:   NONE
+  Inputs:
+           unit = The unit struct or unit ID to gather information for
+  Returns: Table of information about the unit
 
-	changeInteraction(unit,interactionID,timer,types)
 
-	changeEmotion(unit,thought,subthought,emotion,strength,severity,task,number,duration,syndrome)
+Tracking Functions                                
+==================
 
-	changeFlag(unit,flag,clear)
+trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
+  Purpose: Tracks all changes to a units attributes, resistances, skills, stats, and traits 
+  Calls:   trackStart, trackEnd, trackTerminate, changeAttribute, changeResistance, changeSkill, changeStat, changeTrait
+  Inputs:
+           unit     = The unit struct or unit ID of the unit to track
+           strname  = Tracked type (Valid Values: Attribute, Resistance, Skill, Stat, Trait)
+           kind     = Tracked subtype (e.g. STRENGTH for a strname of Attribute)
+           change   = Amount of change
+           syndrome =  SYN_NAME of a syndrome to associate with the change
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           cb_id    = If dur > 0 then the cb_id is needed to properly track the change
+  Returns: NONE
+  
+trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
+  Purpose: Tracks changes to a units race and caste
+  Calls:   changeRace
+  Inputs:
+           unit     = The unit struct or unit ID of the unit to track
+           race     = Race ID the unit turned into
+           caste    = Caste ID the unit turned into
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           syndrome = SYN_NAME of a syndrome to associate with the change
+           cb_id    = If dur > 0 then the cb_id is needed to properly track the change
+  Returns:
 
-	changeSide(unit,side,sideType,duration,track,syndrome)
 
-	changeSyndrome(unit,syndromes,change,duration)
+Number Changing Functions 
+=========================
 
-	transform(unit,race,caste,duration,track,syndrome)
+changeAttribute(unit,attribute,change,dur,track,syndrome)
+  Purpose: Change a units attribute (temporarily or permanently) and track the change
+  Calls:   trackCore
+  Inputs:
+           unit      = Unit struct or unit ID
+           attribute = ATTRIBUTE_TOKEN of attribute to change
+           change    = Amount to change attribute by
+           dur       = Length of change in in-game ticks
+           track     = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           syndrome  = SYN_NAME of a syndrome to associate with the change
+  Returns: NONE
+  
+changeCounter(unit,counter,change,dur)
+  Purpose: Change the "counter" value of a unit (e.g. webbed, dazed, winded, etc...)
+  Calls:   NONE
+  Inputs:
+           unit    = Unit struct or unit ID
+           counter = Counter to change, see function for valid values
+           change  = Amount to change the counter by
+           dur     = Length of change in in-game ticks (most counters decrease or increase naturally)
+  Returns: NONE
+  
+changeResistance(unit,resistance,change,dur,track,syndrome)
+  Purpose: Change a units resistance (temporarily or permanently) and track the change
+  Calls:   trackCore
+  Inputs:
+           unit       = Unit struct or unit ID
+           resistance = RESISTANCE_TOKEN of resistance to change
+           change     = Amount to change resistance by
+           dur        = Length of change in in-game ticks
+           track      = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           syndrome   = SYN_NAME of a syndrome to associate with the change
+  Returns: NONE
+  
+changeSkill(unit,skill,change,dur,track,syndrome)
+  Purpose: Change a units skill levle (temporarily or permanently) and track the change
+  Calls:   trackCore
+  Inputs:
+           unit     = Unit struct or unit ID
+           skill    = SKILL_TOKEN of skill to change
+           change   = Amount to change skill level by
+           dur      = Length of change in in-game ticks
+           track    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           syndrome = SYN_NAME of a syndrome to associate with the change
+  Returns: NONE
+  
+changeStat(unit,stat,change,dur,track,syndrome)
+  Purpose: Change a units stat (temporarily or permanently) and track the change
+  Calls:   trackCore
+  Inputs:
+           unit     = Unit struct or unit ID
+           stat     = STAT_TOKEN of stat to change
+           change   = Amount to change stat by
+           dur      = Length of change in in-game ticks
+           track    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           syndrome = SYN_NAME of a syndrome to associate with the change
+  Returns: NONE
+  
+changeTrait(unit,trait,change,dur,track,syndrome)
+  Purpose: Change a units trait (temporarily or permanently) and track the change
+  Calls:   trackCore
+  Inputs:
+           unit     = Unit struct or unit ID
+           trait    = TRAIT_TOKEN of trait to change
+           change   = Amount to change trait by
+           dur      = Length of change in in-game ticks
+           track    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           syndrome = SYN_NAME of a syndrome to associate with the change
+  Returns: NONE
 
-	move(unit,location)
 
-	removal(unit,removeType)
+Action Changing Functions
+=========================
 
-	checkClass(unit,class)
+changeAction(unit,action_type,timer)
+  Purpose: Changes the timer on a units action, allowing them to act more often
+  Calls:   NONE
+  Inputs:
+           unit        = Unit struct or unit ID
+           action_type = Action type (Valid Values: Move, Attack, Block, Dodge, etc...)
+           timer       = Number to set timer on action to (Special Values: clear, clearAll)
+  Returns: NONE
+  
+changeInteraction(unit,interaction_id,timer,types)
+  Purpose: Changes the delay timer on a units interaction, allowing them to occur more or less frequently
+  Calls:   NONE
+  Inputs:
+           unit           = Unit struct or unit ID
+           interaction_id = Interaction ID number
+           timer          = Number to set timer on action to (Special Values: clear, clearAll)
+           types          = Interaction Type (Valid Values: Innate, Learned, Both)
+  Returns: NONE
 
-	checkClassCreature(unit,class)
+ 
 
-	checkClassSyndrome(unit,class)
+Body Changing Functions
+=======================
 
-	checkCreatureRace(unit,creature)
+changeBody(unit,part,changeType,change,dur)
+  Purpose: Changes a units body and body parts size or temperature
+  Calls:   NONE
+  Inputs:
+           unit       = Unit struct or unit ID
+           part       = Body part ID
+           changeType = Type of change (Valid Values: Temperature, Size, Area, Length)
+           change     = Amount of change (Special Value: fire - sets body part on fire)
+           dur        = Length of change in in-game ticks
+  Returns: NONE
+  
+changeLife()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns: NONE
+  
+changeRace(unit,race,caste,dur,track,syndrome)
+  Purpose:
+  Calls:   trackTransformation
+  Inputs:
+           unit     = Unit struct or unit ID
+           race     = Race ID to transform into
+           caste    = Caste ID to transform into
+           dur      = Length of transformation in in-game ticks
+           track    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           syndrome = SYN_NAME of a syndrome to associate with the transformation
+  Returns: NONE
+  
+changeWound()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns: NONE
 
-	checkCreatureSyndrome(unit,syndrome)
 
-	checkCreatureToken(unit,token)
+Syndrome Changing Functions
+===========================
 
-	checkDistance(unit,location,distance)
+changeSyndrome(unit,syndromes,change,dur)
+  Purpose: Make changes to a units syndromes by adding, erasing, terminating, or altering their duration
+  Calls:   modtools/add-syndrome | trackCore | checkSyndrome
+  Inputs:
+           unit      = Unit struct or unit ID
+           syndromes = SYN_NAME of syndromes to change (or SYN_CLASS)
+           change    = Type of change (Valid Values: add, erase, eraseClass, terminate, terminateClass, alterDuration, alterDurationClass)
+           dur       = Length syndrome will last in in-game ticks (or amount of ticks to change syndrome length by)
+  Returns: NONE
 
-	getUnit(unit,category,type,initialize)
 
-	getAttack(unit,attackType)
+Boolean Functions
+=================
 
-	getBodyRandom(unit)
+checkClass(unit,class)
+  Purpose: Checks if a unit has the given class, either as a CREATURE_CLASS or SYNDROME_CLASS
+  Calls:   checkClassCreature | checkClassSyndrome
+  Inputs:
+           unit  = Unit struct or unit ID
+           class = CREATURE_CLASS or SYNDROME_CLASS
+  Returns: True/False
+  
+checkCreatureRace(unit,creature)
+  Purpose: Checks if a unit belongs to a given RACE:CASTE combo
+  Calls:   NONE
+  Inputs:
+           unit     = Unit struct or unit ID
+           creature = RACE:CASTE (or RACE:ANY)
+  Returns: True/False
+  
+checkCreatureSyndrome(unit,syndrome)
+  Purpose: Checks if a unit has a syndrome with the given SYN_NAME
+  Calls:   NONE
+  Inputs:
+           unit     = Unit struct or unit ID
+           syndrome = SYN_NAME
+  Returns: True/False
+  
+checkCreatureToken(unit,token)
+  Purpose: Checks if the unit has the given token
+  Calls:   NONE
+  Inputs:
+           unit  = Unit struct or unit ID
+           token = TOKEN (e.g. MEGABEAST, GRAZER, etc...)
+  Returns: True/False
+  
+checkDistance(unit,location,distance)
+  Purpose: Checks if the unit is within a specific distance of given location
+  Calls:   NONE
+  Inputs:
+           unit     = Unit struct or unit ID
+           location = { x, y, z }
+           distance = # or { x, y, z }
+  Returns: True/False
 
-	getBodyCategory(unit,category)
 
-	getBodyToken(token)
+Body Part Functions
+===================
 
-	getBodyFlag(flag)
+getBodyParts(unit,partType,partSubType)
+  Purpose: Get a table of body part ids that match the given Type and SubType search
+  Calls:   getBodyCategory | getBodyToken | getBodyFlag | getBodyConnectedParts | getBodyPartGlobalLayers
+  Inputs:
+           unit        = Unit struct or unit ID
+           partType    = Part search type (Valid Values: Category, Token, Flag, Connected, Layers)
+           partSubType = Part search subtype, depends on the partType
+  Returns: Table of Body Part IDs
+  
+getBodyRandom(unit)
+  Purpose: Get the body part ID of a random body part weighted by their size
+  Calls:   NONE
+  Inputs:
+           unit = Unit struct or unit ID
+  Returns: Body Part ID
 
-	getBodyConnectedParts(unit,bodyPartID)
 
-	getBodyPartGlobalLayers(unit,bodyPartID)
+Corpse Functions
+================
 
-	getBodyCorpseParts(unit)
+getBodyCorpseParts(unit)
+  Purpose: Get a list of all the units corpse part IDs and corpse ID
+  Calls:   NONE
+  Inputs:
+           unit = Unit struct or unit ID
+  Returns: Table of corpse part IDs and corpse ID
+  
+getItemCorpse(caste)
+  Purpose: Get the item corpse the creature creates when they die
+  Calls:   NONE
+  Inputs:
+           unit = Unit struct or unit ID
+  Returns: String of item corpse item and mat or 'Corpse'  
 
-	getEmotion(unit,emotion,thought)
 
-	getSyndrome(unit,class,what)
+Inventory Functions
+===================
 
-	getInventoryType(unit,itemType)
+getInventory(unit,inventoryType,inventorySubType)
+  Purpose: Get the item ids of a unit inventory based on given criteria
+  Calls:   getInventoryType | getInventoryBodyPart | getInventoryMode
+  Inputs:
+           unit             = Unit struct or unit ID
+           inventoryType    = Inventory search type (Valid Values: ItemType, BodyPart, Mode)
+           inventorySubType = Inventory search subtype, depends on inventory search type
+  Returns: Table of item IDs
 
-	getInventoryBodyPart(unit,bodyPartID)
 
-	getInventoryMode(unit,mode)
+Miscellanious Get Functions
+===========================
 
-	getCounter(unit,counter)
+getAttack(unit,attack_type)
+  Purpose: Get the attack ID and associated body part ID of a random or specific attack
+  Calls:   NONE
+  Inputs:
+           unit        = Unit struct or unit ID
+           attack_type = ATTACK_TOKEN (e.g. PUNCH) or Random
+  Returns: Attack ID, Body Part ID of attack
+  
+getEmotion(unit,emotion,thought)
+  Purpose: Get a list of all the emotions that satisfy the given emotion/thought combination
+  Calls:
+  Inputs:
+           unit    = Unit struct or unit ID
+           emotion = EMOTION_TOKEN
+           thought = THOUGHT_TOKEN
+  Returns: Table of unit emotion IDs
+  
+getSyndrome(unit,class,what)
+  Purpose: Get the syndrome names and ids of all syndromes that match a given SYN_NAME or SYN_CLASS
+  Calls:   NONE
+  Inputs:
+           unit  = Unit struct or unit ID
+           class = SYN_NAME or SYN_CLASS
+           what  = (Valid Values: name, class)
+  Returns: Table of SYN_NAME, Table of syndrome IDs, Table of units syndrome IDs
+  
+getCounter(unit,counter)
+  Purpose: Get the value of a units specific counter
+  Calls:   NONE
+  Inputs:
+           unit    = Unit struct or unit ID
+           counter = Counter token (e.g. webbed)
+  Returns: Value of counter
 
-	getItemCorpse(caste)
 
-	makeProjectile(unit,velocity)
+Miscellanious Functions
+=======================
+
+makeProjectile(unit,velocity)
+  Purpose: Turn a unit into a projectile
+  Calls:   NONE
+  Inputs:
+           unit     = Unit struct or unit ID
+           velocity = { x, y, z }
+  Returns: NONE
+  
+findUnit(search)
+  Purpose: Find a unit on the map that satisfies the search criteria
+  Calls:   NONE
+  Inputs:
+           search = Search table (e.g. { RANDOM, PROFESSION, CARPENTER })
+  Returns: Table of all units that meet search criteria
+
+
+Unit Creation Functions 
+=======================
+
+create()
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+  
+createClass(unit,classes)
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+  
+createEquipment(unit,equip)
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+  
+createSkills(unit,skills)
+  Purpose:
+  Calls:
+  Inputs:
+  Returns:
+

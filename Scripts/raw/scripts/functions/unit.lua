@@ -77,34 +77,36 @@ end
 function getUnitTable(unit)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  unitTable = unitPersist[tostring(unit.id)]
+ if not unitTable then makeUnitTable(unit) end
+ unitTable = unitPersist[tostring(unit.id)]
  baseTable = persistTable.GlobalTable.roses.BaseTable
  local outTable = {}
 
  outTable.Attributes = {}
  -- Physical Attributes
  for attribute,_ in pairs(unit.body.physical_attrs) do
-  outtable.Attributes[attribute] = unit.body.physical_attrs[attribute].value
+  outTable.Attributes[attribute] = unit.body.physical_attrs[attribute].value
  end
  -- Mental Attributes
  for attribute,_ in pairs(unit.status.current_soul.mental_attrs) do
-  outtable.Attributes[attribute] = unit.status.current_soul.mental_attrs[attribute].value
+  outTable.Attributes[attribute] = unit.status.current_soul.mental_attrs[attribute].value
  end
  -- Custom Attributes
  for _,attribute in pairs(baseTable.CustomAttributes._children) do
   if unitTable.Attributes[attribute] then
-   outtable.Attributes[attribute] = tonumber(unitTable.Attributes[attribute].Base) + tonumber(unitTable.Attributes[attribute].Change)
+   outTable.Attributes[attribute] = tonumber(unitTable.Attributes[attribute].Base) + tonumber(unitTable.Attributes[attribute].Change)
   else
-   outtable.Attributes[attribute] = 0
+   outTable.Attributes[attribute] = 0
   end
  end
 
- outTable.Resitances = {}
+ outTable.Resistances = {}
  -- Custom Resistances (no in game resistances currently)
  for _,resistance in pairs(baseTable.CustomResistances._children) do
   if unitTable.Resistances[resistance] then
-   outtable.Resistances[resistance] = tonumber(unitTable.Resistances[resistance].Base) + tonumber(unitTable.Resistances[resistance].Change)
+   outTable.Resistances[resistance] = tonumber(unitTable.Resistances[resistance].Base) + tonumber(unitTable.Resistances[resistance].Change)
   else
-   outtable.Resistances[resistance] = 0
+   outTable.Resistances[resistance] = 0
   end
  end
 
@@ -119,15 +121,15 @@ function getUnitTable(unit)
   if found[skill] then
    outTable.Skills[skill] = found[skill]
   else
-   outtable.Skills[skill] = 0
+   outTable.Skills[skill] = 0
   end
  end
  -- Custom Skills
  for _,skill in pairs(baseTable.CustomSkills._children) do
   if unitTable.Skills[skill] then
-   outtable.Skills[skill] = tonumber(unitTable.Skills[skill].Base) + tonumber(unitTable.Skills[skill].Change)
+   outTable.Skills[skill] = tonumber(unitTable.Skills[skill].Base) + tonumber(unitTable.Skills[skill].Change)
   else
-   outtable.Skills[skill] = 0
+   outTable.Skills[skill] = 0
   end
  end
 
@@ -135,9 +137,9 @@ function getUnitTable(unit)
  -- Custom Stats (no in game stats currently)
  for _,stat in pairs(baseTable.CustomStats._children) do
   if unitTable.Stats[stat] then
-   outtable.Stats[stat] = tonumber(unitTable.Stats[stat].Base) + tonumber(unitTable.Stats[stat].Change)
+   outTable.Stats[stat] = tonumber(unitTable.Stats[stat].Base) + tonumber(unitTable.Stats[stat].Change)
   else
-   outtable.Stats[stat] = 0
+   outTable.Stats[stat] = 0
   end
  end
 

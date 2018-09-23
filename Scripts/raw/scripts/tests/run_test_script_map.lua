@@ -23,7 +23,7 @@ function writeall(tbl)
 end
 
 -- Open external output file
-file = io.open('run_test_output.txt','w')
+file = io.open('rto_map.txt','w')
 io.output(file)
 
 -- Initialize base/roses-init
@@ -59,9 +59,6 @@ function script_checks()
   flowCheck = {}
   unit = civ[1]
   writeall('map/flow-plan checks starting')
-  writeall('map/flow-plan -help')
-  output = dfhack.run_command_silent('map/flow-plan -help')
-  writeall(output)
 
   ---- Check that the script succeeds in creating water of depth 3 in a 5x5 X centered on unit
   writeall('map/flow-plan -plan test_plan_5x5_X.txt -unit '..tostring(unit.id)..' -liquid water -depth 3 (Should succeed and create water of depth 3 in a 5x5 X centered on unit)')
@@ -106,9 +103,6 @@ function script_checks()
   unit = civ[2]
   writeall('')
   writeall('map/flow-pos checks starting')
-  writeall('map/flow-pos -help')
-  output = dfhack.run_command_silent('map/flow-pos -help')
-  writeall(output)
 
   ---- Check that the script succeeds and creates a circle of water of radius 5 with a depth of 7 in the middle and tapers out
   locstr = '[ 20 20 '..tostring(unit.pos.z)..' ]'
@@ -153,9 +147,6 @@ function script_checks()
   flowCheck = {}
   writeall('')
   writeall('map/flow-surface checks starting')
-  writeall('map/flow-surface -help')
-  output = dfhack.run_command_silent('map/flow-surface -help')
-  writeall(output)
 
   ---- Check that the script succeeds and creates 50 depth 5 water spots every 100 ticks for 500 ticks
   writeall('map/flow-surface -liquid -depth 5 -dur 500 -frequency 100 -number 50 (Should succeed and create 50 depth 5 water spots every 100 ticks for 500 ticks, 250 total)')
@@ -198,9 +189,6 @@ function script_checks()
   unit = civ[3]
   writeall('')
   writeall('map/flow-source checks starting')
-  writeall('map/flow-source -help')
-  output = dfhack.run_command_silent('map/flow-source -help')
-  writeall(output)
 
   ---- Check that the script succeeds and creates a source that creates a depth 3 water at the unit
   writeall('map/flow-source -unit '..tostring(unit.id)..' -source 3 -check 1 (Should succeed and create a source that creates a depth 3 water at unit)')
@@ -297,16 +285,13 @@ function script_checks()
   tileCheck = {}
   unit = civ[3]
   writeall('map/material-change checks starting')
-  writeall('map/material-change -help')
-  output = dfhack.run_command_silent('map/material-change -help')
-  writeall(output)
 
   ---- Check that the script succeeds and changed the material of the floor at unit location to obsidian
   writeall('map/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor (Should succeed and change the material of the floor at unit location to obsidian)')
   output = dfhack.run_command_silent('map/material-change -material INORGANIC:OBSIDIAN -unit '..tostring(unit.id)..' -floor')
   writeall(output)
-  if mapFunctions.GetTileMat(unit.pos.x,unit.pos.y,unit.pos.z-1) ~= 'INORGANIC:OBSIDIAN' then
-   foundType = mapFunctions.GetTileMat(unit.pos.x,unit.pos.y,unit.pos.z-1) or "nil"
+  if mapFunctions.getTileMat(unit.pos.x,unit.pos.y,unit.pos.z-1) ~= 'INORGANIC:OBSIDIAN' then
+   foundType = mapFunctions.getTileMat(unit.pos.x,unit.pos.y,unit.pos.z-1) or "nil"
    tileCheck[#tileCheck+1] = 'Failed to change the desired location to INORGANIC:OBSIDIAN. Location material = '..foundType
   end
 
@@ -316,8 +301,8 @@ function script_checks()
   writeall(output)
   positions, n = mapFunctions.getPlanPositions(dfhack.getDFPath()..'/raw/files/test_plan_5x5_X.txt',unit.pos,nil)
   for _,pos in pairs(positions) do
-   if mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) ~= 'INORGANIC:SLADE' then
-    foundType = mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) or "nil"
+   if mapFunctions.getTileMat(pos.x,pos.y,pos.z-1) ~= 'INORGANIC:SLADE' then
+    foundType = mapFunctions.getTileMat(pos.x,pos.y,pos.z-1) or "nil"
     tileCheck[#tileCheck+1] = 'Failed to change the desired location to INORGANIC:SLADE. Location material = '..foundType
    end
   end
@@ -325,8 +310,8 @@ function script_checks()
   script.sleep(75,'ticks')
   writeall('Resuming run_test.lua')
   for _,pos in pairs(positions) do
-   if mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) == 'INORGANIC:SLADE' then
-    foundType = mapFunctions.GetTileMat(pos.x,pos.y,pos.z-1) or "nil"
+   if mapFunctions.getTileMat(pos.x,pos.y,pos.z-1) == 'INORGANIC:SLADE' then
+    foundType = mapFunctions.getTileMat(pos.x,pos.y,pos.z-1) or "nil"
     tileCheck[#tileCheck+1] = 'Failed to revert the desired location from INORGANIC:SLADE. Location material = '..foundType
    end
   end
@@ -350,9 +335,6 @@ function script_checks()
   unit = civ[3]
   writeall('')
   writeall('map/temperature-change checks starting')
-  writeall('map/temperature-change -help')
-  output = dfhack.run_command_silent('map/temperature-change -help')
-  writeall(output)
 
   ---- Check that the script succeeds and set the temperature at units location to 9000
   writeall('map/temperature-change -unit '..tostring(unit.id)..' -temperature 9000 (Should succeed and set the temperature at the units location to 9000)')
