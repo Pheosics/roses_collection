@@ -67,8 +67,8 @@ function script_checks()
   ---- Check that the script creates a quern (only vanilla building it can make)
   location = mapFunctions.getPositionSurfaceFree()
   locstr = tostring(location.x)..' '..tostring(location.y)..' '..tostring(location.z)
-  writeall('building/create -location [ '..locstr..' ] -type Workshop -subtype 17')
-  output = dfhack.run_command_silent('building/create -location [ '..locstr..' ] -type Workshop -subtype 17')
+  writeall('building/create -location [ '..locstr..' ] -type Workshop -subtype 17 -test')
+  output = dfhack.run_command_silent('building/create -location [ '..locstr..' ] -type Workshop -subtype 17 -test')
   writeall(output)
   if not dfhack.buildings.findAtTile(location) then
    buildingCheck[#buildingCheck+1] = 'Failed to create Quern'

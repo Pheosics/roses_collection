@@ -39,6 +39,7 @@ validArgs = utils.invert({
  'location',
  'item',
  'material',
+ 'test'
 })
 
 local args = utils.processArgs({...}, validArgs)
@@ -75,6 +76,15 @@ for i,bldg in pairs(df.global.world.raws.buildings.all) do
   dimy = bldg.dim_y
   stages = bldg.build_stages
  end
+end
+
+if args.test then -- This can make a Quern but that's it
+ mtype = df.building_type[args.type]
+ stype = tonumber(args.subtype) -- How to get vanilla building subtype
+ ctype = -1
+ dimx = 1 -- How to get vanilla building sizes
+ dimy = 1
+ stages = 1 -- How to get vanilla building stages
 end
 
 if not mtype then

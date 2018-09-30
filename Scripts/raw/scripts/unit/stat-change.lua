@@ -75,7 +75,7 @@ end
 unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 for i,stat in ipairs(args.stat) do
  if unitTable.Stats[stat] then
-  current = unitTable.Stats[stat].Base
+  current = unitTable.Stats[stat]
   change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
   dfhack.script_environment('functions/unit').changeStat(unit,stat,change,dur,'track',args.syndrome)
  else

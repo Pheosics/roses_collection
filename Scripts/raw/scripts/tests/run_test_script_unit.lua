@@ -245,8 +245,8 @@ function script_checks()
   writeall('unit/body-change checks starting')
 
   ---- Check that the script succeeds and set the eyes of unit on fire for 50 ticks
-  writeall('unit/body-change -unit '..tostring(unit.id)..' -flag SIGHT -temperature Fire -dur 50 (Should succeed and set the eyes on fire for 50 ticks)')
-  output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -flag SIGHT -temperature Fire -dur 50')
+  writeall('unit/body-change -unit '..tostring(unit.id)..' -partType Flag -bodyPart SIGHT -temperature Fire -dur 50 (Should succeed and set the eyes on fire for 50 ticks)')
+  output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -partType Flag -bodyPart SIGHT -temperature Fire -dur 50')
   writeall(output)
   bps = unitFunctions.getBodyFlag(unit,'SIGHT')
   for _,ids in pairs(bps) do
@@ -281,8 +281,8 @@ function script_checks()
   end
   
   ---- Check that the script succeeds and sets the temperature of the upper body to 9000
-  writeall('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature -mode Set -amount 9000 (Should succeed and set the upper body temperature to 9000)')
-  output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -token UB -temperature -mode Set -amount 9000')
+  writeall('unit/body-change -unit '..tostring(unit.id)..' -partType Token -bodyPart UB -temperature -mode Set -amount 9000 (Should succeed and set the upper body temperature to 9000)')
+  output = dfhack.run_command_silent('unit/body-change -unit '..tostring(unit.id)..' -partType Token -bodyPart UB -temperature -mode Set -amount 9000')
   writeall(output)
   bps = unitFunctions.getBodyToken(unit,'UB')
   for _,ids in pairs(bps) do

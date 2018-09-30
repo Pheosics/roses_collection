@@ -424,7 +424,7 @@ end
 
 function getPosition(posType,options)
  options = options or {}
- location = options.location
+ location = options.location or options.target
  unit = options.unit
  radius = options.radius or { 0, 0, 0}
  posType = posType or 'Random'

@@ -373,7 +373,11 @@ function create(item,material,a,b,c) --from modtools/create-item
   creator = df.global.world.units.active[0]
   creatorID = creator.id
  else
-  creator = df.unit.find(tonumber(creatorID))
+  if tonumber(creatorID) then 
+   creator = df.unit.find(tonumber(creatorID))
+  else
+   creator = creatorID
+  end
   creatorID = creator.id
  end
  dur = c or 0

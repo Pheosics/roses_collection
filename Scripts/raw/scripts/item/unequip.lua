@@ -30,14 +30,14 @@ Arguments::
             GLOVES
             PANTS
             AMMO
-    -bodyType
+    -partType
         Body part type to find to unequip from
         Valid Values:
             Category
             Flag
             Token
     -bodyPart
-        Body part to equip to (based on -bodyType)
+        Body part to equip to (based on -partType)
     -mode
         Mode of item to check inventory for
         Valid Values:
@@ -46,7 +46,7 @@ Arguments::
 Examples::
     item/unequip -unit \\UNIT_ID -itemType WEAPON
     item/unequip -unit \\UNIT_ID -item \\ITEM_ID 
-    item/unequip -unit \\UNIT_ID -bodyType Category -bodyPart UPPERBODY
+    item/unequip -unit \\UNIT_ID -partType Category -bodyPart UPPERBODY
 
 ]====]
 
@@ -57,7 +57,7 @@ validArgs = utils.invert({
   'item',
   'itemType',
   'bodyPart',
-  'bodyType',
+  'partType',
   'mode',
 })
 local args = utils.processArgs({...}, validArgs)
@@ -84,7 +84,7 @@ elseif args.item then
   end
  end
 elseif args.bodypart then
- parts = dfhack.script_environment('functions/unit').getBodyParts(unit,args.bodyType,args.bodyPart)
+ parts = dfhack.script_environment('functions/unit').getBodyParts(unit,args.partType,args.bodyPart)
  items = dfhack.script_environment('functions/unit').getInventory(unit,'BodyPart',parts)
 elseif args.mode then
  items = dfhack.script_environment('functions/unit').getInventory(unit,'Mode',df.unit_inventory_item.T_mode[args.mode])

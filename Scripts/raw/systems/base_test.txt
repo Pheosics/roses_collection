@@ -29,6 +29,7 @@
 #List of resistances, note that there is no max or min on resistances
 [RESISTANCE:MEGABEAST]
 [RESISTANCE:FALLING]
+[RESISTANCE:FIRE]
 #NOTE: The game will automatically generate a resistance for each TYPE, SPHERE, SCHOOL, DISCIPLINE, and SUBDISCIPLINE
 
 #List of custom stats, note that stats are limited between -100 and 100

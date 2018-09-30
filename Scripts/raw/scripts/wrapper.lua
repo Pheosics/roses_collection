@@ -90,8 +90,34 @@ validArgs = utils.invert({
  'center',
  'resetCooldown',
  -- unit based inputs
+ 'getUnit',
+ 'reflect',
+ 'exclude',
+ 'checkAttribute',
+ 'checkSkill',
+ 'checkTrait',
+ 'checkAge',
+ 'checkSpeed',
+ 'checkClass',
+ 'checkCreature',
+ 'checkSyndrome',
+ 'checkToken',
+ 'checkNoble',
+ 'checkProfession',
+ 'checkEntity',
+ 'checkPathing',
  -- location based inputs
+ 'getLocation',
+ 'checkTree',
+ 'checkPlant',
+ 'checkInorganic',
+ 'checkFlow',
+ 'checkLiquid',
  -- item based inputs
+ 'getItem',
+ 'checkItemType',
+ 'checkMaterial',
+ 'checkCorpse'
 })
 local args = utils.processArgs(input, validArgs)
 

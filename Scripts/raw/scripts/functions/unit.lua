@@ -143,6 +143,11 @@ function getUnitTable(unit)
   end
  end
 
+ outTable.Traits = {}
+ for trait,value in pairs(unit.status.current_soul.personality.traits) do
+  outTable.Traits[trait] = unit.status.current_soul.personality.traits[trait]
+ end
+
  return outTable
 end
 
@@ -323,6 +328,9 @@ function trackTerminate(unit,Table,strname,func,syndrome,alter)
 end
 
 function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ Table = unitPersist[tostring(unit.id)]
+ if not Table then makeUnitTable(unit) end
  tTable = unitPersist[tostring(unit.id)].General.Transform
  alter = alter or 'track'
  if alter == 'track' then
@@ -1566,6 +1574,13 @@ usages[#usages+1] = [===[
 Miscellanious Functions
 =======================
 
+move(unit,location)
+  Purpose: Move a unit to a new location
+  Calls:   NONE
+  Inputs:  unit     = Unit struct or unit ID
+           location = { x, y, z }
+  Returns: NONE
+
 makeProjectile(unit,velocity)
   Purpose: Turn a unit into a projectile
   Calls:   NONE
@@ -1581,6 +1596,26 @@ findUnit(search)
            search = Search table (e.g. { RANDOM, PROFESSION, CARPENTER })
   Returns: Table of all units that meet search criteria
 ]===]
+
+function move(unit,location)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ pos = {}
+ pos.x = tonumber(location.x) or tonumber(location[1]) or tonumber(unit.pos.x)
+ pos.y = tonumber(location.y) or tonumber(location[2]) or tonumber(unit.pos.y)
+ pos.z = tonumber(location.z) or tonumber(location[3]) or tonumber(unit.pos.z)
+ if pos.x < 0 or pos.y < 0 or pos.z < 0 then
+  return
+ end
+ local unitoccupancy = dfhack.maps.getTileBlock(unit.pos).occupancy[unit.pos.x%16][unit.pos.y%16]
+ local newoccupancy = dfhack.maps.getTileBlock(pos).occupancy[pos.x%16][pos.y%16]
+ if newoccupancy.unit then
+  unit.flags1.on_ground=true
+ end
+ unit.pos.x = pos.x
+ unit.pos.y = pos.y
+ unit.pos.z = pos.z
+ if not unit.flags1.on_ground then unitoccupancy.unit = false else unitoccupancy.unit_grounded = false end
+end
 
 function makeProjectile(unit,velocity)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end

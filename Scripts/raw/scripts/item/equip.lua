@@ -18,22 +18,22 @@ Arguments::
         Special Tokens:
             GROUND
             MOST_RECENT
-    -bodyType    Body Part Type
+    -partType    Body Part Type
         Body part type to find to equip to
         Valid Values:
             Category
             Flag
             Token
     -bodyPart
-        Body part to equip to (based on -bodyType)
+        Body part to equip to (based on -partType)
     -mode
         Method for equiping
         Valid Values:
             Worn
 
 Examples::
-    item/equip -unit \\UNIT_ID -item MOST_RECENT -bodyType Flag -bodyPart GRASP
-    item/equip -unit \\UNIT_ID -item \\ITEM_ID -bodyType Category -bodyPart UPPERBODY
+    item/equip -unit \\UNIT_ID -item MOST_RECENT -partType Flag -bodyPart GRASP
+    item/equip -unit \\UNIT_ID -item \\ITEM_ID -partType Category -bodyPart UPPERBODY
 
 ]====]
 
@@ -43,7 +43,7 @@ validArgs = utils.invert({
   'unit',
   'item',
   'bodyPart',
-  'bodytype',
+  'partType',
   'mode',
 })
 local args = utils.processArgs({...}, validArgs)
@@ -74,7 +74,7 @@ if not item then
 end
 
 local bodyPartName = args.bodyPart
-parts = dfhack.script_environment('functions/unit').getBodyParts(unit,args.bodyType,args.bodyPart)
+parts = dfhack.script_environment('functions/unit').getBodyParts(unit,args.partType,args.bodyPart)
 local partId = parts[1]
 if not partId then
   error('invalid body part name: ', bodyPartName)

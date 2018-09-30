@@ -76,7 +76,7 @@ end
 unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 for i,skill in ipairs(args.skill) do
  if unitTable.Skills[skill] then
-  current = unitTable.Skills[skill].Base
+  current = unitTable.Skills[skill]
   change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
   dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,dur,'track',args.syndrome)
  else

@@ -70,32 +70,36 @@ else
  return
 end
 
-if args.action == 'All' then
- for i = 0,19 do
-  dfhack.script_environment('functions/unit').changeAction(unit,df.unit_action_type[i],timer)
- end
-elseif args.action then
- dfhack.script_environment('functions/unit').changeAction(unit,args.action,timer)
-end
-
-interaction = string.lower(args.interaction)
-if interaction == 'learned' or interaction == 'all' then
- for _,id in pairs(unit.curse.interaction_id) do
-  dfhack.script_environment('functions/unit').changeInteraction(unit,id,timer,'Learned')
+if args.action then
+ if args.action == 'All' then
+  for i = 0,19 do
+   dfhack.script_environment('functions/unit').changeAction(unit,df.unit_action_type[i],timer)
+  end
+ else
+  dfhack.script_environment('functions/unit').changeAction(unit,args.action,timer)
  end
 end
 
-if interaction == 'innate' or interaction == 'all' then
- for _,id in pairs(unit.curse.own_interaction) do
-  dfhack.script_environment('functions/unit').changeInteraction(unit,id,timer,'Innate')
+if args.interaction then
+ interaction = string.lower(args.interaction)
+ if interaction == 'learned' or interaction == 'all' then
+  for _,id in pairs(unit.curse.interaction_id) do
+   dfhack.script_environment('functions/unit').changeInteraction(unit,id,timer,'Learned')
+  end
  end
-end
-
-if interaction ~= 'all' and interaction ~= 'learned' and interaction ~= 'innate' then
- for _,interaction in pairs(df.global.world.raws.interactions) do
-  if interaction.name == args.interaction then
-   dfhack.script_environment('functions/unit').changeInteraction(unit,interaction.id,timer,'Both')
-   return
+ 
+ if interaction == 'innate' or interaction == 'all' then
+  for _,id in pairs(unit.curse.own_interaction) do
+   dfhack.script_environment('functions/unit').changeInteraction(unit,id,timer,'Innate')
+  end
+ end
+ 
+ if interaction ~= 'all' and interaction ~= 'learned' and interaction ~= 'innate' then
+  for _,interaction in pairs(df.global.world.raws.interactions) do
+   if interaction.name == args.interaction then
+    dfhack.script_environment('functions/unit').changeInteraction(unit,interaction.id,timer,'Both')
+    return
+   end
   end
  end
 end

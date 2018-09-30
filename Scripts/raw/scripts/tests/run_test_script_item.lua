@@ -113,8 +113,8 @@ function script_checks()
   writeall('item/equip and item/unequip checks starting')
 
   ---- Check that the script succeeds and moves the item into the inventory of the unit
-  writeall('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPart GRASP -bodyType Flag -mode Weapon (Should succeed and move item into inventory of unit carrying in hand)')
-  output = dfhack.run_command_silent('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPart GRASP -bodyType Flag -mode Weapon')
+  writeall('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPart GRASP -partType Flag -mode Weapon (Should succeed and move item into inventory of unit carrying in hand)')
+  output = dfhack.run_command_silent('item/equip -item '..tostring(item.id)..' -unit '..tostring(unit.id)..' -bodyPart GRASP -partType Flag -mode Weapon')
   writeall(output)
   yes = false
   for _,itemID in pairs(unitFunctions.getInventoryType(unit,'WEAPON')) do
@@ -259,32 +259,6 @@ function script_checks()
    end
   end
 
-  ---- Check that the script lowers the quality of all short swords on the map by 1
-  writeall('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -upgrade (Should succeed and increase the quality of all short swords on the map by 1)') 
-  prequality = 0
-  number = 0
-  for _,itm in pairs(df.global.world.items.all) do
-   if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()) then
-    if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_SWORD_SHORT' then
-     if itm.quality < 5 then number = number + 1 end
-     prequality = prequality + itm.quality
-    end
-   end
-  end
-  output = dfhack.run_command_silent('item/quality-change -type WEAPON:ITEM_WEAPON_SWORD_SHORT -upgrade')
-  writeall(output)
-  postquality = 0
-  for _,itm in pairs(df.global.world.items.other.WEAPON) do
-   if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()) then
-    if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_SWORD_SHORT' then
-     postquality = postquality + itm.quality
-    end
-   end
-  end
-  if postquality ~= (prequality + number) then
-   itemCheck[#itemCheck+1] = 'Not all short swords increased in quality'
-  end
-
   ---- Print PASS/FAIL
   if #itemCheck == 0 then
   printplus('PASSED: item/quality-change',COLOR_GREEN)
@@ -337,26 +311,6 @@ function script_checks()
   writeall('Resuming run_test.lua')
   if dfhack.items.getSubtypeDef(pants:getType(),pants:getSubtype()).id ~= presubtype then
    itemCheck[#itemCheck+1] = 'Failed to reset pants equipment subtype'
-  end
-
-  ---- Check that the script succeeds and changes all picks on the map into short sword
-  writeall('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT (Should succeed and change all picks on the map into short swords)')
-  picks = {}
-  for _,itm in pairs(df.global.world.items.all) do
-   if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()) then
-    if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id == 'ITEM_WEAPON_PICK' then
-     picks[#picks+1] = itm
-    end
-   end
-  end
-  output = dfhack.run_command_silent('item/subtype-change -type WEAPON:ITEM_WEAPON_PICK -subtype ITEM_WEAPON_SWORD_SHORT')
-  writeall(output)
-  for _,itm in pairs(picks) do
-   if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()) then
-    if dfhack.items.getSubtypeDef(itm:getType(),itm:getSubtype()).id ~= 'ITEM_WEAPON_SWORD_SHORT' then
-     itemCheck[#itemCheck+1] = 'Failed to turn all picks into short swords'
-    end
-   end
   end
 
   ---- Print PASS/FAIL

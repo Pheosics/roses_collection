@@ -92,7 +92,11 @@ if args.partType == 'All' or args.bodyPart == 'All' then
   parts[k] = k
  end
 else
- parts = dfhack.script_environment('functions/unit').getBodyParts(unit,args.partType,args.bodyPart)
+ if args.size then
+  parts = parts
+ else
+  parts = dfhack.script_environment('functions/unit').getBodyParts(unit,args.partType,args.bodyPart)
+ end
 end
 
 if args.temperature then

@@ -127,7 +127,7 @@ if args.weapon then
  if args.velocity then
   velocity = tonumber(args.velocity)
  else
-  velocity = attackFunctions.getAttackItemVelocity(attacker,item,attack)
+  _,_,_,velocity,_ = attackFunctions.getAttackItem(attacker,item,attack)
  end
 else
  item_id = -1 
@@ -144,7 +144,7 @@ else
  if args.velocity then
   velocity = tonumber(args.velocity)
  else
-  velocity = attackFunctions.getAttackUnitVelocity(attacker,attack)
+  _,_,_,velocity,_ = attackFunctions.getAttackUnit(attacker,attack_id,attack)
  end
 end
 
