@@ -71,7 +71,7 @@ function isSelectedLocation(source,pos,args)
 
  checks = {'checkTree','checkPlant','checkInorganic','checkFlow','checkLiquid'}
 
- for _,check in ipairs(hecks) do
+ for _,check in ipairs(checks) do
   if args[check] and (selected or test) then
    selected = _G[check](source,unit,args[check])
   end
@@ -650,9 +650,11 @@ function checkItemLocation(center,radius)
   for i,item in ipairs(itemList) do
    pos = {}
    pos.x, pos.y, pos.z = dfhack.items.getPosition(item)
-   if pos.x <= xmax and pos.x >= xmin and pos.y <= ymax and pos.y >= ymin and pos.z <= zmax and pos.z >= zmin then
-    n = n + 1
-	targetList[n] = item
+   if pos.x and pos.y and pos.z then
+    if pos.x <= xmax and pos.x >= xmin and pos.y <= ymax and pos.y >= ymin and pos.z <= zmax and pos.z >= zmin then
+     n = n + 1
+     targetList[n] = item
+    end
    end
   end
  end

@@ -74,12 +74,12 @@ end
 
 unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 for i,stat in ipairs(args.stat) do
- if unitTable.Stats[stat] then
+ if unitTable.Stats[stat] == nil then
+  print('Invalid Stat Token: '..stat)
+ else
   current = unitTable.Stats[stat]
   change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
   dfhack.script_environment('functions/unit').changeStat(unit,stat,change,dur,'track',args.syndrome)
- else
-  print('Invalid Stat Token: '..stat)
  end
 end
 

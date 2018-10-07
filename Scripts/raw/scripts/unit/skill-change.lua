@@ -75,11 +75,11 @@ end
 
 unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 for i,skill in ipairs(args.skill) do
- if unitTable.Skills[skill] then
+ if unitTable.Skills[skill] == nil then
+  print('Invalid Skill Token: '..skill)
+ else
   current = unitTable.Skills[skill]
   change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
   dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,dur,'track',args.syndrome)
- else
-  print('Invalid Skill Token: '..skill)
  end
 end

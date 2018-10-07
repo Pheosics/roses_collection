@@ -70,13 +70,13 @@ function script_checks()
   writeall(output)
 
   ----
-  writeall('wrapper -getUnit CIV -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
-  output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -getUnit CIV -checkCreature DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
+  writeall('wrapper -getUnit CIV -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -checkCreature REQUIRED:DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
+  output = dfhack.run_command_silent('wrapper -sourceUnit '..tostring(unit.id)..' -targetUnit '..tostring(targ.id)..' -getUnit CIV -checkCreature REQUIRED:DWARF:MALE -script [ devel/print-args TARGET_UNIT_DESTINATION ]')
   writeall(output)
 
   ----
   checks = '-getUnit ANY -radius 100 '
-  checks = checks..'-checkClass [ REQUIRED:GENERAL_POISON IMMUNE:TEST_CLASS_1 IMMUNE:TEST_SYNCLASS_1 ]'
+  checks = checks..'-checkClass [ REQUIRED:GENERAL_POISON IMMUNE:TEST_CLASS_1 IMMUNE:TEST_SYNCLASS_1 ] '
   checks = checks..'-checkCreature [ REQUIRED:DWARF:ALL IMMUNE:DONKEY:FEMALE IMMUNE:HORSE:MALE ] '
   checks = checks..'-checkSyndrome [ "REQUIRED:test syndrome" IMMUNE:syndromeOne IMMUNE:syndromeTwo ] '
   checks = checks..'-checkToken [ REQUIRED:COMMON_DOMESTIC IMMUNE:FLIER MEGABEAST ] '
@@ -120,8 +120,8 @@ function script_checks()
   writeall(output)
 
   ----
-  writeall('wrapper -getLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -checkFLOW FORBIDDEN:DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
-  output = dfhack.run_command_silent('wrapper -getLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -checkFLOW FORBIDDEN:DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
+  writeall('wrapper -getLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -checkFlow FORBIDDEN:DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
+  output = dfhack.run_command_silent('wrapper -getLocation ABOVE -sourceUnit '..tostring(civ[3].id)..' -targetUnit '..tostring(civ[2].id)..' -checkFlow FORBIDDEN:DRAGONFIRE -script [ devel/print-args TARGET_POSITION ]')
   writeall(output)
 
   ----
@@ -132,7 +132,7 @@ function script_checks()
   ----
   checks = '-getLocation ANY -radius 100 '
   checks = checks..'-checkTree [ REQUIRED:CEDAR FORBIDDEN:MAPLE FORBIDDEN:OAK ] '
-  checks = checks..'-checkGrass [ REQUIRED:GRASS_1 FORBIDDEN:GRASS_2 FORBIDDEN:GRASS_3 ] '
+  --checks = checks..'-checkGrass [ REQUIRED:GRASS_1 FORBIDDEN:GRASS_2 FORBIDDEN:GRASS_3 ] '
   checks = checks..'-checkPlant [ REQUIRED:STRAWBERRY FORBIDDEN:BLUEBERRY FORBIDDEN:BLACKBERRY ] '
   checks = checks..'-checkLiquid [ REQUIRED:WATER FORBIDDEN:MAGMA ] '
   checks = checks..'-checkInorganic [ REQUIRED:OBSIDIAN FORBIDDEN:SLADE FORBIDDEN:MARBLE ] '
@@ -169,8 +169,8 @@ function script_checks()
   writeall(output)
 
   ----
-  writeall('wrapper -getItem PROJECTILE -sourceLocation '..loc..' -center -radius [2 2 1 ] -checkMaterial REQUIRED:INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
-  output = dfhack.run_command_silent('wrapper -getItem PROJECTILE -sourceLocation '..loc..' -center -radius [2 2 1 ] -checkMaterial REQUIRED:INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
+  writeall('wrapper -getItem PROJECTILE -sourceLocation '..loc..' -center -radius [ 2 2 1 ] -checkMaterial REQUIRED:INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
+  output = dfhack.run_command_silent('wrapper -getItem PROJECTILE -sourceLocation '..loc..' -center -radius [ 2 2 1 ] -checkMaterial REQUIRED:INORGANIC:IRON -script [ devel/print-args TARGET_ITEM_ID ]')
   writeall(output)
 
   ----

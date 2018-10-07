@@ -45,6 +45,8 @@ function makeUnitTable(unit)
  unitTable.General = {}
  unitTable.General.Side = {}
  unitTable.General.Transform = {}
+ unitTable.General.Transform.Race = {}
+ unitTable.General.Transform.Caste = {}
  unitTable.General.Transform.StatusEffects = {}
  unitTable.General.Summoned = {}
  unitTable.General.Kills = '0'
@@ -66,10 +68,7 @@ function makeUnitTable(unit)
   unitTable.Classes = {}
   unitTable.Feats = {}
   unitTable.Spells = {}
-  unitTable.Classes.Current = {}
-  unitTable.Classes.Current.Name = 'NONE'
-  unitTable.Classes.Current.TotalExp = '0'
-  unitTable.Classes.Current.FeatPoints = '0'
+  unitTable.Classes.Current = 'NONE'
   unitTable.Spells.Active = {}
  end
 end
@@ -503,7 +502,7 @@ function changeAttribute(unit,attribute,change,dur,track,syndrome)
   print('functions/unit.changeAttribute: Invalid Attribute Token - '..attribute)
   return
  end 
- current = unitTable.Attributes[attribute].Total
+ current = unitTable.Attributes[attribute]
  value = math.floor(current + change)
  if value > int16 then
   value = int16
@@ -577,7 +576,7 @@ function changeResistance(unit,resistance,change,dur,track,syndrome)
   print('functions/unit.changeResistance: Invalid Resistance Token - '..resistance)
   return
  end
- current = unitTable.Resistances[resistance].Total
+ current = unitTable.Resistances[resistance]
  value = math.floor(current + change)
  -- Nothing needed because all resistances are currently custom only
  
@@ -592,7 +591,7 @@ function changeSkill(unit,skill,change,dur,track,syndrome)
   print('functions/unit.changeSkill: Invalid Skill Token - '..skill)
   return
  end
- current = unitTable.Skills[skill].Total
+ current = unitTable.Skills[skill]
  value = math.floor(current + change)
  if value > skillCap then
   value = skillCap
@@ -630,7 +629,7 @@ function changeStat(unit,stat,change,dur,track,syndrome)
   print('functions/unit.changeStat: Invalid Stat Token - '..stat)
   return
  end
- current = unitTable.Stats[stat].Total
+ current = unitTable.Stats[stat]
  value = math.floor(current + change)
  -- Nothing needed because all stats are currently custom only
  
@@ -645,7 +644,7 @@ function changeTrait(unit,trait,change,dur,track,syndrome)
   print('functions/unit.changeTrait: Invalid Trait Token - '..trait)
   return
  end
- current = unitTable.Traits[trait].Total
+ current = unitTable.Traits[trait]
  value = math.floor(current + change)
  if value > 100 then
   value = 100
