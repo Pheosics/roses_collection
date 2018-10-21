@@ -23,91 +23,51 @@ if args.clear then
  persistTable.GlobalTable.roses = {}
  return
 end
-
+if args.testRun then args.forceReload = true end
 verbose = args.verbose
 
 persistTable.GlobalTable.roses = persistTable.GlobalTable.roses or {}
-persistTable.GlobalTable.roses.UnitTable = persistTable.GlobalTable.roses.UnitTable or {}
-persistTable.GlobalTable.roses.ItemTable = persistTable.GlobalTable.roses.ItemTable or {}
-persistTable.GlobalTable.roses.BuildingTable = persistTable.GlobalTable.roses.BuildingTable or {}
-persistTable.GlobalTable.roses.EntityTable = persistTable.GlobalTable.roses.EntityTable or {}
-persistTable.GlobalTable.roses.CommandDelay = persistTable.GlobalTable.roses.CommandDelay or {}
-persistTable.GlobalTable.roses.EnvironmentDelay = persistTable.GlobalTable.roses.EnvironmentDelay or {}
-persistTable.GlobalTable.roses.CounterTable = persistTable.GlobalTable.roses.CounterTable or {}
-persistTable.GlobalTable.roses.LiquidTable = persistTable.GlobalTable.roses.LiquidTable or {}
-persistTable.GlobalTable.roses.FlowTable = persistTable.GlobalTable.roses.FlowTable or {}
-if not persistTable.GlobalTable.roses.GlobalTable then dfhack.script_environment('functions/tables').makeGlobalTable(args.verbose) end
 
-local function civilizationNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.CivilizationTable) or #persistTable.GlobalTable.roses.CivilizationTable._children < 1
-end
-local function diplomacyNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.DiplomacyTable) or #persistTable.GlobalTable.roses.DiplomacyTable._children < 1
-end
-local function classNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.ClassTable) or #persistTable.GlobalTable.roses.ClassTable._children < 1
-end
-local function eventNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.EventTable) or #persistTable.GlobalTable.roses.EventTable._children < 1
-end
-local function spellNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.SpellTable) or #persistTable.GlobalTable.roses.SpellTable._children < 1
-end
-local function featNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.FeatTable) or #persistTable.GlobalTable.roses.FeatTable._children < 1
-end
-local function EBuildingsNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.EnhancedBuildingTable) or #persistTable.GlobalTable.roses.EnhancedBuildingTable._children < 1
-end
-local function ECreaturesNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.EnhancedCreatureTable) or #persistTable.GlobalTable.roses.EnhancedCreatureTable._children < 1
-end
-local function EItemsNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.EnhancedItemTable) or #persistTable.GlobalTable.roses.EnhancedItemTable._children < 1
-end
-local function EMaterialsNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.EnhancedMaterialTable) or #persistTable.GlobalTable.roses.EnhancedMaterialTable._children < 1
-end
-local function EReactionsNotAlreadyLoaded()
- return (not persistTable.GlobalTable.roses.EnhancedReactionTable) or #persistTable.GlobalTable.roses.EnhancedReactionTable._children < 1
-end
+-- System Tables (Populated by files read into the game)
+---- CLASS SYSTEM
+persistTable.GlobalTable.roses.ClassTable = persistTable.GlobalTable.roses.ClassTable       or {}
+persistTable.GlobalTable.roses.FeatTable  = persistTable.GlobalTable.roses.FeatTable        or {}
+persistTable.GlobalTable.roses.SpellTable = persistTable.GlobalTable.roses.SpellTable       or {}
+---- CIVILIZATION SYSTEM
+persistTable.GlobalTable.roses.CivilizationTable = persistTable.GlobalTable.roses.CivilizationTable or {}
+persistTable.GlobalTable.roses.DiplomacyTable    = persistTable.GlobalTable.roses.DiplomacyTable    or {}
+---- ENHANCED SYSTEM
+persistTable.GlobalTable.roses.EnhancedItemTable     = persistTable.GlobalTable.roses.EnhancedItemTable     or {}
+persistTable.GlobalTable.roses.EnhancedMaterialTable = persistTable.GlobalTable.roses.EnhancedMaterialTable or {}
+persistTable.GlobalTable.roses.EnhancedCreatureTable = persistTable.GlobalTable.roses.EnhancedCreatureTable or {}
+persistTable.GlobalTable.roses.EnhancedBuildingTable = persistTable.GlobalTable.roses.EnhancedBuildingTable or {}
+persistTable.GlobalTable.roses.EnhancedReactionTable = persistTable.GlobalTable.roses.EnhancedReactionTable or {}
+---- EVENT SYSTEM
+persistTable.GlobalTable.roses.EventTable = persistTable.GlobalTable.roses.EventTable or {}
+
+-- Game Tables (Populated by units/items/buildings/entities in game)
+persistTable.GlobalTable.roses.UnitTable     = persistTable.GlobalTable.roses.UnitTable     or {}
+persistTable.GlobalTable.roses.ItemTable     = persistTable.GlobalTable.roses.ItemTable     or {}
+persistTable.GlobalTable.roses.BuildingTable = persistTable.GlobalTable.roses.BuildingTable or {}
+persistTable.GlobalTable.roses.EntityTable   = persistTable.GlobalTable.roses.EntityTable   or {}
+
+-- Misc Tables (Populated by miscellanious things in game)
+persistTable.GlobalTable.roses.CommandDelay     = persistTable.GlobalTable.roses.CommandDelay     or {}
+persistTable.GlobalTable.roses.EnvironmentDelay = persistTable.GlobalTable.roses.EnvironmentDelay or {}
+persistTable.GlobalTable.roses.CounterTable     = persistTable.GlobalTable.roses.CounterTable     or {}
+persistTable.GlobalTable.roses.LiquidTable      = persistTable.GlobalTable.roses.LiquidTable      or {}
+persistTable.GlobalTable.roses.FlowTable        = persistTable.GlobalTable.roses.FlowTable        or {}
 
 dfhack.script_environment('functions/tables').makeBaseTable(args.testRun,args.verbose)
 
 --==========================================================================================================================
--- MAKE CLASS SYSTEM =======================================================================================================
---==========================================================================================================================
+--= MAKE CLASS SYSTEM 
 if args.all or args.classSystem then
  if args.verbose then print('Initializing the Class System') end
- if type(args.classSystem) == 'string' then args.classSystem = {args.classSystem} end
- featCheck = false
- spellCheck = false
- classCheck = false
- for _,check in pairs(args.classSystem) do
-  if check == 'Feats' then   
-   if featNotAlreadyLoaded() or args.forceReload then
-    featCheck = dfhack.script_environment('functions/tables').makeFeatTable(args.testRun,args.verbose)
-   elseif not featNotAlreadyLoaded() then
-    featCheck = true
-    if args.verbose then print('Feat SubSystem already loaded, use -forceReload to force a reload of the system') end
-   end
-  elseif check == 'Spells' then
-   if spellNotAlreadyLoaded() or args.forceReload then
-    spellCheck = dfhack.script_environment('functions/tables').makeSpellTable(args.testRun,args.verbose)
-   elseif not spellNotAlreadyLoaded() then
-    spellCheck = true
-    if args.verbose then print('Spell SubSystem already loaded, use -forceReload to force a reload of the system') end
-   end  
-  end
- end
-
- if classNotAlreadyLoaded() or args.forceReload then
-  classCheck = dfhack.script_environment('functions/tables').makeClassTable(spellCheck,args.testRun,args.verbose)
- elseif not classNotAlreadyLoaded() then
-  classCheck = true
-  if args.verbose then print('Class System already loaded, use -forceReload to force a reload of the system') end
- end
-
+ classCheck = dfhack.script_environment('functions/class').makeClassTable(args.testRun)
+ featCheck  = dfhack.script_environment('functions/class').makeFeatTable(args.testRun)
+ spellCheck = dfhack.script_environment('functions/class').makeSpellTable(args.testRun)
+ 
  if classCheck then
   print('Class System successfully loaded')
   print('Number of Classes: '..tostring(#persistTable.GlobalTable.roses.ClassTable._children))
@@ -117,6 +77,7 @@ if args.all or args.classSystem then
     print(persistTable.GlobalTable.roses.ClassTable[n])
    end
   end
+
   if spellCheck then
    print('Spell SubSystem loaded')
    print('Number of Spells: '..tostring(#persistTable.GlobalTable.roses.SpellTable._children))
@@ -129,6 +90,7 @@ if args.all or args.classSystem then
   else
    print('Spell SubSystem not loaded')
   end
+
   if featCheck then
    print('Feat SubSystem loaded')
    print('Number of Feats: '..tostring(#persistTable.GlobalTable.roses.FeatTable._children))
@@ -141,6 +103,7 @@ if args.all or args.classSystem then
   else
    print('Feat SubSystem not loaded')
   end
+
  else
   print('Class System not loaded')
  end
@@ -148,28 +111,11 @@ end
 --==========================================================================================================================
 
 --==========================================================================================================================
--- MAKE CIVILIZATION SYSTEM ================================================================================================
---==========================================================================================================================
+--= MAKE CIVILIZATION SYSTEM
 if args.all or args.civilizationSystem then
  if args.verbose then print('Initializing the Civilization System') end
- if type(args.civilizationSystem) == 'string' then args.civilizationSystem = {args.civilizationSystem} end
  diplomacyCheck = false
  civilizationCheck = false
- if civilizationNotAlreadyLoaded() or args.forceReload then
-  civilizationCheck = dfhack.script_environment('functions/tables').makeCivilizationTable(args.testRun,args.verbose)
- elseif not classNotAlreadyLoaded() then
-  civilizationCheck = true
-  if args.verbose then print('Civilization System already loaded, use -forceReload to force a reload of the system') end
- end
- for _,check in pairs(args.civilizationSystem) do
-  if check == 'Diplomacy' then   
-   if diplomacyNotAlreadyLoaded() then
-    diplomacyCheck = dfhack.script_environment('functions/tables').makeDiplomacyTable(args.verbose)
-   elseif not diplomacyNotAlreadyLoaded() then
-    diplomacyCheck = true
-   end
-  end
- end
 
  if civilizationCheck then
   print('Civilization System successfully loaded')
@@ -180,11 +126,13 @@ if args.all or args.civilizationSystem then
     print(persistTable.GlobalTable.roses.CivilizationTable[n])
    end
   end  
+
   if diplomacyCheck then
    print('Diplomacy SubSystem loaded')
   else
    print('Diplomacy SubSystem not loaded')
   end
+
  else
   print('Civilization System not loaded')
  end
@@ -192,54 +140,14 @@ end
 --==========================================================================================================================
 
 --==========================================================================================================================
--- MAKE ENHANCED SYSTEM ====================================================================================================
---==========================================================================================================================
+--= MAKE ENHANCED SYSTEM
 if args.all or args.enhancedSystem then
  if args.verbose then print('Initializing the Enhanced System') end
- if type(args.enhancedSystem) == 'string' then args.enhancedSystem = {args.enhancedSystem} end
- for _,check in pairs(args.enhancedSystem) do
-  buildingCheck = false
-  creatureCheck = false
-  itemCheck = false
-  materialCheck = false
-  reactionCheck = false
-  if check == 'Buildings' then
-   if EBuildingsNotAlreadyLoaded() or args.forceReload then
-    buildingCheck = dfhack.script_environment('functions/tables').makeEnhancedBuildingTable(args.testRun,args.verbose)
-   elseif not EBuildingsNotAlreadyLoaded() then
-    buildingCheck = true
-    if args.verbose then print('Enhanced System - Buildings already loaded, use -forceReload to force a reload of the system') end
-   end
-  elseif check == 'Creatures' then
-   if ECreaturesNotAlreadyLoaded() or args.forceReload then
-    creatureCheck = dfhack.script_environment('functions/tables').makeEnhancedCreatureTable(args.testRun,args.verbose)
-   elseif not ECreaturesNotAlreadyLoaded() then
-    creatureCheck = true
-    if args.verbose then print('Enhanced System - Creatures already loaded, use -forceReload to force a reload of the system') end
-   end
-  elseif check == 'Items' then
-   if EItemsNotAlreadyLoaded() or args.forceReload then
-    itemCheck = dfhack.script_environment('functions/tables').makeEnhancedItemTable(args.testRun,args.verbose)
-   elseif not EItemsNotAlreadyLoaded() then
-    itemCheck = true
-    if args.verbose then print('Enhanced System - Items already loaded, use -forceReload to force a reload of the system') end
-   end
-  elseif check == 'Materials' then
-   if EMaterialsNotAlreadyLoaded() or args.forceReload then
-    materialCheck = dfhack.script_environment('functions/tables').makeEnhancedMaterialTable(args.testRun,args.verbose)
-   elseif not EMaterialsNotAlreadyLoaded() then
-    materialCheck = true
-    if args.verbose then print('Enhanced System - Materials already loaded, use -forceReload to force a reload of the system') end
-   end
-  elseif check == 'Reactions' then
-   if EReactionsNotAlreadyLoaded() or args.forceReload then
-    reactionCheck = dfhack.script_environment('functions/tables').makeEnhancedReactionTable(args.testRun,args.verbose)
-   elseif not EReactionsNotAlreadyLoaded() then
-    reactionCheck = true
-    if args.verbose then print('Enhanced System - Reactions already loaded, use -forceReload to force a reload of the system') end
-   end
-  end
- end
+ buildingCheck = false
+ creatureCheck = false
+ itemCheck = false
+ materialCheck = false
+ reactionCheck = false
  
  if buildingCheck then
   print('Enhanced System - Buildings successfully loaded')
@@ -253,6 +161,7 @@ if args.all or args.enhancedSystem then
  else
   print('Enhanced System - Buildings not loaded')
  end
+
  if creatureCheck then
   print('Enhanced System - Creatures successfully loaded')
   print('Number of Enhanced Creatures: '..tostring(#persistTable.GlobalTable.roses.EnhancedCreatureTable._children))
@@ -265,6 +174,7 @@ if args.all or args.enhancedSystem then
  else
   print('Enhanced System - Creatures not loaded')
  end
+
  if itemCheck then
   print('Enhanced System - Items successfully loaded')
   print('Number of Enhanced Items: '..tostring(#persistTable.GlobalTable.roses.EnhancedItemTable._children))
@@ -277,6 +187,7 @@ if args.all or args.enhancedSystem then
  else
   print('Enhanced System - Items not loaded')
  end
+
  if materialCheck then
   print('Enhanced System - Materials successfully loaded')
   print('Number of Enhanced Materials: '..tostring(#persistTable.GlobalTable.roses.EnhancedMaterialTable._children))
@@ -289,21 +200,21 @@ if args.all or args.enhancedSystem then
  else
   print('Enhanced System - Materials not loaded')
  end
+
+ if reactionCheck then
+
+ else
+  print('Enhanced System - Reactions not loaded')
+ end
 end
 --==========================================================================================================================
 
 --==========================================================================================================================
--- MAKE EVENT SYSTEM =======================================================================================================
---==========================================================================================================================
+--= MAKE EVENT SYSTEM
 if args.all or args.eventSystem then
  if args.verbose then print('Initializing the Event System') end
  systemCheck = false
- if eventNotAlreadyLoaded() or args.forceReload then
-  systemCheck = dfhack.script_environment('functions/tables').makeEventTable(args.testRun,args.verbose)
- elseif not eventNotAlreadyLoaded() then
-  systemCheck = true
-  if args.verbose then print('Event System already loaded, use -forceReload to force a reload of the system') end
- end
+
  if systemCheck then
   print('Event System successfully loaded')
   print('Number of Events: '..tostring(#persistTable.GlobalTable.roses.EventTable._children))
@@ -320,8 +231,7 @@ end
 --==========================================================================================================================
 
 --==========================================================================================================================
--- RUN BASE COMMANDS =======================================================================================================
---==========================================================================================================================
+--= RUN BASE COMMANDS
 if args.testRun then
  print('Base commands are run seperately for a -testRun')
 else
@@ -349,9 +259,8 @@ else
 end
 
 --==========================================================================================================================
--- SET UP TRIGGERS =========================================================================================================
---==========================================================================================================================
--- Enhanced Item Triggers
+-- SET UP TRIGGERS
+--= Enhanced Item Triggers
 if itemCheck then
  if args.verbose then print('Setting up Enhanced Item Triggers') end
  for _,itemToken in ipairs(persistTable.GlobalTable.roses.EnhancedItemTable._children) do
@@ -413,7 +322,7 @@ if itemCheck then
  end
 end
 
--- Enhanced Material Triggers
+--= Enhanced Material Triggers
 if materialCheck then
  local function matTrigger(material,materialToken,triggerType,verbose)
   -- trigger/action triggers
@@ -499,7 +408,7 @@ if materialCheck then
  end
 end
 
--- Enhanced Building Triggers
+--= Enhanced Building Triggers
 if buildingCheck then
  if verbose then print('Setting up Enhanced Building Triggers') end
  for _,buildingToken in pairs(persistTable.GlobalTable.roses.EnhancedBuildingTable._children) do
@@ -536,7 +445,7 @@ if buildingCheck then
  end
 end
 
--- Enhanced Reaction Triggers
+--= Enhanced Reaction Triggers
 if reactionCheck then
  if verbose then print('Setting up Enhanced Reaction Triggers') end
  for _,reactionToken in pairs(persistTable.GlobalTable.roses.EnhancedReactionTable._children) do
