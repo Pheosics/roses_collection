@@ -1,148 +1,365 @@
 -- Functions to be used with the Civilization System, v42.06a
---[[
-        changeLevel(entity,amount,verbose)
-                entity:                 Entity ID or entity struct
-                amount:                 Number of levels to increase (decrease currently disabled)
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: NA
+local persistTable = require 'persist-table'
+if not persistTable.GlobalTable.roses then return end
+civPersist = persistTable.GlobalTable.roses.CivilizationTable
+if not civPersist then return end
+entityPersist = persistTable.GlobalTable.roses.EntityTable
+local utils = require 'utils'
+split = utils.split_string
+usages = {}
 
-        changeStanding(civAID,civBID,amount,verbose)
-                civAID:                 Entity ID for civ A
-                civBID:                 Entity ID for civ B
-                amount:                 Amount to change diplomatic standing by
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: Number - Current diplomatic standing
+--=                     Civilization System Table Functions
+usages[#usages+1] = [===[
 
-        checkEntity(entityID,method,verbose)
-                entityID:               Entity ID
-                method:                 Frequency of checking (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: NA (Calls queueCheck to set up another check in X ticks)
+Civilization System Table Functions 
+===================================
 
-        queueCheck(entityID,method,verbose)
-                entityID:               Entity ID
-                method:                 Frequency of checking (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: NA
+getData(test)
+  Purpose: Read data from the entity files 
+  Calls:   NONE
+  Inputs:
+           test  = True/False
+  Returns: Tables containing information from files
 
-        checkRequirements(entityID,verbose)
-                entityID:               Entity ID
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: Boolean - Does the entity meet the requirements to level up?
-]]
-function changeLevel(entity,amount,verbose)
- if tonumber(entity) then 
-  civ = df.global.world.entities.all[tonumber(entity)]
+makeCivilizationTable(test)
+  Purpose: Create Civilization system persistent table
+  Calls:   getData
+  Inputs:
+           test = True/False
+  Returns: Boolean whether the table was successfully made
+
+]===]
+
+function getData(test)
+ print('Searching for Civilization information in entity files')
+ local filename = 'entity'
+ local tokenCheck = '[ENTITY'
+ local files = {}
+ local dir = dfhack.getDFPath()
+ local locations = {'/raw/objects/'}
+ local n = 1 
+ if test then 
+  filename = filename..'_test'
+  locations = {'/raw/systems/Test/'} 
+ end
+ for _,location in ipairs(locations) do
+  local path = dir..location
+  print('Looking in '..location)
+  if dfhack.internal.getDir(path) then
+   for _,fname in pairs(dfhack.internal.getDir(path)) do
+    if (split(fname,'_')[1] == filename or fname == filename..'.txt') and string.match(fname,'txt') then
+     files[n] = path..fname
+     n = n + 1
+    end
+   end
+  end
+ end
+
+ if #files >= 1 then
+  print(table..' files found:')
+  printall(files)
  else
-  civ = entity
+  print('No '..table..' files found')
+  return false
  end
- key = tostring(civ.id)
+ 
+ local data = {}
+ local dataInfo = {}
+ for _,file in ipairs(files) do
+  data[file] = {} 
+  local iofile = io.open(file,"r")
+  local lineCount = 1
+  while true do
+   local line = iofile:read("*line")
+   if line == nil then break end
+   data[file][lineCount] = line
+   lineCount = lineCount + 1
+  end
+  iofile:close()
 
- local persistTable = require 'persist-table'
- entityTable = persistTable.GlobalTable.roses.EntityTable
- if not entityTable[key] then
-  dfhack.script_environment('functions/tables').makeEntityTable(key)
+  dataInfo[file] = {}
+  local count = 1
+  local endline = 1
+  for i,line in ipairs(data[file]) do
+   endline = i
+   if split(line,':')[1] == tokenCheck then
+    dataInfo[file][count] = {split(split(line,':')[2],']')[1],i+1,0}
+    if count > 1 then
+     dataInfo[file][count-1][3] = i-1
+    end
+    count = count + 1
+   end
+  end
  end
- entityTable = persistTable.GlobalTable.roses.EntityTable[key]
- entity = df.global.world.entities.all[civ.id].entity_raw.code
- civilizationTable = persistTable.GlobalTable.roses.CivilizationTable[entity]
- if civilizationTable then
-  if civilizationTable.Level then
+ dataInfo[file][count-1][3] = endline
+
+ return data, dataInfo, files
+
+end
+
+function makeCivilizationTable()
+ dataFiles,dataInfoFiles,files = getData(test)
+ if not dataFiles then return false end
+
+ for _,file in ipairs(files) do
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+  for i,x in ipairs(dataInfo) do
+   civToken  = x[1]
+   startLine = x[2]
+   endLine   = x[3]
+   civPersist[civToken] = {}
+   civ = civPersist[civToken]
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],'}')[1]
+    end
+    if     test == '{NAME' then
+     civ.Name = array[2]
+    elseif test == '{DESCRIPTION' then
+     civ.Description = array[2]
+    elseif test == '{LEVELS' then
+     civ.Levels = array[2]
+    elseif test == '{LEVEL_METHOD' then
+     civ.LevelMethod = array[2]
+     civ.LevelPercent = array[3]
+    elseif test == '{LEVEL' then
+     level = array[2]
+     civ.Level[level] = {}
+     civsLevel = civ.Level[level]
+     civsLevel.Required = {}
+    elseif test == '{LEVEL_NAME' then
+     civsLevel.Name = array[2]
+    elseif test == '{LEVEL_REQUIREMENT' then
+     if array[2] == 'COUNTER_MAX' then
+      civsLevel.Required.CounterMax = civsLevel.Required.CounterMax or {}
+      civsLevel.Required.CounterMax[array[3]] = array[4]
+     elseif array[2] == 'COUNTER_MIN' then
+      civsLevel.Required.CounterMin = civsLevel.Required.CounterMin or {}
+      civsLevel.Required.CounterMin[array[3]] = array[4]
+     elseif array[2] == 'COUNTER_EQUAL' then
+      civsLevel.Required.CounterEqual = civsLevel.Required.CounterEqual or {}
+      civsLevel.Required.CounterEqual[array[3]] = array[4]
+     elseif array[2] == 'TIME' then
+      civsLevel.Required.Time = array[3]
+     elseif array[2] == 'POPULATION' then
+      civsLevel.Required.Population = array[3]
+     elseif array[2] == 'SEASON' then
+      civsLevel.Required.Season = array[3]
+     elseif array[2] == 'TREES_CUT' then
+      civsLevel.Required.TreeCut = array[3]
+     elseif array[2] == 'FORTRESS_RANK' then
+      civsLevel.Required.Rank = array[3]
+     elseif array[2] == 'PROGRESS_RANK' then
+      if array[3] == 'POPULATION' then civsLevel.Required.ProgressPopulation = array[4] end
+      if array[3] == 'TRADE' then civsLevel.Required.ProgressTrade = array[4] end
+      if array[3] == 'PRODUCTION' then civsLevel.Required.ProgressProduction = array[4] end
+     elseif array[2] == 'ARTIFACTS' then
+      civsLevel.Required.NumArtifacts = array[3]
+     elseif array[2] == 'TOTAL_DEATHS' then
+      civsLevel.Required.TotDeaths = array[3]
+     elseif array[2] == 'TOTAL_INSANITIES' then
+      civsLevel.Required.TotInsanities = array[3]
+     elseif array[2] == 'TOTAL_EXECUTIONS' then
+      civsLevel.Required.TotExecutions = array[3]
+     elseif array[2] == 'MIGRANT_WAVES' then
+      civsLevel.Required.MigrantWaves = array[3]
+     elseif array[2] == 'WEALTH' then
+      civsLevel.Required.Wealth = civsLevel.Required.Wealth or {}
+      civsLevel.Required.Wealth[array[3]] = array[4]
+     elseif array[2] == 'BUILDING' then
+      civsLevel.Required.Building = civsLevel.Required.Building or {}
+      civsLevel.Required.Building[array[3]] = array[4]
+     elseif array[2] == 'SKILL' then
+      civsLevel.Required.Skill = civsLevel.Required.Skill or {}
+      civsLevel.Required.Skill[array[3]] = array[4]
+     elseif array[2] == 'CLASS' then
+      civsLevel.Required.Class = civsLevel.Required.Class or {}
+      civsLevel.Required.Class[array[3]] = array[4]
+     elseif array[2] == 'ENTITY_KILLS' then
+      civsLevel.Required.EntityKills = civsLevel.Required.EntityKills or {}
+      civsLevel.Required.EntityKills[array[3]] = array[4]
+     elseif array[2] == 'CREATURE_KILLS' then
+      civsLevel.Required.CreatureKills = civsLevel.Required.CreatureKills or {}
+      civsLevel.Required.CreatureKills[array[3]] = civsLevel.Required.CreatureKills[array[3]] or {}
+      civsLevel.Required.CreatureKills[array[3]][array[4]] = array[5]
+     elseif array[2] == 'ENTITY_DEATHS' then
+      civsLevel.Required.EntityDeaths = civsLevel.Required.EntityDeaths or {}
+      civsLevel.Required.EntityDeaths[array[3]] = array[4]
+     elseif array[2] == 'CREATURE_DEATHS' then
+      civsLevel.Required.CreatureDeaths = civsLevel.Required.CreatureDeaths or {}
+      civsLevel.Required.CreatureDeaths[array[3]] = civsLevel.Required.CreatureDeaths[array[3]] or {}
+      civsLevel.Required.CreatureDeaths[array[3]][array[4]] = array[5]
+     elseif array[2] == 'TRADES' then
+      civsLevel.Required.Trades = civsLevel.Required.Trades or {}
+      civsLevel.Required.Trades[array[3]] = array[4]
+     elseif array[2] == 'SIEGES' then
+      civsLevel.Required.Sieges = civsLevel.Required.Sieges or {}
+      civsLevel.Required.Sieges[array[3]] = array[4]
+     end
+    elseif test == '{LEVEL_REMOVE' then
+     subType = array[3]:gsub("(%a)([%w_']*)", tchelper)
+     civsLevel.Remove = civsLevel.Remove or {}
+     if array[2] == 'CREATURE' then
+      civsLevel.Remove.Creature = civsLevel.Remove.Creature or {}
+      civsLevel.Remove.Creature[subType] = civsLevel.Remove.Creature[subType] or {}
+      civsLevel.Remove.Creature[subType][array[4]] = array[5]
+     elseif array[2] == 'INORGANIC' then
+      civsLevel.Remove.Inorganic = civsLevel.Remove.Inorganic or {}
+      civsLevel.Remove.Inorganic[subType] = civsLevel.Remove.Inorganic[subType] or {}
+      civsLevel.Remove.Inorganic[subType][array[4]] = array[4]
+     elseif array[2] == 'ORGANIC' then
+      civsLevel.Remove.Organic = civsLevel.Remove.Organic or {}
+      civsLevel.Remove.Organic[subType] = civsLevel.Remove.Organic[subType] or {}
+      civsLevel.Remove.Organic[subType][array[4]] = array[5]
+     elseif array[2] == 'REFUSE' then
+      civsLevel.Remove.Refuse = civsLevel.Remove.Refuse or {}
+      civsLevel.Remove.Refuse[subType] = civsLevel.Remove.Refuse[subType] or {}
+      civsLevel.Remove.Refuse[subType][array[4]] = array[5]
+     elseif array[2] == 'ITEM' then
+      civsLevel.Remove.Item = civsLevel.Remove.Item or {}
+      civsLevel.Remove.Item[subType] = civsLevel.Remove.Item[subType] or {}
+      civsLevel.Remove.Item[subType][array[4]] = array[4]
+     elseif array[2] == 'MISC' then
+      civsLevel.Remove.Misc = civsLevel.Remove.Misc or {}
+      civsLevel.Remove.Misc[subType] = civsLevel.Remove.Misc[subType] or {}
+      civsLevel.Remove.Misc[subType][array[4]] = array[5]
+     elseif array[2] == 'PRODUCT' then
+      civsLevel.Remove.Product = civsLevel.Remove.Product or {}
+      civsLevel.Remove.Product[subType] = civsLevel.Remove.Product[subType] or {}
+      civsLevel.Remove.Product[subType][array[4]] = array[5]
+     end
+    elseif test == '{LEVEL_ADD' then
+     subType = array[3]:gsub("(%a)([%w_']*)", tchelper)
+     civsLevel.Add = civsLevel.Add or {}
+     if array[2] == 'CREATURE' then
+      civsLevel.Add.Creature = civsLevel.Add.Creature or {}
+      civsLevel.Add.Creature[subType] = civsLevel.Add.Creature[subType] or {}
+      civsLevel.Add.Creature[subType][array[4]] = array[5]
+     elseif array[2] == 'INORGANIC' then
+      civsLevel.Add.Inorganic = civsLevel.Add.Inorganic or {}
+      civsLevel.Add.Inorganic[subType] = civsLevel.Add.Inorganic[subType] or {}
+      civsLevel.Add.Inorganic[subType][array[4]] = array[4]
+     elseif array[2] == 'ORGANIC' then
+      civsLevel.Add.Organic = civsLevel.Add.Organic or {}
+      civsLevel.Add.Organic[subType] = civsLevel.Add.Organic[subType] or {}
+      civsLevel.Add.Organic[subType][array[4]] = array[5]
+     elseif array[2] == 'REFUSE' then
+      civsLevel.Add.Refuse = civsLevel.Add.Refuse or {}
+      civsLevel.Add.Refuse[subType] = civsLevel.Add.Refuse[subType] or {}
+      civsLevel.Add.Refuse[subType][array[4]] = array[5]
+     elseif array[2] == 'ITEM' then
+      civsLevel.Add.Item = civsLevel.Add.Item or {}
+      civsLevel.Add.Item[subType] = civsLevel.Add.Item[subType] or {}
+      civsLevel.Add.Item[subType][array[4]] = array[4]
+     elseif array[2] == 'MISC' then
+      civsLevel.Add.Misc = civsLevel.Add.Misc or {}
+      civsLevel.Add.Misc[subType] = civsLevel.Add.Misc[subType] or {}
+      civsLevel.Add.Misc[subType][array[4]] = array[5]
+     elseif array[2] == 'PRODUCT' then
+      civsLevel.Add.Product = civsLevel.Add.Product or {}
+      civsLevel.Add.Product[subType] = civsLevel.Add.Product[subType] or {}
+      civsLevel.Add.Product[subType][array[4]] = array[5]
+     end
+    elseif test == '{LEVEL_CHANGE_ETHICS' then
+     civsLevel.Ethics = civsLevel.Ethics or {}
+     civsLevel.Ethics[array[2]] = array[3]
+    elseif test == '{LEVEL_CHANGE_VALUES' then
+     civsLevel.Values = civsLevel.Values or {}
+     civsLevel.Values[array[2]] = array[3]
+    elseif test == '{LEVEL_CHANGE_SKILLS' then
+     civsLevel.Skills = civsLevel.Skills or {}
+     civsLevel.Skills[array[2]] = array[3]
+    elseif test == '{LEVEL_CHANGE_CLASSES' then
+     civsLevel.Classes = civsLevel.Classes or {}
+     civsLevel.Classes[array[2]] = array[3]
+    elseif test == '{LEVEL_CHANGE_METHOD' then
+     civsLevel.LevelMethod = array[2]
+     civsLevel.LevelPercent = array[3]
+    end
+   end
+  end
+ end
+
+ return true
+end
+
+--=                     Class System Table Functions
+usages[#usages+1] = [===[
+
+Civilization System Functions 
+=============================
+
+changeLevel(entity)
+  Purpose: Increase the entities civilization level
+  Calls:   NONE
+  Inputs:
+           entity = ENTITY_ID or Entity struct
+  Returns: NONE
+ 
+checkEntity(id,method)
+  Purpose: Check if the entity has leveled up
+  Calls:   queueCheck | checkRequirements
+  Inputs:
+           id = ENTITY_ID
+           method = Current leveling method
+  Returns: NONE
+
+]===]
+
+function changeLevel(entity,verbose)
+ if tonumber(entity) then entity = df.global.world.entities.all[tonumber(entity)] end
+
+ if not entityPersist[tostring(entity.id)] then return end
+ entityTable = entityPersist[tostring(entity.id)]
+ entityToken = df.global.world.entities.all[civ.id].entity_raw.code
+ civTable = civPersist[entityToken]
+
+ if civTable then
+  if civTable.Level then
    currentLevel = tonumber(entityTable.Civilization.Level)
-   nextLevel = currentLevel + amount
-   if nextLevel > tonumber(civilizationTable.Levels) then nextLevel = tonumber(civilizationTable.Levels) end
-   if nextLevel < 0 then nextLevel = 0 end
-   currentLevel = math.floor(currentLevel)
-   nextLevel = math.floor(nextLevel)
+   nextLevel = currentLevel + 1
+   if nextLevel > tonumber(civilizationTable.Levels) then return end
    entityTable.Civilization.Level = tostring(nextLevel)
-   if amount > 0 then
-    for i = currentLevel+1,nextLevel,1 do
-     if civilizationTable.Level[tostring(i)] then
-      if civilizationTable.Level[tostring(i)].Remove then
-       for _,mtype in pairs(civilizationTable.Level[tostring(i)].Remove._children) do
-        depth1 = civilizationTable.Level[tostring(i)].Remove[mtype]
-        for _,stype in pairs(depth1._children) do
-         depth2 = depth1[stype]
-         for _,mobj in pairs(depth2._children) do
-          sobj = depth2[mobj]
-          dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,verbose)
-         end
-        end
+
+   if civilizationTable.Level[tostring(nextLevel)] then
+    if civilizationTable.Level[tostring(nextLevel)].Remove then
+     for _,mtype in pairs(civilizationTable.Level[tostring(nextLevel)].Remove._children) do
+      depth1 = civilizationTable.Level[tostring(nextLevel)].Remove[mtype]
+      for _,stype in pairs(depth1._children) do
+       depth2 = depth1[stype]
+       for _,mobj in pairs(depth2._children) do
+        sobj = depth2[mobj]
+        dfhack.script_environment('functions/entity').changeResources(entity,mtype,stype,mobj,sobj,-1,verbose)
        end
-      end
-      if civilizationTable.Level[tostring(i)].Add then
-       for _,mtype in pairs(civilizationTable.Level[tostring(i)].Add._children) do
-        depth1 = civilizationTable.Level[tostring(i)].Add[mtype]
-        for _,stype in pairs(depth1._children) do
-         depth2 = depth1[stype]
-         for _,mobj in pairs(depth2._children) do
-          sobj = depth2[mobj]
-          dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,verbose)
-         end
-        end
-       end
-      end
-      if civilizationTable.Level[tostring(i)].RemovePosition then
-       for _,position in pairs(civilizationTable.Level[tostring(i)].RemovePosition._children) do
-        dfhack.script_environment('functions/entity').changeNoble(key,position,-1,verbose)
-       end
-      end
-      if civilizationTable.Level[tostring(i)].AddPosition then
-       for _,position in pairs(civilizationTable.Level[tostring(i)].AddPosition._children) do
-        dfhack.script_environment('functions/entity').changeNoble(key,position,1,verbose)
-       end
-      end
-      if civilizationTable.Level[tostring(i)].LevelMethod then
-       entityTable.Civilization.CurrentMethod = civilizationTable.Level[tostring(i)].LevelMethod
-       entityTable.Civilization.CurrentPercent = civilizationTable.Level[tostring(i)].LevelPercent
-	   queueCheck(key,entityTable.Civilization.CurrentMethod,verbose)
       end
      end
     end
-	--[[
-   elseif amount <0 then
-    for i = currentLevel,nextLevel,-1 do
-     if civilizationTable.Level[tostring(i)] then
-      for _,mtype in pairs(civilizationTable.Level[tostring(i)].Remove._children) do
-       depth1 = civilizationTable.Level[tostring(i)].Remove[mtype]
-       for _,stype in pairs(depth1._children) do
-        depth2 = depth1[stype]
-        for _,mobj in pairs(depth2._children) do
-         sobj = depth2[mobj]
-         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,verbose)
-        end
+    if civilizationTable.Level[tostring(nextLevel)].Add then
+     for _,mtype in pairs(civilizationTable.Level[tostring(nextLevel)].Add._children) do
+      depth1 = civilizationTable.Level[tostring(nextLevel)].Add[mtype]
+      for _,stype in pairs(depth1._children) do
+       depth2 = depth1[stype]
+       for _,mobj in pairs(depth2._children) do
+        sobj = depth2[mobj]
+        dfhack.script_environment('functions/entity').changeResources(entity,mtype,stype,mobj,sobj,1,verbose)
        end
-      end
-      for _,mtype in pairs(civilizationTable.Level[tostring(i)].Add._children) do
-       depth1 = civilizationTable.Level[tostring(i)].Add[mtype]
-       for _,stype in pairs(depth1._children) do
-        depth2 = depth1[stype]
-        for _,mobj in pairs(depth2._children) do
-         sobj = depth2[mobj]
-         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,verbose)
-        end
-       end
-      end
-      for _,position in pairs(civilizationTable.Level[tostring(i)].RemovePosition._children) do
-       dfhack.script_environment('functions/entity').changeNoble(key,position,1,verbose)
-      end
-      for _,position in pairs(civilizationTable.Level[tostring(i)].AddPosition._children) do
-       dfhack.script_environment('functions/entity').changeNoble(key,position,-1,verbose)
-      end
-      if civilizationTable.Level[tostring(i)].LevelMethod then
-       entityTable.Civilization.CurrentMethod = civilizationTable.Level[tostring(i)].LevelMethod
-       entityTable.Civilization.CurrentPercent = civilizationTable.Level[tostring(i)].Levelchance
       end
      end
     end
-	]]
+    if civilizationTable.Level[tostring(nextLevel)].LevelMethod then
+     entityTable.Civilization.CurrentMethod = civilizationTable.Level[tostring(nextLevel)].LevelMethod
+     entityTable.Civilization.CurrentPercent = civilizationTable.Level[tostring(nextLevel)].LevelPercent
+    end
    end
   end
  end
 end
 
 function changeStanding(civ1,civ2,amount,verbose)
- local persistTable = require 'persist-table'
  diplomacyTable = persistTable.GlobalTable.roses.DiplomacyTable
  if diplomacyTable then
   if diplomacyTable[civ1] then
@@ -157,12 +374,10 @@ function changeStanding(civ1,civ2,amount,verbose)
 end
 
 function checkEntity(id,method,verbose)
- local persistTable = require 'persist-table'
- civilizationTable = persistTable.GlobalTable.roses.EntityTable[tostring(math.floor(id))].Civilization
- if civilizationTable then
---  if verbose then print('Checking civilization '..tostring(id)) end
-  percent = civilizationTable.CurrentPercent
-  if method ~= civilizationTable.CurrentMethod then return end
+ entityTable = entityPersist[tostring(id)].Civilization
+ if entityTable then
+  percent = entityTable.CurrentPercent
+  if method ~= entityTable.CurrentMethod then return end
   rand = dfhack.random.new()
   rnum = rand:random(100)
   if rnum <= tonumber(percent) then
@@ -170,7 +385,7 @@ function checkEntity(id,method,verbose)
    if leveled then
     changeLevel(id,1,verbose)
     if verbose then print('Civilization leveled up') end
-    method = civilizationTable.CurrentMethod
+    method = entityTable.CurrentMethod
    end
   end
  end
@@ -178,21 +393,20 @@ function checkEntity(id,method,verbose)
 end
 
 function checkRequirements(entityID,verbose)
- local persistTable = require 'persist-table'
  local utils = require 'utils'
  local split = utils.split_string
- entity = persistTable.GlobalTable.roses.EntityTable[tostring(math.floor(entityID))]
+ entity = entityPersist[tostring(entityID)]
  if not entity then return false end
- if entity.Civilization then
-  level = tostring(math.floor(entity.Civilization.Level+1))
-  name = df.global.world.entities.all[math.floor(entityID)].entity_raw.code
-  if not persistTable.GlobalTable.roses.CivilizationTable[name] then
-   return false
-  else
-   civilization = persistTable.GlobalTable.roses.CivilizationTable[name]
-  end
-  if not civilization.Level[level] then return false end
+ if not entity.Civilization then return false end
+
+ level = tostring(entity.Civilization.Level+1)
+ name = df.global.world.entities.all[entityID].entity_raw.code
+ if not civPersist[name] then
+  return false
+ else
+  civilization = civPersist[name]
  end
+ if not civilization.Level[level] then return false end
  
  check = civilization.Level[level].Required
  if not check then return true end
@@ -204,6 +418,7 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
+
 -- Check for fortress wealth
  if check.Wealth then
   for _,wtype in pairs(check.Wealth._children) do
@@ -215,6 +430,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
 -- Check for fortress population
  if check.Population then
   local population = 0
@@ -227,6 +443,7 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
+
 -- Check for season
  season = {SPRING=0,SUMMER=1,FALL=2,WINTER=3}
  if check.Season then
@@ -234,6 +451,7 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
+
 -- Check for trees cut
  if check.TreeCut then
   local x = check.TreeCut
@@ -241,6 +459,7 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
+
 -- Check for fortress rank
  if check.Rank then
   local x = tonumber(check.Rank)
@@ -248,6 +467,7 @@ function checkRequirements(entityID,verbose)
    return false
   end
  end
+
 -- Check for progress
  if check.ProgressPopulation then
   local x = tonumber(check.ProgressPopulation)
@@ -267,6 +487,7 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
+
 -- Check for artifacts
  if check.NumArtifacts then
   local x = tonumber(check.NumArtifacts)
@@ -274,6 +495,7 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
+
 -- Check for total deaths
  if check.TotDeaths then
   local x = tonumber(check.TotDeaths)
@@ -281,6 +503,7 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
+
 -- Check for insanities
  if check.TotInsanities then
   local x = tonumber(check.TotInsanities)
@@ -288,6 +511,7 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
+
 -- Check for executions
  if check.TotExecutions then
   local x = tonumber(check.TotExecutions)
@@ -295,6 +519,7 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end 
+
 -- Check for migrant waves
  if check.MigrantWaves then
   local x = tonumber(check.MigrantWaves)
@@ -302,6 +527,7 @@ function checkRequirements(entityID,verbose)
    return false
   end 
  end
+
 -- Check for counter
  if check.CounterMax then
   for _,counter in pairs(check.CounterMax._children) do
@@ -336,6 +562,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
 -- Check for item
  if check.Item then
   for _,itype in pairs(check.Item._children) do
@@ -351,6 +578,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
 -- Check for building
  if check.Building then
   for _,building in pairs(check.Building._children) do
@@ -360,7 +588,7 @@ function checkRequirements(entityID,verbose)
    for i,x in pairs(buildingList) do
     if df.building_workshopst:is_instance(x) or df.building_furnacest:is_instance(x) then
      if x.custom_type >= 0 then
-      if df.global.world.raws.buildings.all[x.custom_type].code == builing then
+      if df.global.world.raws.buildings.all[x.custom_type].code == building then
        n2 = n2+1
       end
      end
@@ -371,6 +599,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
 -- Check for skill
  if check.Skill then
   for _,skill in pairs(check.Skill._children) do
@@ -382,6 +611,7 @@ function checkRequirements(entityID,verbose)
    end
   end 
  end
+
 -- Check for class
  if check.Class and persistTable.GlobalTable.roses.ClassTable then
   for _,classname in pairs(check.Class._children) do
@@ -401,8 +631,9 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
 -- Check for kills
- if check.CreatureKills and persistTable.GlobalTable.roses.GlobalTable then
+ if check.CreatureKills and globalPersist then
   for _,creature in pairs(check.CreatureKills._children) do
    for _,caste in pairs(check.CreatureKills[creature]._children) do
     n1 = tonumber(check.CreatureKills[creature][caste])
@@ -419,6 +650,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
  if check.EntityKills and persistTable.GlobalTable.roses.GlobalTable then
   for _,entity in pairs(check.EntityKills._children) do
    n1 = tonumber(check.EntityKills[entity])
@@ -430,6 +662,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
 -- Check for deaths
  if check.CreatureDeaths and persistTable.GlobalTable.roses.GlobalTable then
   for _,creature in pairs(check.CreatureDeaths._children) do
@@ -448,6 +681,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
  if check.EntityDeaths and persistTable.GlobalTable.roses.GlobalTable then
   for _,entity in pairs(check.EntityDeaths._children) do
    n1 = tonumber(check.EntityDeaths[entity])
@@ -459,6 +693,7 @@ function checkRequirements(entityID,verbose)
    end
   end 
  end
+
 -- Check for sieges
  if check.Sieges and persistTable.GlobalTable.roses.GlobalTable then
   for _,civ in pairs(check.Sieges._children) do
@@ -470,6 +705,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
+
 -- Check for trades
  if check.Trades and persistTable.GlobalTable.roses.GlobalTable then
   for _,civ in pairs(check.Trades._children) do
@@ -481,25 +717,7 @@ function checkRequirements(entityID,verbose)
    end
   end
  end
--- Check for diplomacy
- if check.Diplomacy and persistTable.GlobalTable.roses.DiplomacyTable then
-  for _,dip_string in pairs(check.Diplomacy._children) do
-   dip_array = split(dip_string,':')
-   civ1,civ2,relation,number = dip_array[1],dip_array[2],dip_array[3],dip_array[4]
-   if civ1 and civ2 and relation and number then
-    score = tonumber(persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2])
-    if relation == 'GREATER' then
-     if score < tonumber(number) then
-      return false
-     end
-    elseif relation == 'LESS' then
-     if score > tonumber(number) then
-      return false
-     end
-    end
-   end
-  end
- end
+
  return true
 end
 

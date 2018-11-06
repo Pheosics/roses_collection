@@ -8,8 +8,45 @@ spellPersist = persistTable.GlobalTable.roses.SpellTable
 featPersist = persistTable.GlobalTable.roses.FeatTable
 local utils = require 'utils'
 split = utils.split_string
+usages = {}
 
---
+--=                     Class System Table Functions
+usages[#usages+1] = [===[
+
+Class System Table Functions 
+============================
+
+getData(table,test)
+  Purpose: Read data from Class System files (classes.txt, spells.txt, feats.txt)
+  Calls:   NONE
+  Inputs:
+           table = Table type (Class, Spell, or Feat)
+           test  = True/False
+  Returns: Tables containing information from files
+
+makeClassTable(test)
+  Purpose: Create Class System - Class Table
+  Calls:   getData
+  Inputs:
+           test = True/False
+  Returns: Boolean whether the table was successfully made
+
+makeFeatTable(test)
+  Purpose: Create Class System - Feat Table
+  Calls:   getData
+  Inputs:
+           test = True/False
+  Returns: Boolean whether the table was successfully made
+
+makeSpellTable(test)
+  Purpose: Create Class System - Spell Table
+  Calls:   getData
+  Inputs:
+           test = True/False
+  Returns: Boolean whether the table was successfully made
+
+]===]
+
 function getData(table,test)
  if table == 'Class' then
   tokenCheck = '[CLASS'
@@ -19,7 +56,7 @@ function getData(table,test)
   filename = 'spells'
  elseif table == 'Feat' then
   tokenCheck = '[FEAT'
-  filename = feats
+  filename = 'feats'
  else 
   return
  end
@@ -69,19 +106,19 @@ function getData(table,test)
 
   dataInfo[file] = {}
   local count = 1
+  local endline = 1
   for i,line in ipairs(data[file]) do
+   endline = i
    if split(line,':')[1] == tokenCheck then
-    if #split(line,':') == 4 then
-     dataInfo[file][count] = {split(line,':')[2]..':'..split(line,':')[3]..':'..split(split(line,':')[4],']')[1],i,0}
-    elseif #split(line,':') == 3 then
-     dataInfo[file][count] = {split(line,':')[2]..':'..split(split(line,':')[3],']')[1],i,0}
-    else
-     dataInfo[file][count] = {split(split(line,':')[2],']')[1],i,0}
+    dataInfo[file][count] = {split(split(line,':')[2],']')[1],i+1,0}
+    if count > 1 then
+     dataInfo[file][count-1][3] = i-1
     end
     count = count + 1
    end
   end
  end
+ dataInfo[file][count-1][3] = endline
 
  return data, dataInfo, files
 end
@@ -95,12 +132,8 @@ function makeClassTable(test)
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
    classToken = x[1]
-   startLine = x[2]+1
-   if i == #dataInfo then
-    endLine = #data
-   else
-    endLine = dataInfo[i+1][2]-1
-   end
+   startLine  = x[2]
+   endLine    = x[3]
    classPersist[classToken] = {}
    class = classPersist[classToken]
    class.Level = {}
@@ -417,7 +450,37 @@ function makeSpellTable(test)
  return true
 end
 
--- CLASS FUNCTIONS
+--=                     Class System - Class Functions
+usages[#usages+1] = [===[
+
+Class System Class Functions 
+============================
+
+addExperience(unit,amount)
+  Purpose: Adds experience to a units current class
+  Calls:   NONE
+  Inputs:
+           unit    = The unit struct or unit ID to make the table for
+           amount  = Amount of experience to add to unit
+  Returns:
+
+changeLevel(unit)
+  Purpose: Increase the level of the units current class by 1
+  Calls:   NONE
+  Inputs:
+           unit    = The unit struct or unit ID to make the table for
+  Returns:
+
+changeClass(unit,change)
+  Purpose: Change the units current class to the new class
+  Calls:   checkRequirementsClass | changeName
+  Inputs:
+           unit    = The unit struct or unit ID to make the table for
+           change  = The CLASS_TOKEN to change into
+  Returns:
+
+]===]
+
 function addExperience(unit,amount,verbose)
  -- Check if unit passed is unit ID or unit struct
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -886,7 +949,21 @@ function checkRequirementsSpell(unit,check,verbose)
  return true, upgrade
 end
 
--- FEAT FUNCTIONS
+--=                     Class System - Feat Functions
+usages[#usages+1] = [===[
+
+Class System Feat Functions 
+===========================
+
+addFeat(unit,feat)
+  Purpose: Add a feat to the unit
+  Calls:   checkRequirementsFeat
+  Inputs:
+           unit = The unit struct or unit ID to make the table for
+           feat = The FEAT_TOKEN to add
+  Returns: NONE
+
+]===]
 
 function addFeat(unit,feat,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -978,3 +1055,22 @@ function checkRequirementsFeat(unit,feat,verbose)
 
  return true
 end
+
+--=                     Class System - Spell Functions
+usages[#usages+1] = [===[
+
+Class System Spell Functions 
+============================
+
+changeSpell(unit,spell,direction)
+  Purpose: Make a unit learn or unlearn a specific spell
+  Calls:   checkRequirementsSpell
+  Inputs:
+           unit      = The unit struct or unit ID to make the table for
+           spell     = The SPELL_TOKEN to modify
+           direction = Learn/Unlearn the spell
+  Returns: NONE
+
+]===]
+
+
