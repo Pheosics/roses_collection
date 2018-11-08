@@ -107,6 +107,7 @@ function getData(table,test)
 end
 
 function makeEnhancedBuildingTable(test)
+ persistTable.GlobalTable.roses.Systems.EnhancedBuilding = 'false'
  dataFiles,dataInfoFiles,files = getData('Building',test)
  if not dataFiles then return false end
 
@@ -128,8 +129,11 @@ function makeEnhancedBuildingTable(test)
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
     end
-    if     test == '[NAME' then -- Take raw building name
+    if test == '[NAME' then -- Take raw building name
      table.Name = split(array[2],']')[1]
+    elseif string.sub(test,1,1) == '[' then
+     -- This is here so we skip unnecessary raw tokens
+     foo = 0
     elseif test == '{DESCRIPTION' then
      table.Description = array[2]
     elseif test == '{MULTI_STORY' then
@@ -181,9 +185,13 @@ function makeEnhancedBuildingTable(test)
    if scripts == 0 then table.Scripts = nil end
   end
  end
+
+ persistTable.GlobalTable.roses.Systems.EnhancedBuilding = 'true'
+ return true
 end
 
 function makeEnhancedCreatureTable(test)
+ persistTable.GlobalTable.roses.Systems.EnhancedCreature = 'false'
  dataFiles,dataInfoFiles,files = getData('Creature',test)
  if not dataFiles then return false end
 
@@ -195,10 +203,22 @@ function makeEnhancedCreatureTable(test)
    startLine  = x[2]
    endLine    = x[3]
    tokens[token] = token
-   -- Need to put Caste information in here so we can split by caste if needed
-   -- For now just assign to all castes
    creatureEnhanced[token] = {}
    creatureEnhanced[token]['ALL'] = {}
+
+   for n,c in pairs(df.global.world.raws.creatures.all) do
+    if token == c.creature_id then
+     creatureID = n
+     break
+    end
+   end
+   if creatureID then
+    for _,caste in pairs(df.global.world.raws.creatures.all[creatureID].caste) do
+     casteToken = caste.caste_id
+     creatureEnhanced[token][casteToken] = creatureEnhanced[token][casteToken] or {}
+    end
+   end
+
    creature = creatureEnhanced[token]['ALL']
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
@@ -207,10 +227,19 @@ function makeEnhancedCreatureTable(test)
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
     end
-    if test == '[NAME' then
-     creature.Name = array[2]
-    elseif test == '{DESCRIPTION' then
-     creature.Description = array[2]
+    if test == '[CASTE' then
+     caste = split(array[2],']')[1]
+     creature = creatureEnhanced[token][caste]
+    elseif test == '[SELECT_CASTE' then
+     caste = split(array[2],']')[1]
+     creature = creatureEnhanced[token][caste]
+    elseif test == '[NAME' then
+     creature.Name = split(array[2],']')[1]
+    elseif test == '[DESCRIPTION' then
+     creature.Description = split(array[2],']')[1]
+    elseif string.sub(test,1,1) == '[' then
+     -- This is here so we skip unnecessary raw tokens
+     foo = 0
     elseif test == '{BODY_SIZE' then
      creature.Size = {}
      creature.Size.Baby = array[2]
@@ -284,10 +313,12 @@ function makeEnhancedCreatureTable(test)
   end
  end
 
+ persistTable.GlobalTable.roses.Systems.EnhancedCreature = 'true'
  return true
 end
 
 function makeEnhancedItemTable(test)
+ persistTable.GlobalTable.roses.Systems.EnhancedItem = 'false'
  dataFiles,dataInfoFiles,files = getData('Item',test)
  if not dataFiles then return false end
 
@@ -309,6 +340,9 @@ function makeEnhancedItemTable(test)
     end
     if     test == '[NAME' then -- Take raw item name
      item.Name = split(array[2],']')[1]
+    elseif string.sub(test,1,1) == '[' then
+     -- This is here so we skip unnecessary raw tokens
+     foo = 0
     elseif test == '{DESCRIPTION' then
      item.Description = array[2]
     elseif test == '{CLASS' then
@@ -487,20 +521,27 @@ function makeEnhancedItemTable(test)
   end
  end
 
+ persistTable.GlobalTable.roses.Systems.EnhancedItem = 'true'
  return true
 end
 
+
 function makeEnhancedMaterialTable(test)
+ persistTable.GlobalTable.roses.Systems.EnhancedMaterial = 'false'
+ print('Enhanced System - Materials, not currently working')
+ return false
+
  materialFiles,  materialInfoFiles   materialfiles  = getData('Material' ,test)
  inorganicFiles, inorganicInfoFiles, inorganicfiles = getData('Inorganic',test)
  plantFiles,     plantInfoFiles,     plantfiles     = getData('PlantMat' ,test)
  animalFiles,    animalInfoFiles,    animalfiles    = getData('AnimalMat',test)
 
- print('Enhanced System - Materials, not currently working')
- return false
+ persistTable.GlobalTable.roses.Systems.EnhancedMaterial = 'true'
+
 end
 
 function makeEnhancedReactionTable(test)
+ persistTable.GlobalTable.roses.Systems.EnhancedReaction = 'false'
  dataFiles,dataInfoFiles,files = getData('Reaction',test)
  if not dataFiles then return false end
 
@@ -525,6 +566,9 @@ function makeEnhancedReactionTable(test)
     end
     if     test == '[NAME' then -- Take raw reaction name
      table.Name = split(array[2],']')[1]
+    elseif string.sub(test,1,1) == '[' then
+     -- This is here so we skip unnecessary raw tokens
+     foo = 0
     elseif test == '{DESCRIPTION' then
      table.Description = array[2]
     elseif test == '{BASE_DURATION' then
@@ -573,6 +617,7 @@ function makeEnhancedReactionTable(test)
   end
  end
 
+ persistTable.GlobalTable.roses.Systems.EnhancedReaction = 'true'
  return true
 end
 

@@ -98,6 +98,7 @@ function getData(test)
 end
 
 function makeCivilizationTable()
+ persistTable.GlobalTable.roses.Systems.Civlization = 'false'
  dataFiles,dataInfoFiles,files = getData(test)
  if not dataFiles then return false end
 
@@ -117,7 +118,7 @@ function makeCivilizationTable()
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
     end
-    if     test == '{NAME' then
+    if test == '{NAME' then
      civ.Name = array[2]
     elseif test == '{DESCRIPTION' then
      civ.Description = array[2]
@@ -284,6 +285,7 @@ function makeCivilizationTable()
   end
  end
 
+ persistTable.GlobalTable.roses.Systems.Civlization = 'true'
  return true
 end
 

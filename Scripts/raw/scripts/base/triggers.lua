@@ -1,5 +1,15 @@
+local persistTable = require 'persist-table'
+systems = persistTable.GlobalTable.roses.Systems
+
+local utils = require 'utils'
+validArgs = utils.invert({
+ 'verbose',
+})
+local args = utils.processArgs({...}, validArgs)
+verbose = args.verbose
+
 --= Enhanced Item Triggers
-if itemCheck then
+if systems.EnhancedItem and systems.EnhancedItem == 'true' then
  if args.verbose then print('Setting up Enhanced Item Triggers') end
  for _,itemToken in ipairs(persistTable.GlobalTable.roses.EnhancedItemTable._children) do
   item = persistTable.GlobalTable.roses.EnhancedItemTable[itemToken]
@@ -61,7 +71,7 @@ if itemCheck then
 end
 
 --= Enhanced Material Triggers
-if materialCheck then
+if systems.EnhancedMaterial and systems.EnhancedMaterial == 'true' then
  local function matTrigger(material,materialToken,triggerType,verbose)
   -- trigger/action triggers
   if material.OnEquip then
@@ -147,7 +157,7 @@ if materialCheck then
 end
 
 --= Enhanced Building Triggers
-if buildingCheck then
+if systems.EnhancedBuilding and systems.EnhancedBuilding == 'true' then
  if verbose then print('Setting up Enhanced Building Triggers') end
  for _,buildingToken in pairs(persistTable.GlobalTable.roses.EnhancedBuildingTable._children) do
   building = persistTable.GlobalTable.roses.EnhancedBuildingTable[buildingToken]
@@ -184,7 +194,7 @@ if buildingCheck then
 end
 
 --= Enhanced Reaction Triggers
-if reactionCheck then
+if systems.EnhancedReation and systems.EnhancedReaction == 'true' then
  if verbose then print('Setting up Enhanced Reaction Triggers') end
  for _,reactionToken in pairs(persistTable.GlobalTable.roses.EnhancedReactionTable._children) do
   reaction = persistTable.GlobalTable.roses.EnhancedReactionTable[reactionToken]

@@ -124,6 +124,7 @@ function getData(table,test)
 end
 
 function makeClassTable(test)
+ persistTable.GlobalTable.roses.Systems.Class = 'false'
  dataFiles,dataInfoFiles,files = getData('Class',test)
  if not dataFiles then return false end
 
@@ -246,10 +247,12 @@ function makeClassTable(test)
   end
  end
 
+ persistTable.GlobalTable.roses.Systems.Class = 'true'
  return true
 end
 
 function makeFeatTable(test)
+ persistTable.GlobalTable.roses.Systems.Feat = 'false'
  dataFiles,dataInfoFiles,files = getData('Feat',test)
  if not dataFiles then return false end
 
@@ -309,10 +312,12 @@ function makeFeatTable(test)
   end
  end
 
+ persistTable.GlobalTable.roses.Systems.Feat = 'true'
  return true
 end
 
 function makeSpellTable(test)
+ persistTable.GlobalTable.roses.Systems.Spell = 'false'
  dataFiles,dataInfoFiles,files = getData('Spell',test)
  if not dataFiles then return false end
 
@@ -447,6 +452,7 @@ function makeSpellTable(test)
   end
  end
 
+ persistTable.GlobalTable.roses.Systems.Spell = 'true'
  return true
 end
 
@@ -614,7 +620,7 @@ function changeClass(unit,change,verbose)
 
  -- Make sure unit has a valid UnitTable, create if they don't
  if not unitPersist[tostring(unit.id)] then 
-  dfhack.script_environment('functions/unit').makeUnitTable(unit)
+  unitFunctions.makeUnitTable(unit)
  end
  local unitTable = unitPersist[key]
 

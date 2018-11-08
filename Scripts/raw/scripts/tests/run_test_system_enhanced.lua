@@ -116,18 +116,15 @@ function system_checks()
   writeall(output)
 
   ECCheck = {}
-  unit = civ[5]
-  unitTable = roses.UnitTable[tostring(unit.id)]
-  if not unitTable then tableFunctions.makeUnitTable(unit.id) end
-  unitTable = roses.UnitTable[tostring(unit.id)]
   for _,unit in pairs(df.global.world.units.active) do
    if dfhack.units.isDwarf(unit) then
     enhancedFunctions.enhanceCreature(unit)
    end
   end
-  _,base = unitFunctions.getUnit(unit,'Skills','PLANT')
-  if unit.body.physical_attrs.AGILITY.value < 5000 or base < 5 then
-   ECCheck[#ECCheck+1] = 'Enhanced System - Creature 1 not correctly applied. Agility = '..tostring(unit.body.physical_attrs.AGILITY.value)..'. Plant = '..tostring(base)
+  unit = civ[5]
+  unitTable = unitFunctions.getUnitTable(unit)
+  if unitTable.Attributes.AGILITY < 5000 or unitTable.Skills.PLANT < 5 then
+   ECCheck[#ECCheck+1] = 'Enhanced System - Creature 1 not correctly applied. Agility = '..tostring(unitTable.Attributes.AGILITY)..'. Plant = '..tostring(unitTable.Skills.PLANT)
   end
 
   ---- Print PASS/FAIL
@@ -169,6 +166,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
   writeall('Resuming run_test.lua')
+  unitTable = roses.UnitTable(tostring(unit.id))
   if unitTable.Skills.AXE.Item ~= '15' then
    EICheck[#EICheck+1] = 'Enhanced System - Item 1 equip skill change not correctly applied '..unitTable.Skills.AXE.Item
   end
@@ -179,6 +177,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
   writeall('Resuming run_test.lua')
+  unitTable = roses.UnitTable(tostring(unit.id))
   if unitTable.Skills.AXE.Item ~= '0' then
    EICheck[#EICheck+1] = 'Enhanced System - Item 1 unequip skill change not correctly applied '..unitTable.Skills.AXE.Item
   end
@@ -195,6 +194,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(10,'ticks')
   writeall('Resuming run_test.lua')
+  unitTable = roses.UnitTable(tostring(unit.id))
   if not unitTable.Spells.Active.TEST_SPELL_1 then
    EICheck[#EICheck+1] = 'Enhanced System - Item 2 equip spell change not correctly applied'
   end
@@ -205,6 +205,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(10,'ticks')
   writeall('Resuming run_test.lua')
+  unitTable = roses.UnitTable(tostring(unit.id))
   if unitTable.Spells.Active.TEST_SPELL_1 then
    EICheck[#EICheck+1] = 'Enhanced System - Item 2 unequip spell change not correctly applied'
   end
@@ -225,9 +226,6 @@ function system_checks()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   writeall('')
   writeall('Enhanced System - Materials Starting')
-  writeall('When the dragon scale helm is equipped the units Axe skill should increase to legendary')
-  writeall('When the sapphire shield is equipped the units stats should change')
-  writeall('Both effects should revert when the item is unequipped')
 
   printplus('')
   printplus('base/roses-init -enhancedSystem [ Materials ] -verbose -testRun')
@@ -236,51 +234,17 @@ function system_checks()
 
   EMCheck = {}
 
-  ----
-  writeall('')
-  writeall('Testing Enhanced Material 1 - CREATURE_MAT:DRAGON:SCALE')
-  output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item HELM:ITEM_HELM_HELM -material CREATURE_MAT:DRAGON:SCALE -verbose')
-  writeall(output)
-  dfhack.run_command('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -bodyPart HEAD -type Flag -mode Worn -verbose')
-  writeall(output)
-  writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
-  script.sleep(50,'ticks')
-  writeall('Resuming run_test.lua')
-  if unitTable.Skills.SWORD.Item ~= '15' then
-   EMCheck[#EMCheck+1] = 'Enhanced System - Material 1 equip skill change not correctly applied '..unitTable.Skills.SWORD.Item
-  end
-
-  ----
-  output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -itemType HELM -verbose')
-  writeall(output)
-  writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
-  script.sleep(50,'ticks')
-  writeall('Resuming run_test.lua')
-  if unitTable.Skills.SWORD.Item ~= '0' then
-   EMCheck[#EMCheck+1] = 'Enhanced System - Material 1 unequip skill change not correctly applied '..unitTable.Skills.SWORD.Item
-  end
-
-  ----
-  writeall('')
-  writeall('Testing Enhanced Material 2 - INORGANIC:SAPPHIRE')
-  output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item SHIELD:ITEM_SHIELD_SHIELD -material INORGANIC:SAPPHIRE -verbose')
-  writeall(output)
-  output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -bodyPart GRASP -type Flag -mode Weapon -verbose')
-  writeall(output)
-  writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
-  script.sleep(50,'ticks')
-  writeall('Resuming run_test.lua')
-
   ---- Print PASS/FAIL
-  if #EMCheck == 0 then
-   printplus('PASSED: Enhanced System - Materials', COLOR_GREEN)
-  else
-   printplus('FAILED: Enhanced System - Materials', COLOR_RED)
-   writeall(EMCheck)
-  end
+  --if #EMCheck == 0 then
+  -- printplus('PASSED: Enhanced System - Materials')
+  --else
+  -- printplus('FAILED: Enhanced System - Materials')
+  -- writeall(EMCheck)
+  --end
 
-  ---- FINISH Enhanced System - Materials
-  writeall('Enhanced System - Materials check finished')
+  ------ FINISH Enhanced System - Materials
+  --writeall('Enhanced System - Materials Finished')
+  printplus('NOCHECK: Enhanced System - Materials',COLOR_YELLOW)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START Enhanced System - Reactions ---------------------------------------------------------------------------------------------------------------------------------------
