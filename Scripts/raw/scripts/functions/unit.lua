@@ -2,6 +2,8 @@
 -- Constants
 int16 = 30000000
 skillCap = 20
+utils = require 'utils'
+split = utils.split_string
 persistTable = require 'persist-table'
 if not persistTable.GlobalTable.roses then return end
 unitPersist = persistTable.GlobalTable.roses.UnitTable
@@ -101,7 +103,8 @@ function getUnitTable(unit)
 
  outTable.Resistances = {}
  -- Custom Resistances (no in game resistances currently)
- for _,resistance in pairs(baseTable.CustomResistances._children) do
+ for _,id in pairs(baseTable.CustomResistances._children) do
+  resistance = baseTable.CustomResistances[id]
   if unitTable.Resistances[resistance] then
    outTable.Resistances[resistance] = tonumber(unitTable.Resistances[resistance].Base) + tonumber(unitTable.Resistances[resistance].Change)
   else
@@ -116,7 +119,8 @@ function getUnitTable(unit)
   skill = df.job_skill[x.id]
   found[skill] = x.rating
  end
- for id,skill in pairs(df.job_skill) do
+ for id = 1, 134 do
+  skill = df.job_skill[id]
   if found[skill] then
    outTable.Skills[skill] = found[skill]
   else
@@ -124,7 +128,8 @@ function getUnitTable(unit)
   end
  end
  -- Custom Skills
- for _,skill in pairs(baseTable.CustomSkills._children) do
+ for _,id in pairs(baseTable.CustomSkills._children) do
+  skill = baseTable.CustomSkills[id]
   if unitTable.Skills[skill] then
    outTable.Skills[skill] = tonumber(unitTable.Skills[skill].Base) + tonumber(unitTable.Skills[skill].Change)
   else
@@ -134,7 +139,8 @@ function getUnitTable(unit)
 
  outTable.Stats = {}
  -- Custom Stats (no in game stats currently)
- for _,stat in pairs(baseTable.CustomStats._children) do
+ for _,id in pairs(baseTable.CustomStats._children) do
+  stat = baseTable.CustomStats[id]
   if unitTable.Stats[stat] then
    outTable.Stats[stat] = tonumber(unitTable.Stats[stat].Base) + tonumber(unitTable.Stats[stat].Change)
   else
@@ -1024,8 +1030,6 @@ function checkClassSyndrome(unit,class)
 end
 
 function checkCreatureRace(unit,creature)
- local utils = require 'utils'
- local split = utils.split_string
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(creature) ~= 'table' then creature = {creature} end
 
@@ -1802,8 +1806,6 @@ function createClass(unit,classes)
  local class = nil
  local level = nil
 
- utils = require 'utils'
- split = utils.split_string
  class = split(classes,':')
  if class[1] == 'CIVILIZATION' then
   -- Classes avaiable to the civilization (using Civilization System) will go here
@@ -1821,9 +1823,6 @@ function createClass(unit,classes)
 end
 
 function createEquipment(unit,equip)
- utils = require 'utils'
- split = utils.split_string
-
  equipment = split(equip,':')
  items = {}
  parts = {}
@@ -1882,8 +1881,6 @@ function createSkills(unit,skills)
  local skill = {}
  local level = {}
 
- utils = require 'utils'
- split = utils.split_string
  table = split(skills,':')
  if table[1] == 'TEMPLATE' then
   -- Skills from a template file will go here

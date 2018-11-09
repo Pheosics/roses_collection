@@ -381,7 +381,7 @@ function create(item,material,a,b,c) --from modtools/create-item
   if creator then
    creatorID = creator.id
   else
-   creatpr = df.global.world.units.active[0]
+   creator = df.global.world.units.active[0]
    creatorID = creator.id
   end
  end

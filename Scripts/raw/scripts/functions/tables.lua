@@ -188,32 +188,32 @@ function makeBaseTable(test,verbose)
     elseif test == '[FEAT_GAINS' then
      base.FeatGains = array[2]..':'..array[3]
     elseif test == '[SKILL' then
-     base.CustomSkills[#base.CustomSkills+1] = array[3]
+     base.CustomSkills[#base.CustomSkills._children+1] = array[3]
     elseif test == '[ATTRIBUTE' then
-     base.CustomAttributes[#base.CustomAttributes+1] = array[2]
+     base.CustomAttributes[#base.CustomAttributes._children+1] = array[2]
     elseif test == '[RESISTANCE' then
-     base.CustomResistances[#base.CustomResistances+1] = array[2]
+     base.CustomResistances[#base.CustomResistances._children+1] = array[2]
     elseif test == '[STAT' then
-     base.CustomStats[#base.CustomStats+1] = array[2]
+     base.CustomStats[#base.CustomStats._children+1] = array[2]
     elseif test == '[TYPE' then
      for arg = 2,#array,1 do
-      base.Types[#base.Types+1] = array[arg]
+      base.Types[#base.Types._children+1] = array[arg]
      end
     elseif test == '[SPHERE' then
      for arg = 2,#array,1 do
-      base.Spheres[#base.Spheres+1] = array[arg]
+      base.Spheres[#base.Spheres._children+1] = array[arg]
      end
     elseif test == '[SCHOOL' then
      for arg = 2,#array,1 do
-      base.Schools[#base.Schools+1] = array[arg]
+      base.Schools[#base.Schools._children+1] = array[arg]
      end
     elseif test == '[DISCIPLINE' then
      for arg = 2,#array,1 do
-      base.Disciplines[#base.Disciplines+1] = array[arg]
+      base.Disciplines[#base.Disciplines._children+1] = array[arg]
      end
     elseif test == '[SUBDISCIPLINE' then
      for arg = 2,#array,1 do
-      base.SubDisciplines[#base.SubDisciplines+1] = array[arg]
+      base.SubDisciplines[#base.SubDisciplines._children+1] = array[arg]
      end
     elseif test == '[EQUATION' then
      base.Equations[array[2]] = array[3]
@@ -221,23 +221,6 @@ function makeBaseTable(test,verbose)
    end
   end
  end
- --for _,n in pairs(base.CustomResistances._children) do
- -- resistance = base.CustomResistances[n]
- -- base.CustomStats[#base.CustomStats+1] = resistance..'_SKILL_PENETRATION'
- --end
- --for _,TSSDS in pairs({'Types','Spheres','Schools','Disciplines','SubDisciplines'}) do
- -- for _,n in pairs(base[TSSDS]._children) do
- --  temp = base[TSSDS][n]
- --  if TSSDS == 'Schools' then base.CustomSkills[#base.CustomSkills+1] = temp..'_SPELL_CASTING' end
- --  base.CustomStats[#base.CustomStats+1] = temp..'_CRITICAL_CHANCE'
- --  base.CustomStats[#base.CustomStats+1] = temp..'_CRITICAL_BONUS'
- --  base.CustomStats[#base.CustomStats+1] = temp..'_CASTING_SPEED'
- --  base.CustomStats[#base.CustomStats+1] = temp..'_ATTACK_SPEED'
- --  base.CustomStats[#base.CustomStats+1] = temp..'_SKILL_PENETRATION'
- --  base.CustomStats[#base.CustomStats+1] = temp..'_HIT_CHANCE'
- --  base.CustomResistances[#base.CustomResistances+1] = temp
- -- end
- --end
 end
 
 function makeWrapperTemplateTable(test,verbose)
