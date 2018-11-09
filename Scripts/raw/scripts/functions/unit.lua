@@ -71,6 +71,7 @@ function makeUnitTable(unit)
   unitTable.Feats = {}
   unitTable.Spells = {}
   unitTable.Classes.Current = 'NONE'
+  unitTable.Feats.Points = '0'
   unitTable.Spells.Active = {}
  end
 end

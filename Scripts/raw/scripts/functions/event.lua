@@ -1,30 +1,324 @@
 -- Functions for the Event System
---[[
-        checkRequirements(event,effect,verbose)
-                event:                  Event Token
-                effect:                 Effect number
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: Boolean - Does the event/effect combination meet the requirements to trigger?
+local persistTable = require 'persist-table'
+if not persistTable.GlobalTable.roses then return end
+eventPersist = persistTable.GlobalTable.roses.EventTable
+if not eventPersist then return end
+local utils = require 'utils'
+split = utils.split_string
+usages = {}
 
-        triggerEvent(event,effect,verbose)
-                event:                  Event Token
-                effect:                 Effect number
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: NA
-
-        checkEvent(event,method,verbose)
-                event:                  Event Token
-                method:                 How often to check for event trigger (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: NA (Calls queueCheck to set up another check in X ticks)
-
-        queueCheck(event,method,verbose)
-                event:                  Event Token
-                method:                 How often to check for event trigger (Valid Values: YEARLY, SEASON, MONTHLY, WEEKLY, or DAILY)
-                verbose:                Boolean, whether to print extra debugging information
-          Returns: NA
-]]
 ------------------------------------------------------------------------
+
+function getData(test)
+ print('Searching for an Event file')
+ local filename = 'events'
+ local files = {}
+ local dir = dfhack.getDFPath()
+ local locations = {'/raw/objects/','/raw/systems/Events/','/raw/scripts/'}
+ local n = 1
+ if test then
+  filename = filename..'_test'
+  locations = {'/raw/systems/Test/'}
+ end
+ for _,location in ipairs(locations) do
+  local path = dir..location
+  print('Looking in '..location)
+  if dfhack.internal.getDir(path) then
+   for _,fname in pairs(dfhack.internal.getDir(path)) do
+    if (split(fname,'_')[1] == filename or fname == filename..'.txt') and string.match(fname,'txt') then
+     files[n] = path..fname
+     n = n + 1
+    end
+   end
+  end
+ end
+
+ if #files >= 1 then
+  print(table..' files found:')
+  printall(files)
+ else
+  print('No '..table..' files found')
+  return false
+ end
+
+ local data = {}
+ local dataInfo = {}
+ for _,file in ipairs(files) do
+  data[file] = {}
+  local iofile = io.open(file,"r")
+  local lineCount = 1
+  while true do
+   local line = iofile:read("*line")
+   if line == nil then break end
+   data[file][lineCount] = line
+   lineCount = lineCount + 1
+  end
+  iofile:close()
+
+  dataInfo[file] = {}
+  local count = 1
+  local endline = 1
+  for i,line in ipairs(data[file]) do
+   endline = i
+   if split(line,':')[1] == tokenCheck then
+    dataInfo[file][count] = {split(split(line,':')[2],']')[1],i+1,0}
+    if count > 1 then
+     dataInfo[file][count-1][3] = i-1
+    end
+    count = count + 1
+   end
+  end
+ end
+ dataInfo[file][count-1][3] = endline
+
+ return data, dataInfo, files
+end
+
+function makeEventTable(test)
+ persistTable.GlobalTable.roses.Systems.Event = 'false'
+ dataFiles,dataInfoFiles,files = getData(test)
+ if not dataFiles then return false end
+ 
+ for _,file in ipairs(files) do
+  dataInfo = dataInfoFiles[file]
+  data = dataFiles[file]
+  for i,x in ipairs(dataInfo) do
+   eventToken = x[1]
+   startLine  = x[2]
+   endLine    = x[3]
+   eventPersist[eventToken] = {}
+   event = eventPersist[eventToken]
+   event.Effect = {}
+   event.Required = {}
+   event.Delay = {}
+   numberOfEffects = 0
+   for j = startLine,endLine,1 do
+    test = data[j]:gsub("%s+","")
+    test = split(test,':')[1]
+    array = split(data[j],':')
+    for k = 1, #array, 1 do
+     array[k] = split(array[k],']')[1]
+    end
+    if test == '[NAME' then
+     event.Name = array[2]
+    elseif test == '[CHECK' then
+     event.Check = array[2]
+    elseif test == '[CHANCE' then
+     event.Chance = array[2]
+    elseif test == '[DELAY' then
+     event.Delay[array[2]] = array[3]
+    elseif test == '[REQUIREMENT' then
+     if array[2] == 'COUNTER_MAX' then
+      event.Required.CounterMax = event.Required.CounterMax or {}
+      event.Required.CounterMax[array[3]] = array[4]
+     elseif array[2] == 'COUNTER_MIN' then
+      event.Required.CounterMin = event.Required.CounterMin or {}
+      event.Required.CounterMin[array[3]] = array[4]
+     elseif array[2] == 'COUNTER_EQUAL' then
+      event.Required.CounterEqual = event.Required.CounterEqual or {}
+      event.Required.CounterEqual[array[3]] = array[4]
+     elseif array[2] == 'TIME' then
+      event.Required.Time = array[3]
+     elseif array[2] == 'POPULATION' then
+      event.Required.Population = array[3]
+     elseif array[2] == 'SEASON' then
+      event.Required.Season = array[3]
+     elseif array[2] == 'TREES_CUT' then
+      event.Required.TreeCut = array[3]
+     elseif array[2] == 'FORTRESS_RANK' then
+      event.Required.Rank = array[3]
+     elseif array[2] == 'PROGRESS_RANK' then
+      if array[3] == 'POPULATION' then event.Required.ProgressPopulation = array[4] end
+      if array[3] == 'TRADE' then event.Required.ProgressTrade = array[4] end
+      if array[3] == 'PRODUCTION' then event.Required.ProgressProduction = array[4] end
+     elseif array[2] == 'ARTIFACTS' then
+      event.Required.NumArtifacts = array[3]
+     elseif array[2] == 'TOTAL_DEATHS' then
+      event.Required.TotDeaths = array[3]
+     elseif array[2] == 'TOTAL_INSANITIES' then
+      event.Required.TotInsanities = array[3]
+     elseif array[2] == 'TOTAL_EXECUTIONS' then
+      event.Required.TotExecutions = array[3]
+     elseif array[2] == 'MIGRANT_WAVES' then
+      event.Required.MigrantWaves = array[3]
+     elseif array[2] == 'WEALTH' then
+      event.Required.Wealth = event.Required.Wealth or {}
+      event.Required.Wealth[array[3]] = array[4]
+     elseif array[2] == 'BUILDING' then
+      event.Required.Building = event.Required.Building or {}
+      event.Required.Building[array[3]] = array[4]
+     elseif array[2] == 'SKILL' then
+      event.Required.Skill = event.Required.Skill or {}
+      event.Required.Skill[array[3]] = array[4]
+     elseif array[2] == 'CLASS' then
+      event.Required.Class = event.Required.Class or {}
+      event.Required.Class[array[3]] = array[4]
+     elseif array[2] == 'ENTITY_KILLS' then
+      event.Required.EntityKills = event.Required.EntityKills or {}
+      event.Required.EntityKills[array[3]] = array[4]
+     elseif array[2] == 'CREATURE_KILLS' then
+      event.Required.CreatureKills = event.Required.CreatureKills or {}
+      event.Required.CreatureKills[array[3]] = event.Required.CreatureKills[array[3]] or {}
+      event.Required.CreatureKills[array[3]][array[4]] = array[5]
+     elseif array[2] == 'ENTITY_DEATHS' then
+      event.Required.EntityDeaths = event.Required.EntityDeaths or {}
+      event.Required.EntityDeaths[array[3]] = array[4]
+     elseif array[2] == 'CREATURE_DEATHS' then
+      event.Required.CreatureDeaths = event.Required.CreatureDeaths or {}
+      event.Required.CreatureDeaths[array[3]] = event.Required.CreatureDeaths[array[3]] or {}
+      event.Required.CreatureDeaths[array[3]][array[4]] = array[5]
+     elseif array[2] == 'TRADES' then
+      event.Required.Trades = event.Required.Trades or {}
+      event.Required.Trades[array[3]] = array[4]
+     elseif array[2] == 'SIEGES' then
+      event.Required.Sieges = event.Required.Sieges or {}
+      event.Required.Sieges[array[3]] = array[4]
+     end
+    elseif test == '[EFFECT' then
+     number = array[2]
+     numberOfEffects = numberOfEffects + 1
+     event.Effect[number] = {}
+     effect = event.Effect[number]
+     effect.Arguments = '0'
+     effect.Argument = {}
+     effect.Required = {}
+     effect.Script = {}
+     effect.Delay = {}
+     effect.Scripts = '0'
+    elseif test == '[EFFECT_NAME' then
+     effect.Name = array[2]
+    elseif test == '[EFFECT_CHANCE' then
+     effect.Chance = array[2]
+    elseif test == '[EFFECT_CONTINGENT_ON' then
+     effect.Contingent = array[2]
+    elseif test == '[EFFECT_DELAY' then
+     effect.Delay[array[2]] = array[3]
+    elseif test == '[EFFECT_REQUIREMENT' then
+     if array[2] == 'COUNTER_MAX' then
+      effect.Required.CounterMax = effect.Required.CounterMax or {}
+      effect.Required.CounterMax[array[3]] = array[4]
+     elseif array[2] == 'COUNTER_MIN' then
+      effect.Required.CounterMin = effect.Required.CounterMin or {}
+      effect.Required.CounterMin[array[3]] = array[4]
+     elseif array[2] == 'COUNTER_EQUAL' then
+      effect.Required.CounterEqual = effect.Required.CounterEqual or {}
+      effect.Required.CounterEqual[array[3]] = array[4]
+     elseif array[2] == 'TIME' then
+      effect.Required.Time = array[3]
+     elseif array[2] == 'POPULATION' then
+      effect.Required.Population = array[3]
+     elseif array[2] == 'SEASON' then
+      effect.Required.Season = array[3]
+     elseif array[2] == 'TREES_CUT' then
+      effect.Required.TreeCut = array[3]
+     elseif array[2] == 'FORTRESS_RANK' then
+      effect.Required.Rank = array[3]
+     elseif array[2] == 'PROGRESS_RANK' then
+      if array[3] == 'POPULATION' then effect.Required.ProgressPopulation = array[4] end
+      if array[3] == 'TRADE' then effect.Required.ProgressTrade = array[4] end
+      if array[3] == 'PRODUCTION' then effect.Required.ProgressProduction = array[4] end
+     elseif array[2] == 'ARTIFACTS' then
+      effect.Required.NumArtifacts = array[3]
+     elseif array[2] == 'TOTAL_DEATHS' then
+      effect.Required.TotDeaths = array[3]
+     elseif array[2] == 'TOTAL_INSANITIES' then
+      effect.Required.TotInsanities = array[3]
+     elseif array[2] == 'TOTAL_EXECUTIONS' then
+      effect.Required.TotExecutions = array[3]
+     elseif array[2] == 'MIGRANT_WAVES' then
+      effect.Required.MigrantWaves = array[3]
+     elseif array[2] == 'WEALTH' then
+      effect.Required.Wealth = effect.Required.Wealth or {}
+      effect.Required.Wealth[array[3]] = array[4]
+     elseif array[2] == 'BUILDING' then
+      effect.Required.Building = effect.Required.Building or {}
+      effect.Required.Building[array[3]] = array[4]
+     elseif array[2] == 'SKILL' then
+      effect.Required.Skill = effect.Required.Skill or {}
+      effect.Required.Skill[array[3]] = array[4]
+     elseif array[2] == 'CLASS' then
+      effect.Required.Class = effect.Required.Class or {}
+      effect.Required.Class[array[3]] = array[4]
+     elseif array[2] == 'ENTITY_KILLS' then
+      effect.Required.EntityKills = effect.Required.EntityKills or {}
+      effect.Required.EntityKills[array[3]] = array[4]
+     elseif array[2] == 'CREATURE_KILLS' then
+      effect.Required.CreatureKills = effect.Required.CreatureKills or {}
+      effect.Required.CreatureKills[array[3]] = effect.Required.CreatureKills[array[3]] or {}
+      effect.Required.CreatureKills[array[3]][array[4]] = array[5]
+     elseif array[2] == 'ENTITY_DEATHS' then
+      effect.Required.EntityDeaths = effect.Required.EntityDeaths or {}
+      effect.Required.EntityDeaths[array[3]] = array[4]
+     elseif array[2] == 'CREATURE_DEATHS' then
+      effect.Required.CreatureDeaths = effect.Required.CreatureDeaths or {}
+      effect.Required.CreatureDeaths[array[3]] = effect.Required.CreatureDeaths[array[3]] or {}
+      effect.Required.CreatureDeaths[array[3]][array[4]] = array[5]
+     elseif array[2] == 'TRADES' then
+      effect.Required.Trades = effect.Required.Trades or {}
+      effect.Required.Trades[array[3]] = array[4]
+     elseif array[2] == 'SIEGES' then
+      effect.Required.Sieges = effect.Required.Sieges or {}
+      effect.Required.Sieges[array[3]] = array[4]
+     end
+    elseif test == '[EFFECT_UNIT' then
+     effect.Unit = {}
+     local temptable = {select(2,table.unpack(array))}
+     strint = '1'
+     for _,v in pairs(temptable) do
+      effect.Unit[strint] = v
+      strint = tostring(math.floor(strint+1))
+     end
+    elseif test == '[EFFECT_LOCATION' then
+     effect.Location = {}
+     local temptable = {select(2,table.unpack(array))}
+     strint = '1'
+     for _,v in pairs(temptable) do
+      effect.Location[strint] = v
+      strint = tostring(math.floor(strint+1))
+     end
+    elseif test == '[EFFECT_BUILDING' then
+     effect.Building = {}
+     local temptable = {select(2,table.unpack(array))}
+     strint = '1'
+     for _,v in pairs(temptable) do
+      effect.Building[strint] = v
+      strint = tostring(math.floor(strint+1))
+     end
+    elseif test == '[EFFECT_ITEM' then
+     effect.Item = {}
+     local temptable = {select(2,table.unpack(array))}
+     strint = '1'
+     for _,v in pairs(temptable) do
+      effect.Item[strint] = v
+      strint = tostring(math.floor(strint+1))
+     end
+    elseif test == '[EFFECT_ARGUMENT' then
+     argnumber = array[2]
+     effect.Arguments = tostring(effect.Arguments + 1)
+     effect.Argument[argnumber] = {}
+     argument = effect.Argument[argnumber]
+    elseif test == '[ARGUMENT_WEIGHTING' then
+     argument.Weighting = array[2]
+    elseif test == '[ARGUMENT_EQUATION' then
+     argument.Equation = array[2]
+    elseif test == '[ARGUMENT_VARIABLE' then
+     argument.Variable = array[2]
+    elseif test == '[EFFECT_SCRIPT' then
+     effect.Scripts = tostring(math.floor(effect.Scripts + 1))
+     script = data[j]:gsub("%s+"," ")
+     script = table.concat({select(2,table.unpack(split(script,':')))},':')
+     script = string.sub(script,1,-2)
+     effect.Script[effect.Scripts] = script
+    end
+   end
+   event.Effects = tostring(numberOfEffects)
+  end
+ end
+
+ persistTable.GlobalTable.roses.Systems.Event = 'true'
+ return true
+end
+
 function checkRequirements(event,effect,verbose)
  local persistTable = require 'persist-table'
  local utils = require 'utils'

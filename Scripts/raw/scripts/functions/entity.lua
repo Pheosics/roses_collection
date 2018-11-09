@@ -1,20 +1,74 @@
 --entity based functions, version 42.06a
---[[
-changeResources(entity,group,category,mainToken,subToken,direction,verbose)
-  Purpose: Add or remove a given resource from an entity
-  Calls: changeCreature | changeInorganic | changeItem | changeMisc | changeOrganic | changeRefuse | changeProduct | changeSkill | changeEthic | changeValue
-  Inputs:
-        entity:                 Entity ID or entity struct
-        group:                  Group of resources to change (Valid Values: CREATURE, INORGANIC, ITEM, MISC, ORGANIC, REFUSE, PRODUCT, SKILLS, ETHICS, or VALUES)
-        category:               Category of group to change (see above functions for valid values)
-        mainToken:              Depends on the group and category
-        subToken:               Depends on the group and category
-        direction:              add or remove
-        verbose:                Boolean, whether to print extra debugging information
-  Returns: NA
-NOTE: For a complete list of acceptable values for mtype, stype, mobj, and sobj see the Entity ReadMe
-]]
 ---------------------------------------------------------------------------------------
+function makeEntityTable(entity,verbose)
+ if tonumber(entity) then
+  civid = tonumber(entity)
+ else
+  civid = entity.id
+ end
+ key = tostring(civid)
+ entity = df.global.world.entities.all[civid]
+ local persistTable = require 'persist-table'
+ local key = tostring(entity.id)
+ local entity = entity.entity_raw.code
+ local civilizations = persistTable.GlobalTable.roses.CivilizationTable
+ local entityTable = persistTable.GlobalTable.roses.EntityTable
+ if entityTable[key] then
+  return
+ else
+  entityTable[key] = {}
+  entityTable = entityTable[key]
+  entityTable.Kills = {}
+  entityTable.Deaths = {}
+  entityTable.Trades = '0'
+  entityTable.Sieges = '0'
+  if civilizations then
+   if civilizations[entity] then
+    entityTable.Civilization = {}
+    entityTable.Civilization.Name = entity
+    entityTable.Civilization.Level = '0'
+    entityTable.Civilization.CurrentMethod = civilizations[entity].LevelMethod
+    entityTable.Civilization.CurrentPercent = civilizations[entity].LevelPercent
+    entityTable.Civilization.Classes = {}
+    if safe_index(civilizations,entity,'Level','0','Remove') then
+     for _,mtype in pairs(civilizations[entity].Level['0'].Remove._children) do
+      local depth1 = civilizations[entity].Level['0'].Remove[mtype]
+      for _,stype in pairs(depth1._children) do
+       local depth2 = depth1[stype]
+       for _,mobj in pairs(depth2._children) do
+        local sobj = depth2[mobj]
+        dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,verbose)
+       end
+      end
+     end
+    end
+    if safe_index(civilizations,entity,'Level','0','Add') then
+     for _,mtype in pairs(civilizations[entity].Level['0'].Add._children) do
+      local depth1 = civilizations[entity].Level['0'].Add[mtype]
+      for _,stype in pairs(depth1._children) do
+       local depth2 = depth1[stype]
+       for _,mobj in pairs(depth2._children) do
+        local sobj = depth2[mobj]
+        dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,verbose)
+       end
+      end
+     end
+     if safe_index(civilizations,entity,'Level','0','Classes') then
+      for _,class in pairs(civilizations[entity].Level['0'].Classes._children) do
+       level = tonumber(civilizations[entity].Level['0'].Classes[class])
+       if level > 0 then
+        entityTable.Civilization.Classes[class] = tostring(level)
+       else
+        entityTable.Civilization.Classes[class] = nil
+       end
+      end
+     end
+    end
+   end
+  end
+ end
+end
+
 function changeResources(entity,mtype,stype,mobj,sobj,direction,verbose)
  if string.upper(mtype) == 'CREATURE' then
   changeCreature(entity,stype,mobj,sobj,direction,verbose)

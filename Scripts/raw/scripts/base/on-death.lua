@@ -24,9 +24,7 @@ end
 
 events.onUnitDeath.mainFunction=function(target_id)
  roses = persistTable.GlobalTable.roses
- if not roses then
-  return
- end
+ if not roses then return  end
 
  target = df.unit.find(target_id)
  target_civ = target.civ_id
@@ -84,7 +82,7 @@ events.onUnitDeath.mainFunction=function(target_id)
 -- EntityTable Checks
  if roses.EntityTable then
   if killer_id >= 0 and killer_civ >= 0 then
-   if not roses.EntityTable[tostring(killer_civ)] then dfhack.script_environment('functions/tables').makeEntityTable(tostring(killer_civ)) end
+   if not roses.EntityTable[tostring(killer_civ)] then dfhack.script_environment('functions/entity').makeEntityTable(tostring(killer_civ)) end
    killTable = roses.EntityTable[tostring(killer_civ)].Kills
    killTable.Total = killTable.Total or '0'
    killTable.Total = tostring(killTable.Total + 1)
@@ -93,7 +91,7 @@ events.onUnitDeath.mainFunction=function(target_id)
    killTable[killer_creature_name][killer_caste_name] = tostring(killTable[killer_creature_name][killer_caste_name] + 1)
   end
   if target_civ >= 0 then
-   if not roses.EntityTable[tostring(target_civ)] then dfhack.script_environment('functions/tables').makeEntityTable(tostring(target_civ)) end
+   if not roses.EntityTable[tostring(target_civ)] then dfhack.script_environment('functions/entity').makeEntityTable(tostring(target_civ)) end
    deathTable = roses.EntityTable[tostring(target_civ)].Deaths
    deathTable.Total = deathTable.Total or '0'
    deathTable.Total = tostring(deathTable.Total + 1)
@@ -105,15 +103,14 @@ events.onUnitDeath.mainFunction=function(target_id)
 
 -- ClassTable Checks
  if roses.ClassTable and killer_id >= 0 then
-  experience = 1
+  if safe_index(roses, 'EnhancedCreatureTable',target_race,target_caste,'Experience') then
+   experience = tonumber(roses.EnhancedCreatureTable[target_race][target_caste].Experience)
+  else
+   experience = 1
+  end
+
   experience_list = {}
   experience_radius = tonumber(roses.BaseTable.ExperienceRadius)
-  for _,unitclass in ipairs(df.creature_raw.find(target_race).caste[target_caste].creature_class) do
-   if split(unitclass.value,'_')[1] == 'EXPERIENCE' then
-    experience = split(unitclass.value,'_')[2]
-    break
-   end
-  end
   if experience_radius == -1 then
    experience_list = {killer_id}
   else
@@ -126,15 +123,4 @@ events.onUnitDeath.mainFunction=function(target_id)
    dfhack.script_environment('functions/class').addExperience(unit_id,experience,true)
   end
  end
-
--- UnitTable Checks
- if roses.UnitTable then
-  if killer_id >= 0 then
-   if not roses.UnitTable[tostring(killer_id)] then dfhack.script_environment('functions/tables').makeUnitTable(tostring(killer_id)) end
-   roses.UnitTable[tostring(killer_id)].Stats.Kills = tostring(tonumber(roses.UnitTable[tostring(killer_id)].Stats.Kills) + 1)
-  end
-  if not roses.UnitTable[tostring(target_id)] then dfhack.script_environment('functions/tables').makeUnitTable(tostring(target_id)) end
-  roses.UnitTable[tostring(target_id)].Stats.Deaths = tostring(tonumber(roses.UnitTable[tostring(target_id)].Stats.Deaths) + 1)
- end
-
 end
