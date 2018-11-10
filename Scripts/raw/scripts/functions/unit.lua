@@ -33,8 +33,8 @@ getUnitTable(unit)
 
 function makeUnitTable(unit)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- unitPersist[tostring(unit.id)] = {}
- unitTable = unitPersist[tostring(unit.id)]
+ persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] = {}
+ unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
  
  -- Basic Unit Information (Attributes, Skills, Traits, Resistances, Stats, etc...)
  unitTable.Attributes = {}
@@ -66,7 +66,7 @@ function makeUnitTable(unit)
  end
  
  -- Needed for the Class System
- if persistTable.GlobalTable.roses.ClassTable then
+ if persistTable.GlobalTable.roses.Systems.Class == 'true' then
   unitTable.Classes = {}
   unitTable.Feats = {}
   unitTable.Spells = {}
@@ -129,8 +129,7 @@ function getUnitTable(unit)
   end
  end
  -- Custom Skills
- for _,id in pairs(baseTable.CustomSkills._children) do
-  skill = baseTable.CustomSkills[id]
+ for _,skill in pairs(baseTable.CustomSkills._children) do
   if unitTable.Skills[skill] then
    outTable.Skills[skill] = tonumber(unitTable.Skills[skill].Base) + tonumber(unitTable.Skills[skill].Change)
   else
@@ -231,9 +230,9 @@ function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
  elseif alter == 'terminate' or alter == 'terminateclass' then
   trackTerminate(unit,Table,strname,func,syndrome,alter)
  elseif alter == 'class' then -- Track changes associated with a class
-  Table[kind].Class = tostring(math.floor(change + typeTable.Class))
+  Table[kind].Class = tostring(math.floor(change + tonumber(Table[kind].Class)))
  elseif alter == 'item' then -- Track changes associated with an item
-  Table[kind].Item = tostring(math.floor(change + typeTable.Item))
+  Table[kind].Item = tostring(math.floor(change + tonumber(Table[kind].Item)))
  end
 end
 

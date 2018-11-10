@@ -68,7 +68,7 @@ function makeBaseTable(test,verbose)
     elseif test == '[FEAT_GAINS' then
      base.FeatGains = array[2]..':'..array[3]
     elseif test == '[SKILL' then
-     base.CustomSkills[#base.CustomSkills._children+1] = array[3]
+     base.CustomSkills[array[2]] = array[3]
     elseif test == '[ATTRIBUTE' then
      base.CustomAttributes[#base.CustomAttributes._children+1] = array[2]
     elseif test == '[RESISTANCE' then

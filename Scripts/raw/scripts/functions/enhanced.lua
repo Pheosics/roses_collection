@@ -531,12 +531,12 @@ function makeEnhancedMaterialTable(test)
  print('Enhanced System - Materials, not currently working')
  return false
 
- materialFiles,  materialInfoFiles   materialfiles  = getData('Material' ,test)
- inorganicFiles, inorganicInfoFiles, inorganicfiles = getData('Inorganic',test)
- plantFiles,     plantInfoFiles,     plantfiles     = getData('PlantMat' ,test)
- animalFiles,    animalInfoFiles,    animalfiles    = getData('AnimalMat',test)
+ --materialFiles,  materialInfoFiles   materialfiles  = getData('Material' ,test)
+ --inorganicFiles, inorganicInfoFiles, inorganicfiles = getData('Inorganic',test)
+ --plantFiles,     plantInfoFiles,     plantfiles     = getData('PlantMat' ,test)
+ --animalFiles,    animalInfoFiles,    animalfiles    = getData('AnimalMat',test)
 
- persistTable.GlobalTable.roses.Systems.EnhancedMaterial = 'true'
+ --persistTable.GlobalTable.roses.Systems.EnhancedMaterial = 'true'
 
 end
 

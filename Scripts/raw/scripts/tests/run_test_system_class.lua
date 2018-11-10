@@ -23,7 +23,7 @@ function writeall(tbl)
 end
 
 -- Open external output file
-file = io.open('run_test_output.txt','w')
+file = io.open('rto_class.txt','w')
 io.output(file)
 
 
@@ -62,7 +62,6 @@ writeall(output)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function system_checks()
  local tableFunctions = dfhack.script_environment('functions/tables')
- -- Get Units for checks
  local civ = {}
  local non = {}
  for _,unit in pairs(df.global.world.units.active) do
@@ -79,8 +78,6 @@ function system_checks()
   printplus('')
   printplus('Class System checks starting',COLOR_CYAN)
 
-  local persistTable = require 'persist-table'
-  local roses = persistTable.GlobalTable.roses
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- START Base System Checks ------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -95,9 +92,10 @@ function system_checks()
   unit = civ[4]
   ----
   writeall('Attempting to assign Test Class 1 to unit')
+  writeall('classes/change-class -unit '..tostring(unit.id)..' -class TEST_CLASS_1 -verbose')
   output = dfhack.run_command_silent('classes/change-class -unit '..tostring(unit.id)..' -class TEST_CLASS_1 -verbose')
   writeall(output)
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = roses.UnitTable[tostring(unit.id)]
   if unitTable.Classes.Current ~= 'TEST_CLASS_1' then 
    classCheck[#classCheck+1] = 'Test Class 1 was not assigned to the Unit'
   end
@@ -107,7 +105,7 @@ function system_checks()
   writeall('Mining and Woodcutting skill will increase')
   output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
   writeall(output)
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = roses.UnitTable[tostring(unit.id)]
   if unitTable.Classes.TEST_CLASS_1.Level ~= '1' then 
    classCheck[#classCheck+1] = 'Test Class 1 did not level from 0 to 1'
   end
@@ -123,7 +121,7 @@ function system_checks()
   writeall('Mining and Woodcutting skill will increase')
   output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
   writeall(output)
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = roses.UnitTable[tostring(unit.id)]
   if unitTable.Classes.TEST_CLASS_1.Level ~= '2' then
    classCheck[#classCheck+1] = 'Test Class 1 did not level from 1 to 2'
   end
@@ -144,7 +142,7 @@ function system_checks()
   writeall('Mining skill will increase, Woodcutting skill will reset')
   output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
   writeall(output)
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = roses.UnitTable[tostring(unit.id)]
   if unitTable.Classes.TEST_CLASS_1.Experience ~= '3' or unitTable.Classes.TEST_CLASS_1.Level ~= '3' then
    classCheck[#classCheck+1] = 'Test Class 1 did not level from 2 to 3'
   end
@@ -163,14 +161,14 @@ function system_checks()
   writeall('Mining skill will remain the same, Carpentry skill will increase')
   output = dfhack.run_command_silent('classes/add-experience -unit '..tostring(unit.id)..' -amount 1 -verbose')
   writeall(output)
-  unitTable = roses.UnitTable(tostring(unit.id))
-  if unitTable.Classes.TEST_CLASS_2.Level ~= '1' then
+  unitTable = roses.UnitTable[tostring(unit.id)]
+  if not unitTable.Classes.TEST_CLASS_2 or unitTable.Classes.TEST_CLASS_2.Level ~= '1' then
    classCheck[#classCheck+1] = 'Test Class 2 did not level from 0 to 1'
   end
   --if unitTable.Skills.MINING.Class ~= '14' or unitTable.Skills.CARPENTRY.Class ~= '15' or unitTable.Skills.MASONRY.Class ~= '15' then
   -- classCheck[#classCheck+1] = 'Test Class 2 level 1 skills were not applied correctly'
   --end
-  if unitTable.Spells.TEST_SPELL_3 ~= '1' or unitTable.Spells.Active.TEST_SPELL_1 or not unitTable.Spells.Active.TEST_SPELL_3 then
+  if not unitTable.Spells.TEST_SPELL_3 or unitTable.Spells.TEST_SPELL_3 ~= '1' or unitTable.Spells.Active.TEST_SPELL_1 or not unitTable.Spells.Active.TEST_SPELL_3 then
    classCheck[#classCheck+1] = 'Test Class 2 level 1 Test Spell 3 did not replace Test Spell 1'
   end
 
@@ -191,7 +189,7 @@ function system_checks()
   writeall('Attempting to assign Test Feat 2 to unit, this should fail')
   output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
   writeall(output)
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = roses.UnitTable[tostring(unit.id)]
   if unitTable.Feats.TEST_FEAT_2 then
    featCheck[#featCheck+1] = 'Test Feat 2 was applied when it should not have been'
   end
@@ -200,7 +198,7 @@ function system_checks()
   writeall('Attempting to assign Test Feat 1 to unit, this should work')
   output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_1 -verbose')
   writeall(output)
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = roses.UnitTable[tostring(unit.id)]
   if not unitTable.Feats.TEST_FEAT_1 then
    featCheck[#featCheck+1] = 'Test Feat 1 was not correctly applied'
   end
@@ -209,7 +207,7 @@ function system_checks()
   writeall('Attempting to assign Test Feat 2 to unit, now this should work')
   output = dfhack.run_command_silent('classes/add-feat -unit '..tostring(unit.id)..' -feat TEST_FEAT_2 -verbose')
   writeall(output)
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = roses.UnitTable[tostring(unit.id)]
   if not unitTable.Feats.TEST_FEAT_2 then
    featCheck[#featCheck+1] = 'Test Feat 2 was not correctly applied'
   end

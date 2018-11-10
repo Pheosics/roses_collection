@@ -1,5 +1,5 @@
 --Functions for use in the Class System, v42.06a
-local persistTable = require 'persist-table'
+persistTable = require 'persist-table'
 if not persistTable.GlobalTable.roses then return end
 classPersist = persistTable.GlobalTable.roses.ClassTable
 unitPersist = persistTable.GlobalTable.roses.UnitTable
@@ -117,8 +117,8 @@ function getData(table,test)
     count = count + 1
    end
   end
+  dataInfo[file][count-1][3] = endline
  end
- dataInfo[file][count-1][3] = endline
 
  return data, dataInfo, files
 end
@@ -135,8 +135,8 @@ function makeClassTable(test)
    classToken = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   classPersist[classToken] = {}
-   class = classPersist[classToken]
+   persistTable.GlobalTable.roses.ClassTable[classToken] = {}
+   class = persistTable.GlobalTable.roses.ClassTable[classToken]
    class.Level = {}
    class.Spells = {}
    level = '0'
@@ -238,7 +238,7 @@ function makeClassTable(test)
      end
     end
    end
-   for lvl = 1, tonumber(class.Levels) do
+   for lvl = 0, tonumber(class.Levels) do
     if not class.Level[tostring(lvl)] then
      print('Level '..tostring(lvl)..' not found for Class '..classToken)
      class.Level[tostring(lvl)] = {}
@@ -261,12 +261,8 @@ function makeFeatTable(test)
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
    featToken = x[1]
-   startLine = x[2]+1
-   if i == #dataInfo then
-    endLine = #data
-   else
-    endLine = dataInfo[i+1][2]-1
-   end
+   startLine = x[2]
+   endLine   = x[3]
    featPersist[featToken] = {}
    feat = featPersist[featToken]
    feat.Effect = {}
@@ -326,12 +322,8 @@ function makeSpellTable(test)
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
    spellToken = x[1]
-   startLine = x[2]+1
-   if i == #dataInfo then
-    endLine = #data
-   else
-    endLine = dataInfo[i+1][2]-1
-   end
+   startLine  = x[2]
+   endLine    = x[3]
    spellPersist[spellToken] = {}
    spell = spellPersist[spellToken]
    spell.Script = {}
@@ -416,31 +408,31 @@ function makeSpellTable(test)
     elseif test == '[SOURCE_PRIMARY_ATTRIBUTES' then
      spell.SourceAttributes = spell.SourceAttributes or {}
      spell.SourceAttributes.Primary = {}
-     tempTable = makeTable(array,2)
-     for x,y in pairs(tempTable) do
-      spell.SourceAttributes.Primary[tostring(x)] = y
-     end
+     --tempTable = makeTable(array,2)
+     --for x,y in pairs(tempTable) do
+     -- spell.SourceAttributes.Primary[tostring(x)] = y
+     --end
     elseif test == '[SOURCE_SECONDARY_ATTRIBUTES' then
      spell.SourceAttributes = spell.SourceAttributes or {}
      spell.SourceAttributes.Secondary = {}
-     tempTable = makeTable(array,2)
-     for x,y in pairs(tempTable) do
-      spell.SourceAttributes.Secondary[tostring(x)] = y
-     end
+     --tempTable = makeTable(array,2)
+     --for x,y in pairs(tempTable) do
+     -- spell.SourceAttributes.Secondary[tostring(x)] = y
+     --end
     elseif test == '[TARGET_PRIMARY_ATTRIBUTES' then
      spell.TargetAttributes = spell.TargetAttributes or {}
      spell.TargetAttributes.Primary = {}
-     tempTable = makeTable(array,2)
-     for x,y in pairs(tempTable) do
-      spell.TargetAttributes.Primary[tostring(x)] = y
-     end
+     --tempTable = makeTable(array,2)
+     --for x,y in pairs(tempTable) do
+     -- spell.TargetAttributes.Primary[tostring(x)] = y
+     --end
     elseif test == '[TARGET_SECONDARY_ATTRIBUTES' then
      spell.TargetAttributes = spell.TargetAttributes or {}
      spell.TargetAttributes.Secondary = {}
-     tempTable = makeTable(array,2)
-     for x,y in pairs(tempTable) do
-      spell.TargetAttributes.Secondary[tostring(x)] = y
-     end
+     --tempTable = makeTable(array,2)
+     --for x,y in pairs(tempTable) do
+     -- spell.TargetAttributes.Secondary[tostring(x)] = y
+     --end
     elseif test == '[SCRIPT' then
      script = data[j]
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
@@ -503,14 +495,14 @@ function addExperience(unit,amount,verbose)
 
  -- Add experience to the current class 
  class.Experience = tostring(tonumber(class.Experience)+amount)
- class.SkillExperience = tostring(tonumber(class.SkillExperience)+amount)
+ class.SkillExp = tostring(tonumber(class.SkillExp)+amount)
 
  -- Check if enough experience to level up
  classLevel = tonumber(class.Level)
  nextLevel = math.floor(classLevel+1)
  if classLevel < tonumber(classPersist[currentClass].Levels) then
   nextExpLevel = tonumber(classPersist[currentClass].Level[tostring(nextLevel)].Experience) or 0
-  if tonumber(class.Experience) >= classExpLevel then
+  if tonumber(class.Experience) >= nextExpLevel then
    changeLevel(unit,verbose)
   end
  end
@@ -542,8 +534,8 @@ function changeLevel(unit,verbose)
   if level + 1 == tonumber(classTable.Level) then maxLevel = true end
   class.Level = tostring(level+1)
  end
- classTableLevel = classTable[tostring(level + 1)]
- classTablePrev  = classTable[tostring(level)]
+ classTableLevel = classTable.Level[tostring(level + 1)]
+ classTablePrev  = classTable.Level[tostring(level)]
 
  unitFunctions = dfhack.script_environment('functions/unit')
  -- Apply permenant changes
@@ -551,11 +543,11 @@ function changeLevel(unit,verbose)
   for _,mType in pairs(classTableLevel.LevelBonus._children) do
    for _,sType in pairs(classTableLevel.LevelBonus[mType]._children) do
     local bonus = tonumber(classTableLevel.LevelBonus[mType][sType])
-    if mType == 'Attributes'  then unitFunctions.changeAttribute( unit,sType,bonus,0,'track') end
-    if mType == 'Resistances' then unitFunctions.changeResistance(unit,sType,bonus,0,'track') end
-    if mType == 'Skills'      then unitFunctions.changeSkill(     unit,sType,bonus,0,'track') end
-    if mType == 'Stats'       then unitFunctions.changeStat(      unit,sType,bonus,0,'track') end
-    if mType == 'Traits'      then unitFunctions.changeTrait(     unit,sType,bonus,0,'track') end
+    if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,bonus,0,'track') end
+    if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,bonus,0,'track') end
+    if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,bonus,0,'track') end
+    if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,bonus,0,'track') end
+    if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,bonus,0,'track') end
    end
   end
  end  
@@ -563,25 +555,27 @@ function changeLevel(unit,verbose)
  -- Apply Level Changes
  if classTableLevel.Adjustments then
   -- First remove last levels adjustments
-  for _,mType in pairs(classTablePrev.Adjustments._children) do
-   for _,sType in pairs(classTablePrev.Adjustments[mType]._children) do
-    local change = -1*tonumber(classTablePrev.Adjustments[mType][sType])
-    if mType == 'Attributes'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
-    if mType == 'Resistances' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
-    if mType == 'Skills'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
-    if mType == 'Stats'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
-    if mType == 'Traits'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+  if classTablePrev and classTablePrev.Adjustments then
+   for _,mType in pairs(classTablePrev.Adjustments._children) do
+    for _,sType in pairs(classTablePrev.Adjustments[mType]._children) do
+     local change = -1*tonumber(classTablePrev.Adjustments[mType][sType])
+     if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
+     if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
+     if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
+     if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
+     if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+    end
    end
   end
   -- Then add this levels adjustments
-  for _,mType in pairs(classTableLevel.LevelBonus._children) do
-   for _,sType in pairs(classTableLevel.LevelBonus[mType]._children) do
-    local change = tonumber(classTableLevel.LevelBonus[mType][sType])
-    if mType == 'Attributes'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
-    if mType == 'Resistances' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
-    if mType == 'Skills'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
-    if mType == 'Stats'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
-    if mType == 'Traits'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+  for _,mType in pairs(classTableLevel.Adjustments._children) do
+   for _,sType in pairs(classTableLevel.Adjustments[mType]._children) do
+    local change = tonumber(classTableLevel.Adjustments[mType][sType])
+    if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
+    if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
+    if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
+    if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
+    if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
    end
   end
  end
@@ -616,14 +610,14 @@ end
 function changeClass(unit,change,verbose)
  -- Check if unit passed is unit ID or unit struct
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- unitFunctions = dfhack.script_environment('functions/unit')
 
  -- Make sure unit has a valid UnitTable, create if they don't
- if not unitPersist[tostring(unit.id)] then 
-  unitFunctions.makeUnitTable(unit)
+ if not unitPersist[tostring(unit.id)] then
+  dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
- local unitTable = unitPersist[key]
-
+ printall(unitPersist)
+ local unitTable = unitPersist[tostring(unit.id)]
+ printall(unitTable)
  -- Check that not already the class to change into
  if unitTable.Classes.Current == change then
   if verbose then print('Already this class: '..change) end
@@ -686,15 +680,17 @@ function changeClass(unit,change,verbose)
 
  -- Add Level Adjustments for new class
  classLevelTable = classPersist[change].Level[newLevel]
- if classLevelTable.Adjustments then
-  for _,mType in pairs(classLevelTable.Adjustments._children) do
-   for _,sType in pairs(classLevelTable.Adjustments[mType]._children) do
-    local change = tonumber(classLevelTable.Adjustments[mType][sType])
-    if mType == 'Attributes'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
-    if mType == 'Resistances' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
-    if mType == 'Skills'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
-    if mType == 'Stats'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
-    if mType == 'Traits'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+ if classLevelTable then
+  if classLevelTable.Adjustments then
+   for _,mType in pairs(classLevelTable.Adjustments._children) do
+    for _,sType in pairs(classLevelTable.Adjustments[mType]._children) do
+     local change = tonumber(classLevelTable.Adjustments[mType][sType])
+     if mType == 'Attributes'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
+     if mType == 'Resistances' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
+     if mType == 'Skills'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
+     if mType == 'Stats'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
+     if mType == 'Traits'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+    end
    end
   end
  end
@@ -739,7 +735,6 @@ function changeSpell(unit,spell,direction,verbose)
   dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
  unitTable = unitPersist[tostring(unit.id)]
- currentClass = unitTable.Classes[unitTable.Classes.Current]
 
  if direction == 'learn' and unitTable.Spells[spell] then direction = 'add' end
 
@@ -764,6 +759,9 @@ function changeSpell(unit,spell,direction,verbose)
 
  -- Check if the unit is learning the spell 
  if direction == 'learn' then
+  currentClassName = unitTable.Classes.Current
+  if not classPersist[currentClassName] then return false end
+  currentClass = unitTable.Classes[currentClassName]
   if unitTable.Spells.Active[spell] then
    if verbose then print('Spell already known and active') return end
   end
@@ -794,7 +792,9 @@ end
 function checkRequirementsClass(unit,check,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 
- if not unitPersist[tostring(unit.id)] then return false end
+ if not unitPersist[tostring(unit.id)] then 
+  dfhack.script_environment('functions/unit').makeUnitTable(unit)
+ end
  unitTable = unitPersist[tostring(unit.id)]
  unitClasses = unitTable.Classes
  unitInfo = dfhack.script_environment('functions/unit').getUnitTable(unit)
@@ -874,7 +874,9 @@ end
 function checkRequirementsSpell(unit,check,verbose)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 
- if not unitPersist[tostring(unit.id)] then return false end
+ if not unitPersist[tostring(unit.id)] then 
+  dfhack.script_environment('functions/unit').makeUnitTable(unit)
+ end
  unitTable = unitPersist[tostring(unit.id)]
  unitClassTable = unitTable.Classes[unitTable.Classes.Current]
  unitInfo = dfhack.script_environment('functions/unit').getUnitTable(unit)

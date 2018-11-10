@@ -26,6 +26,8 @@ end
 if args.testRun then args.forceReload = true end
 verbose = args.verbose
 
+if args.forceReload then persistTable.GlobalTable.roses = nil end
+
 persistTable.GlobalTable.roses = persistTable.GlobalTable.roses or {}
 roses = persistTable.GlobalTable.roses
 
@@ -37,7 +39,6 @@ roses.FeatTable  = roses.FeatTable  or {}
 roses.SpellTable = roses.SpellTable or {}
 ---- CIVILIZATION SYSTEM
 roses.CivilizationTable = roses.CivilizationTable or {}
-roses.CivilizationTable.Loaded
 roses.DiplomacyTable    = roses.DiplomacyTable    or {}
 ---- ENHANCED SYSTEM
 roses.EnhancedItemTable     = roses.EnhancedItemTable     or {}
@@ -67,11 +68,14 @@ dfhack.script_environment('functions/tables').makeBaseTable(args.testRun,args.ve
 --= MAKE CLASS SYSTEM 
 if args.all or args.classSystem then
  print('Initializing the Class System')
- if args.forceReload then
-  roses.ClassTable = {}, roses.Systems.Class = 'false'
-  roses.FeatTable = {}, roses.Systems.Feat = 'false'
-  roses.SpellTable = {}, roses.Systems.Spell = 'false'
- end
+-- if args.forceReload then
+--  roses.ClassTable = {}
+--  roses.Systems.Class = 'false'
+--  roses.FeatTable = {}
+--  roses.Systems.Feat = 'false'
+--  roses.SpellTable = {}
+--  roses.Systems.Spell = 'false'
+-- end
 
  if not roses.Systems.Class or roses.Systems.Class == 'false' then
   dfhack.script_environment('functions/class').makeClassTable(args.testRun)
@@ -132,7 +136,8 @@ end
 if args.all or args.civilizationSystem then
  print('Initializing the Civilization System')
  if args.forceReload then
-  roses.CivilizationTable = {}, roses.Systems.Civilization == 'false'
+  roses.CivilizationTable = {}
+  roses.Systems.Civilization = 'false'
  end
 
  if not roses.Systems.Civilization or roses.Systems.Civilization == 'false' then
@@ -160,11 +165,16 @@ end
 if args.all or args.enhancedSystem then
  print('Initializing the Enhanced System')
  if args.forceReload then
-  roses.EnhancedItemTable     =  {}, roses.Systems.EnhancedItem = 'false'
-  roses.EnhancedMaterialTable =  {}, roses.Systems.EnhancedMaterial = 'false'
-  roses.EnhancedCreatureTable =  {}, roses.Systems.EnhancedCreature = 'false'
-  roses.EnhancedBuildingTable =  {}, roses.Systems.EnhancedBuilding = 'false'
-  roses.EnhancedReactionTable =  {}, roses.Systems.EnhancedReaction = 'false'
+  roses.EnhancedItemTable     =  {}
+  roses.Systems.EnhancedItem = 'false'
+  roses.EnhancedMaterialTable =  {}
+  roses.Systems.EnhancedMaterial = 'false'
+  roses.EnhancedCreatureTable =  {}
+  roses.Systems.EnhancedCreature = 'false'
+  roses.EnhancedBuildingTable =  {}
+  roses.Systems.EnhancedBuilding = 'false'
+  roses.EnhancedReactionTable =  {}
+  roses.Systems.EnhancedReaction = 'false'
  end
 
  if not roses.Systems.EnhancedItem or roses.Systems.EnhancedItem == 'false' then
@@ -259,7 +269,8 @@ end
 if args.all or args.eventSystem then
  print('Initializing the Event System')
  if args.forceReload then
-  roses.EventTable = {}, roses.Systems.Event == 'false'
+  roses.EventTable = {}
+  roses.Systems.Event = 'false'
  end
 
  if not roses.Systems.Event or roses.Systems.Event == 'false' then
