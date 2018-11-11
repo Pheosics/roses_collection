@@ -1,9 +1,5 @@
 -- Functions for the Event System
-local persistTable = require 'persist-table'
-if not persistTable.GlobalTable.roses then return end
-eventPersist = persistTable.GlobalTable.roses.EventTable
-if not eventPersist then return end
-local utils = require 'utils'
+utils = require 'utils'
 split = utils.split_string
 usages = {}
 
@@ -75,6 +71,8 @@ function getData(test)
 end
 
 function makeEventTable(test)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  persistTable.GlobalTable.roses.Systems.Event = 'false'
  dataFiles,dataInfoFiles,files = getData(test)
  if not dataFiles then return false end
@@ -86,8 +84,8 @@ function makeEventTable(test)
    eventToken = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   eventPersist[eventToken] = {}
-   event = eventPersist[eventToken]
+   persistTable.GlobalTable.roses.EventTable[eventToken] = {}
+   event = persistTable.GlobalTable.roses.EventTable[eventToken]
    event.Effect = {}
    event.Required = {}
    event.Delay = {}
@@ -320,13 +318,11 @@ function makeEventTable(test)
 end
 
 function checkRequirements(event,effect,verbose)
- local persistTable = require 'persist-table'
- local utils = require 'utils'
- local split = utils.split_string
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  event = persistTable.GlobalTable.roses.EventTable[event]
- if not event then
-  return false
- end
+ if not event then return false  end
+
  yes = true
  if effect == 0 or effect == nil then
   check = event.Required
@@ -646,10 +642,10 @@ function checkRequirements(event,effect,verbose)
 end
 
 function triggerEvent(event,effect,verbose)
- local persistTable = require 'persist-table'
- local utils = require 'utils'
- local split = utils.split_string
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  eventTable = persistTable.GlobalTable.roses.EventTable[event]
+
  effect = tostring(effect)
  if not eventTable then
   if verbose then print('No such event to trigger: '..event) end
@@ -767,8 +763,10 @@ function triggerEvent(event,effect,verbose)
 end
 
 function checkEvent(event,method,verbose)
- local persistTable = require 'persist-table'
- local eventTable = persistTable.GlobalTable.roses.EventTable[event]
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ eventTable = persistTable.GlobalTable.roses.EventTable[event]
+
  local triggered = {}
  if checkRequirements(event,0,verbose) then
   triggered[0] = true
@@ -832,7 +830,7 @@ function queueCheck(id,method,verbose)
   ticks = 1200*28*3-curtick
   if ticks <= 0 then ticks = 1200*28*3 end
   dfhack.timeout(ticks+1,'ticks',function ()
-                                  checkEnvent(id,'SEASON',verbose) 
+                                  checkEvent(id,'SEASON',verbose) 
                                  end
                 )
  end

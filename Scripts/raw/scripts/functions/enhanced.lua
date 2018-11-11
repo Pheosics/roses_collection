@@ -1,11 +1,3 @@
-local persistTable = require 'persist-table'
-if not persistTable.GlobalTable.roses then return end
-buildingEnhanced = persistTable.GlobalTable.roses.EnhancedBuildingTable
-creatureEnhanced = persistTable.GlobalTable.roses.EnhancedCreatureTable
-materialEnhanced = persistTable.GlobalTable.roses.EnhancedMaterialTable
-reactionEnhanced = persistTable.GlobalTable.roses.EnhancedReactionTable
-itemEnhanced = persistTable.GlobalTable.roses.EnhancedItemTable
-unitPersist = persistTable.GlobalTable.roses.UnitTable
 local utils = require 'utils'
 split = utils.split_string
 usages = {}
@@ -107,6 +99,8 @@ function getData(table,test)
 end
 
 function makeEnhancedBuildingTable(test)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  persistTable.GlobalTable.roses.Systems.EnhancedBuilding = 'false'
  dataFiles,dataInfoFiles,files = getData('Building',test)
  if not dataFiles then return false end
@@ -118,8 +112,8 @@ function makeEnhancedBuildingTable(test)
    token      = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   buildingEnhanced[token] = {}
-   table = buildingEnhanced[token]
+   persistTable.GlobalTable.roses.EnhancedBuildingTable[token] = {}
+   table = persistTable.GlobalTable.roses.EnhancedBuildingTable[token]
    table.Scripts = {}
    scripts = 0
    for j = startLine,endLine,1 do
@@ -191,6 +185,8 @@ function makeEnhancedBuildingTable(test)
 end
 
 function makeEnhancedCreatureTable(test)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  persistTable.GlobalTable.roses.Systems.EnhancedCreature = 'false'
  dataFiles,dataInfoFiles,files = getData('Creature',test)
  if not dataFiles then return false end
@@ -203,8 +199,8 @@ function makeEnhancedCreatureTable(test)
    startLine  = x[2]
    endLine    = x[3]
    tokens[token] = token
-   creatureEnhanced[token] = {}
-   creatureEnhanced[token]['ALL'] = {}
+   persistTable.GlobalTable.roses.EnhancedCreatureTable[token] = {}
+   persistTable.GlobalTable.roses.EnhancedCreatureTable[token]['ALL'] = {}
 
    for n,c in pairs(df.global.world.raws.creatures.all) do
     if token == c.creature_id then
@@ -215,11 +211,11 @@ function makeEnhancedCreatureTable(test)
    if creatureID then
     for _,caste in pairs(df.global.world.raws.creatures.all[creatureID].caste) do
      casteToken = caste.caste_id
-     creatureEnhanced[token][casteToken] = creatureEnhanced[token][casteToken] or {}
+     persistTable.GlobalTable.roses.EnhancedCreatureTable[token][casteToken] = {}
     end
    end
 
-   creature = creatureEnhanced[token]['ALL']
+   creature = persistTable.GlobalTable.roses.EnhancedCreatureTable[token]['ALL']
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -229,10 +225,10 @@ function makeEnhancedCreatureTable(test)
     end
     if test == '[CASTE' then
      caste = split(array[2],']')[1]
-     creature = creatureEnhanced[token][caste]
+     creature = persistTable.GlobalTable.roses.EnhancedCreatureTable[token][caste]
     elseif test == '[SELECT_CASTE' then
      caste = split(array[2],']')[1]
-     creature = creatureEnhanced[token][caste]
+     creature = persistTable.GlobalTable.roses.EnhancedCreatureTable[token][caste]
     elseif test == '[NAME' then
      creature.Name = split(array[2],']')[1]
     elseif test == '[DESCRIPTION' then
@@ -285,6 +281,7 @@ function makeEnhancedCreatureTable(test)
  end
 
 -- Copy any ALL caste data into the respective CREATURE:CASTE combo, CASTE caste data is given priority
+ creatures = persistTable.GlobalTable.roses.EnhancedCreatureTable
  for _,creatureToken in pairs(tokens) do
   for n,c in pairs(df.global.world.raws.creatures.all) do
    if creatureToken == c.creature_id then
@@ -318,6 +315,8 @@ function makeEnhancedCreatureTable(test)
 end
 
 function makeEnhancedItemTable(test)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  persistTable.GlobalTable.roses.Systems.EnhancedItem = 'false'
  dataFiles,dataInfoFiles,files = getData('Item',test)
  if not dataFiles then return false end
@@ -329,8 +328,8 @@ function makeEnhancedItemTable(test)
    token      = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   buildingPersist[token] = {}
-   item = itemEnhanced[token]
+   persistTable.GlobalTable.roses.EnhancedItemTable[token] = {}
+   item = persistTable.GlobalTable.roses.EnhancedItemTable[token]
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -541,6 +540,8 @@ function makeEnhancedMaterialTable(test)
 end
 
 function makeEnhancedReactionTable(test)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  persistTable.GlobalTable.roses.Systems.EnhancedReaction = 'false'
  dataFiles,dataInfoFiles,files = getData('Reaction',test)
  if not dataFiles then return false end
@@ -552,8 +553,8 @@ function makeEnhancedReactionTable(test)
    token      = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   reactionEnhanced[token] = {}
-   table = reactionEnhanced[token]
+   persistTable.GlobalTable.roses.EnhancedReactionTable[token] = {}
+   table = persistTable.GlobalTable.roses.EnhancedReactionTable[token]
    table.Scripts = {}
    scripts = 0
    products = 0
@@ -626,6 +627,10 @@ usages[#usages+1] = [===[
 ]===]
 
 function buildingCreated(building)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ buildingEnhanced = persistTable.GlobalTable.roses.EnhancedBuildingTable
+ 
  ctype = building:getCustomType()
  if ctype < 0 then return end
  buildingToken = df.global.world.raws.buildings.all[ctype].code
@@ -666,14 +671,17 @@ usages[#usages+1] = [===[
 ]===]
 
 function enhanceCreature(unit)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ creatureEnhanced = persistTable.GlobalTable.roses.EnhancedCreatureTable
+
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unit then return false end
 
- local EnhancedCreatureTable = persistTable.GlobalTable.roses.EnhancedCreatureTable
  if creatureEnhanced then
   local creatureID = df.global.world.raws.creatures.all[unit.race].creature_id
   local casteID = df.global.world.raws.creatures.all[unit.race].caste[unit.caste].caste_id
-  if safe_index(EnhancedCreatureTable,creatureID,casteID) then
+  if safe_index(creatureEnhanced,creatureID,casteID) then
    if not unitPersist[tostring(unit.id)] then 
     dfhack.script_environment('functions/unit').makeUnitTable(unit)
    end
@@ -754,9 +762,12 @@ function enhanceItemsInventory(unit)
 end
 
 function onItemEquip(item,unit)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ itemTable = persistTable.GlobalTable.roses.EnhancedItemTable
+
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- local itemTable = itemEnhanced
 
  if not safe_index(itemTable,item.subtype.id,'OnEquip') then return end
  itemTable = itemTable[item.subtype.id]
@@ -812,9 +823,12 @@ function onItemEquip(item,unit)
 end
 
 function onItemUnEquip(item,unit)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ itemTable = persistTable.GlobalTable.roses.EnhancedItemTable
+
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- local itemTable = itemEnhanced
 
  if not safe_index(itemTable,item.subtype.id,'OnEquip') then return end
  itemTable = itemTable[item.subtype.id]
@@ -864,8 +878,11 @@ function onItemUnEquip(item,unit)
 end
 
 function onItemAction(item,onAction,attacker,defender,options)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ itemTable = persistTable.GlobalTable.roses.EnhancedItemTable
+
  if tonumber(item) then item = df.item.find(tonumber(item)) end
- local itemTable = itemEnhanced
 
  if not safe_index(itemTable,item.subtype.id,onAction) then return end
  itemTable = itemTable[item.subtype.id]
@@ -959,9 +976,12 @@ function enhanceMaterialsInventory(unit)
 end
 
 function onMaterialEquip(item,unit)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ matTable = persistTable.GlobalTable.roses.EnhancedMaterialTable
+
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- local matTable = materialEnhanced
  local matToken = dfhack.matinfo.decode(item.mat_type,item.mat_index):getToken()
  local array = split(matToken,':')
 
@@ -1041,9 +1061,12 @@ function onMaterialEquip(item,unit)
 end
 
 function onMaterialUnEquip(item,unit)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ matTable = persistTable.GlobalTable.roses.EnhancedMaterialTable
+
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- local matTable = materialEnhanced
  local matToken = dfhack.matinfo.decode(item.mat_type,item.mat_index):getToken()
  local array = split(matToken,':')
 
@@ -1116,8 +1139,11 @@ function onMaterialUnEquip(item,unit)
 end
 
 function onMaterialAction(item,onAction,attacker,defender,options)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ matTable = persistTable.GlobalTable.roses.EnhancedMaterialTable
+
  if tonumber(item) then item = df.item.find(tonumber(item)) end
- local matTable = materialEnhanced
  local matToken = dfhack.matinfo.decode(item.mat_type,item.mat_index):getToken()
  local array = split(matToken,':')
 
@@ -1223,6 +1249,10 @@ usages[#usages+1] = [===[
 ]===]
 
 function reactionStart(reactionToken,worker,building,job)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ reactionEnhanced = persistTable.GlobalTable.roses.EnhancedReactionTable
+
  reaction = reactionEnhanced[reactionToken]
  if not reaction then return end
 
@@ -1238,6 +1268,10 @@ function reactionStart(reactionToken,worker,building,job)
 end
 
 function reactionEnd(reactionToken,worker,building)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ reactionEnhanced = persistTable.GlobalTable.roses.EnhancedReactionTable
+
  reaction = reactionEnhanced[reactionToken]
  if not reaction then return end
 
@@ -1253,6 +1287,10 @@ function reactionEnd(reactionToken,worker,building)
 end
 
 function reactionProduct(reactionToken,worker,building,inputItems,outputItems)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ reactionEnhanced = persistTable.GlobalTable.roses.EnhancedReactionTable
+
  reaction = reactionEnhanced[reactionToken]
  if not reaction then return end
 

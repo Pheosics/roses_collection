@@ -1,8 +1,4 @@
 -- Map Based Functions
-local persistTable = require 'persist-table'
-if not persistTable.GlobalTable.roses then return end
-flowTable = persistTable.GlobalTable.roses.FlowTable
-liquidTable = persistTable.GlobalTable.roses.LiquidTable
 usages = {}
 
 --=                     Tile Changing Functions
@@ -784,6 +780,10 @@ function spawnLiquid(edges,offset,depth,magma,circle,taper)
 end
 
 function flowSource(n)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ flowTable = persistTable.GlobalTable.roses.FlowTable
+
  n = tostring(n)
  flow = flowTable[n]
  if flow then
@@ -810,6 +810,10 @@ function flowSource(n)
 end
 
 function flowSink(n)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ flowTable = persistTable.GlobalTable.roses.FlowTable
+
  n = tostring(n)
  flow = flowTable[n]
  if flow then
@@ -833,6 +837,10 @@ function flowSink(n)
 end
 
 function liquidSource(n)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ liquidTable = persistTable.GlobalTable.roses.LiquidTable
+
  n = tostring(n)
  liquid = liquidTable[n]
  if liquid then
@@ -860,6 +868,10 @@ function liquidSource(n)
 end
 
 function liquidSink(n)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ liquidTable = persistTable.GlobalTable.roses.LiquidTable
+
  n = tostring(n)
  liquid = liquidTable[n]
  if liquid then

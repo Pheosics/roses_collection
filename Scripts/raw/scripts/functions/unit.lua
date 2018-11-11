@@ -1,12 +1,8 @@
 -- Unit Based Functions
--- Constants
 int16 = 30000000
 skillCap = 20
 utils = require 'utils'
 split = utils.split_string
-persistTable = require 'persist-table'
-if not persistTable.GlobalTable.roses then return end
-unitPersist = persistTable.GlobalTable.roses.UnitTable
 usages = {}
 
 
@@ -32,6 +28,9 @@ getUnitTable(unit)
 ]===]
 
 function makeUnitTable(unit)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] = {}
  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
@@ -77,11 +76,22 @@ function makeUnitTable(unit)
 end
 
 function getUnitTable(unit)
+ persistTable = require 'persist-table'
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- unitTable = unitPersist[tostring(unit.id)]
- if not unitTable then makeUnitTable(unit) end
- unitTable = unitPersist[tostring(unit.id)]
- baseTable = persistTable.GlobalTable.roses.BaseTable
+
+ if not persistTable.GlobalTable.roses then
+  unitTable = nil
+  baseTable = nil
+ else
+  unitPersist = persistTable.GlobalTable.roses.UnitTable
+  if not unitPersist[tostring(unit.id)] then
+   unitTable = nil
+  else
+   unitTable = unitPersist[tostring(unit.id)]
+  end
+  baseTable = persistTable.GlobalTable.roses.BaseTable
+ end
+
  local outTable = {}
 
  outTable.Attributes = {}
@@ -94,22 +104,26 @@ function getUnitTable(unit)
   outTable.Attributes[attribute] = unit.status.current_soul.mental_attrs[attribute].value
  end
  -- Custom Attributes
- for _,attribute in pairs(baseTable.CustomAttributes._children) do
-  if unitTable.Attributes[attribute] then
-   outTable.Attributes[attribute] = tonumber(unitTable.Attributes[attribute].Base) + tonumber(unitTable.Attributes[attribute].Change)
-  else
-   outTable.Attributes[attribute] = 0
+ if baseTable then
+  for _,attribute in pairs(baseTable.CustomAttributes._children) do
+   if unitTable and unitTable.Attributes[attribute] then
+    outTable.Attributes[attribute] = tonumber(unitTable.Attributes[attribute].Base) + tonumber(unitTable.Attributes[attribute].Change)
+   else
+    outTable.Attributes[attribute] = 0
+   end
   end
  end
 
  outTable.Resistances = {}
  -- Custom Resistances (no in game resistances currently)
- for _,id in pairs(baseTable.CustomResistances._children) do
-  resistance = baseTable.CustomResistances[id]
-  if unitTable.Resistances[resistance] then
-   outTable.Resistances[resistance] = tonumber(unitTable.Resistances[resistance].Base) + tonumber(unitTable.Resistances[resistance].Change)
-  else
-   outTable.Resistances[resistance] = 0
+ if baseTable then
+  for _,id in pairs(baseTable.CustomResistances._children) do
+   resistance = baseTable.CustomResistances[id]
+   if unitTable and unitTable.Resistances[resistance] then
+    outTable.Resistances[resistance] = tonumber(unitTable.Resistances[resistance].Base) + tonumber(unitTable.Resistances[resistance].Change)
+   else
+    outTable.Resistances[resistance] = 0
+   end
   end
  end
 
@@ -129,22 +143,26 @@ function getUnitTable(unit)
   end
  end
  -- Custom Skills
- for _,skill in pairs(baseTable.CustomSkills._children) do
-  if unitTable.Skills[skill] then
-   outTable.Skills[skill] = tonumber(unitTable.Skills[skill].Base) + tonumber(unitTable.Skills[skill].Change)
-  else
-   outTable.Skills[skill] = 0
+ if baseTable then
+  for _,skill in pairs(baseTable.CustomSkills._children) do
+   if unitTable and unitTable.Skills[skill] then
+    outTable.Skills[skill] = tonumber(unitTable.Skills[skill].Base) + tonumber(unitTable.Skills[skill].Change)
+   else
+    outTable.Skills[skill] = 0
+   end
   end
  end
 
  outTable.Stats = {}
  -- Custom Stats (no in game stats currently)
- for _,id in pairs(baseTable.CustomStats._children) do
-  stat = baseTable.CustomStats[id]
-  if unitTable.Stats[stat] then
-   outTable.Stats[stat] = tonumber(unitTable.Stats[stat].Base) + tonumber(unitTable.Stats[stat].Change)
-  else
-   outTable.Stats[stat] = 0
+ if baseTable then
+  for _,id in pairs(baseTable.CustomStats._children) do
+   stat = baseTable.CustomStats[id]
+   if unitTable and unitTable.Stats[stat] then
+    outTable.Stats[stat] = tonumber(unitTable.Stats[stat].Base) + tonumber(unitTable.Stats[stat].Change)
+   else
+    outTable.Stats[stat] = 0
+   end
   end
  end
 
@@ -191,6 +209,10 @@ trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
 ]===]
 
 function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+
  if alter == 'terminated' then return end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  Table = unitPersist[tostring(unit.id)]
@@ -237,6 +259,10 @@ function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
 end
 
 function trackStart(unit,Table,strname,kind,change,dur,syndrome,cb_id)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+
  typeTable = Table[kind]
  if dur > 0 then 
   statusTable = typeTable.StatusEffects
@@ -268,6 +294,10 @@ function trackStart(unit,Table,strname,kind,change,dur,syndrome,cb_id)
 end
 
 function trackEnd(unit,Table,strname,kind,change,syndrome)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+
  typeTable = Table[kind]
  statusTable = typeTable.StatusEffects
  typeTable.Change = tostring(math.floor(typeTable.Change - change))
@@ -286,6 +316,10 @@ function trackEnd(unit,Table,strname,kind,change,syndrome)
 end
 
 function trackTerminate(unit,Table,strname,func,syndrome,alter)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+
  -- If the change ends by force, check the syndrome tracker to determine effects                           --*
  if alter == 'terminate' then
   trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
@@ -333,6 +367,10 @@ function trackTerminate(unit,Table,strname,func,syndrome,alter)
 end
 
 function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  Table = unitPersist[tostring(unit.id)]
  if not Table then makeUnitTable(unit) end
@@ -877,6 +915,10 @@ changeSyndrome(unit,syndromes,change,dur)
 ]===]
 
 function changeSyndrome(unit,syndromes,change,dur)
+ persistTable = require 'persist-table'
+ if change == 'terminate' and not persistTable.GlobalTable.roses then return end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(syndromes) ~= 'table' then syndromes = {syndromes} end
  unitID = tostring(unit.id)

@@ -1,11 +1,4 @@
 --Functions for use in the Class System, v42.06a
-persistTable = require 'persist-table'
-if not persistTable.GlobalTable.roses then return end
-classPersist = persistTable.GlobalTable.roses.ClassTable
-unitPersist = persistTable.GlobalTable.roses.UnitTable
-if not classPersist or not unitPersist then return end
-spellPersist = persistTable.GlobalTable.roses.SpellTable
-featPersist = persistTable.GlobalTable.roses.FeatTable
 local utils = require 'utils'
 split = utils.split_string
 usages = {}
@@ -124,6 +117,8 @@ function getData(table,test)
 end
 
 function makeClassTable(test)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  persistTable.GlobalTable.roses.Systems.Class = 'false'
  dataFiles,dataInfoFiles,files = getData('Class',test)
  if not dataFiles then return false end
@@ -252,6 +247,8 @@ function makeClassTable(test)
 end
 
 function makeFeatTable(test)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  persistTable.GlobalTable.roses.Systems.Feat = 'false'
  dataFiles,dataInfoFiles,files = getData('Feat',test)
  if not dataFiles then return false end
@@ -263,8 +260,8 @@ function makeFeatTable(test)
    featToken = x[1]
    startLine = x[2]
    endLine   = x[3]
-   featPersist[featToken] = {}
-   feat = featPersist[featToken]
+   persistTable.GlobalTable.roses.FeatTable[featToken] = {}
+   feat = persistTable.GlobalTable.roses.FeatTable[featToken]
    feat.Effect = {}
    feat.Script = {}
    effects = 0
@@ -313,6 +310,8 @@ function makeFeatTable(test)
 end
 
 function makeSpellTable(test)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
  persistTable.GlobalTable.roses.Systems.Spell = 'false'
  dataFiles,dataInfoFiles,files = getData('Spell',test)
  if not dataFiles then return false end
@@ -324,8 +323,8 @@ function makeSpellTable(test)
    spellToken = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   spellPersist[spellToken] = {}
-   spell = spellPersist[spellToken]
+   persistTable.GlobalTable.roses.SpellTable[spellToken] = {}
+   spell = persistTable.GlobalTable.roses.SpellTable[spellToken]
    spell.Script = {}
    scriptNum = 0
    for j = startLine,endLine,1 do
@@ -480,6 +479,11 @@ changeClass(unit,change)
 ]===]
 
 function addExperience(unit,amount,verbose)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ classPersist = persistTable.GlobalTable.roses.ClassTable
+
  -- Check if unit passed is unit ID or unit struct
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 
@@ -509,6 +513,11 @@ function addExperience(unit,amount,verbose)
 end
 
 function changeLevel(unit,verbose)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ classPersist = persistTable.GlobalTable.roses.ClassTable
+
  -- Check if unit passed is unit ID or unit struct
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 
@@ -608,6 +617,11 @@ function changeLevel(unit,verbose)
 end
 
 function changeClass(unit,change,verbose)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ classPersist = persistTable.GlobalTable.roses.ClassTable
+
  -- Check if unit passed is unit ID or unit struct
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 
@@ -729,8 +743,13 @@ function changeName(unit,name,direction,verbose)
 end
 
 function changeSpell(unit,spell,direction,verbose)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ classPersist = persistTable.GlobalTable.roses.ClassTable
+ spellPersist = persistTable.GlobalTable.roses.SpellTable
 
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unitPersist[tostring(unit.id)] then
   dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
@@ -790,8 +809,12 @@ function changeSpell(unit,spell,direction,verbose)
 end
 
 function checkRequirementsClass(unit,check,verbose)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ classPersist = persistTable.GlobalTable.roses.ClassTable
 
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unitPersist[tostring(unit.id)] then 
   dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
@@ -872,8 +895,13 @@ function checkRequirementsClass(unit,check,verbose)
 end
 
 function checkRequirementsSpell(unit,check,verbose)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ classPersist = persistTable.GlobalTable.roses.ClassTable
+ spellPersist = persistTable.GlobalTable.roses.SpellTable
 
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unitPersist[tostring(unit.id)] then 
   dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
@@ -974,8 +1002,12 @@ addFeat(unit,feat)
 ]===]
 
 function addFeat(unit,feat,verbose)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ featPersist = persistTable.GlobalTable.roses.FeatTable
 
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unitPersist[tostring(unit.id)] then return end
  unitFeats = unitPersist[tostring(unit.id)].Feats
 
@@ -998,8 +1030,12 @@ function addFeat(unit,feat,verbose)
 end
 
 function checkRequirementsFeat(unit,feat,verbose)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return false end
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ featPersist = persistTable.GlobalTable.roses.FeatTable
 
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unitPersist[tostring(unit.id)] then return end
  unitTable = unitPersist[tostring(unit.id)]
  unitFeats = unitTable.Feats

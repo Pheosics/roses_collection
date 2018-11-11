@@ -1,7 +1,6 @@
 -- Item Based Functions
-persistTable = require 'persist-table'
-if not persistTable.GlobalTable.roses then return end
-itemPersist = persistTable.GlobalTable.roses.ItemTable
+utils = require 'utils'
+split = utils.split_string
 usages = {}
 
 --=                     Item Table Functions
@@ -26,6 +25,10 @@ getItemTable(item)
 ]===]
 
 function makeItemTable(item)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ itemPersist = persistTable.GlobalTable.roses.ItemTable
+
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  itemPersist[tostring(item.id)] = {}
  itemTable = itemPersist[tostring(item.id)]
@@ -47,9 +50,24 @@ function makeItemTable(item)
 end
 
 function getItemTable(item)
+ persistTable = require 'persist-table'
  if tonumber(item) then item = df.item.find(tonumber(item)) end
- itemTable = itemPersist[tostring(item.id)]
+
+ if not persistTable.GlobalTable.roses then
+  itemTable = nil
+ else
+  itemPersist = persistTable.GlobalTable.roses.ItemTable
+  if not itemPersist[tostring(item.id)] then
+   itemTable = nil
+  else
+   itemTable = itemPersist[tostring(item.id)]
+  end
+ end
+
  local outTable = {}
+
+ -- Item Table stuff goes here!!!!
+
  return outTable
 end
 
@@ -91,6 +109,10 @@ trackSubtype(item,material,dur,alter)
 ]===]
 
 function trackMaterial(item,material,dur,alter)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ itemPersist = persistTable.GlobalTable.roses.ItemTable
+
  if alter == 'terminated' then return end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  Table = itemPersist[tostring(item.id)]
@@ -126,6 +148,10 @@ function trackMaterial(item,material,dur,alter)
 end
 
 function trackQuality(item,quality,dur,alter)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ itemPersist = persistTable.GlobalTable.roses.ItemTable
+
  if alter == 'terminated' then return end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  Table = itemPersist[tostring(item.id)]
@@ -161,6 +187,10 @@ function trackQuality(item,quality,dur,alter)
 end
 
 function trackSubtype(item,subtype,dur,alter)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ itemPersist = persistTable.GlobalTable.roses.ItemTable
+
  if alter == 'terminated' then return end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  Table = itemPersist[tostring(item.id)]

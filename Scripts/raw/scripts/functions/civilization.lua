@@ -1,9 +1,4 @@
 -- Functions to be used with the Civilization System, v42.06a
-local persistTable = require 'persist-table'
-if not persistTable.GlobalTable.roses then return end
-civPersist = persistTable.GlobalTable.roses.CivilizationTable
-if not civPersist then return end
-entityPersist = persistTable.GlobalTable.roses.EntityTable
 local utils = require 'utils'
 split = utils.split_string
 usages = {}
@@ -98,6 +93,8 @@ function getData(test)
 end
 
 function makeCivilizationTable()
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
  persistTable.GlobalTable.roses.Systems.Civlization = 'false'
  dataFiles,dataInfoFiles,files = getData(test)
  if not dataFiles then return false end
@@ -109,8 +106,8 @@ function makeCivilizationTable()
    civToken  = x[1]
    startLine = x[2]
    endLine   = x[3]
-   civPersist[civToken] = {}
-   civ = civPersist[civToken]
+   persistTable.GlobalTable.roses.CivilizationTable[civToken] = {}
+   civ = persistTable.GlobalTable.roses.CivilizationTable[civToken]
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -313,8 +310,12 @@ checkEntity(id,method)
 ]===]
 
 function changeLevel(entity,verbose)
- if tonumber(entity) then entity = df.global.world.entities.all[tonumber(entity)] end
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ civPersist = persistTable.GlobalTable.roses.CivilizationTable
+ entityPersit = persistTable.GlobalTable.roses.EntityTable
 
+ if tonumber(entity) then entity = df.global.world.entities.all[tonumber(entity)] end
  if not entityPersist[tostring(entity.id)] then return end
  entityTable = entityPersist[tostring(entity.id)]
  entityToken = df.global.world.entities.all[civ.id].entity_raw.code
@@ -376,6 +377,10 @@ function changeStanding(civ1,civ2,amount,verbose)
 end
 
 function checkEntity(id,method,verbose)
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ entityPersit = persistTable.GlobalTable.roses.EntityTable
+
  entityTable = entityPersist[tostring(id)].Civilization
  if entityTable then
   percent = entityTable.CurrentPercent
@@ -395,8 +400,11 @@ function checkEntity(id,method,verbose)
 end
 
 function checkRequirements(entityID,verbose)
- local utils = require 'utils'
- local split = utils.split_string
+ persistTable = require 'persist-table'
+ if not persistTable.GlobalTable.roses then return end
+ civPersist = persistTable.GlobalTable.roses.CivilizationTable
+ entityPersit = persistTable.GlobalTable.roses.EntityTable
+
  entity = entityPersist[tostring(entityID)]
  if not entity then return false end
  if not entity.Civilization then return false end

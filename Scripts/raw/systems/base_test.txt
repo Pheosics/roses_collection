@@ -17,7 +17,7 @@
 #List of custom skills and profession names
 #Note that custom skills function the same as in-game skills, with 20 levels and experience between them, but do not rust
 [SKILL:SPELL_CASTING:caster] <- Currently used to determine exhaustion modifier
-#NOTE: The game will automatically generate a spell casting skill for each SCHOOL (i.e. !_SPELL_CASTING)
+[SKILL:MINING:mining]
 
 #List of custom attributes
 #Note that custom attributes do not change like in-game attributes, they must be increased or decreased via scripts

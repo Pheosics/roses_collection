@@ -1,7 +1,6 @@
 -- Building Based Functions
-persistTable = require 'persist-table'
-if not persistTable.GlobalTable.roses then return end
-buildingPersist = persistTable.GlobalTable.roses.BuildingTable
+utils = require 'utils'
+split = utils.split_string
 usages = {}
 
 --=                     Building Table Functions

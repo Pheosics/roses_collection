@@ -1,5 +1,9 @@
 --attack based functions, version 42.06a
---[[
+usages = {}
+
+--=                     Attack Functions
+usages[#usages+1] = [===[
+
 addAttack(unit,defenderID,attackBodyPartID,targetBodyPartID,attackItemID,attackID,accuracy,velocity,delay)
   Purpose: Add an attack action to the unit
   Calls: None
@@ -46,9 +50,8 @@ computeAttackValues(attacker,defender,attackCategory,attackType,defenseCategory,
   Return: Numbers - momentum_deduction1, momentum_deduction2
 
 NOTE: All computed values are based on Urist DaVinci's work.
-]]
----------------------------------------------------------------------------------------
---=================================================================================================
+]===]
+
 function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchance,velocity,delay,flags)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  action = df.unit_action:new()
@@ -81,7 +84,6 @@ function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchanc
  unit.actions:insert('#',action)
 end
 
---=================================================================================================
 function getAttack(unit,main_type,sub_type)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  local attack = {}
@@ -151,7 +153,6 @@ function getAttackUnit(unit,bp_id,attack)
  return momentum,weight,material,velocity,body_part
 end
 
---=================================================================================================
 function getDefense(unit,main_type,sub_type)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if main_type == 'Random' then
@@ -310,7 +311,6 @@ function checkCoverage(unit,bp_id,inventory_item)
  return covers
 end
 
---=================================================================================================
 function computeAttackValues(attacker,defender,attack_type,attack_subtype,defense_type,defense_subtype)
  if tonumber(attacker) then attacker = df.unit.find(tonumber(attacker)) end
  if tonumber(defender) then defender = df.unit.find(tonumber(defender)) end
