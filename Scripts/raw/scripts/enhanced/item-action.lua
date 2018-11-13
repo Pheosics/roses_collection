@@ -12,10 +12,11 @@ validArgs = utils.invert({
 })
 local args = utils.processArgs({...}, validArgs)
 
+print(args.item)
 local itemId = tonumber(args.item)
 local item = df.item.find(itemId)
 if not item then
- error('invalid item!', args.item)
+ error('invalid item!')
 end
 
 if not args.action then
@@ -30,7 +31,7 @@ if args.accuracy then options.accuracy = args.accuracy end
 actionType = string.upper(args.action)
 if actionType == 'EQUIP' or actionType == 'UNEQUIP' then
  if args.unit and tonumber(args.unit) then unit = df.unit.find(tonumber(args.unit)) end
- if not unit then error('invalid unit!', args.unit) end
+ if not unit then error('invalid unit!') end
  if actionType == 'EQUIP' then dfhack.script_environment('functions/enhanced').onItemEquip(item,unit) end
  if actionType == 'UNEQUIP' then dfhack.script_environment('functions/enhanced').onItemUnEquip(item,unit) end
 else

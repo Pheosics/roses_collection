@@ -102,8 +102,9 @@ function getData(table,test)
   local endline = 1
   for i,line in ipairs(data[file]) do
    endline = i
-   if split(line,':')[1] == tokenCheck then
-    dataInfo[file][count] = {split(split(line,':')[2],']')[1],i+1,0}
+   sline = line:gsub("%s+","")
+   if split(sline,':')[1] == tokenCheck then
+    dataInfo[file][count] = {split(split(sline,':')[2],']')[1],i+1,0}
     if count > 1 then
      dataInfo[file][count-1][3] = i-1
     end
@@ -326,6 +327,7 @@ function makeSpellTable(test)
    persistTable.GlobalTable.roses.SpellTable[spellToken] = {}
    spell = persistTable.GlobalTable.roses.SpellTable[spellToken]
    spell.Script = {}
+   spell.Cost = '0'
    scriptNum = 0
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
@@ -343,9 +345,11 @@ function makeSpellTable(test)
     elseif test == '[UPGRADE' then
      spell.Upgrade = array[2]
     elseif test == '[CLASS_RESTRICTED]' then
-      spell.ClassRestricted = 'true'
+     spell.ClassRestricted = 'true'
     elseif test == '[ANNOUNCEMENT' then
      spell.Announcement = array[2]
+	elseif test == '[COST' then
+	 spell.Cost = array[2]
     elseif test == '[TYPE' then
      spell.Classification = spell.Classification or {}
      spell.Classification.Type = array[2]
@@ -507,6 +511,7 @@ function addExperience(unit,amount,verbose)
  if classLevel < tonumber(classPersist[currentClass].Levels) then
   nextExpLevel = tonumber(classPersist[currentClass].Level[tostring(nextLevel)].Experience) or 0
   if tonumber(class.Experience) >= nextExpLevel then
+   if verbose then print('Unit leveled up!') end
    changeLevel(unit,verbose)
   end
  end
@@ -540,7 +545,7 @@ function changeLevel(unit,verbose)
   if verbose then print('Already at max level') end
   return false
  else
-  if level + 1 == tonumber(classTable.Level) then maxLevel = true end
+  if level + 1 == tonumber(classTable.Levels) then maxLevel = true end
   class.Level = tostring(level+1)
  end
  classTableLevel = classTable.Level[tostring(level + 1)]
@@ -597,7 +602,7 @@ function changeLevel(unit,verbose)
  -- Check for spells learned this level
  for _,spell in pairs(classTable.Spells._children) do
   local spellTable = classTable.Spells[spell]
-  if level + 1 > tonumber(spellTable.RequiredLevel) then
+  if level + 1 >= tonumber(spellTable.RequiredLevel) then
    if spellTable.AutoLearn then
     changeSpell(unit,spell,'learn',verbose)
    end
@@ -606,10 +611,10 @@ function changeLevel(unit,verbose)
 
  -- Check if the class auto upgrades at max level
  if maxLevel then
-  if verbose then print('Maximum level for class '..class.Name..' reached!') end
-  if class.AutoUpgrade then
-   if verbose then print('Auto upgrading class to '..classPersist[class.AutoUpgrade].Name) end
-   changeClass(unit,class.AutoUpgrade,verbose)
+  if verbose then print('Maximum level for class '..classTable.Name..' reached!') end
+  if classTable.AutoUpgrade then
+   if verbose then print('Auto upgrading class to '..classPersist[classTable.AutoUpgrade].Name) end
+   changeClass(unit,classTable.AutoUpgrade,verbose)
   end
  end
 
@@ -629,9 +634,8 @@ function changeClass(unit,change,verbose)
  if not unitPersist[tostring(unit.id)] then
   dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
- printall(unitPersist)
  local unitTable = unitPersist[tostring(unit.id)]
- printall(unitTable)
+
  -- Check that not already the class to change into
  if unitTable.Classes.Current == change then
   if verbose then print('Already this class: '..change) end
@@ -639,7 +643,7 @@ function changeClass(unit,change,verbose)
  end
 
  -- Check that the class to change into exists
- local nextClassTable    = classPersist[change]
+ local nextClassTable = classPersist[change]
  if not nextClassTable then
   if verbose then print('No such class to change into: '..change) end
   return false
@@ -657,7 +661,7 @@ function changeClass(unit,change,verbose)
   local currentUnitClass  = unitTable.Classes[unitTable.Classes.Current]
 
   -- Remove Class Name
-  changeName(unit,currentClass,'remove')
+  changeName(unit,change,'remove')
 
   -- Remove Level Adjustments for old class
   currentClassLevel = currentUnitClass.Level
@@ -666,11 +670,11 @@ function changeClass(unit,change,verbose)
    for _,mType in pairs(classLevelTable.Adjustments._children) do
     for _,sType in pairs(classLevelTable.Adjustments[mType]._children) do
      local change = -1*tonumber(classLevelTable.Adjustments[mType][sType])
-     if mType == 'Attributes'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
-     if mType == 'Resistances' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
-     if mType == 'Skills'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
-     if mType == 'Stats'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
-     if mType == 'Traits'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+     if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
+     if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
+     if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
+     if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
+     if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
     end
    end
   end
@@ -699,11 +703,11 @@ function changeClass(unit,change,verbose)
    for _,mType in pairs(classLevelTable.Adjustments._children) do
     for _,sType in pairs(classLevelTable.Adjustments[mType]._children) do
      local change = tonumber(classLevelTable.Adjustments[mType][sType])
-     if mType == 'Attributes'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
-     if mType == 'Resistances' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
-     if mType == 'Skills'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
-     if mType == 'Stats'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
-     if mType == 'Traits'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+     if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
+     if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
+     if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
+     if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
+     if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
     end
    end
   end
@@ -980,6 +984,7 @@ function checkRequirementsSpell(unit,check,verbose)
  end
 
  -- Check if it is a Spell Upgrade
+ upgrade = nil
  if spellTable.Upgrade then upgrade = spellTable.Upgrade end
 
  return true, upgrade

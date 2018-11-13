@@ -6,35 +6,35 @@ usages = {}
 usages[#usages+1] = [===[
 ]===]
 
-function getData(table,test)
- if table == 'Building' then
+function getData(ttable,test)
+ if ttable == 'Building' then
   tokenCheck = '[BUILDING'
   filename = 'building'
- elseif table == 'Creature' then
+ elseif ttable == 'Creature' then
   tokenCheck = '[CREATURE'
   filename = 'creature'
- elseif table == 'Item' then
+ elseif ttable == 'Item' then
   tokenCheck = '[ITEM'
   filename = 'item'
- elseif table == 'Material' then
+ elseif ttable == 'Material' then
   tokenCheck = '[MATERIAL_TEMPLATE'
   filename = 'material_template'
- elseif table == 'Inorganic' then
+ elseif ttable == 'Inorganic' then
   tokenCheck = '[INORGANIC'
   filename = 'inorganic'
- elseif table == 'PlantMat' then
+ elseif ttable == 'PlantMat' then
   tokenCheck = '[PLANT'
   filename = 'plant'
- elseif table == 'AnimalMat' then
+ elseif ttable == 'AnimalMat' then
   tokenCheck = '[CREATURE'
   filename = 'creature'
- elseif table == 'Reaction' then
-  tokenCheck = '[BUILDING'
-  filename = 'building'
+ elseif ttable == 'Reaction' then
+  tokenCheck = '[REACTION'
+  filename = 'reaction'
  else
   return
  end
- print('Searching for a '..table..' file')
+ print('Searching for a '..ttable..' file')
  local files = {}
  local dir = dfhack.getDFPath()
  local locations = {'/raw/objects/'}
@@ -57,10 +57,10 @@ function getData(table,test)
  end
 
  if #files >= 1 then
-  print(table..' files found:')
+  print(ttable..' files found:')
   printall(files)
  else
-  print('No '..table..' files found')
+  print('No '..ttable..' files found')
   return false
  end
 
@@ -79,21 +79,28 @@ function getData(table,test)
   iofile:close()
 
   dataInfo[file] = {}
-  local count = 1
-  local endline = 1
+  count = 1
+  endline = 1
   for i,line in ipairs(data[file]) do
    endline = i
-   ls = split(line,':')
-   if split(ls[1],'_')[1] == tokenCheck then -- Need to check for all ITEM_X and BUILDING_X tokens
-    dataInfo[file][count] = {split(ls[2],']')[1],i+1,0}
+   sline = line:gsub("%s+","")
+   if ttable == 'Building' then
+    ls = split(split(sline,':')[1],'_')[1]
+   elseif ttable == 'Item' then
+    ls = split(split(sline,':')[1],'_')[1]
+   else
+    ls = split(sline,':')[1]
+   end
+   if ls == tokenCheck then
+    dataInfo[file][count] = {split(split(sline,':')[2],']')[1],i+1,0}
     if count > 1 then
      dataInfo[file][count-1][3] = i-1
     end
     count = count + 1
    end
   end
+  dataInfo[file][count-1][3] = endline
  end
- dataInfo[file][count-1][3] = endline
 
  return data, dataInfo, files
 end
@@ -113,8 +120,8 @@ function makeEnhancedBuildingTable(test)
    startLine  = x[2]
    endLine    = x[3]
    persistTable.GlobalTable.roses.EnhancedBuildingTable[token] = {}
-   table = persistTable.GlobalTable.roses.EnhancedBuildingTable[token]
-   table.Scripts = {}
+   ptable = persistTable.GlobalTable.roses.EnhancedBuildingTable[token]
+   ptable.Scripts = {}
    scripts = 0
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
@@ -124,59 +131,59 @@ function makeEnhancedBuildingTable(test)
      array[k] = split(array[k],'}')[1]
     end
     if test == '[NAME' then -- Take raw building name
-     table.Name = split(array[2],']')[1]
+     ptable.Name = split(array[2],']')[1]
     elseif string.sub(test,1,1) == '[' then
      -- This is here so we skip unnecessary raw tokens
      foo = 0
     elseif test == '{DESCRIPTION' then
-     table.Description = array[2]
+     ptable.Description = array[2]
     elseif test == '{MULTI_STORY' then
-     table.MultiStory = array[2]
+     ptable.MultiStory = array[2]
     elseif test == '{TREE_BUILDING}' then
-     table.TreeBuilding = 'true'
+     ptable.TreeBuilding = 'true'
     elseif test == '{BASEMENT}' then
-     table.Basement = 'true'
+     ptable.Basement = 'true'
     elseif test == '{WALLS}' then
-     table.Walls = 'true'
+     ptable.Walls = 'true'
     elseif test == '{OUTSIDE_ONLY}' then
-     table.OutsideOnly = 'true'
+     ptable.OutsideOnly = 'true'
     elseif test == '{INSIDE_ONLY}' then
-     table.InsideOnly = 'true'
+     ptable.InsideOnly = 'true'
     elseif test == '{STAIRS' then
-     table.Stairs = {}
-     table.Stairs.x = array[2]
-     table.Stairs.y = array[3]
+     ptable.Stairs = {}
+     ptable.Stairs.x = array[2]
+     ptable.Stairs.y = array[3]
     elseif test == '{UPGRADE' then
-     table.Upgrade = array[2]
+     ptable.Upgrade = array[2]
     elseif test == '{REQUIRED_WATER' then
-     table.RequiredWater = array[2]
+     ptable.RequiredWater = array[2]
     elseif test == '{REQUIRED_MAGMA' then
-     table.RequiredMagma = array[2]
+     ptable.RequiredMagma = array[2]
     elseif test == '{REQUIRED_BUILDING' then
-     table.RequiredBuildings = table.RequiredBuildings or {}
-     table.RequiredBuildings[array[2]] = array[3]
+     ptable.RequiredBuildings = table.RequiredBuildings or {}
+     ptable.RequiredBuildings[array[2]] = array[3]
     elseif test == '{FORBIDDEN_BUILDING' then
-     table.ForbiddenBuildings = table.ForbiddenBuildings or {}
-     table.ForbiddenBuildings[array[2]] = array[3]
+     ptable.ForbiddenBuildings = table.ForbiddenBuildings or {}
+     ptable.ForbiddenBuildings[array[2]] = array[3]
     elseif test == '{MAX_AMOUNT' then
-     table.MaxAmount = array[2]
+     ptable.MaxAmount = array[2]
     elseif test == '{SCRIPT' or test == '{SPELL' then
      scripts = scripts + 1
-     table.Scripts[tostring(scripts)] = {}
+     ptable.Scripts[tostring(scripts)] = {}
      a = data[j]
      a = table.concat({select(2,table.unpack(split(a,':')))},':')
      n = string.find(string.reverse(a),':')
      script = string.sub(a,1,-(n+1))
      frequency = string.sub(a,-(n-1),-2)
-     table.Scripts[tostring(scripts)].Script = script
-     table.Scripts[tostring(scripts)].Frequency = frequency
+     ptable.Scripts[tostring(scripts)].Script = script
+     ptable.Scripts[tostring(scripts)].Frequency = frequency
     end
    end
-   if table.OutsideOnly == 'true' and table.InsideOnly == 'true' then
-    table.OutsideOnly = nil
-    table.InsideOnly = nil
+   if ptable.OutsideOnly == 'true' and ptable.InsideOnly == 'true' then
+    ptable.OutsideOnly = nil
+    ptable.InsideOnly = nil
    end
-   if scripts == 0 then table.Scripts = nil end
+   if scripts == 0 then ptable.Scripts = nil end
   end
  end
 
@@ -191,6 +198,7 @@ function makeEnhancedCreatureTable(test)
  dataFiles,dataInfoFiles,files = getData('Creature',test)
  if not dataFiles then return false end
 
+ tokens = {}
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
@@ -330,9 +338,10 @@ function makeEnhancedItemTable(test)
    endLine    = x[3]
    persistTable.GlobalTable.roses.EnhancedItemTable[token] = {}
    item = persistTable.GlobalTable.roses.EnhancedItemTable[token]
+   scripts = 0
    for j = startLine,endLine,1 do
-    test = data[j]:gsub("%s+","")
-    test = split(test,':')[1]
+    testa = data[j]:gsub("%s+","")
+    test = split(testa,':')[1]
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
@@ -554,8 +563,8 @@ function makeEnhancedReactionTable(test)
    startLine  = x[2]
    endLine    = x[3]
    persistTable.GlobalTable.roses.EnhancedReactionTable[token] = {}
-   table = persistTable.GlobalTable.roses.EnhancedReactionTable[token]
-   table.Scripts = {}
+   ptable = persistTable.GlobalTable.roses.EnhancedReactionTable[token]
+   ptable.Scripts = {}
    scripts = 0
    products = 0
    for j = startLine,endLine,1 do
@@ -566,53 +575,53 @@ function makeEnhancedReactionTable(test)
      array[k] = split(array[k],'}')[1]
     end
     if     test == '[NAME' then -- Take raw reaction name
-     table.Name = split(array[2],']')[1]
+     ptable.Name = split(array[2],']')[1]
     elseif string.sub(test,1,1) == '[' then
      -- This is here so we skip unnecessary raw tokens
      foo = 0
     elseif test == '{DESCRIPTION' then
-     table.Description = array[2]
+     ptable.Description = array[2]
     elseif test == '{BASE_DURATION' then
-     table.BaseDur = array[2]
+     ptable.BaseDur = array[2]
     elseif test == '{REQUIRED_MAGMA' then
-     table.RequiredMagma = array[2]
+     ptable.RequiredMagma = array[2]
     elseif test == '{REQUIRED_WATER' then
-     table.RequiredWater = array[2]
+     ptable.RequiredWater = array[2]
     elseif test == '[SKILL' then -- Take raw table skill
-     table.Skill = split(array[2],']')[1]
+     ptable.Skill = split(array[2],']')[1]
     elseif test == '{SKILL' then -- OR custom table skill
-     table.Skill = array[2]
+     ptable.Skill = array[2]
     elseif test == '{ON_PRODUCT}' then
-     table.OnProduct = 'true'
+     ptable.OnProduct = 'true'
     elseif test == '{ON_START}' then
-     table.OnStart = 'true'
+     ptable.OnStart = 'true'
     elseif test == '{ON_FINISH}' then
-     table.OnFinish = 'true'
+     ptable.OnFinish = 'true'
     elseif test == '{DURATION_REDUCTION' then
-     table.DurReduction = {}
-     table.DurReduction.Increment = array[2]
-     table.DurReduction.MaxReduction = array[3]
+     ptable.DurReduction = {}
+     ptable.DurReduction.Increment = array[2]
+     ptable.DurReduction.MaxReduction = array[3]
     elseif test == '{ADDITIONAL_PRODUCT' then
-     table.Products = table.Products or {}
+     ptable.Products = table.Products or {}
      products = products + 1
      num = tostring(products)
-     table.Products[num] = {}
-     table.Products[num].Chance = array[2]
-     table.Products[num].Number = array[3]
-     table.Products[num].MaterialType = array[4]
-     table.Products[num].MaterialSubType = array[5]
-     table.Products[num].ItemType = array[6]
-     table.Products[num].ItemSubType = array[7]
+     ptable.Products[num] = {}
+     ptable.Products[num].Chance = array[2]
+     ptable.Products[num].Number = array[3]
+     ptable.Products[num].MaterialType = array[4]
+     ptable.Products[num].MaterialSubType = array[5]
+     ptable.Products[num].ItemType = array[6]
+     ptable.Products[num].ItemSubType = array[7]
     elseif test == '{FREEZE}' then
-     table.Frozen = 'true'
+     ptable.Frozen = 'true'
     elseif test == '{REMOVE}' then
-     table.Disappear = 'true'
+     ptable.Disappear = 'true'
     elseif test == '{SCRIPT' then
      scripts = scripts + 1
      script = data[j]
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
-     table.Scripts[tostring(scripts)] = script
+     ptable.Scripts[tostring(scripts)] = script
     end
    end
   end
@@ -674,7 +683,8 @@ function enhanceCreature(unit)
  persistTable = require 'persist-table'
  if not persistTable.GlobalTable.roses then return false end
  creatureEnhanced = persistTable.GlobalTable.roses.EnhancedCreatureTable
-
+ unitPersist = persistTable.GlobalTable.roses.UnitTable
+ 
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unit then return false end
 
@@ -689,11 +699,11 @@ function enhanceCreature(unit)
    if unitTable.Enhanced then return end
 
    unitTable.Enhanced = 'true'
-   local table = creatureEnhanced[creatureID][casteID]
-   if table.Attributes   then setN(unit, 'Attributes', table.Attributes) end
-   if table.Skills       then setN(unit, 'Skills', table.Skills) end
-   if table.Stats        then setN(unit, 'Stats', table.Stats) end
-   if table.Resistances  then setN(unit, 'Resistances', table.Resistances) end
+   local ctable = creatureEnhanced[creatureID][casteID]
+   if ctable.Attributes   then setN(unit, 'Attributes', ctable.Attributes) end
+   if ctable.Skills       then setN(unit, 'Skills', ctable.Skills) end
+   if ctable.Stats        then setN(unit, 'Stats', ctable.Stats) end
+   if ctable.Resistances  then setN(unit, 'Resistances', ctable.Resistances) end
    --if table.Size         then setSize(unit, table.Size) end
    --if table.Classes      then setClass(unit, table.Classes) end
    --if table.Interactions then setInteractions(unit, table.Interactions) end
@@ -701,31 +711,31 @@ function enhanceCreature(unit)
  end
 end
 
-function setN(unit,ttype, table)
+function setN(unit,ttype, ctable)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 
- for _,entry in pairs(table._children) do
+ for _,entry in pairs(ctable._children) do
   if not unitTable[ttype][entry] then return false end
   current = unitTable[ttype][entry]
   if ttype == 'Skills' then
-   value = math.floor(math.random(table[skill].Min,table[skill].Max))
+   value = math.floor(math.random(ctable[entry].Min,ctable[entry].Max))
   else
    rn = math.random(0,100)
    if rn > 95 then
-    value = table[entry]['7']
+    value = ctable[entry]['7']
    elseif rn > 85 then
-    value = table[entry]['6']
+    value = ctable[entry]['6']
    elseif rn > 65 then
-    value = table[entry]['5']
+    value = ctable[entry]['5']
    elseif rn < 5 then
-    value = table[entry]['1']
+    value = ctable[entry]['1']
    elseif rn < 15 then
-    value = table[entry]['2']
+    value = ctable[entry]['2']
    elseif rn < 35 then
-    value = table[entry]['3']
+    value = ctable[entry]['3']
    else
-    value = table[entry]['4']
+    value = ctable[entry]['4']
    end
   end
   change = dfhack.script_environment('functions/misc').getChange(current,tonumber(value),'set')
@@ -741,15 +751,15 @@ function setN(unit,ttype, table)
  end
 end
 
-function setClass(unit,table)
+function setClass(unit,ctable)
 
 end
 
-function setInteractions(unit,table)
+function setInteractions(unit,ctable)
 
 end
 
-function setSize(unit,table)
+function setSize(unit,ctable)
 
 end
 
@@ -811,7 +821,7 @@ function onItemEquip(item,unit)
  if onTable.Interactions then
   for _,n in pairs(onTable.Interactions._children) do
    syndrome = onTable.Interactions[n]
-   dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'forceLearn',verbose)
+   dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'force',verbose)
   end
  end
  if onTable.Scripts then
@@ -872,7 +882,7 @@ function onItemUnEquip(item,unit)
  if onTable.Interactions then
   for _,n in pairs(onTable.Interactions._children) do
    syndrome = onTable.Interactions[n]
-   dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'unlearn',verbose)
+   dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'remove',verbose)
   end
  end
 end
@@ -1048,7 +1058,7 @@ function onMaterialEquip(item,unit)
  if onTable.Interactions then
   for _,n in pairs(onTable.Interactions._children) do
    syndrome = onTable.Interactions[n]
-   dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'forceLearn',verbose)
+   dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'force',verbose)
   end
  end
 
@@ -1133,7 +1143,7 @@ function onMaterialUnEquip(item,unit)
  if onTable.Interactions then
   for _,n in pairs(onTable.Interactions._children) do
    syndrome = onTable.Interactions[n]
-   dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'unlearn',verbose)
+   dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'remove',verbose)
   end
  end
 end

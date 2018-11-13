@@ -7,7 +7,8 @@ validArgs = utils.invert({
  'civ',
  'unit',
  'amount',
- 'verbose'
+ 'verbose',
+ 'override'
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -21,5 +22,11 @@ else
  amount = 1
 end
 
-dfhack.script_environment('functions/civilization').changeLevel(civid,amount,args.verbose)
+yes = false
+if args.override then
+ yes = true
+else
+ yes = dfhack.script_environment('functions/civilization').checkRequirements(civid,args.verbose)
+end
+if yes then dfhack.script_environment('functions/civilization').changeLevel(civid,amount,args.verbose) end
 

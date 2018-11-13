@@ -89,7 +89,7 @@ if args.all or args.classSystem then
   dfhack.script_environment('functions/class').makeSpellTable(args.testRun)
  end
  
- if roses.Systems.Class == 'true' then
+ if persistTable.GlobalTable.roses.Systems.Class == 'true' then
   print('Class System successfully loaded')
   print('Number of Classes: '..tostring(#persistTable.GlobalTable.roses.ClassTable._children))
   if verbose then
@@ -99,7 +99,7 @@ if args.all or args.classSystem then
    end
   end
 
-  if roses.Systems.Spell == 'true' then
+  if persistTable.GlobalTable.roses.Systems.Spell == 'true' then
    print('Spell SubSystem loaded')
    print('Number of Spells: '..tostring(#persistTable.GlobalTable.roses.SpellTable._children))
    if verbose then
@@ -112,7 +112,7 @@ if args.all or args.classSystem then
    print('Spell SubSystem not loaded')
   end
 
-  if roses.Systems.Feat == 'true' then
+  if persistTable.GlobalTable.roses.Systems.Feat == 'true' then
    print('Feat SubSystem loaded')
    print('Number of Feats: '..tostring(#persistTable.GlobalTable.roses.FeatTable._children))
    if verbose then
@@ -135,16 +135,16 @@ end
 --= MAKE CIVILIZATION SYSTEM
 if args.all or args.civilizationSystem then
  print('Initializing the Civilization System')
- if args.forceReload then
-  roses.CivilizationTable = {}
-  roses.Systems.Civilization = 'false'
- end
+ --if args.forceReload then
+ -- roses.CivilizationTable = {}
+ -- roses.Systems.Civilization = 'false'
+ --end
 
  if not roses.Systems.Civilization or roses.Systems.Civilization == 'false' then
   dfhack.script_environment('functions/civilization').makeCivilizationTable(args.testRun)
  end
 
- if roses.Systems.Civilization == 'true'  then
+ if persistTable.GlobalTable.roses.Systems.Civilization == 'true'  then
   print('Civilization System successfully loaded')
   print('Number of Civilizations: '..tostring(#persistTable.GlobalTable.roses.CivilizationTable._children))
   if verbose then
@@ -197,7 +197,7 @@ if args.all or args.enhancedSystem then
   dfhack.script_environment('functions/enhanced').makeEnhancedReactionTable(args.testRun)
  end
 
- if roses.Systems.EnhancedBuilding == 'true' then
+ if persistTable.GlobalTable.roses.Systems.EnhancedBuilding == 'true' then
   print('Enhanced System - Buildings successfully loaded')
   print('Number of Enhanced Buildings: '..tostring(#persistTable.GlobalTable.roses.EnhancedBuildingTable._children))
   if verbose then
@@ -210,7 +210,7 @@ if args.all or args.enhancedSystem then
   print('Enhanced System - Buildings not loaded')
  end
 
- if roses.Systems.EnhancedCreature == 'true'  then
+ if persistTable.GlobalTable.roses.Systems.EnhancedCreature == 'true'  then
   print('Enhanced System - Creatures successfully loaded')
   print('Number of Enhanced Creatures: '..tostring(#persistTable.GlobalTable.roses.EnhancedCreatureTable._children))
   if verbose then
@@ -223,7 +223,7 @@ if args.all or args.enhancedSystem then
   print('Enhanced System - Creatures not loaded')
  end
 
- if roses.Systems.EnhancedItem == 'true'  then
+ if persistTable.GlobalTable.roses.Systems.EnhancedItem == 'true'  then
   print('Enhanced System - Items successfully loaded')
   print('Number of Enhanced Items: '..tostring(#persistTable.GlobalTable.roses.EnhancedItemTable._children))
   if verbose then
@@ -236,7 +236,7 @@ if args.all or args.enhancedSystem then
   print('Enhanced System - Items not loaded')
  end
 
- if roses.Systems.EnhancedMaterial == 'true'  then
+ if persistTable.GlobalTable.roses.Systems.EnhancedMaterial == 'true'  then
   print('Enhanced System - Materials successfully loaded')
   print('Number of Enhanced Materials: '..tostring(#persistTable.GlobalTable.roses.EnhancedMaterialTable._children))
   if verbose then
@@ -249,7 +249,7 @@ if args.all or args.enhancedSystem then
   print('Enhanced System - Materials not loaded')
  end
 
- if roses.Systems.EnhancedReaction == 'true' then
+ if persistTable.GlobalTable.roses.Systems.EnhancedReaction == 'true' then
   print('Enhanced System - Reaction successfully loaded')
   print('Number of Enhanced Reactions: '..tostring(#persistTable.GlobalTable.roses.EnhancedReactionTable._children))
   if verbose then
@@ -277,7 +277,7 @@ if args.all or args.eventSystem then
   dfhack.script_environment('functions/event').makeEventTable(args.testRun)
  end
 
- if roses.Systems.Event == 'true'  then
+ if persistTable.GlobalTable.roses.Systems.Event == 'true'  then
   print('Event System successfully loaded')
   print('Number of Events: '..tostring(#persistTable.GlobalTable.roses.EventTable._children))
   if verbose then

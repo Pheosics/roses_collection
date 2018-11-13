@@ -89,7 +89,7 @@ elseif args.bodypart then
 elseif args.mode then
  items = dfhack.script_environment('functions/unit').getInventory(unit,'Mode',df.unit_inventory_item.T_mode[args.mode])
 elseif args.itemType then
- items = dfhack.script_environment('functions/unit').getInventory(unit,'Type',args.itemType)
+ items = dfhack.script_environment('functions/unit').getInventory(unit,'ItemType',args.itemType)
 end
 
 for _,itemId in pairs(items) do
