@@ -8,6 +8,7 @@ usages = {}
 function getData(test)
  print('Searching for an Event file')
  local filename = 'events'
+ local tokenCheck = '[EVENT'
  local files = {}
  local dir = dfhack.getDFPath()
  local locations = {'/raw/objects/','/raw/systems/Events/','/raw/scripts/'}
@@ -30,10 +31,10 @@ function getData(test)
  end
 
  if #files >= 1 then
-  print(table..' files found:')
+  print('Event files found:')
   printall(files)
  else
-  print('No '..table..' files found')
+  print('No Event files found')
   return false
  end
 
@@ -52,20 +53,21 @@ function getData(test)
   iofile:close()
 
   dataInfo[file] = {}
-  local count = 1
-  local endline = 1
+  count = 1
+  endline = 1
   for i,line in ipairs(data[file]) do
    endline = i
-   if split(line,':')[1] == tokenCheck then
-    dataInfo[file][count] = {split(split(line,':')[2],']')[1],i+1,0}
+   sline = line:gsub("%s+","")
+   if split(sline,':')[1] == tokenCheck then
+    dataInfo[file][count] = {split(split(sline,':')[2],']')[1],i+1,0}
     if count > 1 then
      dataInfo[file][count-1][3] = i-1
     end
     count = count + 1
    end
   end
+  dataInfo[file][count-1][3] = endline
  end
- dataInfo[file][count-1][3] = endline
 
  return data, dataInfo, files
 end

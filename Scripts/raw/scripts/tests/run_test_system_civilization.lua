@@ -59,7 +59,7 @@ writeall(output)
 -- CIVILIZATION SYSTEM CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function system_checks()
- local tableFunctions = dfhack.script_environment('functions/tables')
+ local tableFunctions = dfhack.script_environment('functions/entity')
 
  local persistTable = require 'persist-table'
  local roses = persistTable.GlobalTable.roses
@@ -79,8 +79,8 @@ function system_checks()
   writeall('')
   writeall('Creating Entity Table for MOUNTAIN entity')
   civID = df.global.ui.civ_id
-  tableFunctions.makeEntityTable(civID,false)
-  entityTable = roses.EntityTable[tostring(civID)]
+  tableFunctions.makeEntityTable(civID,true)
+  entityTable = persistTable.GlobalTable.roses.EntityTable[tostring(civID)]
   script.sleep(5,'ticks')
   if not entityTable.Civilization then
    civCheck[#civCheck+1] = 'Test Civilization 1 was not correctly assigned to the entity'
@@ -93,6 +93,7 @@ function system_checks()
   writeall('Force level increase, should add dragons to available mounts and change level method')
   output = dfhack.run_command_silent('civilizations/level-up -civ '..tostring(civID)..' -amount 1 -verbose')
   writeall(output)
+  entityTable = persistTable.GlobalTable.roses.EntityTable[tostring(civID)]
   if entityTable.Civilization.Level ~= '1' then
    civCheck[#civCheck+1] = 'Test Civilization 1 did not correctly level up from 0 to 1'
   end
@@ -105,6 +106,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 3200 in-game ticks')
   script.sleep(6500,'ticks')
   writeall('Resuming run_test.lua')
+  entityTable = persistTable.GlobalTable.roses.EntityTable[tostring(civID)]
   if entityTable.Civilization.Level ~= '2' then
    civCheck[#civCheck+1] = 'Test Civilization 1 did not correctly level up from 1 to 2' end
   if #df.global.world.entities.all[civID].resources.animals.mount_races ~= 3 then
@@ -124,7 +126,7 @@ function system_checks()
   end
   if not entity then print('No Forest Entity Found, will produce errors') end
   writeall('Creating Entity Table for FOREST entity')
-  tableFunctions.makeEntityTable(entity.id,false)
+  tableFunctions.makeEntityTable(entity.id,true)
   nCheck = {
         pets = {'animals','pet_races'},
         wagon = {'animals','wagon_puller_races'},
@@ -212,7 +214,8 @@ function system_checks()
   writeall('Force level increase, should fail to level up for many different reasons')
   output = dfhack.run_command_silent('civilizations/level-up -civ '..tostring(entity.id)..' -amount 1 -verbose')
   writeall(output)
-  if roses.EntityTable[tostring(entity.id)].Civilization.Level == 3 then
+  entityTable = persistTable.GlobalTable.roses.EntityTable[tostring(entity.id)]
+  if entityTable.Civilization.Level == '2' then
    civCheck[#civCheck+1] = 'Test Civilization 2 level 2 incorrectly applied, should have failed'
   end
 

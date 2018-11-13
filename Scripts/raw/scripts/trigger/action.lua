@@ -365,7 +365,7 @@ function processTrigger(trigger,intable)
   if arg == 'ATTACKER_ID' then
    command2[i] = '' .. intable.source.id
   elseif arg == 'UNIT_ID' then
-   command2[i] = 'Unit ID' .. intable.source.id
+   command2[i] = '' .. intable.source.id
   elseif arg == 'BLOCKER_ID' then
    command2[i] = '' .. intable.source.id
   elseif arg == 'PARRIER_ID' then
@@ -383,7 +383,7 @@ function processTrigger(trigger,intable)
   elseif arg == 'CONTAMINANT_MATERIAL' and intable.contaminantStr then
    command2[i] = '' .. intable.contaminantStr
   elseif arg == 'ITEM_ID' and intable.item then
-   command2[i] = 'Item ID' .. intable.item.id
+   command2[i] = '' .. intable.item.id
   elseif arg == 'ATTACK_VELOCITY' then
    command2[i] = '' .. intable.velocity
   elseif arg == 'ATTACK_ACCURACY' then
@@ -395,9 +395,9 @@ function processTrigger(trigger,intable)
   elseif arg == 'WOUND_ID' then
    command2[i] = '' .. intable.wound.id
   elseif arg == 'PROJECTILE_ID' then
-   command2[i] = 'Projectile ID' .. intable.projectile.id
+   command2[i] = '' .. intable.projectile.id
   elseif arg == 'PROJECTILE_ITEM_ID' then
-   command2[i] = 'Projectile Item ID' .. intable.projItem.id
+   command2[i] = '' .. intable.projItem.id
   else
    command2[i] = arg
   end

@@ -65,14 +65,14 @@ function makeUnitTable(unit)
  end
  
  -- Needed for the Class System
- if persistTable.GlobalTable.roses.Systems.Class == 'true' then
+ --if persistTable.GlobalTable.roses.Systems.Class == 'true' then
   unitTable.Classes = {}
   unitTable.Feats = {}
   unitTable.Spells = {}
   unitTable.Classes.Current = 'NONE'
   unitTable.Feats.Points = '0'
   unitTable.Spells.Active = {}
- end
+ --end
 end
 
 function getUnitTable(unit)

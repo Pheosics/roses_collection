@@ -23,7 +23,7 @@ function writeall(tbl)
 end
 
 -- Open external output file
-file = io.open('run_test_output.txt','w')
+file = io.open('rto_enhanced.txt','w')
 io.output(file)
 
 -- Initialize base/roses-init
@@ -76,6 +76,15 @@ function system_checks()
  end
  
   printplus('Enhanced System Checks Starting',COLOR_CYAN)
+  printplus('')
+  printplus('base/roses-init -enhancedSystem -verbose -testRun')
+  output = dfhack.run_command_silent('base/roses-init -enhancedSystem -verbose -testRun')
+  writeall(output)
+
+  writeall('Setting up triggers')
+  output = dfhack.run_command_silent('base/triggers -verbose')
+  writeall(output)
+  
   enhCheck = {}
   
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -84,11 +93,6 @@ function system_checks()
   writeall('')
   writeall('Enhanced System - Buildings Starting')
   EBCheck = {}
-
-  printplus('')
-  printplus('base/roses-init -enhancedSystem [ Buildings ] -verbose -testRun')
-  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Buildings ] -verbose -testRun')
-  writeall(output)
 
   ---- Print PASS/FAIL
   --if #EBCheck == 0 then
@@ -111,9 +115,9 @@ function system_checks()
   writeall('Agility should be increased to between 5000 and 8000 and PLANT skill to between 5 and 15')
 
   printplus('')
-  printplus('base/roses-init -enhancedSystem [ Creatures ] -verbose -testRun')
-  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Creatures ] -verbose -testRun')
-  writeall(output)
+  --printplus('base/roses-init -enhancedSystem [ Creatures ] -verbose -testRun')
+  --output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Creatures ] -verbose -testRun')
+  --writeall(output)
 
   ECCheck = {}
   for _,unit in pairs(df.global.world.units.active) do
@@ -148,36 +152,36 @@ function system_checks()
   writeall('Both effects should revert when the item is unequipped')
 
   printplus('')
-  printplus('base/roses-init -enhancedSystem [ Items ] -verbose -testRun')
-  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Items ] -verbose -testRun')
-  writeall(output)
+  --printplus('base/roses-init -enhancedSystem [ Items ] -verbose -testRun')
+  --output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Items ] -verbose -testRun')
+  --writeall(output)
 
   EICheck = {}
   ----
   writeall('')
   writeall('Testing Enhanced Item 1 - ITEM_WEAPON_PICK')
-  output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_PICK -material INORGANIC:STEEL -verbose')
+  output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_PICK -material INORGANIC:STEEL')
   writeall(output)
   writeall('Before Equipping the pick')
 
   ----
-  output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -bodyPart GRASP -type Flag -mode Weapon -verbose')
+  output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -bodyPart GRASP -partType Flag -mode Weapon')
   writeall(output)
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
   writeall('Resuming run_test.lua')
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
   if unitTable.Skills.AXE.Item ~= '15' then
    EICheck[#EICheck+1] = 'Enhanced System - Item 1 equip skill change not correctly applied '..unitTable.Skills.AXE.Item
   end
 
   ----
-  output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -itemType WEAPON -verbose')
+  output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -itemType WEAPON')
   writeall(output)
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
   writeall('Resuming run_test.lua')
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
   if unitTable.Skills.AXE.Item ~= '0' then
    EICheck[#EICheck+1] = 'Enhanced System - Item 1 unequip skill change not correctly applied '..unitTable.Skills.AXE.Item
   end
@@ -185,27 +189,27 @@ function system_checks()
   ----
   writeall('')
   writeall('Testing Enhanced Item 2 - ITEM_WEAPON_AXE_BATTLE')
-  output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_AXE_BATTLE -material INORGANIC:STEEL -verbose')
+  output = dfhack.run_command_silent('item/create -creator '..tostring(unit.id)..' -item WEAPON:ITEM_WEAPON_AXE_BATTLE -material INORGANIC:STEEL')
   writeall(output)
 
   ----
-  output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -bodyPart GRASP -type Flag -mode Weapon -verbose')
+  output = dfhack.run_command_silent('item/equip -unit '..tostring(unit.id)..' -item MOST_RECENT -bodyPart GRASP -partType Flag -mode Weapon')
   writeall(output)
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(10,'ticks')
   writeall('Resuming run_test.lua')
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
   if not unitTable.Spells.Active.TEST_SPELL_1 then
    EICheck[#EICheck+1] = 'Enhanced System - Item 2 equip spell change not correctly applied'
   end
 
   ----
-  output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -itemType WEAPON -verbose')
+  output = dfhack.run_command_silent('item/unequip -unit '..tostring(unit.id)..' -itemType WEAPON')
   writeall(output)
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(10,'ticks')
   writeall('Resuming run_test.lua')
-  unitTable = roses.UnitTable(tostring(unit.id))
+  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
   if unitTable.Spells.Active.TEST_SPELL_1 then
    EICheck[#EICheck+1] = 'Enhanced System - Item 2 unequip spell change not correctly applied'
   end
@@ -228,9 +232,9 @@ function system_checks()
   writeall('Enhanced System - Materials Starting')
 
   printplus('')
-  printplus('base/roses-init -enhancedSystem [ Materials ] -verbose -testRun')
-  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Materials ] -verbose -testRun')
-  writeall(output)
+  --printplus('base/roses-init -enhancedSystem [ Materials ] -verbose -testRun')
+  --output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Materials ] -verbose -testRun')
+  --writeall(output)
 
   EMCheck = {}
 
@@ -253,9 +257,9 @@ function system_checks()
   writeall('Enhanced System - Reactions Starting')
 
   printplus('')
-  printplus('base/roses-init -enhancedSystem [ Reactions ] -verbose -testRun')
-  output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Reactions ] -verbose -testRun')
-  writeall(output)
+  --printplus('base/roses-init -enhancedSystem [ Reactions ] -verbose -testRun')
+  --output = dfhack.run_command_silent('base/roses-init -enhancedSystem [ Reactions ] -verbose -testRun')
+  --writeall(output)
 
   ERCheck = {}
 

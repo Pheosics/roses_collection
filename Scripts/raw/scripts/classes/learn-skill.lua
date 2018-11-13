@@ -38,4 +38,6 @@ if yes then
  if success then
  -- Erase items used for reaction
  end
+ else
+ if verbose then print('Unit does not meet the spell requirements') end
 end

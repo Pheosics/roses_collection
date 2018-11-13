@@ -25,6 +25,10 @@ makeCivilizationTable(test)
 
 ]===]
 
+function tchelper(first, rest)
+  return first:upper()..rest:lower()
+end
+
 function getData(test)
  print('Searching for Civilization information in entity files')
  local filename = 'entity'
@@ -51,10 +55,10 @@ function getData(test)
  end
 
  if #files >= 1 then
-  print(table..' files found:')
+  print('Civilization files found:')
   printall(files)
  else
-  print('No '..table..' files found')
+  print('No Civilization files found')
   return false
  end
  
@@ -73,20 +77,21 @@ function getData(test)
   iofile:close()
 
   dataInfo[file] = {}
-  local count = 1
-  local endline = 1
+  count = 1
+  endline = 1
   for i,line in ipairs(data[file]) do
    endline = i
-   if split(line,':')[1] == tokenCheck then
-    dataInfo[file][count] = {split(split(line,':')[2],']')[1],i+1,0}
+   sline = line:gsub("%s+","")
+   if split(sline,':')[1] == tokenCheck then
+    dataInfo[file][count] = {split(split(sline,':')[2],']')[1],i+1,0}
     if count > 1 then
      dataInfo[file][count-1][3] = i-1
     end
     count = count + 1
    end
   end
+  dataInfo[file][count-1][3] = endline
  end
- dataInfo[file][count-1][3] = endline
 
  return data, dataInfo, files
 
@@ -108,6 +113,7 @@ function makeCivilizationTable()
    endLine   = x[3]
    persistTable.GlobalTable.roses.CivilizationTable[civToken] = {}
    civ = persistTable.GlobalTable.roses.CivilizationTable[civToken]
+   civ.Level = {}
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -128,10 +134,10 @@ function makeCivilizationTable()
      level = array[2]
      civ.Level[level] = {}
      civsLevel = civ.Level[level]
-     civsLevel.Required = {}
     elseif test == '{LEVEL_NAME' then
      civsLevel.Name = array[2]
     elseif test == '{LEVEL_REQUIREMENT' then
+     civsLevel.Required = civsLevel.Required or {}
      if array[2] == 'COUNTER_MAX' then
       civsLevel.Required.CounterMax = civsLevel.Required.CounterMax or {}
       civsLevel.Required.CounterMax[array[3]] = array[4]
@@ -313,16 +319,16 @@ function changeLevel(entity,verbose)
  persistTable = require 'persist-table'
  if not persistTable.GlobalTable.roses then return end
  civPersist = persistTable.GlobalTable.roses.CivilizationTable
- entityPersit = persistTable.GlobalTable.roses.EntityTable
+ entityPersist = persistTable.GlobalTable.roses.EntityTable
 
  if tonumber(entity) then entity = df.global.world.entities.all[tonumber(entity)] end
  if not entityPersist[tostring(entity.id)] then return end
  entityTable = entityPersist[tostring(entity.id)]
- entityToken = df.global.world.entities.all[civ.id].entity_raw.code
- civTable = civPersist[entityToken]
+ entityToken = df.global.world.entities.all[entity.id].entity_raw.code
+ civilizationTable = civPersist[entityToken]
 
- if civTable then
-  if civTable.Level then
+ if civilizationTable then
+  if civilizationTable.Level then
    currentLevel = tonumber(entityTable.Civilization.Level)
    nextLevel = currentLevel + 1
    if nextLevel > tonumber(civilizationTable.Levels) then return end
@@ -356,6 +362,7 @@ function changeLevel(entity,verbose)
     if civilizationTable.Level[tostring(nextLevel)].LevelMethod then
      entityTable.Civilization.CurrentMethod = civilizationTable.Level[tostring(nextLevel)].LevelMethod
      entityTable.Civilization.CurrentPercent = civilizationTable.Level[tostring(nextLevel)].LevelPercent
+	 queueCheck(entity.id,entityTable.Civilization.CurrentMethod,verbose)
     end
    end
   end
@@ -379,7 +386,7 @@ end
 function checkEntity(id,method,verbose)
  persistTable = require 'persist-table'
  if not persistTable.GlobalTable.roses then return end
- entityPersit = persistTable.GlobalTable.roses.EntityTable
+ entityPersist = persistTable.GlobalTable.roses.EntityTable
 
  entityTable = entityPersist[tostring(id)].Civilization
  if entityTable then
@@ -405,11 +412,13 @@ function checkRequirements(entityID,verbose)
  civPersist = persistTable.GlobalTable.roses.CivilizationTable
  entityPersit = persistTable.GlobalTable.roses.EntityTable
 
+ if not entityPersist[tostring(entityID)] then 
+  dfhack.script_environment('functions/entity').makeEntityTable(entityID,verbose)
+ end
  entity = entityPersist[tostring(entityID)]
- if not entity then return false end
  if not entity.Civilization then return false end
 
- level = tostring(entity.Civilization.Level+1)
+ level = tostring(tonumber(entity.Civilization.Level)+1)
  name = df.global.world.entities.all[entityID].entity_raw.code
  if not civPersist[name] then
   return false
@@ -740,7 +749,6 @@ function queueCheck(id,method,verbose)
                                   checkEntity(id,'YEARLY',verbose)
                                  end
                 )
-  checkEntity(id,'YEARLY',verbose)
  elseif method == 'SEASON' then
   curtick = df.global.cur_season_tick*10
   ticks = 1200*28*3-curtick
