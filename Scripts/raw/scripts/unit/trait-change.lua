@@ -77,7 +77,7 @@ for i,trait in ipairs(args.trait) do
  if unitTable.Traits[trait] == nil then
   print('Invalid Trait Token: '..trait)
  else
-  current = unitTable.Traits[trait]
+  current = unitTable.Traits[trait].Base
   change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
   dfhack.script_environment('functions/unit').changeTrait(unit,trait,change,dur,'track',args.syndrome)
  end

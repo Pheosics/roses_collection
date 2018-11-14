@@ -127,7 +127,7 @@ function system_checks()
   end
   unit = civ[5]
   unitTable = unitFunctions.getUnitTable(unit)
-  if unitTable.Attributes.AGILITY < 5000 or unitTable.Skills.PLANT < 5 then
+  if unitTable.Attributes.AGILITY.Total < 5000 or unitTable.Skills.PLANT.Total < 5 then
    ECCheck[#ECCheck+1] = 'Enhanced System - Creature 1 not correctly applied. Agility = '..tostring(unitTable.Attributes.AGILITY)..'. Plant = '..tostring(unitTable.Skills.PLANT)
   end
 

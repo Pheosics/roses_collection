@@ -674,7 +674,7 @@ function script_checks()
   output = dfhack.run_command_silent('unit/resistance-change -unit '..tostring(unit.id)..' -resistance FIRE -amount 50 -mode fixed')
   writeall(output)
   base = unitFunctions.getUnitTable(unit)
-  base = base['Resistances']['FIRE'] or 0
+  base = base['Resistances']['FIRE'].Base or 0
   if math.floor(tonumber(base)) ~= 50 then
    unitCheck[#unitCheck+1] = 'Failed to increase units FIRE resistance to 50'
   end
@@ -748,7 +748,7 @@ function script_checks()
   output = dfhack.run_command_silent('unit/stat-change -unit '..tostring(unit.id)..' -stat CRITICAL_CHANCE -amount 50 -mode fixed')
   writeall(output)
   base = unitFunctions.getUnitTable(unit)
-  base = base['Stats']['CRITICAL_CHANCE'] or 0
+  base = base['Stats']['CRITICAL_CHANCE'].Base or 0
   if math.floor(tonumber(base)) ~= 50 then
    unitCheck[#unitCheck+1] = 'Failed to increase units stat CRITICAL_CHANCE by 50'
   end

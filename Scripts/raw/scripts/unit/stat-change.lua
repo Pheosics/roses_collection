@@ -77,7 +77,7 @@ for i,stat in ipairs(args.stat) do
  if unitTable.Stats[stat] == nil then
   print('Invalid Stat Token: '..stat)
  else
-  current = unitTable.Stats[stat]
+  current = unitTable.Stats[stat].Base
   change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
   dfhack.script_environment('functions/unit').changeStat(unit,stat,change,dur,'track',args.syndrome)
  end

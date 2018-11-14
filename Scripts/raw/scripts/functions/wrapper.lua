@@ -360,8 +360,10 @@ function checkAttribute(source,target,argument)
   relation = string.lower(split(x,':')[1])
   attribute = split(x,':')[2]
   value = tonumber(split(x,':')[3])
-  sattribute = dfhack.script_environment('functions/unit').getUnitTable(source).Attributes[attribute]
-  tattribute = dfhack.script_environment('functions/unit').getUnitTable(target).Attributes[attribute]
+  sattribute = dfhack.script_environment('functions/unit').getUnitTable(source)
+  sattribute = sattribute..Attributes[attribute].Total
+  tattribute = dfhack.script_environment('functions/unit').getUnitTable(target)
+  tattribute = tattribute..Attributes[attribute].Total
   if relation == 'max' then
    if tattribute > value then return false end
   elseif relation == 'min' then
@@ -516,8 +518,10 @@ function checkSkill(source,target,argument)
   relation = string.lower(split(x,':')[1])
   skill = split(x,':')[2]
   value = tonumber(split(x,':')[3])
-  sskill = dfhack.script_environment('functions/unit').getUnitTable(source).Skills[skill]
-  tskill = dfhack.script_environment('functions/unit').getUnitTable(target).Skills[skill]
+  sskill = dfhack.script_environment('functions/unit').getUnitTable(source)
+  sskill = sskill.Skills[skill].Total
+  tskill = dfhack.script_environment('functions/unit').getUnitTable(target)
+  tSkill = tSkill.Skills[skill].Total
   if relation == 'max' then
    if tskill > value then return false end
   elseif relation == 'min' then
@@ -595,8 +599,10 @@ function checkTrait(source,target,argument)
   relation = string.lower(split(x,':')[1])
   trait = split(x,':')[2]
   value = tonumber(split(x,':')[3])
-  strait = dfhack.script_environment('functions/unit').getUnitTable(source).Traits[trait]
-  ttrait = dfhack.script_environment('functions/unit').getUnitTable(target).Traits[trait]
+  strait = dfhack.script_environment('functions/unit').getUnitTable(source)
+  strait = strait.Traits[trait].Total
+  ttrait = dfhack.script_environment('functions/unit').getUnitTable(target)
+  ttrait = ttrait.Traits[trait].Total
   if relation == 'max' then
    if ttrait > value then return false end
   elseif relation == 'min' then

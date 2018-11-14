@@ -717,7 +717,7 @@ function setN(unit,ttype, ctable)
 
  for _,entry in pairs(ctable._children) do
   if not unitTable[ttype][entry] then return false end
-  current = unitTable[ttype][entry]
+  current = unitTable[ttype][entry].Base
   if ttype == 'Skills' then
    value = math.floor(math.random(ctable[entry].Min,ctable[entry].Max))
   else

@@ -862,7 +862,7 @@ function checkRequirementsClass(unit,check,verbose)
 -- Check for Required Attributes
  if classTable.RequiredAttribute then
   for _,attr in pairs(classTable.RequiredAttribute._children) do
-   local unitsValue = unitInfo.Attributes[attr] or 0
+   local unitsValue = unitInfo.Attributes[attr].Base or 0
    local checkValue = classTable.RequiredAttribute[attr]
    if unitsValue < tonumber(checkValue) then
     if verbose then print('Attribute requirements not met. '..checkValue..' '..attr..' needed. Current amount is '..tostring(unitValue)) end
@@ -874,7 +874,7 @@ function checkRequirementsClass(unit,check,verbose)
 -- Check for Required Skills
  if classTable.RequiredSkill then
   for _,skill in pairs(classTable.RequiredSkill._children) do
-   local unitsValue = unitInfo.Skills[skill] or 0
+   local unitsValue = unitInfo.Skills[skill].Base or 0
    local checkValue = classTable.RequiredSkill[skill]
    if unitsValue < tonumber(checkValue) then
     if verbose then print('Skill requirements not met. '..checkValue..' '..attr..' needed. Current amount is '..tostring(unitValue)) end
@@ -886,7 +886,7 @@ function checkRequirementsClass(unit,check,verbose)
 -- Check for Required Traits
  if classTable.RequiredTrait then
   for _,trait in pairs(classTable.RequiredTrait._children) do
-   local unitsValue = unitInfo.Traits[trait] or 0
+   local unitsValue = unitInfo.Traits[trait].Base or 0
    local checkValue = classTable.RequiredTrait[trait]
    if unitsValue < tonumber(checkValue) then
     if verbose then print('Trait requirements not met. '..checkValue..' '..attr..' needed. Current amount is '..tostring(unitValue)) end
@@ -969,7 +969,7 @@ function checkRequirementsSpell(unit,check,verbose)
  -- Check for Required Attribute
  if spellTable.RequiredAttribute then
   for _,attr in pairs(spellTable.RequiredAttribute._children) do
-   if unitInfo.Attributes[attr] < tonumber(spellTable.RequiredAttribute[attr]) then
+   if unitInfo.Attributes[attr].Base < tonumber(spellTable.RequiredAttribute[attr]) then
     return false
    end
   end

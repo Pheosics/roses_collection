@@ -4,11 +4,12 @@ local widgets =require 'gui.widgets'
 local guiScript = require 'gui.script'
 local utils = require 'utils'
 local split = utils.split_string
+local persistTable = require 'persist-table'
 
-classSystem = false
-featSystem = false
-spellSystem = false
-civSystem = false
+classSystem     = false
+featSystem      = false
+spellSystem     = false
+civSystem       = false
 ECreatureSystem = false
 
 function center(str, length)
@@ -48,13 +49,12 @@ DetailedUnitView.ATTRS={
 
 function DetailedUnitView:init(args)
  self.target = args.target
- local persistTable = require 'persist-table'
  if persistTable.GlobalTable.roses then
   systems = persistTable.GlobalTable.roses.Systems
-  if systems.Class == 'true' then classSystem = true end
-  if systems.Feat == 'true' then featSystem = true end
-  if systems.Spell == 'true' then spellSystem = true end
-  if systems.Civilization == 'true' then civSystem = true end
+  if systems.Class            == 'true' then classSystem     = true end
+  if systems.Feat             == 'true' then featSystem      = true end
+  if systems.Spell            == 'true' then spellSystem     = true end
+  if systems.Civilization     == 'true' then civSystem       = true end
   if systems.EnhancedCreature == 'true' then ECreatureSystem = true end
  end
  self.ClassSystem    = classSystem
@@ -63,34 +63,268 @@ function DetailedUnitView:init(args)
  self.CivSystem      = civSystem
  self.EnhancedSystem = ECreatureSystem
 
- -- Positioning
- --[[
- Main:
-   |       X            |      Y         |       Z        |
- --|--------------------|----------------|----------------|
- A |                    |                |                |
- --|--------------------|----------------|----------------|
- B |                    |                |                |
- --|--------------------|----------------|----------------|
- C |                    |                |                |
- ----------------------------------------------------------
- Bottom UI:
- ]]
+ -- Bottom UI
+ self:addviews{
+   widgets.Panel{
+     view_id  = 'bottomView',
+     frame    = { b = 0, h = 1},
+     subviews = {
+       widgets.Label{
+         view_id = 'bottom_ui',
+         frame   = { l = 0, t = 0},
+         text    = 'filled by updateBottom()'
+       }
+     }
+   }
+ }
+ self.subviews.bottomView.visible = true -- Alwayes true
 
+ -- Create Frames
+ ---- Main
+ self:addMainScreen()     -- 3x3 - AX, AY, AZ, BX, BY, BZ, CX, CY, CZ
+
+ ---- Sub Views
+ self:addDetailsScreen()  -- 2x2 - D_AX, D_AY, D_BX, D_BY
+ self:addHealthScreen()   -- 2x1 - H_AX, H_AY
+ self:addThoughtsScreen() -- 3x1 - T_AX, T_AY, T_AZ
+ self:addClassScreen()    -- ?x?
+ self:addFeatScreen()     -- ?x?
+ self:addSpellScreen()    -- ?x?
+
+ -- Fill Frames
+ self:fillMain()
+ self:fillDetails()
+ self:fillHealth()
+ self:fillThoughts()
+ if self.ClassSystem then self:fillClasses() end
+ if self.FeatSystem  then self:fillFeats()   end
+ if self.SpellSystem then self:fillSpells()  end
+
+ -- Set Starting View
+ self:viewMain()
+end
+
+--= Screen Functions (create the screens)
+function DetailedUnitView:addMainScreen()
+---- Main
+ --[[ Positioning
+ Main:
+   |       X            |      Y         |       Z           |
+ --|--------------------|----------------|-------------------|
+ A | Base Information   | Description    | Attributes        |
+ --|--------------------|----------------|-------------------|
+ B | Membership/Worship | Appearance     | Skills            |
+ --|--------------------|----------------|-------------------|
+ C | Class Information  | Health         | Stats/Resistances |
+ -------------------------------------------------------------
+ Bottom UI:
+  Details
+ ]]
+ self:getPositioningMain()
+ self:addviews{
+   widgets.Panel{
+     view_id     = 'main',
+     frame       = { l = 0, r = 0 },
+     frame_inset = 1,
+     subviews    = {
+       widgets.List{
+         view_id = 'AX',
+         frame   = {l = self.AX.anchor.left, t = self.AX.anchor.top, w = self.X_width, h = self.AX.height},
+       },
+       widgets.List{
+         view_id = 'AY',
+         frame   = {l = self.AY.anchor.left, t = self.AY.anchor.top, w = self.Y_width, h = self.AY.height},
+       },
+       widgets.List{
+         view_id = 'AZ',
+         frame   = {l = self.AZ.anchor.left, t = self.AZ.anchor.top, w = self.Z_width, h = self.AZ.height},
+       },
+       widgets.List{
+         view_id = 'BX',
+         frame   = {l = self.BX.anchor.left, t = self.BX.anchor.top, w = self.X_width, h = self.BX.height},
+       },
+       widgets.List{
+         view_id = 'BY',
+         frame   = {l = self.BY.anchor.left, t = self.BY.anchor.top, w = self.Y_width, h = self.BY.height},
+       }
+       widgets.List{
+         view_id = 'BZ',
+         frame   = {l = self.BZ.anchor.left, t = self.BZ.anchor.top, w = self.Z_width, h = self.BZ.height},
+       },
+       widgets.List{
+         view_id = 'CX',
+         frame   = {l = self.CX.anchor.left, t = self.CX.anchor.top, w = self.X_width, h = self.CX.height},
+       },
+       widgets.List{
+         view_id = 'CY',
+         frame   = {l = self.CY.anchor.left, t = self.CY.anchor.top, w = self.Y_width, h = self.CY.height},
+       },
+       widgets.List{
+         view_id = 'CZ',
+         frame   = {l = self.CZ.anchor.left, t = self.CZ.anchor.top, w = self.Z_width, h = self.CZ.height},
+       },
+     }
+   }
+ }
+end
+function DetailedUnitView:addDetailsScreen()
+------ Detailed Information
+ --[[
+ Detailed Information:
+   |      X       |      Y      |
+ --|--------------|-------------|
+ A | Attributes   | Skills      |
+ --|--------------|-------------|
+ B | Resistances  | Stats       |
+ --------------------------------
+ Bottom UI:
+  Back
+ ]]
+ self:getPositioningDetails()
+ self:addviews{
+   widgets.Panel{
+     view_id     = 'detailedView',
+     frame       = { l = 0, r = 0 },
+     frame_inset = 1,
+     subviews    = {
+       widgets.List{
+         view_id = 'D_AX',
+         frame   = {l = self.D_AX.anchor.left, t = self.D_AX.anchor.top, w = self.D_X_width, h = self.D_AX.height},
+       },
+       widgets.List{
+         view_id = 'D_AY',
+         frame   = {l = self.D_AY.anchor.left, t = self.D_AY.anchor.top, w = self.D_Y_width, h = self.D_AY.height},
+       },
+       widgets.List{
+         view_id = 'D_BX',
+         frame   = {l = self.D_BX.anchor.left, t = self.D_BX.anchor.top, w = self.D_X_width, h = self.D_BX.height},
+       },
+       widgets.List{
+         view_id = 'D_BY',
+         frame   = {l = self.D_BY.anchor.left, t = self.D_BY.anchor.top, w = self.D_Y_width, h = self.D_BY.height},
+       },
+     }
+   }
+ }
+end
+function DetailedUnitView:addHealthScreen()
+------ Health
+ --[[
+ Health Information:
+   |      X       |      Y      |
+ --|--------------|-------------|
+ A | Health Stats | Syndromes   |
+ --------------------------------
+ Bottom UI:
+  Back
+ ]]
+ self:getPositioningHealth
+ self:addviews{
+   widgets.Panel{
+     view_id     = 'healthView',
+     frame       = { l = 0, r = 0 },
+     frame_inset = 1,
+     subviews    = {
+       widgets.List{
+         view_id = 'H_AX',
+         frame   = {l = self.H_AX.anchor.left, t = self.H_AX.anchor.top, w = self.H_X_width, h = self.H_AX.height},
+       },
+       widgets.List{
+         view_id = 'H_AY',
+         frame   = {l = self.H_AY.anchor.left, t = self.H_AY.anchor.top, w = self.H_Y_width, h = self.H_AY.height},
+       },
+     }
+   }
+ }
+end
+function DetailedUnitView:addThoughtsScreen()
+------ Thoughts
+ --[[
+ Thoughts and Preferences:
+   |    X     |      Y      |   Z    |
+ --|----------|-------------|--------|
+ A | Thoughts | Preferences | Traits |
+ -------------------------------------
+ Bottom UI:
+  Back
+ ]]
+ self:getPositioningThoughts
+ self:addviews{
+   widgets.Panel{
+     view_id     = 'thoughtsView',
+     frame       = { l = 0, r = 0 },
+     frame_inset = 1, 
+     subviews    = {
+       widgets.List{
+         view_id = 'T_AX',
+         frame   = {l = self.T_AX.anchor.left, t = self.T_AX.anchor.top, w = self.T_X_width, h = self.T_AX.height},
+       },
+       widgets.List{
+         view_id = 'T_AY',
+         frame   = {l = self.T_AY.anchor.left, t = self.T_AY.anchor.top, w = self.T_Y_width, h = self.T_AY.height},
+       },
+       widgets.List{
+         view_id = 'T_AZ',
+         frame   = {l = self.T_AZ.anchor.left, t = self.T_AZ.anchor.top, w = self.T_Z_width, h = self.T_AZ.height},
+       },
+     }
+   }
+ }
+end
+function DetailedUnitView:addClassScreen()
+ self:getPositioningClasses
+ self:addviews{
+   widgets.Panel{
+     view_id     = 'classView',
+     frame       = { l = 0, r = 0 },
+     frame_inset = 1,
+     subviews    = {
+     }
+   }
+ }
+end
+function DetailedUnitView:addFeatScreen()
+ self:getPositioningFeats
+ self:addviews{
+   widgets.Panel{
+     view_id     = 'featView',
+     frame       = { l = 0, r = 0 },
+     frame_inset = 1,
+     subviews    = {
+     }   
+   }
+ }
+end
+function DetailedUnitView:addSpellScreen()
+ self:getPositioningSpells
+ self:addviews{
+   widgets.Panel{
+     view_id     = 'spellView',
+     frame       = { l = 0, r = 0 },
+     frame_inset = 1,
+     subviews    = {
+     }   
+   }
+ }
+end
+
+
+--= Positioning Functions (get the width, height, and anchor points for each screen)
+function DetailedUnitView:getPositioningMain()
 ---- For now just set each cell to the same size
- AX = {anchor = {}, width = 40, height = 10}
- AY = {anchor = {}, width = 40, height = 10}
- AZ = {anchor = {}, width = 40, height = 10}
- BX = {anchor = {}, width = 40, height = 10}
- BY = {anchor = {}, width = 40, height = 10}
- BZ = {anchor = {}, width = 40, height = 10}
- CX = {anchor = {}, width = 40, height = 10}
- CY = {anchor = {}, width = 40, height = 10}
- CZ = {anchor = {}, width = 40, height = 10}
+ local AX = {anchor = {}, width = 40, height = 10}
+ local AY = {anchor = {}, width = 40, height = 10}
+ local AZ = {anchor = {}, width = 40, height = 10}
+ local BX = {anchor = {}, width = 40, height = 10}
+ local BY = {anchor = {}, width = 40, height = 10}
+ local BZ = {anchor = {}, width = 40, height = 10}
+ local CX = {anchor = {}, width = 40, height = 10}
+ local CY = {anchor = {}, width = 40, height = 10}
+ local CZ = {anchor = {}, width = 40, height = 10}
 ----
- X_width = math.max(AX.width,BX.width,CX.width)
- Y_width = math.max(AY.width,BY.width,CY.width)
- Z_width = math.max(AZ.width,BZ.width,CZ.width)
+ local X_width = math.max(AX.width,BX.width,CX.width)
+ local Y_width = math.max(AY.width,BY.width,CY.width)
+ local Z_width = math.max(AZ.width,BZ.width,CZ.width)
 ----
  AX.anchor.top  = 0
  AY.anchor.top  = 0
@@ -122,110 +356,258 @@ function DetailedUnitView:init(args)
  self.CX = CX
  self.CY = CY
  self.CZ = CZ
-
--- Create Frames
----- Main
- self:addviews{
-   widgets.Panel{
-     view_id = 'main',
-     frame = { l = 0, r = 0 },
-     frame_inset = 1,
-     subviews = {
-       widgets.List{
-         view_id = 'AX',
-         frame = {l = AX.anchor.left, t = AX.anchor.top, w = X_width, h = AX.height},
-       },
-       widgets.List{
-         view_id = 'AY',
-         frame = {l = AY.anchor.left, t = AY.anchor.top, w = Y_width, h = AY.height},
-       },
-       widgets.List{
-         view_id = 'AZ',
-         frame = {l = AZ.anchor.left, t = AZ.anchor.top, w = Z_width, h = AZ.height},
-       },
-       widgets.List{
-         view_id = 'BX',
-         frame = {l = BX.anchor.left, t = BX.anchor.top, w = X_width, h = BX.height},
-       },
-       widgets.List{
-         view_id = 'BY',
-         frame = {l = BY.anchor.left, t = BY.anchor.top, w = Y_width, h = BY.height},
-       }
-       widgets.List{
-         view_id = 'BZ',
-         frame = {l = BZ.anchor.left, t = BZ.anchor.top, w = Z_width, h = BZ.height},
-       },
-       widgets.List{
-         view_id = 'CX',
-         frame = {l = CX.anchor.left, t = CX.anchor.top, w = X_width, h = CX.height},
-       },
-       widgets.List{
-         view_id = 'CY',
-         frame = {l = CY.anchor.left, t = CY.anchor.top, w = Y_width, h = CY.height},
-       },
-       widgets.List{
-         view_id = 'CZ',
-         frame = {l = CZ.anchor.left, t = CZ.anchor.top, w = Z_width, h = CZ.height},
-       },
-     }
-   }
- }
----- Bottom UI
- self:addviews{
-   widgets.Panel{
-     view_id = 'bottomView',
-     frame = { b = 0, h = 1},
-     subviews = {
-       widgets.Label{
-         view_id = 'bottom_ui',
-         frame = { l = 0, t = 0},
-         text = 'filled by updateBottom()'
-       }
-     }
-   }
- }
-
- self.subviews.main.visible = true
- self.subviews.bottomView.visible = true
-
- self:fillMain()
- self:updateBottom()
+ self.X_width = X_width
+ self.Y_width = Y_width
+ self.Z_width = Z_width
+end
+function DetailedUnitView:getPositioningDetails()
+---- For now just set each cell to the same size
+ local AX = {anchor = {}, width = 60, height = 20}
+ local AY = {anchor = {}, width = 60, height = 20}
+ local BX = {anchor = {}, width = 60, height = 20}
+ local BY = {anchor = {}, width = 60, height = 20}
+----
+ local X_width = math.max(AX.width,BX.width)
+ local Y_width = math.max(AY.width,BY.width)
+----
+ AX.anchor.top  = 0
+ AY.anchor.top  = 0
+ AX.anchor.left = 0
+ AY.anchor.left = X_width + 4
+----
+ BX.anchor.top  = AX.height + 1
+ BY.anchor.top  = AY.height + 1
+ BX.anchor.left = 0
+ BY.anchor.left = X_width + 4
+----
+ self.D_AX = AX
+ self.D_AY = AY
+ self.D_BX = BX
+ self.D_BY = BY
+ self.D_X_width = X_width
+ self.D_Y_width = Y_width
+end
+function DetailedUnitView:getPositioningHealth()
+---- For now just set each cell to the same size
+ local AX = {anchor = {}, width = 60, height = 40}
+ local AY = {anchor = {}, width = 60, height = 40}
+----
+ local X_width = AX.width
+ local Y_width = AY.width
+----
+ AX.anchor.top  = 0
+ AY.anchor.top  = 0
+ AX.anchor.left = 0
+ AY.anchor.left = X_width + 4
+----
+ self.H_AX = AX
+ self.H_AY = AY
+ self.H_X_width = X_width
+ self.H_Y_width = Y_width
+end
+function DetailedUnitView:getPositioningThoughts()
+---- For now just set each cell to the same size
+ local AX = {anchor = {}, width = 40, height = 40}
+ local AY = {anchor = {}, width = 40, height = 40}
+ local AZ = {anchor = {}, width = 40, height = 40}
+----
+ local X_width = AX.width
+ local Y_width = AY.width
+ local Z_width = AZ.width
+----
+ AX.anchor.top = 0
+ AY.anchor.top = 0
+ AZ.anchor.top = 0
+ AX.anchor.left = 0
+ AY.anchor.left = X_width + 4
+ AZ.anchor.left = X_width + Y_width + 8
+----
+ self.T_AX = AX
+ self.T_AY = AY
+ self.T_AZ = AZ
+ self.T_X_width = X_width
+ self.T_Y_width = Y_width
+ self.T_Z_width = Z_width
+end
+function DetailedUnitView:getPositioningClasses()
+end
+function DetailedUnitView:getPositioningFeats()
+end
+function DetailedUnitView:getPositioningSpells()
 end
 
+--= Filling Functions (call functions/gui to get the information to put on the screen)
 function DetailedUnitView:fillMain()
- unit = self.target
- grid = {'AX', 'AY', 'AZ', 'BX', 'BY', 'BZ', 'CX', 'CY', 'CZ'}
- output = {}
+ local unit = self.target
+ local grid = {'AX', 'AY', 'AZ', 'BX', 'BY', 'BZ', 'CX', 'CY', 'CZ'}
+ local output = {}
  for i,g in pairs(grid) do
   output[g] = guiFunctions.getMainOutput(g, unit, self[g].width, self.ClassSystem)
   self.subviews[g]:setChoices(output[g])
  end
 end
+function DetailedUnitView:fillDetails()
+ local unit = self.target
+ local grid = {'D_AX', 'D_AY', 'D_BX', 'D_BY'}
+ local output = {}
+ for i,g in pairs(grid) do
+  output[g] = guiFunctions.getDetailsOutput(g, unit)
+  self.subviews[g]:setChoices(output[g])
+ end
+end
+function DetailedUnitView:fillHealth()
+ local unit = self.target
+ local grid = {'H_AX', 'H_AY'}
+ local output = {}
+ for i,g in pairs(grid) do
+  output[g] = guiFunctions.getHealthOutput(g, unit)
+  self.subviews[g]:setChoices(output[g])
+ end
+end
+function DetailedUnitView:fillThoughts()
+ local unit = self.target
+ local grid = {'T_AX', 'T_AY', 'T_AZ'}
+ local output = {}
+ for i,g in pairs(grid) do
+  output[g] = guiFunctions.getThoughtsOutput(g, unit)
+  self.subviews[g]:setChoices(output[g])
+ end
+end
+function DetailedUnitView:fillClasses()
+ local unit = self.target
+end
+function DetailedUnitView:fillFeats()
+ local unit = self.target
+end
+function DetailedUnitView:fillSpells()
+ local unit = self.target
+end
 
-function DetailedUnitView:updateBottom()
-  text = {
-          { key = 'CUSTOM_SHIFT_A', text = ': ???  ', on_activate = self:callback('not_right_now') },
-          { key = 'CUSTOM_SHIFT_B', text = ': ???  ', on_activate = self:callback('not_right_now') },
-          { key = 'CUSTOM_SHIFT_C', text = ': ???  ', on_activate = self:callback('not_right_now') },
-          { key = 'CUSTOM_SHIFT_D', text = ': ???  ', on_activate = self:callback('not_right_now') },
-         }
+--= Viewing Functions (change which screen is active and visible)
+function DetailedUnitView:updateBottom(screen)
+ if      screen == 'Main' then
+   text = {
+           { key = 'CUSTOM_SHIFT_A', text = ': Details   ', on_activate = self:callback('viewDetails')  },
+           { key = 'CUSTOM_SHIFT_H', text = ': Health    ', on_activate = self:callback('viewHealth')   },
+           { key = 'CUSTOM_SHIFT_T', text = ': Thoughts  ', on_activate = self:callback('viewThoughts') },
+          }
+   if self.ClassSystem or self.FeatSystem or self.SpellSystem then
+    table.insert(text, {text = NEWLINE})
+    if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_C', text = ': Classes  ', on_activate = self:callback('viewClasses')}) end
+    if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_F', text = ': Feats    ', on_activate = self:callback('viewFeats')  }) end
+    if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_S', text = ': Spells   ', on_activate = self:callback('viewSpells') }) end
+   end
+  elseif screen == 'Details' then
+   text = {
+           { text = 'ESC: Back  '},
+          }
+  elseif screen == 'Health' then
+   text = {
+           { text = 'ESC: Back  '},
+          }
+  elseif screen == 'Thoughts' then
+   text = {
+           { text = 'ESC: Back  '},
+          }
+  elseif screen == 'Classes' then
+   text = {
+           { text = 'ESC: Back  '},
+          }
+  elseif screen == 'Feats' then
+   text = {
+           { text = 'ESC: Back  '},
+          }
+  elseif screen == 'Spells' then
+   text = {
+           { text = 'ESC: Back  '},
+          }
+  end
   self.subviews.bottom_ui:setText(text)
 end
-
-
-
-function DetailedUnitView:not_right_now()
-
+function DetailedUnitView:viewMain()
+ self:updateBottom('Main') 
+ self.subviews.main.visible         = true
+ self.subviews.detailedView.visible = false
+ self.subviews.healthView.visible   = false
+ self.subviews.thoughtView.visible  = false
+ self.subviews.classView.visible    = false
+ self.subviews.featView.visible     = false
+ self.subviews.spellView.visible    = false
+end
+function DetailedUnitView:viewDetails()
+ self:updateBottom('Details')
+ self.subviews.main.visible         = false
+ self.subviews.detailedView.visible = true
+ self.subviews.healthView.visible   = false
+ self.subviews.thoughtView.visible  = false
+ self.subviews.classView.visible    = false
+ self.subviews.featView.visible     = false
+ self.subviews.spellView.visible    = false
+end
+function DetailedUnitView:viewHealth()
+ self:updateBottom('Health')
+ self.subviews.main.visible         = false
+ self.subviews.detailedView.visible = false
+ self.subviews.healthView.visible   = true
+ self.subviews.thoughtView.visible  = false
+ self.subviews.classView.visible    = false
+ self.subviews.featView.visible     = false
+ self.subviews.spellView.visible    = false
+end
+function DetailedUnitView:viewThoughts()
+ self:updateBottom('Thoughts')
+ self.subviews.main.visible         = false
+ self.subviews.detailedView.visible = false
+ self.subviews.healthView.visible   = false
+ self.subviews.thoughtView.visible  = true
+ self.subviews.classView.visible    = false
+ self.subviews.featView.visible     = false
+ self.subviews.spellView.visible    = false
+end
+function DetailedUnitView:viewClasses()
+ self:updateBottom('Classes')
+ self.subviews.main.visible         = false
+ self.subviews.detailedView.visible = false
+ self.subviews.healthView.visible   = false
+ self.subviews.thoughtView.visible  = false
+ self.subviews.classView.visible    = true
+ self.subviews.featView.visible     = false
+ self.subviews.spellView.visible    = false
+end
+function DetailedUnitView:viewFeats()
+ self:updateBottom('Feats')
+ self.subviews.main.visible         = false
+ self.subviews.detailedView.visible = false
+ self.subviews.healthView.visible   = false
+ self.subviews.thoughtView.visible  = false
+ self.subviews.classView.visible    = false
+ self.subviews.featView.visible     = true
+ self.subviews.spellView.visible    = false
+end
+function DetailedUnitView:viewSpells()
+ self:updateBottom('Spells')
+ self.subviews.main.visible         = false
+ self.subviews.detailedView.visible = false
+ self.subviews.healthView.visible   = false
+ self.subviews.thoughtView.visible  = false
+ self.subviews.classView.visible    = false
+ self.subviews.featView.visible     = false
+ self.subviews.spellView.visible    = true
 end
 
+
+--= Base Functions
 function DetailedUnitView:onInput(keys)
  if keys.LEAVESCREEN then
-  self:dismiss()
+  if self.subviews.main.visible then
+   self:dismiss()
+  else
+   self:viewMain()
+  end
  else
   DetailedUnitView.super.onInput(self, keys)
  end
 end
-
 function show_editor(trg)
  local screen = DetailedUnitView{target=trg}
  screen:show()

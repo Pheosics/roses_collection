@@ -77,7 +77,7 @@ for i,attribute in ipairs(args.attribute) do
  if unitTable.Attributes[attribute] == nil then
   print('Invalid Attribute Token: '..attribute)
  else
-  current = unitTable.Attributes[attribute]
+  current = unitTable.Attributes[attribute].Base
   change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
   dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,'track',args.syndrome)
  end
