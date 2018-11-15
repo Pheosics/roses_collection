@@ -1,5 +1,6 @@
 local utils = require 'utils'
 local split = utils.split_string
+local persistTable = require 'persist-table'
 
 --= String Functions
 function tchelper(first, rest)
@@ -184,13 +185,137 @@ function getMembershipInfo(unit,w,Type)
 end
 function getClassInfo(unit,w,Type)
  local info = {}
-
+ local classTable = persistTable.GlobalTable.roses.ClassTable
+ local unitTable  = persistTable.GlobalTable.roses.UnitTable
+ if not unitTable[tostring(unit.id)] then return false end
+ unitClasses = unitTable[tostring(unit.id)].Classes
+ 
  if Type == 'Basic' then
   info.Current = 'A basic description of the units current class goes here'
   info.Classes = 'A basic description of the units other classes goes here'
- elseif Type == 'Detailed' then
-  info.Current = {}
+ elseif Type == 'All' then
   info.Classes = {}
+  for i,x in pairs(classTable._children) do
+   info.Classes[x] = {}
+   if unitClasses[x] then
+    info.Classes[x].Exp   = unitClasses[x].Level
+    info.Classes[x].Level = unitClasses[x].Experience
+   else
+    info.Classes[x].Exp   = 0
+    info.Classes[x].Level = 0
+   end
+  end
+ elseif Type == 'Learned' then
+  info.Classes = {}
+  for i,x in pairs(classTable._children) do
+   if unitClasses[x] then
+    info.Classes[x] = {}
+    info.Classes[x].Exp   = unitClasses[x].Level
+    info.Classes[x].Level = unitClasses[x].Experience
+   end
+  end
+ elseif Type == 'Available' then
+  info.Classes = {}
+  for i,x in pairs(classTable._children) do
+   if dfhack.script_environment('functions/class').checkRequirementsClass(unit,x) then
+    info.Classes[x] = {}
+    info.Classes[x].Exp   = unitClasses[x].Level
+    info.Classes[x].Level = unitClasses[x].Experience
+   end
+  end
+ elseif Type == 'Civ' then
+  info.Classes = {}
+  if unitTable.Civilization and unit.civ_id >= 0 then
+   civTable = persistTable.GlobalTable.roses.EntityTable[tostring(unit.civ_id)].Civilization
+   for i,x in pairs(classTable._children) do
+    if civTable.Classes[x] then
+     info.Classes[x] = {}
+     if unitClasses[x] then
+      info.Classes[x].Exp   = unitClasses[x].Level
+      info.Classes[x].Level = unitClasses[x].Experience
+     else
+      info.Classes[x].Exp   = 0
+      info.Classes[x].Level = 0
+     end
+    end
+   end
+  end
+
+ else
+  if not classTable[Type] then return false end
+  class = classTable[Type]
+  unitT = dfhack.script_environment('functions/unit').getUnitTable(unit)
+
+  info.RequiredClass     = {}
+  for i,x in pairs(class.RequiredClass._children) do
+   info.RequiredClass[x] = {}
+   info.RequiredClass[x].Name  = classTable[x].Name
+   info.RequiredClass[x].Level = class.RequiredClass[x]
+   info.RequiredClass[x].Check = false
+   if unitT.Classes[x] then
+    if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
+     info.RequiredClass[x].Check = true
+    end
+   end
+  end
+
+  info.RequiredAttribute = {}
+  for i,x in pairs(class.RequiredAttribute._children) do
+   info.RequiredAttribute[x] = {}
+   info.RequiredAttribute[x].Name  = x
+   info.RequiredAttribute[x].Level = class.RequiredAttribute[x]
+   info.RequiredAttribute[x].Check = false
+   if unitT and unitT.Attributes[x] then
+    if unitT.Attributes[x].Base >= info.RequiredAttribute[x].Level then
+     info.RequiredAttribute[x].Check = true
+    end
+   end
+  end
+
+  info.RequiredSkill = {}
+  for i,x in pairs(class.RequiredSkill._children) do
+   info.RequiredClass[x] = {}
+   info.RequiredClass[x].Name  = 
+   info.RequiredClass[x].Level = class.RequiredSkill[x]
+   info.RequiredSkill[x].Check = true
+   if unitT and unitT.Skills[x] then
+    if unitT.Skills[x].Base >= info.RequiredSkill[x].Level then
+     info.RequiredSkill[x].Check = true
+    end
+   end
+  end
+
+  info.ClassBonuses = {}
+  local n = 1
+  for i,t in pairs(class.Level['0'].Adjustments._children) do
+   for j,x in pairs(class.Level['0'].Adjustments[t]._children) do
+    info.ClassBonuses[n] = {}
+    info.ClassBonuses[n].Type = t
+    info.ClassBonuses[n].Name = x
+    info.ClassBonuses[n].Level = class.Level['0'].Adjustments[t][x]
+    n = n + 1
+   end
+  end
+
+  info.LevelBonuses = {}
+  n = 1
+  for i,t in pairs(class.Level['0'].LevelBonus._children) do
+   for j,x in pairs(class.Level['0'].LevelBonus[t]._children) do
+    info.LevelBonuses[n] = {}
+    info.LevelBonuses[n].Type = t
+    info.LevelBonuses[n].Name = x
+    info.LevelBonuses[n].Level = class.Level['0'].LevelBonus[t][x]
+    n = n + 1
+   end
+  end
+
+  info.Spells = {}
+  n = 1
+  for i,x in pairs(class.Spells._children) do
+   info.Spells[n] = {}
+   info.Spells[n].Name  = x
+   info.Spells[n].Level = class.Spells[x].RequiredLevel
+  end
  end
 
  return info
@@ -226,13 +351,16 @@ function getThoughtInfo(unit,w,Type)
 end
 function getHealthInfo(unit,w,Type)
  local info = {}
+ syndromes, syndrome_details = dfhack.script_environment('functions/unit').getSyndrome(unit,'All','detailed')
 
  if Type == 'Basic' then
-  info.Injury   = 'A basic description of any unit injuries goes here'
-  info.Sickness = 'A basic description of any sickness goes here'
+  info.Injury    = 'A basic description of any unit injuries goes here'
+  info.Syndromes = 'A basic description of any sickness goes here'
  elseif Type == 'Detailed' then
-  info.Injury   = {}
-  info.Sickness = {}
+  syndromes, syndrome_details = dfhack.script_environment('functions/unit').getSyndrome(unit,'All','detailed')
+  info.Injury    = {}
+  info.Syndromes = syndromes
+  info.SyndromeDetails = syndrome_details
  end
 
  return info
@@ -577,12 +705,55 @@ function getHealthOutput(grid,unit,w)
  ]]
  local insert = {}
  local titleColor = COLOR_LIGHTCYAN
+ local headColor = COLOR_LIGHTMAGENTA
+ local fgc = COLOR_WHITE
+ local hW = w - 40
  Info = getHealthInfo(unit,w,'Detailed')
 
  if     grid == 'H_AX' then
-  table.insert(insert,{text = {{text = center('Health',w), width = w, pen=titleColor}}})
+  table.insert(insert, {text = {{text = center('Health',w), width = w, pen=titleColor}}})
  elseif grid == 'H_AY' then
-  table.insert(insert,{text = {{text = center('Syndromes',w), width = w, pen=titleColor}}})
+  table.insert(insert, {text = {{text = center('Syndromes',w), width = w, pen=titleColor}}})
+  table.insert(insert, {text = {
+                                {text=center('Active Syndromes',hW), pen=headColor},
+                                {text=center('Start',7),             pen=headColor},
+                                {text=center('Peaks',7),             pen=headColor},
+                                {text=center('Severity',10),         pen=headColor},
+                                {text=center('Ends',6),              pen=headColor},
+                                {text=center('Duration',10),         pen=headColor}
+                               }})
+  for i,x in pairs(Info.Syndromes) do
+   table.insert(insert, {text = {{text = x[1], width = hW, pen=COLOR_LIGHTGREEN}}})
+   for j,y in pairs(Info.SyndromeDetails[i]) do
+    if pcall(function() return y.sev end) then
+     severity = y.sev
+    else
+     severity = 'NA'
+    end
+    effect = split(tostring(y._type),'creature_interaction_effect_')[2]
+    if not effect then
+     effect = 'NA'
+    else
+     effect = split(effect,'st>')[1]:gsub("(%a)([%w_']*)", tchelper)
+    end
+    effect = "    "..effect
+    if y['end'] == -1 then
+     ending = 'Permanent'
+     duration = x[3]
+    else
+     ending = y['end']
+     duration = x[3]
+    end
+    table.insert(insert, {text = {
+                                  {text = effect,                  width = hW, pen=fgc},
+                                  {text = y.start,  rjustify=true, width = 7,  pen=fgc},
+                                  {text = y.peak,   rjustify=true, width = 7,  pen=fgc},
+                                  {text = severity, rjustify=true, width = 10, pen=fgc},
+                                  {text = ending,   rjustify=true, width = 6,  pen=fgc},
+                                  {text = duration, rjustify=true, width = 10, pen=fgc}
+                                 }})
+   end
+  end
  end
 
  return insert
@@ -607,4 +778,114 @@ function getThoughtsOutput(grid,unit,w)
  end
  
  return insert
+end
+function getClassesOutput(grid,unit,w,choice)
+ local insert = {}
+ local titleColor = COLOR_LIGHTCYAN
+ local headColor = COLOR_LIGHTMAGENTA
+ local subColor = COLOR_YELLOW
+ local fgc
+
+ if grid == 'C_AX' then
+  table.insert(insert,{text = {{text=center('Classes',w), width=w, pen=titleColor}}})
+  table.insert(insert,{text = {
+                               {text='Class',      width=21,                pen=headColor},
+                               {text='Level',      width=7,  rjustify=true, pen=headColor},
+                               {text='Experience', width=12, rjustify=true, pen=headColor},
+                              }})
+ elseif grid == 'C_BX' then
+  Info = getClassInfo(unit,w,choice)
+  if not Info then return insert end
+  for token,tbl in pairs(Info.Classes) do
+   name = persistTable.GlobalTable.roses.ClassTable[token].Name
+   if tbl.Level > 0 or tbl.Exp > 0 then
+    fgc = COLOR_LIGHTGREEN
+   else
+    fgc = COLOR_LIGHTRED
+   end
+   table.insert(insert, {text = {
+                                 {text=name,                               width=21, pen=fgc},
+                                 {text=tostring(tbl.Level), rjustify=true, width=7,  pen=fgc},
+                                 {text=tostring(tbl.Exp),   rjustify=true, width=12, pen=fgc},
+                                }})
+  end
+ elseif grid == 'C_ABY' then
+  local token = choice.text[1].text
+  Info = getClassInfo(unit,w,token)
+  if not Info then return insert end
+  table.insert(insert, {text = {{text=center(Info.Name,w), width=w, pen=titleColor}}})
+
+  -- REQUIREMENTS
+  table.insert(insert, {text = {{text='Requirements', width=w, pen=headColor }}})
+  ---- CLASSES
+  table.insert(insert, {text = {{text='Classes:', width=w, pen=subColor  }}})
+  for i,x in pairs(Info.RequiredClass) do
+   if x.Check then
+    fgc = COLOR_LIGHTGREEN
+   else
+    fgc = COLOR_LIGHTRED
+   end
+   table.insert(insert, {text = {{text='Level '..x.Level..' '..x.Name, width=w, pen=fgc}}})
+  end
+  ---- ATTRIBUTES
+  table.insert(insert, {text = {{text='Attributes:', width=w, pen=subColor}}})
+  for i,x in pairs(Info.RequiredAttribute) do
+   if x.Check then 
+    fgc = COLOR_LIGHTGREEN
+   else
+    fgc = COLOR_LIGHTRED
+   end
+   table.insert(insert, {text = {{text=x.Level..' '..x.Name, width=w, pen=fgc}}})
+  end
+  ---- SKILLS
+  table.insert(insert, {text = {{text='Skills:', width=w, pen=subColor}}})
+  for i,x in pairs(Info.RequiredSkill) do
+   if x.Check then 
+    fgc = COLOR_LIGHTGREEN
+   else 
+    fgc = COLOR_LIGHTRED
+   end
+   table.insert(insert, {text = {{text='Level '..x.Level..' '..x.Name, width=w, pen=fgc}}})
+  end
+
+  -- CLASS BONUSES
+  table.insert(insert, {text = {{text='Class Bonuses', width=w, pen=headColor }}})
+  for i,x in pairs(Info.ClassBonus) do
+   if x.Level > 0 then
+    fgc = COLOR_LIGHTGREEN
+   else
+    fgc = COLOR_LIGHTRED
+   end
+   table.insert(insert, {text = {{text=x.Type..': '..x.Level..' '..x.Name, width=w, pen=fgc}}})
+  end
+
+  -- LEVELING BONUSES
+  table.insert(insert, {text = {{text='Leveling Bonuses', width=w, pen=headColor }}})
+  for i,x in pairs(Info.LevelBonus) do
+   if x.Level > 0 then
+    fgc = COLOR_LIGHTGREEN
+   else 
+    fgc = COLOR_LIGHTRED
+   end
+   table.insert(insert, {text = {{text=x.Type..': '..x.Level..' '..x.Name, width=w, pen=fgc}}})
+  end
+
+  -- SPELLS AND ABILITIES
+  table.insert(insert, {text = {{text='Spells and Abilities', width=w, pen=headColor }}})
+  for i,x in pairs(Info.Spells) do
+   if x.Check > 0 then
+    fgc = COLOR_WHITE
+   else 
+    fgc = COLOR_GREY
+   end
+   table.insert(insert, {text = {{text=x.Name, width=w, pen=fgc}}})
+  end
+
+ end
+
+ return insert
+end
+function getFeatsOutput(gird,unit,w)
+end
+function getSpellsOutput(grid,unit,w)
 end

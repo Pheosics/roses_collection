@@ -263,7 +263,6 @@ function getUnitTable(unit)
   end
  end 
 
-
  outTable.Traits = {}
  for trait,value in pairs(unit.status.current_soul.personality.traits) do
   outTable.Traits[trait].Total    = unit.status.current_soul.personality.traits[trait]
@@ -274,6 +273,17 @@ function getUnitTable(unit)
   outTable.Traits[trait].Syndrome = 0
  end
 
+ outTable.Classes = {}
+ if unitTable and ersistTable.GlobalTable.roses.Systems.Class == 'true' then
+  classTable = persistTable.GlobalTable.roses.ClassTable
+  for i,x in pairs(classTable._children) do
+   if unitTable.Classes[x] then
+    outTable.Classes[x] = {}
+    outTable.Classes[x].Level      = unitTable.Classes[x].Level
+    outTable.Classes[x].Experience = unitTable.Classes[x].Experience
+   end
+  end
+ end
  return outTable
 end
 
@@ -1694,6 +1704,31 @@ function getSyndrome(unit,class,what)
     end
    end
   end
+ elseif what == 'detailed' then
+  syn = {}
+  syn_detail = {}
+  for i,x in pairs(unit.syndromes.active) do
+   curticks = x.ticks
+   endticks = -1
+   for j,y in pairs(df.global.world.raws.syndromes.all[tonumber(x.type)].ce) do
+    if y['end'] > endticks then endticks = y['end'] end
+   end
+   if endticks == -1 then
+    duration = 'Permenant'
+   else
+    duration = tostring(endticks-curticks)
+   end
+   syn[#syn+1] = {df.global.world.raws.syndromes.all[tonumber(x.type)].syn_name:gsub("(%a)([%w_']*)", tchelper),duration,curticks}
+   if syn[#syn+1][1] == '' then
+    syn[#syni+1][1] = 'Unknown'
+   end
+   syn_detail[#syn_detaili+1] = df.global.world.raws.syndromes.all[tonumber(x.type)].ce
+  end
+  if #syn == 0 then
+   syn[1] = {'None','',''}
+   syn_detail[1] = {}
+  end
+  return syn, syn_detail
  end
  return names, ids, ida
 end

@@ -96,9 +96,9 @@ function DetailedUnitView:init(args)
  self:fillDetails()
  self:fillHealth()
  self:fillThoughts()
- if self.ClassSystem then self:fillClasses() end
- if self.FeatSystem  then self:fillFeats()   end
- if self.SpellSystem then self:fillSpells()  end
+ if self.ClassSystem then self:fillClasses('Learned',false) end
+ if self.FeatSystem  then self:fillFeats('Learned',false)   end
+ if self.SpellSystem then self:fillSpells('Learned',false)  end
 
  -- Set Starting View
  self:viewMain()
@@ -272,13 +272,40 @@ function DetailedUnitView:addThoughtsScreen()
  }
 end
 function DetailedUnitView:addClassScreen()
- self:getPositioningClasses
+------ Class Information
+ --[[
+ Classes:
+   |      X       |      Y      |
+ --|--------------|-------------|
+ A | Header       |             |
+ --|--------------| Details     |
+ B | Class List   |             |
+ --------------------------------
+ Bottom UI:
+  Back
+ ]]
+ self:getPositioningClasses()
  self:addviews{
    widgets.Panel{
      view_id     = 'classView',
      frame       = { l = 0, r = 0 },
      frame_inset = 1,
      subviews    = {
+       widgets.List{
+         view_id = 'C_AX',
+         frame   = {l = self.C_AX.anchor.left, t = self.C_AX.anchor.top, w = self.C_X_width, h = self.C_AX.height},
+       },
+       widgets.List{
+         view_id    = 'C_BX',
+         frame      = {l = self.C_BX.anchor.left, t = self.C_BX.anchor.top, w = self.C_X_width, h = self.C_BX.height},
+         on_select  = self:callBack('fillClasses'),
+         text_pen   = dfhack.pen.parse{fg=COLOR_DARKGRAY, bg=0},
+         cursor_pen = dfhack.pen.parse{fg=COLOR_YELLOW, bg=0},
+       },
+       widgets.List{
+         view_id = 'C_ABY',
+         frame   = {l = self.C_ABY.anchor.left, t = self.C_ABY.anchor.top, w = self.C_Y_width, h = self.C_ABY.height},
+       },
      }
    }
  }
@@ -430,6 +457,27 @@ function DetailedUnitView:getPositioningThoughts()
  self.T_Z_width = Z_width
 end
 function DetailedUnitView:getPositioningClasses()
+ local AX  = {anchor = {}, width = 40, height = 3}
+ local BX  = {anchor = {}, width = 40, height = 37}
+ local ABY = {anchor = {}, width = 80, height = 40}
+----
+ local X_width = math.max(AX.width,BX.width)
+ local Y_width = ABY.width
+----
+ AX.anchor.top  = 0
+ AX.anchor.left = 0
+----
+ BX.anchor.top  = AX.height + 1
+ BX.anchor.left = 0
+----
+ ABY.anchor.top  = 0
+ ABY.anchor.left = X_width + 4 
+----
+ self.C_AX  = AX
+ self.C_BX  = BX
+ self.C_ABY = ABY
+ self.C_X_width = X_width
+ self.C_Y_width = Y_width
 end
 function DetailedUnitView:getPositioningFeats()
 end
@@ -473,13 +521,26 @@ function DetailedUnitView:fillThoughts()
   self.subviews[g]:setChoices(output[g])
  end
 end
-function DetailedUnitView:fillClasses()
+function DetailedUnitView:fillClasses(filter,details)
+ local unit = self.target
+ local output = {}
+
+ if details then
+  output = guiFunctions.getClassOutput('C_ABY', unit, self['C_ABY'].width. details)
+  self.subviews.C_ABY:setChoices(output)
+ else
+  local grid = {'C_AX','C_BX'}
+  local output = {}
+  for i,g in pairs(grid) do
+   output[g] = guiFunctions.getClassOutput(g, unit, self[g].width, filter)
+   self.subviews[g]:setChoices(output[g])
+  end
+ end
+end
+function DetailedUnitView:fillFeats(filter)
  local unit = self.target
 end
-function DetailedUnitView:fillFeats()
- local unit = self.target
-end
-function DetailedUnitView:fillSpells()
+function DetailedUnitView:fillSpells(filter)
  local unit = self.target
 end
 
@@ -510,6 +571,13 @@ function DetailedUnitView:updateBottom(screen)
            { text = 'ESC: Back  '},
           }
   elseif screen == 'Classes' then
+   text = {
+           { key = 'CUSTOM_SHIFT_A', text = ': Show All Classes          ', on_activate = function () self:fillClasses('All',false)       end },
+           { key = 'CUSTOM_SHIFT_C', text = ': Show Civilization Classes ', on_activate = function () self:fillClasses('Civ',false)       end },
+           { key = 'CUSTOM_SHIFT_K', text = ': Show Known Classes        ', on_activate = function () self:fillClasses('Learned',false)   end },
+           { key = 'CUSTOM_SHIFT_V', text = ': Show Available Classes    ', on_activate = function () self:fillClasses('Available',false) end },
+           { text = 'ESC: Back'}
+          }
    text = {
            { text = 'ESC: Back  '},
           }
