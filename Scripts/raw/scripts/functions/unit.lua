@@ -5,6 +5,9 @@ utils = require 'utils'
 split = utils.split_string
 usages = {}
 
+function tchelper(first, rest)
+  return first:upper()..rest:lower()
+end
 
 --=                     Unit Table Functions
 usages[#usages+1] = [===[
@@ -97,7 +100,8 @@ function getUnitTable(unit)
  outTable.Attributes = {}
  -- Physical Attributes
  for attribute,_ in pairs(unit.body.physical_attrs) do
-  x = unit.body.physical_attrs[strKind].value
+  outTable.Attributes[attribute] = {}
+  x = unit.body.physical_attrs[attribute].value
   if unit.curse.attr_change then
    y = unit.curse.attr_change.phys_att_add[attribute]
    z = unit.curse.attr_change.phys_att_perc[attribute]/100
@@ -121,7 +125,8 @@ function getUnitTable(unit)
  end
  -- Mental Attributes
  for attribute,_ in pairs(unit.status.current_soul.mental_attrs) do
-  x = unit.status.current_soul.mental_attrs[strKind].value
+  outTable.Attributes[attribute] = {}
+  x = unit.status.current_soul.mental_attrs[attribute].value
   if unit.curse.attr_change then
    y = unit.curse.attr_change.ment_att_add[attribute]
    z = unit.curse.attr_change.ment_att_perc[attribute]/100
@@ -146,6 +151,7 @@ function getUnitTable(unit)
  -- Custom Attributes
  if baseTable then
   for _,attribute in pairs(baseTable.CustomAttributes._children) do
+   outTable.Attributes[attribute] = {}
    if unitTable and unitTable.Attributes[attribute] then
     outTable.Attributes[attribute].Base     = tonumber(unitTable.Attributes[attribute].Base)
     outTable.Attributes[attribute].Item     = tonumber(unitTable.Attributes[attribute].Item)
@@ -171,6 +177,7 @@ function getUnitTable(unit)
  -- Custom Resistances (no in game resistances currently)
  if baseTable then
   for _,resistance in pairs(baseTable.CustomResistances._children) do
+   outTable.Resistances[resistance] = {}
    if unitTable and unitTable.Resistances[resistance] then
     outTable.Resistances[resistance].Base     = tonumber(unitTable.Resistances[resistance].Base)
     outTable.Resistances[resistance].Item     = tonumber(unitTable.Resistances[resistance].Item)
@@ -196,6 +203,7 @@ function getUnitTable(unit)
  -- In Game Skills
  for id = 1, 134 do
   skill = df.job_skill[id]
+  outTable.Skills[skill] = {}
   outTable.Skills[skill].Exp      = dfhack.units.getExperience(unit,id,false)
   outTable.Skills[skill].Total    = dfhack.units.getNominalSkill(unit,id,false)
   outTable.Skills[skill].Rust     = outTable.Skills[skill].Total - dfhack.units.getNominalSkill(unit,id,true)
@@ -214,6 +222,7 @@ function getUnitTable(unit)
  -- Custom Skills
  if baseTable then
   for _,skill in pairs(baseTable.CustomSkills._children) do
+   outTable.Skills[skill] = {}
    if unitTable and unitTable.Skills[skill] then
     outTable.Skills[skill].Base     = tonumber(unitTable.Skills[skill].Base)
     outTable.Skills[skill].Item     = tonumber(unitTable.Skills[skill].Item)
@@ -242,6 +251,7 @@ function getUnitTable(unit)
  -- Custom Stats (no in game stats currently)
  if baseTable then
   for _,stat in pairs(baseTable.CustomStats._children) do
+   outTable.Stats[stat] = {}
    if unitTable and unitTable.Stats[stat] then
     outTable.Stats[stat].Base     = tonumber(unitTable.Stats[stat].Base)
     outTable.Stats[stat].Item     = tonumber(unitTable.Stats[stat].Item)
@@ -265,6 +275,7 @@ function getUnitTable(unit)
 
  outTable.Traits = {}
  for trait,value in pairs(unit.status.current_soul.personality.traits) do
+  outTable.Traits[trait] = {}
   outTable.Traits[trait].Total    = unit.status.current_soul.personality.traits[trait]
   outTable.Traits[trait].Base     = outTable.Traits[trait].Total
   outTable.Traits[trait].Item     = 0
@@ -274,7 +285,7 @@ function getUnitTable(unit)
  end
 
  outTable.Classes = {}
- if unitTable and ersistTable.GlobalTable.roses.Systems.Class == 'true' then
+ if unitTable and persistTable.GlobalTable.roses.Systems.Class == 'true' then
   classTable = persistTable.GlobalTable.roses.ClassTable
   for i,x in pairs(classTable._children) do
    if unitTable.Classes[x] then
@@ -1718,11 +1729,12 @@ function getSyndrome(unit,class,what)
    else
     duration = tostring(endticks-curticks)
    end
-   syn[#syn+1] = {df.global.world.raws.syndromes.all[tonumber(x.type)].syn_name:gsub("(%a)([%w_']*)", tchelper),duration,curticks}
-   if syn[#syn+1][1] == '' then
-    syn[#syni+1][1] = 'Unknown'
+   n = #syn+1
+   syn[n] = {df.global.world.raws.syndromes.all[tonumber(x.type)].syn_name:gsub("(%a)([%w_']*)", tchelper),duration,curticks}
+   if syn[n][1] == '' then
+    syn[n][1] = 'Unknown'
    end
-   syn_detail[#syn_detaili+1] = df.global.world.raws.syndromes.all[tonumber(x.type)].ce
+   syn_detail[#syn_detail+1] = df.global.world.raws.syndromes.all[tonumber(x.type)].ce
   end
   if #syn == 0 then
    syn[1] = {'None','',''}

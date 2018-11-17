@@ -1,6 +1,7 @@
 local utils = require 'utils'
 local split = utils.split_string
 local persistTable = require 'persist-table'
+local usages = {}
 
 --= String Functions
 function tchelper(first, rest)
@@ -141,7 +142,7 @@ function getBaseInfo(unit)
  local info = {}
 
  -- Unit Name
- info['Name'] = dfhack.units.getVisibleName(unit)
+ info['Name'] = dfhack.TranslateName(dfhack.units.getVisibleName(unit))
 
  -- Unit Caste
  local sex = ''
@@ -156,12 +157,21 @@ function getBaseInfo(unit)
 
  -- Unit Entity
  local ent, civ, mem = '', '', ''
- if unit.civ_id >= 0 then ent = df.global.world.entities.all[unit.civ_id].name end
- if unit.population_id >= 0 then civ = df.global.world.entity_populations[unit.population_id].name end
+ if unit.civ_id >= 0 then 
+  ent = df.global.world.entities.all[unit.civ_id].name
+  ent = dfhack.TranslateName(ent)
+ end
+ if unit.population_id >= 0 then 
+  civ = df.global.world.entity_populations[unit.population_id].name
+  civ = dfhack.TranslateName(civ)
+ end
  if unit.hist_figure_id >= 0 then
   local hf = df.global.world.history.figures[unit.hist_figure_id]
   for _,link in pairs(hf.entity_links) do
-   if link.entity_id ~= unit.civ_id then mem = df.global.world.entities.all[link.entity_id].name end
+   if link.entity_id ~= unit.civ_id then 
+    mem = df.global.world.entities.all[link.entity_id].name
+	mem = dfhack.TranslateName(mem)
+   end
   end
  end
  info['Entity'] = ent
@@ -174,8 +184,8 @@ function getMembershipInfo(unit,w,Type)
  local info = {}
 
  if Type == 'Basic' then
-  info.Membership = 'A basic description of the units memberships goes here'
-  info.Worship    = 'A basic description of the units main workship goes here'
+  info.Membership = {'A basic description of the units memberships goes here'}
+  info.Worship    = {'A basic description of the units main workship goes here'}
  elseif Type == 'Detailed' then
   info.Membership = {}
   info.Worship    = {}
@@ -185,14 +195,15 @@ function getMembershipInfo(unit,w,Type)
 end
 function getClassInfo(unit,w,Type)
  local info = {}
- local classTable = persistTable.GlobalTable.roses.ClassTable
+ local persistTable = require 'persist-table'
  local unitTable  = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[tostring(unit.id)] then return false end
+ local classTable = persistTable.GlobalTable.roses.ClassTable
  unitClasses = unitTable[tostring(unit.id)].Classes
  
  if Type == 'Basic' then
-  info.Current = 'A basic description of the units current class goes here'
-  info.Classes = 'A basic description of the units other classes goes here'
+  info.Current = {'A basic description of the units current class goes here'}
+  info.Classes = {'A basic description of the units other classes goes here'}
  elseif Type == 'All' then
   info.Classes = {}
   for i,x in pairs(classTable._children) do
@@ -274,9 +285,9 @@ function getClassInfo(unit,w,Type)
 
   info.RequiredSkill = {}
   for i,x in pairs(class.RequiredSkill._children) do
-   info.RequiredClass[x] = {}
-   info.RequiredClass[x].Name  = 
-   info.RequiredClass[x].Level = class.RequiredSkill[x]
+   info.RequiredSkill[x] = {}
+   info.RequiredSkill[x].Name  = x
+   info.RequiredSkill[x].Level = class.RequiredSkill[x]
    info.RequiredSkill[x].Check = true
    if unitT and unitT.Skills[x] then
     if unitT.Skills[x].Base >= info.RequiredSkill[x].Level then
@@ -323,14 +334,14 @@ end
 function getDescriptionInfo(unit,w,Type)
  local info = ''
 
- info = 'The creature description goes here'
+ info = {'The creature description goes here'}
 
  return info
 end
 function getAppearanceInfo(unit,w,Type)
  local info = ''
 
- info = 'The units apperance goes here'
+ info = {'The units apperance goes here'}
 
  return info
 end
@@ -338,9 +349,9 @@ function getThoughtInfo(unit,w,Type)
  local info = {}
 
  if     Type == 'Basic' then
-  info.Thoughts    = 'Basic thought information goes here'
-  info.Preferences = 'Basic preference information goes here'
-  info.Traits      = 'Basic trait information goes here'
+  info.Thoughts    = {'Basic thought information goes here'}
+  info.Preferences = {'Basic preference information goes here'}
+  info.Traits      = {'Basic trait information goes here'}
  elseif Type == 'Detailed' then
   info.Thoughts    = {}
   info.Preferences = {}
@@ -354,8 +365,8 @@ function getHealthInfo(unit,w,Type)
  syndromes, syndrome_details = dfhack.script_environment('functions/unit').getSyndrome(unit,'All','detailed')
 
  if Type == 'Basic' then
-  info.Injury    = 'A basic description of any unit injuries goes here'
-  info.Syndromes = 'A basic description of any sickness goes here'
+  info.Injury    = {'A basic description of any unit injuries goes here'}
+  info.Syndromes = {'A basic description of any sickness goes here'}
  elseif Type == 'Detailed' then
   syndromes, syndrome_details = dfhack.script_environment('functions/unit').getSyndrome(unit,'All','detailed')
   info.Injury    = {}
@@ -369,8 +380,8 @@ function getAttributeInfo(unit,w,Type)
  local info = {}
 
  if Type == 'Basic' then
-  info.Physical = 'A basic description of the units physical attributes goes here'
-  info.Mental   = 'A basic description of the units mental attributes goes here'
+  info.Physical = {'A basic description of the units physical attributes goes here'}
+  info.Mental   = {'A basic description of the units mental attributes goes here'}
  elseif Type == 'Detailed' then
   info.Physical = {}
   info.Mental   = {}
@@ -394,8 +405,8 @@ function getSkillInfo(unit,w,Type)
  local info = {}
 
  if Type == 'Basic' then
-  info.Profession = 'A basic description of the units base profession skills goes here'
-  info.Misc       = 'A basic description of the units other skills goes here'
+  info.Profession = {'A basic description of the units base profession skills goes here'}
+  info.Misc       = {'A basic description of the units other skills goes here'}
  elseif Type == 'Detailed' then
   info.InGame = {}
   info.Custom = {}
@@ -405,7 +416,7 @@ function getSkillInfo(unit,w,Type)
     name = df.job_skill.attrs[skill].caption_noun
     info.InGame[name] = tbl
    else
-    name = persistTable.GlobalTable.roses.CustomSkills[skill]
+    name = persistTable.GlobalTable.roses.BaseTable.CustomSkills[skill]
     info.Custom[name] = tbl
    end
   end
@@ -417,18 +428,18 @@ function getStatResistanceInfo(unit,w,Type)
  local info = {}
 
  if Type == 'Basic' then
-  info.Stats       = 'A basic description of the units stats goes here'
-  info.Resistances = 'A basic description of the units resistances goes here'
+  info.Stats       = {'A basic description of the units stats goes here'}
+  info.Resistances = {'A basic description of the units resistances goes here'}
  elseif Type == 'Detailed' then
   info.Stats        = {}
   info.Resistances  = {}
   unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
   for stat,tbl in pairs(unitTable.Stats) do
-   name = stat:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+   name = stat--:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
    info.Stats[name] = tbl
   end
   for resistance,tbl in pairs(unitTable.Resistances) do
-   name = resistance:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+   name = resistance--:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
    info.Resistances[name] = tbl
   end
  end
@@ -477,7 +488,7 @@ function getMainOutput(grid,unit,w,check)
   insert = insertWidgetInput(insert, 'second', Info.Worship, {width=w})
 
  elseif (grid == 'BY') then -- Appearance
-  Info = getApperanceInfo(unit,w,'Basic')
+  Info = getAppearanceInfo(unit,w,'Basic')
   table.insert(insert,{text = {{text = center('Appearance',w), width = w, pen=titleColor}}})
   insert = insertWidgetInput(insert, 'second', Info, {width=w})
 
@@ -491,10 +502,12 @@ function getMainOutput(grid,unit,w,check)
  elseif (grid == 'CX') then -- Class Information
   if check then
    Info = getClassInfo(unit,w,'Basic')
-   table.insert(insert,{text = {{text = center('Class Information',w), width = w, pen=titleColor}}})
-   insert = insertWidgetInput(insert, 'second', Info.Current, {width=w})
-   table.insert(insert,{text = { {text = '', width=w}}})
-   insert = insertWidgetInput(insert, 'second', Info.Classes, {width=w})
+   if Info then
+    table.insert(insert,{text = {{text = center('Class Information',w), width = w, pen=titleColor}}})
+    insert = insertWidgetInput(insert, 'second', Info.Current, {width=w})
+    table.insert(insert,{text = { {text = '', width=w}}})
+    insert = insertWidgetInput(insert, 'second', Info.Classes, {width=w})
+   end
   end
 
  elseif (grid == 'CY') then -- Health Information
@@ -502,7 +515,7 @@ function getMainOutput(grid,unit,w,check)
   table.insert(insert,{text = { {text = center('Health',w), width = w, pen=titleColor}}})
   insert = insertWidgetInput(insert, 'second', Info.Injury, {width=w})
   table.insert(insert,{text = { {text = '', width=w}}})
-  insert = insertWidgetInput(insert, 'second', Info.Sickness, {width=w})
+  insert = insertWidgetInput(insert, 'second', Info.Syndromes, {width=w})
 
  elseif (grid == 'CZ') then -- Stats and Resistances
   Info = getStatResistanceInfo(unit,w,'Basic')
@@ -554,10 +567,9 @@ function getDetailsOutput(grid,unit,w)
                                  {text=tostring(tbl.Base),     rjustify=true, width=6,  pen=fgc}
                                 }})
   end
-
   table.insert(insert, {text = {{text=center('Mental',w), width = w, pen=headColor}}})
   table.insert(insert, {text = {
-                                {text='',                        width=hw              },
+                                {text='',                        width=hW              },
                                 {text='Current',  rjustify=true, width=9,  pen=colColor},
                                 {text='Class',    rjustify=true, width=7,  pen=colColor},
                                 {text='Item',     rjustify=true, width=6,  pen=colColor},
@@ -577,7 +589,7 @@ function getDetailsOutput(grid,unit,w)
 
   table.insert(insert, {text = {{text=center('Custom',w), width = w, pen=headColor}}})
   table.insert(insert, {text = {
-                                {text='',                        width=hw              },
+                                {text='',                        width=hW              },
                                 {text='Current',  rjustify=true, width=9,  pen=colColor},
                                 {text='Class',    rjustify=true, width=7,  pen=colColor},
                                 {text='Item',     rjustify=true, width=6,  pen=colColor},
@@ -610,6 +622,7 @@ function getDetailsOutput(grid,unit,w)
                                 {text='Exp',     rjustify=true, width=5, pen=colColor}
                                }})
   for skill,tbl in pairs(Info.InGame) do
+   if (tbl.Total + tbl.Class + tbl.Item + tbl.Base + tbl.Exp) > 0 then
    table.insert(insert, {text = {
                                  {text=skill,                              width=hW, pen=fgc},
                                  {text=tostring(tbl.Total), rjustify=true, width=9,  pen=fgc},
@@ -619,6 +632,7 @@ function getDetailsOutput(grid,unit,w)
                                  {text=tostring(tbl.Rust),  rjustify=true, width=6,  pen=fgc},
                                  {text=tostring(tbl.Exp),   rjustify=true, width=5,  pen=fgc}
                                 }})
+   end
   end
 
 
@@ -798,15 +812,15 @@ function getClassesOutput(grid,unit,w,choice)
   if not Info then return insert end
   for token,tbl in pairs(Info.Classes) do
    name = persistTable.GlobalTable.roses.ClassTable[token].Name
-   if tbl.Level > 0 or tbl.Exp > 0 then
+   if tonumber(tbl.Level) > 0 or tonumber(tbl.Exp) > 0 then
     fgc = COLOR_LIGHTGREEN
    else
     fgc = COLOR_LIGHTRED
    end
    table.insert(insert, {text = {
-                                 {text=name,                               width=21, pen=fgc},
-                                 {text=tostring(tbl.Level), rjustify=true, width=7,  pen=fgc},
-                                 {text=tostring(tbl.Exp),   rjustify=true, width=12, pen=fgc},
+                                 {text=name,                     width=21, pen=fgc},
+                                 {text=tbl.Level, rjustify=true, width=7,  pen=fgc},
+                                 {text=tbl.Exp,   rjustify=true, width=12, pen=fgc},
                                 }})
   end
  elseif grid == 'C_ABY' then

@@ -146,7 +146,7 @@ function DetailedUnitView:addMainScreen()
        widgets.List{
          view_id = 'BY',
          frame   = {l = self.BY.anchor.left, t = self.BY.anchor.top, w = self.Y_width, h = self.BY.height},
-       }
+       },
        widgets.List{
          view_id = 'BZ',
          frame   = {l = self.BZ.anchor.left, t = self.BZ.anchor.top, w = self.Z_width, h = self.BZ.height},
@@ -218,7 +218,7 @@ function DetailedUnitView:addHealthScreen()
  Bottom UI:
   Back
  ]]
- self:getPositioningHealth
+ self:getPositioningHealth()
  self:addviews{
    widgets.Panel{
      view_id     = 'healthView',
@@ -248,10 +248,10 @@ function DetailedUnitView:addThoughtsScreen()
  Bottom UI:
   Back
  ]]
- self:getPositioningThoughts
+ self:getPositioningThoughts()
  self:addviews{
    widgets.Panel{
-     view_id     = 'thoughtsView',
+     view_id     = 'thoughtView',
      frame       = { l = 0, r = 0 },
      frame_inset = 1, 
      subviews    = {
@@ -298,7 +298,7 @@ function DetailedUnitView:addClassScreen()
        widgets.List{
          view_id    = 'C_BX',
          frame      = {l = self.C_BX.anchor.left, t = self.C_BX.anchor.top, w = self.C_X_width, h = self.C_BX.height},
-         on_select  = self:callBack('fillClasses'),
+         on_select  = self:callback('fillClasses'),
          text_pen   = dfhack.pen.parse{fg=COLOR_DARKGRAY, bg=0},
          cursor_pen = dfhack.pen.parse{fg=COLOR_YELLOW, bg=0},
        },
@@ -311,7 +311,7 @@ function DetailedUnitView:addClassScreen()
  }
 end
 function DetailedUnitView:addFeatScreen()
- self:getPositioningFeats
+ self:getPositioningFeats()
  self:addviews{
    widgets.Panel{
      view_id     = 'featView',
@@ -323,7 +323,7 @@ function DetailedUnitView:addFeatScreen()
  }
 end
 function DetailedUnitView:addSpellScreen()
- self:getPositioningSpells
+ self:getPositioningSpells()
  self:addviews{
    widgets.Panel{
      view_id     = 'spellView',
@@ -499,7 +499,7 @@ function DetailedUnitView:fillDetails()
  local grid = {'D_AX', 'D_AY', 'D_BX', 'D_BY'}
  local output = {}
  for i,g in pairs(grid) do
-  output[g] = guiFunctions.getDetailsOutput(g, unit)
+  output[g] = guiFunctions.getDetailsOutput(g, unit, self[g].width)
   self.subviews[g]:setChoices(output[g])
  end
 end
@@ -508,7 +508,7 @@ function DetailedUnitView:fillHealth()
  local grid = {'H_AX', 'H_AY'}
  local output = {}
  for i,g in pairs(grid) do
-  output[g] = guiFunctions.getHealthOutput(g, unit)
+  output[g] = guiFunctions.getHealthOutput(g, unit, self[g].width)
   self.subviews[g]:setChoices(output[g])
  end
 end
@@ -517,22 +517,23 @@ function DetailedUnitView:fillThoughts()
  local grid = {'T_AX', 'T_AY', 'T_AZ'}
  local output = {}
  for i,g in pairs(grid) do
-  output[g] = guiFunctions.getThoughtsOutput(g, unit)
+  output[g] = guiFunctions.getThoughtsOutput(g, unit, self[g].width)
   self.subviews[g]:setChoices(output[g])
  end
 end
 function DetailedUnitView:fillClasses(filter,details)
  local unit = self.target
  local output = {}
-
+ if details == nil then return end
+ 
  if details then
-  output = guiFunctions.getClassOutput('C_ABY', unit, self['C_ABY'].width. details)
+  output = guiFunctions.getClassesOutput('C_ABY', unit, self.C_ABY.width, details)
   self.subviews.C_ABY:setChoices(output)
  else
   local grid = {'C_AX','C_BX'}
   local output = {}
   for i,g in pairs(grid) do
-   output[g] = guiFunctions.getClassOutput(g, unit, self[g].width, filter)
+   output[g] = guiFunctions.getClassesOutput(g, unit, self[g].width, filter)
    self.subviews[g]:setChoices(output[g])
   end
  end
