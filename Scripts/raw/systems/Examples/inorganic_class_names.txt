@@ -20,7 +20,3 @@ inorganic_class_names
   [SYN_NAME:ROGUE]
   [SYN_CLASS:CLASS_NAME]
   [CE_DISPLAY_NAME:NAME:rogue:rogues:rogue:START:0]
- [SYNDROME]
-  [SYN_NAME:ARCHER]
-  [SYN_CLASS:CLASS_NAME]
-  [CE_DISPLAY_NAME:NAME:archer:archers:archer:START:0]

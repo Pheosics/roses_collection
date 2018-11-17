@@ -17,76 +17,36 @@ end
 --= Widget Functions
 function insertWidgetInput(input,method,list,options)
  options = options or {}
+ bgc = options.bgc or COLOR_YELLOW
+ fgc = options.fgc or COLOR_LIGHTGREEN
+ trueColor = options.tgc or COLOR_LIGHTGREEN
+ falseColor = options.fac or COLOR_LIGHTRED
  pen = options.pen or COLOR_WHITE
+ order = options.order
+ colcolor = options.column_color or COLOR_WHITE
+ colwidth = options.column_width or 6
  width = options.width or 40
  rjustify = options.rjustify or false
  temp_list_length = 0
  
- if options.replacement then
-  temp_list = {}
-  if method == 'header' then
-   for first,second in pairs(list.second) do
-    temp_first = options.replacement[first] or #temp_list+1
-    temp_second = options.replacement[second] or #temp_list+1
-    if tonumber(temp_second) and not tonumber(temp_first) then 
-     temp_second = temp_first 
-     temp_first = first
-    elseif tonumber(temp_first) and not tonumber(temp_second) then
-     temp_first = second
-    end
-    if not tonumber(temp_second) and not tonumber(temp_first) then
-     temp_list[temp_first] = temp_second
-     temp_list_length = temp_list_length + 1
-    end
-   end
-   list.second = temp_list
-   list.length = temp_list_length
-  else
-   for first,second in pairs(list) do
-    temp_first = options.replacement[first] or #temp_list+1
-    temp_second = options.replacement[second] or #temp_list+1
-    if tonumber(temp_second) and not tonumber(temp_first) then 
-     temp_second = temp_first 
-     temp_first = first
-    elseif tonumber(temp_first) and not tonumber(temp_second) then
-     temp_first = second
-    end
-    if not tonumber(temp_second) and not tonumber(temp_first) then
-     temp_list[temp_first] = temp_second
-     temp_list_length = temp_list_length + 1
-    end
-   end
-   list = temp_list
+ if method == 'center' then
+  table.insert(input, {text = {{text=center(list,width), width=width, pen=pen}}})
+ elseif method == 'text' then
+  local temp_text = {}
+  local n = math.floor(#list/width) + 1
+  for i = 1,n do
+   temp_text[#temp_text+1] = string.sub(list,1+width*(i-1),width*i)
   end
- else
-  list.length = 0
-  if type(list.second) == 'table' then
-   for _,_ in pairs(list.second) do
-    list.length = list.length + 1
-   end
-  end
- end
- 
- if method == 'first' then
-  for first,second in pairs(list) do
+  for first,second in pairs(temp_text) do
    if first ~= 'length' then
-    table.insert(input,{text=first,pen=pen,width=width,rjustify=rjustify})
+    table.insert(input,{text = {{text=second, pen=pen, width=width, rjustify=rjustify}}})
    end
   end
- elseif method == 'second' then
-  for first,second in pairs(list) do
-   if first ~= 'length' then
-    table.insert(input,{text={{text=second,pen=pen,width=width,rjustify=rjustify}}})
-   end
-  end
- elseif method == 'center' then
-  table.insert(input,{text=center(list,width),width=width,pen=pen,rjustify=rjustify})
  elseif method == 'header' then
   if type(list.second) == 'table' then
    local check = true
    if list.length == 0 then
     return input
---    table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text='--',rjustify=true,width=width-#list.header,pen=pen}}})
    else
     for first,second in pairs(list.second) do
      if options.fill == 'flags' then
@@ -97,10 +57,16 @@ function insertWidgetInput(input,method,list,options)
       fill = second
      end
      if check then
-      table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text=fill,rjustify=true,width=width-#list.header,pen=pen}}})
+      table.insert(input, {text = {
+                                   {text=list.header,         width=#list.header,       pen=pen},
+                                   {text=fill, rjustify=true, width=width-#list.header, pen=pen}
+                                  }})
       check = false
      else
-      table.insert(input,{text={{text='',width=#list.header,pen=pen},{text=fill,rjustify=true,width=width-#list.header,pen=pen}}})
+      table.insert(input, {text = {
+                                   {text='',                  width=#list.header,       pen=pen},
+                                   {text=fill, rjustify=true, width=width-#list.header, pen=pen}
+                                  }})
      end
     end
    end
@@ -108,25 +74,40 @@ function insertWidgetInput(input,method,list,options)
    if list.second == '' or list.second == '--' then
     return input
    else
-    table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text=list.second,rjustify=true,width=width-#list.header,pen=pen}}})
+    table.insert(input, {text = {
+                                 {text=list.header,                width=#list.header,       pen=pen},
+                                 {text=list.second, rjustify=true, width=width-#list.header, pen=pen}
+                                }})
    end
   end
- elseif method == 'headerpt' then
-  if list.second then
-   local check = true
-   for _,x in pairs(list.second._children) do
-    fill = list.second[x]
-    if check then
-     table.insert(input,{text={{text=list.header,width=#list.header,pen=pen},{text=fill,rjustify=true,width=width-#list.header,pen=pen}}})
-     check = false
-    else
-     table.insert(input,{text={{text='',width=#list.header,pen=pen},{text=fill,rjustify=true,width=width-#list.header,pen=pen}}})
-    end
+ elseif method == 'list' then
+  for i,x in pairs(list) do
+   if x.Check then
+    fgc = trueColor
+   else 
+    fgc = falseColor
    end
-  else
-   return input
+   table.insert(insert, {text = {{text=x.Text, width=width, pen=fgc}}})
   end
+ elseif method == 'table' then
+  if not order then return input end
+  hW = width - #order*colwidth
+  temp_text = {}
+  table.insert(temp_text, {text='', width=hW})
+  for i = 1, #order do
+   table.insert(temp_text, {text=order[i], rjustify=true, width=colwidth, pen=pen})
+  end
+  table.insert(input, {text=temp_text})
+  for key,tbl in pairs(list) do
+   temp_text = {}
+   table.insert(temp_text, {text=key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper), width=hW, pen=bgc})
+   for i = 1, #order do
+    table.insert(temp_text, {text=tostring(tbl[order[i]]), rjustify=true, width=colwidth, pen=fgc})
+   end
+  end
+  table.insert(input, {text=temp_text})
  end
+
  return input
 end
 
@@ -184,8 +165,8 @@ function getMembershipInfo(unit,w,Type)
  local info = {}
 
  if Type == 'Basic' then
-  info.Membership = {'A basic description of the units memberships goes here'}
-  info.Worship    = {'A basic description of the units main workship goes here'}
+  info.Membership = 'A basic description of the units memberships goes here'
+  info.Worship    = 'A basic description of the units main workship goes here'
  elseif Type == 'Detailed' then
   info.Membership = {}
   info.Worship    = {}
@@ -202,8 +183,8 @@ function getClassInfo(unit,w,Type)
  unitClasses = unitTable[tostring(unit.id)].Classes
  
  if Type == 'Basic' then
-  info.Current = {'A basic description of the units current class goes here'}
-  info.Classes = {'A basic description of the units other classes goes here'}
+  info.Current = 'A basic description of the units current class goes here'
+  info.Classes = 'A basic description of the units other classes goes here'
  elseif Type == 'All' then
   info.Classes = {}
   for i,x in pairs(classTable._children) do
@@ -260,8 +241,7 @@ function getClassInfo(unit,w,Type)
   info.RequiredClass     = {}
   for i,x in pairs(class.RequiredClass._children) do
    info.RequiredClass[x] = {}
-   info.RequiredClass[x].Name  = classTable[x].Name
-   info.RequiredClass[x].Level = class.RequiredClass[x]
+   info.RequiredClass[x].Text  = 'Level '..class.RequiredClass[x]..' '..classTable[x].Name
    info.RequiredClass[x].Check = false
    if unitT.Classes[x] then
     if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
@@ -273,8 +253,7 @@ function getClassInfo(unit,w,Type)
   info.RequiredAttribute = {}
   for i,x in pairs(class.RequiredAttribute._children) do
    info.RequiredAttribute[x] = {}
-   info.RequiredAttribute[x].Name  = x
-   info.RequiredAttribute[x].Level = class.RequiredAttribute[x]
+   info.RequiredAttribute[x].Text  = class.RequiredAttribute[x]..' '..x
    info.RequiredAttribute[x].Check = false
    if unitT and unitT.Attributes[x] then
     if unitT.Attributes[x].Base >= info.RequiredAttribute[x].Level then
@@ -286,8 +265,7 @@ function getClassInfo(unit,w,Type)
   info.RequiredSkill = {}
   for i,x in pairs(class.RequiredSkill._children) do
    info.RequiredSkill[x] = {}
-   info.RequiredSkill[x].Name  = x
-   info.RequiredSkill[x].Level = class.RequiredSkill[x]
+   info.RequiredSkill[x].Text  ='Level '..class.RequiredSkill[x]..' '..x
    info.RequiredSkill[x].Check = true
    if unitT and unitT.Skills[x] then
     if unitT.Skills[x].Base >= info.RequiredSkill[x].Level then
@@ -301,9 +279,11 @@ function getClassInfo(unit,w,Type)
   for i,t in pairs(class.Level['0'].Adjustments._children) do
    for j,x in pairs(class.Level['0'].Adjustments[t]._children) do
     info.ClassBonuses[n] = {}
-    info.ClassBonuses[n].Type = t
-    info.ClassBonuses[n].Name = x
-    info.ClassBonuses[n].Level = class.Level['0'].Adjustments[t][x]
+    info.ClassBonuses[n].Text = t..': '..class.Level['0'].Adjustments[t][x]..' '..x
+    info.ClassBonuses[n].Check = true
+    if tonumber(class.Level['0'].Adjustments[t][x]) < 0 then
+     info.ClassBonuses[n].Check = false
+    end
     n = n + 1
    end
   end
@@ -313,9 +293,11 @@ function getClassInfo(unit,w,Type)
   for i,t in pairs(class.Level['0'].LevelBonus._children) do
    for j,x in pairs(class.Level['0'].LevelBonus[t]._children) do
     info.LevelBonuses[n] = {}
-    info.LevelBonuses[n].Type = t
-    info.LevelBonuses[n].Name = x
-    info.LevelBonuses[n].Level = class.Level['0'].LevelBonus[t][x]
+    info.LevelBonuses[n].Text = t..': '..class.Level['0'].LevelBonus[t][x]..' '..x
+    info.LevelBonuses[n].Check = true
+    if tonumber(class.Level['0'].LevelBonus[t][x]) < 0 then 
+     info.LevelBonuses[n].Check = false
+    end
     n = n + 1
    end
   end
@@ -324,7 +306,7 @@ function getClassInfo(unit,w,Type)
   n = 1
   for i,x in pairs(class.Spells._children) do
    info.Spells[n] = {}
-   info.Spells[n].Name  = x
+   info.Spells[n].Text  = x
    info.Spells[n].Level = class.Spells[x].RequiredLevel
   end
  end
@@ -334,14 +316,14 @@ end
 function getDescriptionInfo(unit,w,Type)
  local info = ''
 
- info = {'The creature description goes here'}
+ info = 'The creature description goes here'
 
  return info
 end
 function getAppearanceInfo(unit,w,Type)
  local info = ''
 
- info = {'The units apperance goes here'}
+ info = 'The units apperance goes here'
 
  return info
 end
@@ -349,9 +331,9 @@ function getThoughtInfo(unit,w,Type)
  local info = {}
 
  if     Type == 'Basic' then
-  info.Thoughts    = {'Basic thought information goes here'}
-  info.Preferences = {'Basic preference information goes here'}
-  info.Traits      = {'Basic trait information goes here'}
+  info.Thoughts    = 'Basic thought information goes here'
+  info.Preferences = 'Basic preference information goes here'
+  info.Traits      = 'Basic trait information goes here'
  elseif Type == 'Detailed' then
   info.Thoughts    = {}
   info.Preferences = {}
@@ -365,8 +347,8 @@ function getHealthInfo(unit,w,Type)
  syndromes, syndrome_details = dfhack.script_environment('functions/unit').getSyndrome(unit,'All','detailed')
 
  if Type == 'Basic' then
-  info.Injury    = {'A basic description of any unit injuries goes here'}
-  info.Syndromes = {'A basic description of any sickness goes here'}
+  info.Injury    = 'A basic description of any unit injuries goes here'
+  info.Syndromes = 'A basic description of any sickness goes here'
  elseif Type == 'Detailed' then
   syndromes, syndrome_details = dfhack.script_environment('functions/unit').getSyndrome(unit,'All','detailed')
   info.Injury    = {}
@@ -380,21 +362,20 @@ function getAttributeInfo(unit,w,Type)
  local info = {}
 
  if Type == 'Basic' then
-  info.Physical = {'A basic description of the units physical attributes goes here'}
-  info.Mental   = {'A basic description of the units mental attributes goes here'}
+  info.Physical = 'A basic description of the units physical attributes goes here'
+  info.Mental   = 'A basic description of the units mental attributes goes here'
  elseif Type == 'Detailed' then
   info.Physical = {}
   info.Mental   = {}
   info.Custom   = {}
   unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit).Attributes
   for attr, tbl in pairs(unitTable) do
-   name = attr:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
    if df.physical_attribute_type[attr] then
-    info.Physical[name] = tbl
+    info.Physical[attr] = tbl
    elseif df.mental_attribute_type[attr] then
-    info.Mental[name] = tbl
+    info.Mental[attr] = tbl
    else
-    info.Custom[name] = tbl
+    info.Custom[attr] = tbl
    end
   end 
  end
@@ -405,8 +386,8 @@ function getSkillInfo(unit,w,Type)
  local info = {}
 
  if Type == 'Basic' then
-  info.Profession = {'A basic description of the units base profession skills goes here'}
-  info.Misc       = {'A basic description of the units other skills goes here'}
+  info.Profession = 'A basic description of the units base profession skills goes here'
+  info.Misc       = 'A basic description of the units other skills goes here'
  elseif Type == 'Detailed' then
   info.InGame = {}
   info.Custom = {}
@@ -428,19 +409,17 @@ function getStatResistanceInfo(unit,w,Type)
  local info = {}
 
  if Type == 'Basic' then
-  info.Stats       = {'A basic description of the units stats goes here'}
-  info.Resistances = {'A basic description of the units resistances goes here'}
+  info.Stats       = 'A basic description of the units stats goes here'
+  info.Resistances = 'A basic description of the units resistances goes here'
  elseif Type == 'Detailed' then
   info.Stats        = {}
   info.Resistances  = {}
   unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
   for stat,tbl in pairs(unitTable.Stats) do
-   name = stat--:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-   info.Stats[name] = tbl
+   info.Stats[stat] = tbl
   end
   for resistance,tbl in pairs(unitTable.Resistances) do
-   name = resistance--:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-   info.Resistances[name] = tbl
+   info.Resistances[resistance] = tbl
   end
  end
 
@@ -470,59 +449,53 @@ function getMainOutput(grid,unit,w,check)
   end
  elseif (grid == 'AY') then -- Description
   Info = getDescriptionInfo(unit,w,'Basic')
-  table.insert(insert,{text = {{text = center('Description',w), width = w, pen=titleColor}}})
-  insert = insertWidgetInput(insert, 'second', Info, {width=w})
+  insert = insertWidgetInput(insert, 'center', 'Description', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info,          {width=w})
 
  elseif (grid == 'AZ') then -- Attribute Information
   Info = getAttributeInfo(unit,w,'Basic')
-  table.insert(insert,{text = { {text = center('Attributes',w), width = w, pen=titleColor}}})
-  insert = insertWidgetInput(insert, 'second', Info.Physical, {width=w})
-  table.insert(insert,{text = { {text = '', width=w}}})
-  insert = insertWidgetInput(insert, 'second', Info.Mental, {width=w})
+  insert = insertWidgetInput(insert, 'center', 'Attributes',  {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Physical, {width=w})
+  insert = insertWidgetInput(insert, 'text',   Info.Mental,   {width=w})
 
  elseif (grid == 'BX') then -- Membership/Worship Information
   Info = getMembershipInfo(unit,w,'Basic')
-  table.insert(insert,{text = { {text = center('Membership and Worship',w), width = w, pen=titleColor}}})
-  insert = insertWidgetInput(insert, 'second', Info.Membership, {width=w})
-  table.insert(insert,{text = { {text = '', width=w}}})
-  insert = insertWidgetInput(insert, 'second', Info.Worship, {width=w})
+  insert = insertWidgetInput(insert, 'center', 'Membership and Worship', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Membership,          {width=w})
+  insert = insertWidgetInput(insert, 'text',   Info.Worship,             {width=w})
 
  elseif (grid == 'BY') then -- Appearance
   Info = getAppearanceInfo(unit,w,'Basic')
-  table.insert(insert,{text = {{text = center('Appearance',w), width = w, pen=titleColor}}})
-  insert = insertWidgetInput(insert, 'second', Info, {width=w})
+  insert = insertWidgetInput(insert, 'center', 'Appearance', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info,         {width=w})
 
  elseif (grid == 'BZ') then -- Skills
   Info = getSkillInfo(unit,w,'Basic')
-  table.insert(insert,{text = { {text = center('Skills',w), width = w, pen=titleColor}}})
-  insert = insertWidgetInput(insert, 'second', Info.Profession, {width=w})
-  table.insert(insert,{text = { {text = '', width=w}}})
-  insert = insertWidgetInput(insert, 'second', Info.Misc, {width=w})
+  insert = insertWidgetInput(insert, 'center', 'Skills',        {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Profession, {width=w})
+  insert = insertWidgetInput(insert, 'text',   Info.Misc,       {width=w})
  
  elseif (grid == 'CX') then -- Class Information
   if check then
    Info = getClassInfo(unit,w,'Basic')
    if Info then
-    table.insert(insert,{text = {{text = center('Class Information',w), width = w, pen=titleColor}}})
-    insert = insertWidgetInput(insert, 'second', Info.Current, {width=w})
-    table.insert(insert,{text = { {text = '', width=w}}})
-    insert = insertWidgetInput(insert, 'second', Info.Classes, {width=w})
+    insert = insertWidgetInput(insert, 'center', 'Class Information', {width=w, pen=titleColor})
+    insert = insertWidgetInput(insert, 'text',   Info.Current,        {width=w})
+    insert = insertWidgetInput(insert, 'text',   Info.Classes,        {width=w})
    end
   end
 
  elseif (grid == 'CY') then -- Health Information
   Info = getHealthInfo(unit,w,'Basic')
-  table.insert(insert,{text = { {text = center('Health',w), width = w, pen=titleColor}}})
-  insert = insertWidgetInput(insert, 'second', Info.Injury, {width=w})
-  table.insert(insert,{text = { {text = '', width=w}}})
-  insert = insertWidgetInput(insert, 'second', Info.Syndromes, {width=w})
+  insert = insertWidgetInput(insert, 'center', 'Health',       {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Injury,    {width=w})
+  insert = insertWidgetInput(insert, 'text',   Info.Syndromes, {width=w})
 
  elseif (grid == 'CZ') then -- Stats and Resistances
   Info = getStatResistanceInfo(unit,w,'Basic')
-  table.insert(insert,{text = { {text = center('Stats and Resistances',w), width = w, pen=titleColor}}})
-  insert = insertWidgetInput(insert, 'second', Info.Stats, {width=w})
-  table.insert(insert,{text = { {text = '', width=w}}})
-  insert = insertWidgetInput(insert, 'second', Info.Resistances, {width=w})
+  insert = insertWidgetInput(insert, 'center', 'Stats and Resistances', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Stats,              {width=w})
+  insert = insertWidgetInput(insert, 'text',   Info.Resistances,        {width=w})
 
  end
 
@@ -530,181 +503,52 @@ function getMainOutput(grid,unit,w,check)
 end
 function getDetailsOutput(grid,unit,w)
  --[[ LAYOUT
-   |       X      |      Y      |
- --|--------------|-------------|
- A | Attributes   | Skills      |
- --|--------------|-------------|
- B | Resistances  | Stats       |
- --------------------------------
+   |      X       |      Y      |      Z      |
+ --|--------------|-------------|-------------|
+ A |              |             | Resistances |
+ --| Attributes   | Skills      |-------------|
+ B |              |             | Stats       |
+ ----------------------------------------------
  ]]
  local insert = {}
  local titleColor = COLOR_LIGHTCYAN
  local headColor = COLOR_LIGHTMAGENTA
  local colColor = COLOR_WHITE
+ local bgc = COLOR_YELLOW
  local fgc = COLOR_LIGHTGREEN
- local hW
+ local hW = w - 24
+ local orderA = {'Total', 'Class', 'Item', 'Syndrome'}
+ local orderB = {'Total', 'Class', 'Item', 'Exp'}
 
- if     grid == 'D_AX' then
-  hW = w-38
+ if     grid == 'D_ABX' then
   Info = getAttributeInfo(unit,0,'Detailed')
-  table.insert(insert, {text = {{text=center('Attributes',w), width = w, pen=titleColor}}})
-  table.insert(insert, {text = {{text=center('Physical',w), width = w, pen=headColor}}})
-  table.insert(insert, {text = {
-                                {text='',                        width=hW              },
-                                {text='Current',  rjustify=true, width=9,  pen=colColor},
-                                {text='Class',    rjustify=true, width=7,  pen=colColor},
-                                {text='Item',     rjustify=true, width=6,  pen=colColor},
-                                {text='Syndrome', rjustify=true, width=10, pen=colColor},
-                                {text='Base',     rjustify=true, width=6,  pen=colColor}
-                               }})
-  for attr,tbl in pairs(Info.Physical) do
-   table.insert(insert, {text = {
-                                 {text=attr,                                  width=hW, pen=fgc},
-                                 {text=tostring(tbl.Total),    rjustify=true, width=9,  pen=fgc},
-                                 {text=tostring(tbl.Class),    rjustify=true, width=7,  pen=fgc},
-                                 {text=tostring(tbl.Item),     rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Syndrome), rjustify=true, width=10, pen=fgc},
-                                 {text=tostring(tbl.Base),     rjustify=true, width=6,  pen=fgc}
-                                }})
-  end
-  table.insert(insert, {text = {{text=center('Mental',w), width = w, pen=headColor}}})
-  table.insert(insert, {text = {
-                                {text='',                        width=hW              },
-                                {text='Current',  rjustify=true, width=9,  pen=colColor},
-                                {text='Class',    rjustify=true, width=7,  pen=colColor},
-                                {text='Item',     rjustify=true, width=6,  pen=colColor},
-                                {text='Syndrome', rjustify=true, width=10, pen=colColor},
-                                {text='Base',     rjustify=true, width=6,  pen=colColor}
-                               }})
-  for attr,tbl in pairs(Info.Mental) do
-   table.insert(insert, {text = {
-                                 {text=attr,                                  width=hW, pen=fgc},
-                                 {text=tostring(tbl.Total),    rjustify=true, width=9,  pen=fgc},
-                                 {text=tostring(tbl.Class),    rjustify=true, width=7,  pen=fgc},
-                                 {text=tostring(tbl.Item),     rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Syndrome), rjustify=true, width=10, pen=fgc},
-                                 {text=tostring(tbl.Base),     rjustify=true, width=6,  pen=fgc}
-                                }})
-  end
+  insert = insertWidgetInput(insert, 'center', 'Attributes',  {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Physical',    {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'table',  Info.Physical, {width=w, order=orderA})
+  insert = insertWidgetInput(insert, 'center', 'Mental',      {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'table',  Info.Mental,   {width=w, order=orderA})
+  insert = insertWidgetInput(insert, 'center', 'Custom',      {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'table',  Info.Custom,   {width=w, order=orderA})
 
-  table.insert(insert, {text = {{text=center('Custom',w), width = w, pen=headColor}}})
-  table.insert(insert, {text = {
-                                {text='',                        width=hW              },
-                                {text='Current',  rjustify=true, width=9,  pen=colColor},
-                                {text='Class',    rjustify=true, width=7,  pen=colColor},
-                                {text='Item',     rjustify=true, width=6,  pen=colColor},
-                                {text='Syndrome', rjustify=true, width=10, pen=colColor},
-                                {text='Base',     rjustify=true, width=6,  pen=colColor}
-                               }})
-  for attr,tbl in pairs(Info.Custom) do
-   table.insert(insert, {text = {
-                                 {text=attr,                                  width=hW, pen=fgc},
-                                 {text=tostring(tbl.Total),    rjustify=true, width=9,  pen=fgc},
-                                 {text=tostring(tbl.Class),    rjustify=true, width=7,  pen=fgc},
-                                 {text=tostring(tbl.Item),     rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Syndrome), rjustify=true, width=10, pen=fgc},
-                                 {text=tostring(tbl.Base),     rjustify=true, width=6,  pen=fgc}
-                                }})  
-  end
-
- elseif grid == 'D_AY' then
-  hW = w-39
+ elseif grid == 'D_ABY' then
   Info = getSkillInfo(unit,0,'Detailed')
-  table.insert(insert, {text = {{text=center('Skills',w), width = w, pen=titleColor}}})
-  table.insert(insert, {text = {{text=center('In Game',w), width = w, pen=headColor}}})
-  table.insert(insert, {text = {
-                                {text='',                       width=hW             },
-                                {text='Current', rjustify=true, width=9, pen=colColor},
-                                {text='Class',   rjustify=true, width=7, pen=colColor},
-                                {text='Item',    rjustify=true, width=6, pen=colColor},
-                                {text='Base',    rjustify=true, width=6, pen=colColor},
-                                {text='Rust',    rjustify=true, width=6, pen=colColor},
-                                {text='Exp',     rjustify=true, width=5, pen=colColor}
-                               }})
-  for skill,tbl in pairs(Info.InGame) do
-   if (tbl.Total + tbl.Class + tbl.Item + tbl.Base + tbl.Exp) > 0 then
-   table.insert(insert, {text = {
-                                 {text=skill,                              width=hW, pen=fgc},
-                                 {text=tostring(tbl.Total), rjustify=true, width=9,  pen=fgc},
-                                 {text=tostring(tbl.Class), rjustify=true, width=7,  pen=fgc},
-                                 {text=tostring(tbl.Item),  rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Base),  rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Rust),  rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Exp),   rjustify=true, width=5,  pen=fgc}
-                                }})
-   end
-  end
+  insert = insertWidgetInput(insert, 'center', 'Skills',    {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'In Game',   {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'table',  Info.InGame, {width=w, order=orderB})
+  insert = insertWidgetInput(insert, 'center', 'Custom',    {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'table',  Info.Custom, {width=w, order=orderB})
 
-
-  table.insert(insert, {text = {{text=center('Custom',w), width = w, pen=headColor}}})
-  table.insert(insert, {text = {
-                                {text='',                       width=hW             },
-                                {text='Current', rjustify=true, width=9, pen=colColor},
-                                {text='Class',   rjustify=true, width=7, pen=colColor},
-                                {text='Item',    rjustify=true, width=6, pen=colColor},
-                                {text='Base',    rjustify=true, width=6, pen=colColor},
-                                {text='Rust',    rjustify=true, width=6, pen=colColor},
-                                {text='Exp',     rjustify=true, width=5, pen=colColor}
-                               }})
-  for skill,tbl in pairs(Info.Custom) do
-   table.insert(insert, {text = {
-                                 {text=skill,                              width=hW, pen=fgc},
-                                 {text=tostring(tbl.Total), rjustify=true, width=9,  pen=fgc},
-                                 {text=tostring(tbl.Class), rjustify=true, width=7,  pen=fgc},
-                                 {text=tostring(tbl.Item),  rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Base),  rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Rust),  rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Exp),   rjustify=true, width=5,  pen=fgc}
-                                }})
-  end
-
- elseif grid == 'D_BX' then
-  hW = w - 38
+ elseif grid == 'D_AZ' then
   Info = getStatResistanceInfo(unit,0,'Detailed')
-  table.insert(insert, {text = {{text=center('Stats',w), width = w, pen=titleColor}}})
-  table.insert(insert, {text = {{text=center('Custom',w), width = w, pen=headColor}}})
-  table.insert(insert, {text = {
-                                {text='',                        width=hW              },
-                                {text='Current',  rjustify=true, width=9,  pen=colColor},
-                                {text='Class',    rjustify=true, width=7,  pen=colColor},
-                                {text='Item',     rjustify=true, width=6,  pen=colColor},
-                                {text='Syndrome', rjustify=true, width=10, pen=colColor},
-                                {text='Base',     rjustify=true, width=6,  pen=colColor}
-                               }})
-  for stat,tbl in pairs(Info.Stats) do
-   table.insert(insert, {text = {
-                                 {text=stat,                                  width=hW, pen=fgc},
-                                 {text=tostring(tbl.Total),    rjustify=true, width=9,  pen=fgc},
-                                 {text=tostring(tbl.Class),    rjustify=true, width=7,  pen=fgc},
-                                 {text=tostring(tbl.Item),     rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Syndrome), rjustify=true, width=10, pen=fgc},
-                                 {text=tostring(tbl.Base),     rjustify=true, width=6,  pen=fgc}
-                                }})
-  end
+  insert = insertWidgetInput(insert, 'center', 'Stats',     {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Custom',    {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'table',   Info.Stats, {width=w, order=orderA})
 
- elseif grid == 'D_BY' then
-  hW = w - 38
+ elseif grid == 'D_BZ' then
   Info = getStatResistanceInfo(unit,0,'Detailed')
-  table.insert(insert, {text = {{text=center('Resistances',w), width = w, pen=titleColor}}})
-  table.insert(insert, {text = {{text=center('Custom',w), width = w, pen=headColor}}})
-  table.insert(insert, {text = {
-                                {text='',                        width=hW              },
-                                {text='Current',  rjustify=true, width=9,  pen=colColor},
-                                {text='Class',    rjustify=true, width=7,  pen=colColor},
-                                {text='Item',     rjustify=true, width=6,  pen=colColor},
-                                {text='Syndrome', rjustify=true, width=10, pen=colColor},
-                                {text='Base',     rjustify=true, width=6,  pen=colColor}
-                               }})
-  for resistance,tbl in pairs(Info.Resistances) do
-   table.insert(insert, {text = {
-                                 {text=resistance,                            width=hW, pen=fgc},
-                                 {text=tostring(tbl.Total),    rjustify=true, width=9,  pen=fgc},
-                                 {text=tostring(tbl.Class),    rjustify=true, width=7,  pen=fgc},
-                                 {text=tostring(tbl.Item),     rjustify=true, width=6,  pen=fgc},
-                                 {text=tostring(tbl.Syndrome), rjustify=true, width=10, pen=fgc},
-                                 {text=tostring(tbl.Base),     rjustify=true, width=6,  pen=fgc}
-                                }})
-  end
+  insert = insertWidgetInput(insert, 'center', 'Resistances',    {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Custom',         {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'table',  Info.Resistances, {width=w, order=orderA})
 
  end
 
@@ -725,9 +569,9 @@ function getHealthOutput(grid,unit,w)
  Info = getHealthInfo(unit,w,'Detailed')
 
  if     grid == 'H_AX' then
-  table.insert(insert, {text = {{text = center('Health',w), width = w, pen=titleColor}}})
+  insert = inserstWidgetInput(insert, 'center', 'Health', {width=w, pen=titleColor})
  elseif grid == 'H_AY' then
-  table.insert(insert, {text = {{text = center('Syndromes',w), width = w, pen=titleColor}}})
+  insert = inserstWidgetInput(insert, 'center', 'Syndromes', {width=w, pen=titleColor})
   table.insert(insert, {text = {
                                 {text=center('Active Syndromes',hW), pen=headColor},
                                 {text=center('Start',7),             pen=headColor},
@@ -784,11 +628,11 @@ function getThoughtsOutput(grid,unit,w)
  Info = getThoughtInfo(unit,w,'Detailed')
  
  if     grid == 'T_AX' then
-  table.insert(insert,{text = {{text = center('Thoughts',w), width = w, pen=titleColor}}})
+  insert = inserstWidgetInput(insert, 'center', 'Thoughts', {width=w, pen=titleColor})
  elseif grid == 'T_AY' then
-  table.insert(insert,{text = {{text = center('Preferences',w), width = w, pen=titleColor}}})
+  insert = inserstWidgetInput(insert, 'center', 'Preferences', {width=w, pen=titleColor})
  elseif grid == 'T_AZ' then
-  table.insert(insert,{text = {{text = center('Traits',w), width = w, pen=titleColor}}})
+  insert = inserstWidgetInput(insert, 'center', 'Traits', {width=w, pen=titleColor})
  end
  
  return insert
@@ -798,102 +642,45 @@ function getClassesOutput(grid,unit,w,choice)
  local titleColor = COLOR_LIGHTCYAN
  local headColor = COLOR_LIGHTMAGENTA
  local subColor = COLOR_YELLOW
+ local c1 = COLOR_LIGHTGREEN
+ local c2 = COLOR_LIGHTRED
+ local orderA = {'Level','Exp'}
  local fgc
 
  if grid == 'C_AX' then
-  table.insert(insert,{text = {{text=center('Classes',w), width=w, pen=titleColor}}})
-  table.insert(insert,{text = {
-                               {text='Class',      width=21,                pen=headColor},
-                               {text='Level',      width=7,  rjustify=true, pen=headColor},
-                               {text='Experience', width=12, rjustify=true, pen=headColor},
-                              }})
+  insert = inserstWidgetInput(insert, 'center', 'Classes', {width=w, pen=titleColor})
+
  elseif grid == 'C_BX' then
   Info = getClassInfo(unit,w,choice)
   if not Info then return insert end
-  for token,tbl in pairs(Info.Classes) do
-   name = persistTable.GlobalTable.roses.ClassTable[token].Name
-   if tonumber(tbl.Level) > 0 or tonumber(tbl.Exp) > 0 then
-    fgc = COLOR_LIGHTGREEN
-   else
-    fgc = COLOR_LIGHTRED
-   end
-   table.insert(insert, {text = {
-                                 {text=name,                     width=21, pen=fgc},
-                                 {text=tbl.Level, rjustify=true, width=7,  pen=fgc},
-                                 {text=tbl.Exp,   rjustify=true, width=12, pen=fgc},
-                                }})
-  end
+  insert = insertWidgetInput(insert, 'table',  Info.Classes, {width=w, order=orderA, column_width=7})
+  
  elseif grid == 'C_ABY' then
   local token = choice.text[1].text
   Info = getClassInfo(unit,w,token)
   if not Info then return insert end
-  table.insert(insert, {text = {{text=center(Info.Name,w), width=w, pen=titleColor}}})
+  insert = inserstWidgetInput(insert, 'center', Info.Name, {width=w, pen=titleColor})
 
   -- REQUIREMENTS
-  table.insert(insert, {text = {{text='Requirements', width=w, pen=headColor }}})
-  ---- CLASSES
-  table.insert(insert, {text = {{text='Classes:', width=w, pen=subColor  }}})
-  for i,x in pairs(Info.RequiredClass) do
-   if x.Check then
-    fgc = COLOR_LIGHTGREEN
-   else
-    fgc = COLOR_LIGHTRED
-   end
-   table.insert(insert, {text = {{text='Level '..x.Level..' '..x.Name, width=w, pen=fgc}}})
-  end
-  ---- ATTRIBUTES
-  table.insert(insert, {text = {{text='Attributes:', width=w, pen=subColor}}})
-  for i,x in pairs(Info.RequiredAttribute) do
-   if x.Check then 
-    fgc = COLOR_LIGHTGREEN
-   else
-    fgc = COLOR_LIGHTRED
-   end
-   table.insert(insert, {text = {{text=x.Level..' '..x.Name, width=w, pen=fgc}}})
-  end
-  ---- SKILLS
-  table.insert(insert, {text = {{text='Skills:', width=w, pen=subColor}}})
-  for i,x in pairs(Info.RequiredSkill) do
-   if x.Check then 
-    fgc = COLOR_LIGHTGREEN
-   else 
-    fgc = COLOR_LIGHTRED
-   end
-   table.insert(insert, {text = {{text='Level '..x.Level..' '..x.Name, width=w, pen=fgc}}})
-  end
+  insert = inserstWidgetInput(insert, 'header', {header='Requirements', second=''}, {width=w, pen=headColor})
+  insert = inserstWidgetInput(insert, 'header', {header='Classes:', second=''},     {width=w, pen=subColor})
+  insert = inserstWidgetInput(insert, 'list',   Info.RequiredClass,                 {width=w, tgc=c1, fac=c2})
+  insert = inserstWidgetInput(insert, 'header', {header='Attributes:', second=''},  {width=w, pen=subColor})
+  insert = inserstWidgetInput(insert, 'list',   Info.RequiredAttribute,             {width=w, tgc = c1, fac=c2})
+  insert = inserstWidgetInput(insert, 'header', {header='Skills:', second=''},      {width=w, pen=subColor})
+  insert = inserstWidgetInput(insert, 'list',   Info.RequiredSkill,                 {width=w, tgc = c1, fac=c2})
 
   -- CLASS BONUSES
-  table.insert(insert, {text = {{text='Class Bonuses', width=w, pen=headColor }}})
-  for i,x in pairs(Info.ClassBonus) do
-   if x.Level > 0 then
-    fgc = COLOR_LIGHTGREEN
-   else
-    fgc = COLOR_LIGHTRED
-   end
-   table.insert(insert, {text = {{text=x.Type..': '..x.Level..' '..x.Name, width=w, pen=fgc}}})
-  end
+  insert = inserstWidgetInput(insert, 'header', {header='Class Bonuses', second=''}, {width=w, pen=headColor})
+  insert = inserstWidgetInput(insert, 'list',   Info.ClassBonus,                     {width=w, tgc=c1, fac=c2})
 
   -- LEVELING BONUSES
-  table.insert(insert, {text = {{text='Leveling Bonuses', width=w, pen=headColor }}})
-  for i,x in pairs(Info.LevelBonus) do
-   if x.Level > 0 then
-    fgc = COLOR_LIGHTGREEN
-   else 
-    fgc = COLOR_LIGHTRED
-   end
-   table.insert(insert, {text = {{text=x.Type..': '..x.Level..' '..x.Name, width=w, pen=fgc}}})
-  end
+  insert = inserstWidgetInput(insert, 'header', {header='Level Bonuses', second=''}, {width=w, pen=headColor})
+  insert = inserstWidgetInput(insert, 'list',   Info.LevelBonus,                     {width=w, tgc=c1, fac=c2})
 
   -- SPELLS AND ABILITIES
-  table.insert(insert, {text = {{text='Spells and Abilities', width=w, pen=headColor }}})
-  for i,x in pairs(Info.Spells) do
-   if x.Check > 0 then
-    fgc = COLOR_WHITE
-   else 
-    fgc = COLOR_GREY
-   end
-   table.insert(insert, {text = {{text=x.Name, width=w, pen=fgc}}})
-  end
+  insert = inserstWidgetInput(insert, 'header', {header='Spells', second=''}, {width=w, pen=headColor})
+  insert = inserstWidgetInput(insert, 'list',   Info.Spells,                  {width=w, tgc=COLOR_WHITE, fac=COLOR_GREY})
 
  end
 

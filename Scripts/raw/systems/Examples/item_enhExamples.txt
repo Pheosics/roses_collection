@@ -1,0 +1,43 @@
+item_enhExamples
+
+[OBJECT:ITEM]
+
+  [ITEM_WEAPON:ITEM_WEAPON_POWER_DIGGER]
+    [NAME:power digger]
+    {DESCRIPTION:A powered digging equipment, allows even the worst digger to dig like a master}
+    [SIZE:500]
+    [SKILL:MINING]
+    [TWO_HANDED:47500]
+    [MINIMUM_SIZE:42500]
+    [MATERIAL_SIZE:4]
+    [ATTACK:EDGE:100:4000:strike:strikes:NO_SUB:2000]
+      [ATTACK_PREPARE_AND_RECOVER:3:3]
+    {ON_EQUIP}
+      {SKILL_CHANGE:MINING:15}
+      
+  [ITEM_WEAPON:ITEM_WEAPON_CURSED_SWORD]
+    [NAME:cursed sword]
+    {DESCRIPTION:A cursed sword that affects the wielder in mysterious ways}
+    [SIZE:300]
+    [SKILL:SWORD]
+    [TWO_HANDED:37500]
+    [MINIMUM_SIZE:32500]
+    [CAN_STONE]
+    [MATERIAL_SIZE:3]
+    [ATTACK:EDGE:20000:4000:slash:slashes:NO_SUB:1250]
+      [ATTACK_PREPARE_AND_RECOVER:3:3]
+    [ATTACK:EDGE:50:2000:stab:stabs:NO_SUB:1000]
+      [ATTACK_PREPARE_AND_RECOVER:3:3]
+    [ATTACK:BLUNT:20000:4000:slap:slaps:flat:1250]
+      [ATTACK_PREPARE_AND_RECOVER:3:3]
+    [ATTACK:BLUNT:100:1000:strike:strikes:pommel:1000]
+      [ATTACK_PREPARE_AND_RECOVER:3:3]
+    {ON_EQUIP}
+      {ATTRIBUTE_CHANGE:STRENGTH:-250}
+      {SKILL_CHANGE:SWORD:10}
+      {TRAIT_CHANGE:ANGER:50}
+    {ON_ATTACK:50}
+      {ATTACKER_ATTRIBUTE_CHANGE:STRENGTH:25}
+      {ATTACKER_SKILL_CHANGE:SWORD:-1}
+      {ATTACKER_TRAIT_CHANGE:ANGER:-5}
+      {ATTACKER_CHANGE_DUR:100}

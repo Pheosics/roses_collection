@@ -112,10 +112,10 @@ function getUnitTable(unit)
    outTable.Attributes[attribute].Syndrome = 0
   end
   if unitTable and unitTable.Attributes[attribute] then 
-   outTable.Attributes[attribute].Base   = tonumber(unitTable.Attributes[attribute].Base)
-   outTable.Attributes[attribute].Item   = tonumber(unitTable.Attributes[attribute].Item)
-   outTable.Attributes[attribute].Class  = tonumber(unitTable.Attributes[attribute].Class)
-   outTable.Attributes[attribute].Change = tonumber(unitTable.Attributes[attribute].Change)
+   outTable.Attributes[attribute].Base   = math.floor(tonumber(unitTable.Attributes[attribute].Base))
+   outTable.Attributes[attribute].Item   = math.floor(tonumber(unitTable.Attributes[attribute].Item))
+   outTable.Attributes[attribute].Class  = math.floor(tonumber(unitTable.Attributes[attribute].Class))
+   outTable.Attributes[attribute].Change = math.floor(tonumber(unitTable.Attributes[attribute].Change))
   else
    outTable.Attributes[attribute].Base   = x
    outTable.Attributes[attribute].Item   = 0
@@ -137,10 +137,10 @@ function getUnitTable(unit)
    outTable.Attributes[attribute].Syndrome = 0
   end
   if unitTable and unitTable.Attributes[attribute] then 
-   outTable.Attributes[attribute].Base   = tonumber(unitTable.Attributes[attribute].Base)
-   outTable.Attributes[attribute].Item   = tonumber(unitTable.Attributes[attribute].Item)
-   outTable.Attributes[attribute].Class  = tonumber(unitTable.Attributes[attribute].Class)
-   outTable.Attributes[attribute].Change = tonumber(unitTable.Attributes[attribute].Change)
+   outTable.Attributes[attribute].Base   = math.floor(tonumber(unitTable.Attributes[attribute].Base))
+   outTable.Attributes[attribute].Item   = math.floor(tonumber(unitTable.Attributes[attribute].Item))
+   outTable.Attributes[attribute].Class  = math.floor(tonumber(unitTable.Attributes[attribute].Class))
+   outTable.Attributes[attribute].Change = math.floor(tonumber(unitTable.Attributes[attribute].Change))
   else
    outTable.Attributes[attribute].Base   = x
    outTable.Attributes[attribute].Item   = 0
@@ -150,15 +150,16 @@ function getUnitTable(unit)
  end
  -- Custom Attributes
  if baseTable then
-  for _,attribute in pairs(baseTable.CustomAttributes._children) do
+  for _,n in pairs(baseTable.CustomAttributes._children) do
+   attribute = baseTable.CustomAttributes[n]
    outTable.Attributes[attribute] = {}
    if unitTable and unitTable.Attributes[attribute] then
-    outTable.Attributes[attribute].Base     = tonumber(unitTable.Attributes[attribute].Base)
-    outTable.Attributes[attribute].Item     = tonumber(unitTable.Attributes[attribute].Item)
-    outTable.Attributes[attribute].Class    = tonumber(unitTable.Attributes[attribute].Class)
-    outTable.Attributes[attribute].Change   = tonumber(unitTable.Attributes[attribute].Change)
+    outTable.Attributes[attribute].Base     = math.floor(tonumber(unitTable.Attributes[attribute].Base))
+    outTable.Attributes[attribute].Item     = math.floor(tonumber(unitTable.Attributes[attribute].Item))
+    outTable.Attributes[attribute].Class    = math.floor(tonumber(unitTable.Attributes[attribute].Class))
+    outTable.Attributes[attribute].Change   = math.floor(tonumber(unitTable.Attributes[attribute].Change))
     outTable.Attributes[attribute].Syndrome = 0
-    outTable.Attributes[attribute].Total    = (tonumber(unitTable.Attributes[attribute].Base)
+    outTable.Attributes[attribute].Total    = math.floor(tonumber(unitTable.Attributes[attribute].Base)
                                              + tonumber(unitTable.Attributes[attribute].Item)
                                              + tonumber(unitTable.Attributes[attribute].Class)
                                              + tonumber(unitTable.Attributes[attribute].Change))
@@ -176,15 +177,16 @@ function getUnitTable(unit)
  outTable.Resistances = {}
  -- Custom Resistances (no in game resistances currently)
  if baseTable then
-  for _,resistance in pairs(baseTable.CustomResistances._children) do
+  for _,n in pairs(baseTable.CustomResistances._children) do
+   resistance = baseTable.CustomResistances[n]
    outTable.Resistances[resistance] = {}
    if unitTable and unitTable.Resistances[resistance] then
-    outTable.Resistances[resistance].Base     = tonumber(unitTable.Resistances[resistance].Base)
-    outTable.Resistances[resistance].Item     = tonumber(unitTable.Resistances[resistance].Item)
-    outTable.Resistances[resistance].Class    = tonumber(unitTable.Resistances[resistance].Class)
-    outTable.Resistances[resistance].Change   = tonumber(unitTable.Resistances[resistance].Change)
+    outTable.Resistances[resistance].Base     = math.floor(tonumber(unitTable.Resistances[resistance].Base))
+    outTable.Resistances[resistance].Item     = math.floor(tonumber(unitTable.Resistances[resistance].Item))
+    outTable.Resistances[resistance].Class    = math.floor(tonumber(unitTable.Resistances[resistance].Class))
+    outTable.Resistances[resistance].Change   = math.floor(tonumber(unitTable.Resistances[resistance].Change))
     outTable.Resistances[resistance].Syndrome = 0
-    outTable.Resistances[resistance].Total    = (tonumber(unitTable.Resistances[resistance].Base)
+    outTable.Resistances[resistance].Total    = math.floor(tonumber(unitTable.Resistances[resistance].Base)
                                                + tonumber(unitTable.Resistances[resistance].Item)
                                                + tonumber(unitTable.Resistances[resistance].Class)
                                                + tonumber(unitTable.Resistances[resistance].Change))
@@ -204,14 +206,14 @@ function getUnitTable(unit)
  for id = 1, 134 do
   skill = df.job_skill[id]
   outTable.Skills[skill] = {}
-  outTable.Skills[skill].Exp      = dfhack.units.getExperience(unit,id,false)
-  outTable.Skills[skill].Total    = dfhack.units.getNominalSkill(unit,id,false)
-  outTable.Skills[skill].Rust     = outTable.Skills[skill].Total - dfhack.units.getNominalSkill(unit,id,true)
+  outTable.Skills[skill].Exp      = math.floor(dfhack.units.getExperience(unit,id,false))
+  outTable.Skills[skill].Total    = math.floor(dfhack.units.getNominalSkill(unit,id,false))
+  outTable.Skills[skill].Rust     = math.floor(outTable.Skills[skill].Total - dfhack.units.getNominalSkill(unit,id,true))
   if unitTable and unitTable.Skills[skill] then
-   outTable.Skills[skill].Base   = tonumber(unitTable.Skills[skill].Base)
-   outTable.Skills[skill].Item   = tonumber(unitTable.Skills[skill].Item)
-   outTable.Skills[skill].Class  = tonumber(unitTable.Skills[skill].Class)
-   outTable.Skills[skill].Change = tonumber(unitTable.Skills[skill].Change)
+   outTable.Skills[skill].Base   = math.floor(tonumber(unitTable.Skills[skill].Base))
+   outTable.Skills[skill].Item   = math.floor(tonumber(unitTable.Skills[skill].Item))
+   outTable.Skills[skill].Class  = math.floor(tonumber(unitTable.Skills[skill].Class))
+   outTable.Skills[skill].Change = math.floor(tonumber(unitTable.Skills[skill].Change))
   else
    outTable.Skills[skill].Base = outTable.Skills[skill].Total
    outTable.Skills[skill].Item   = 0
@@ -224,11 +226,11 @@ function getUnitTable(unit)
   for _,skill in pairs(baseTable.CustomSkills._children) do
    outTable.Skills[skill] = {}
    if unitTable and unitTable.Skills[skill] then
-    outTable.Skills[skill].Base     = tonumber(unitTable.Skills[skill].Base)
-    outTable.Skills[skill].Item     = tonumber(unitTable.Skills[skill].Item)
-    outTable.Skills[skill].Class    = tonumber(unitTable.Skills[skill].Class)
-    outTable.Skills[skill].Change   = tonumber(unitTable.Skills[skill].Change)
-    outTable.Skills[skill].Total    = (tonumber(unitTable.Skills[skill].Base)
+    outTable.Skills[skill].Base     = math.floor(tonumber(unitTable.Skills[skill].Base))
+    outTable.Skills[skill].Item     = math.floor(tonumber(unitTable.Skills[skill].Item))
+    outTable.Skills[skill].Class    = math.floor(tonumber(unitTable.Skills[skill].Class))
+    outTable.Skills[skill].Change   = math.floor(tonumber(unitTable.Skills[skill].Change))
+    outTable.Skills[skill].Total    = math.floor(tonumber(unitTable.Skills[skill].Base)
                                      + tonumber(unitTable.Skills[skill].Item)
                                      + tonumber(unitTable.Skills[skill].Class)
                                      + tonumber(unitTable.Skills[skill].Change))
@@ -250,15 +252,16 @@ function getUnitTable(unit)
  outTable.Stats = {}
  -- Custom Stats (no in game stats currently)
  if baseTable then
-  for _,stat in pairs(baseTable.CustomStats._children) do
+  for _,n in pairs(baseTable.CustomStats._children) do
+   stat = baseTable.CustomStats[n]
    outTable.Stats[stat] = {}
    if unitTable and unitTable.Stats[stat] then
-    outTable.Stats[stat].Base     = tonumber(unitTable.Stats[stat].Base)
-    outTable.Stats[stat].Item     = tonumber(unitTable.Stats[stat].Item)
-    outTable.Stats[stat].Class    = tonumber(unitTable.Stats[stat].Class)
-    outTable.Stats[stat].Change   = tonumber(unitTable.Stats[stat].Change)
+    outTable.Stats[stat].Base     = math.floor(tonumber(unitTable.Stats[stat].Base))
+    outTable.Stats[stat].Item     = math.floor(tonumber(unitTable.Stats[stat].Item))
+    outTable.Stats[stat].Class    = math.floor(tonumber(unitTable.Stats[stat].Class))
+    outTable.Stats[stat].Change   = math.floor(tonumber(unitTable.Stats[stat].Change))
     outTable.Stats[stat].Syndrome = 0
-    outTable.Stats[stat].Total    = (tonumber(unitTable.Stats[stat].Base)
+    outTable.Stats[stat].Total    = math.floor(tonumber(unitTable.Stats[stat].Base)
                                    + tonumber(unitTable.Stats[stat].Item)
                                    + tonumber(unitTable.Stats[stat].Class)
                                    + tonumber(unitTable.Stats[stat].Change))
@@ -276,7 +279,7 @@ function getUnitTable(unit)
  outTable.Traits = {}
  for trait,value in pairs(unit.status.current_soul.personality.traits) do
   outTable.Traits[trait] = {}
-  outTable.Traits[trait].Total    = unit.status.current_soul.personality.traits[trait]
+  outTable.Traits[trait].Total    = math.floor(unit.status.current_soul.personality.traits[trait])
   outTable.Traits[trait].Base     = outTable.Traits[trait].Total
   outTable.Traits[trait].Item     = 0
   outTable.Traits[trait].Class    = 0
@@ -290,8 +293,8 @@ function getUnitTable(unit)
   for i,x in pairs(classTable._children) do
    if unitTable.Classes[x] then
     outTable.Classes[x] = {}
-    outTable.Classes[x].Level      = unitTable.Classes[x].Level
-    outTable.Classes[x].Experience = unitTable.Classes[x].Experience
+    outTable.Classes[x].Level      = math.floor(tonumber(unitTable.Classes[x].Level))
+    outTable.Classes[x].Experience = math.floor(tonumber(unitTable.Classes[x].Experience))
    end
   end
  end

@@ -1,0 +1,95 @@
+entity_civExamples.txt
+
+[OBJECT:ENTITY]
+
+  -- This example shows an Elf entity with only custom creatures/items/materials.
+  -- All other resources have been removed.
+  [ENTITY:FOREST]
+
+    *** Normal ENTITY:FOREST raws go here, cut for readability ***
+
+    {NAME:Wood Elves}
+    {DESCRIPTION:}
+    {LEVELS:1}
+    {LEVEL_METHOD:DAILY:100}
+    {LEVEL:0}
+      {LEVEL_NAME:}
+      -- These removals effect what the entity will bring for trade
+      {LEVEL_REMOVE:CREATURE:PET:ALL:ALL}	-- Remove all pets
+      {LEVEL_REMOVE:CREATURE:MOUNT:ALL:ALL}	-- Remove all mounts
+      {LEVEL_REMOVE:CREATURE:WAGON:ALL:ALL}	-- Remove all wagon pullers
+      {LEVEL_REMOVE:CREATURE:PACK:ALL:ALL}	-- Remove all pack beasts
+      {LEVEL_REMOVE:CREATURE:MINION:ALL:ALL}	-- Remove all minion creatures (e.g. Trolls for goblins)
+      {LEVEL_REMOVE:CREATURE:EXOTIC:ALL:ALL}	-- Remove all exotic animals
+      {LEVEL_REMOVE:CREATURE:FISH:ALL:ALL}	-- Remove all fish
+      {LEVEL_REMOVE:CREATURE:EGG:ALL:ALL}	-- Remove all egg layers
+      {LEVEL_REMOVE:INORGANIC:METAL:ALL}	-- Remove all metals
+      {LEVEL_REMOVE:INORGANIC:STONE:ALL}	-- Remove all stones
+      {LEVEL_REMOVE:INORGANIC:GEM:ALL}		-- Remove all gems
+      {LEVEL_REMOVE:ORGANIC:LEATHER:ALL:ALL}	-- Remoev all animal skins
+      {LEVEL_REMOVE:ORGANIC:FIBER:ALL:ALL}	-- Remove all plant cloth
+      {LEVEL_REMOVE:ORGANIC:SILK:ALL:ALL}	-- Remove all silk cloth
+      {LEVEL_REMOVE:ORGANIC:WOOL:ALL:ALL}	-- Remove all animal hair cloth
+      {LEVEL_REMOVE:ORGANIC:WOOD:ALL:ALL}	-- Remove all woods
+      {LEVEL_REMOVE:ORGANIC:PLANT:ALL:ALL}	-- Remove all plants
+      {LEVEL_REMOVE:ORGANIC:SEED:ALL:ALL}	-- Remove all seeds
+      {LEVEL_REMOVE:REFUSE:BONE:ALL:ALL}	-- Remove all bones
+      {LEVEL_REMOVE:REFUSE:SHELL:ALL:ALL}	-- Remove all shells
+      {LEVEL_REMOVE:REFUSE:IVORY:ALL:ALL}	-- Remove all ivory
+      {LEVEL_REMOVE:REFUSE:HORN:ALL:ALL}	-- Remove all horns
+      {LEVEL_REMOVE:ITEM:WEAPON:ALL}		-- Remove all weapons
+      {LEVEL_REMOVE:ITEM:SHIELD:ALL}		-- Remove all shields
+      {LEVEL_REMOVE:ITEM:AMMO:ALL}		-- Remove all ammo
+      {LEVEL_REMOVE:ITEM:HELM:ALL}		-- Remove all helms
+      {LEVEL_REMOVE:ITEM:ARMOR:ALL}		-- Remove all armor
+      {LEVEL_REMOVE:ITEM:PANTS:ALL}		-- Remove all pants
+      {LEVEL_REMOVE:ITEM:SHOES:ALL}		-- Remove all shoes
+      {LEVEL_REMOVE:ITEM:GLOVES:ALL}		-- Remove all gloves
+      {LEVEL_REMOVE:ITEM:TRAP:ALL}		-- Remove all trap components
+      {LEVEL_REMOVE:ITEM:SIEGE:ALL}		-- Remove all siege ammo
+      {LEVEL_REMOVE:ITEM:TOY:ALL}		-- Remove all toys
+      {LEVEL_REMOVE:ITEM:INSTRUMENT:ALL}	-- Remove all instruments
+      {LEVEL_REMOVE:ITEM:TOOL:ALL}		-- Remove all tools
+      {LEVEL_REMOVE:ITEM:DIGGER:ALL}		-- Remoev all digging equipment
+      {LEVEL_REMOVE:ITEM:TRAINING:ALL}		-- Remove all training equipment
+      {LEVEL_REMOVE:MISC:GLASS:ALL:ALL}		-- Remove all glass
+      {LEVEL_REMOVE:MISC:SAND:ALL:ALL}		-- Remove all sand
+      {LEVEL_REMOVE:MISC:CLAY:ALL:ALL}		-- Remove all clay
+      {LEVEL_REMOVE:MISC:BOOZE:ALL:ALL}		-- Remove all alcohol
+      {LEVEL_REMOVE:MISC:CHEESE:ALL:ALL}	-- Remove all cheeses
+      {LEVEL_REMOVE:MISC:POWDER:ALL:ALL}	-- Remove all powder extracts
+      {LEVEL_REMOVE:MISC:EXTRACT:ALL:ALL}	-- Remove all liquid extracts
+      {LEVEL_REMOVE:MISC:MEAT:ALL:ALL}		-- Remove all animal meats
+
+      -- These removals effect what materials the entity can make things out of
+      {LEVEL_REMOVE:PRODUCT:PICK:ALL:ALL}	-- Remove all materials from being able to make picks
+      {LEVEL_REMOVE:PRODUCT:MELEE:ALL:ALL}	-- Remove all materials from being able to make melee weapons
+      {LEVEL_REMOVE:PRODUCT:RANGED:ALL:ALL}	-- Remove all materials from being able to make ranged weapons
+      {LEVEL_REMOVE:PRODUCT:AMMO:ALL:ALL}	-- Remove all materials from being able to make ammo
+      {LEVEL_REMOVE:PRODUCT:AMMO2:ALL:ALL}	-- Remove all materials from being able to make siege ammo
+      {LEVEL_REMOVE:PRODUCT:ARMOR:ALL:ALL}	-- Remove all materials from being able to make armor/clothes
+      {LEVEL_REMOVE:PRODUCT:ANVIL:ALL:ALL}	-- Remove all materials from being able to make anvils
+      {LEVEL_REMOVE:PRODUCT:CRAFTS:ALL:ALL}	-- Remove all materials from being able to make crafts
+      {LEVEL_REMOVE:PRODUCT:BARRELS:ALL:ALL}	-- Remove all materials from being able to make barrels
+      {LEVEL_REMOVE:PRODUCT:FLASKS:ALL:ALL}	-- Remove all materials from being able to make flasks
+      {LEVEL_REMOVE:PRODUCT:QUIVERS:ALL:ALL}	-- Remove all materials from being able to make quivers
+      {LEVEL_REMOVE:PRODUCT:BACKPACKS:ALL:ALL}	-- Remove all materials from being able to make backpacks
+      {LEVEL_REMOVE:PRODUCT:CAGES:ALL:ALL}	-- Remove all materials from being able to make cages
+    {LEVEL:1}
+      {LEVEL_NAME:}
+      {LEVEL_CHANGE_METHOD:YEARLY:0} 			-- Not actually needed, but good practice to change the last levels leveling method
+      {LEVEL_ADD:CREATURE:MOUNT:HORSE:ALL}		-- Add all horses to available mounts
+      {LEVEL_ADD:CREATURE:PACK:HORSE:MALE}		-- Add male horses to available pack animals
+      {LEVEL_ADD:INORGANIC:GEM:DIAMOND_CLEAR}		-- Add diamonds to available gems
+      {LEVEL_ADD:ORGANIC:SILK:SPIDER_CAVE_GIANT:SILK}	-- Add giant cave spider silk to available silks
+      {LEVEL_ADD:ORGANIC:WOOD:ALL:WOOD}			-- Add all woods to available wood
+      {LEVEL_ADD:ITEM:WEAPON:ITEM_WEAPON_WHIP}		-- Add whips to weapons
+      {LEVEL_ADD:ITEM:WEAPON:ITEM_WEAPON_BOW}           -- Add bows to weapons
+      {LEVEL_ADD:ITEM:AMMO:ITEM_AMMO_BOLTS}		-- Add bolts to ammo
+      {LEVEL_ADD:ITEM:PANTS:ITEM_PANTS_PANTS}		-- Add pants to pants
+      {LEVEL_ADD:ITEM:SHOES:ITEM_SHOES_SHOES}		-- Add shoes to shoes
+      {LEVEL_ADD:ITEM:GLOVES:ITEM_GLOVES_GLOVES}	-- Add gloves to gloves
+      {LEVEL_ADD:PRODUCT:MELEE:BIRCH:WOOD}		-- Add ability to make melee weapons out of birch wood
+      {LEVEL_ADD:PRODUCT:RANGED:BIRCH:WOOD}		-- Add ability to make ranged weapons out of birch wood
+      {LEVEL_ADD:PRODUCT:AMMO:BIRCH:WOOD}		-- Add ability to make ammo out of birch wood
+      {LEVEL_ADD:PRODUCT:ARMOR:SPIDER_CAVE_GIANT:SILK}	-- Add ability to make armor out of giant cave spider silk

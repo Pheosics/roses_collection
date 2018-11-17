@@ -87,9 +87,9 @@ function DetailedUnitView:init(args)
  self:addDetailsScreen()  -- 2x2 - D_AX, D_AY, D_BX, D_BY
  self:addHealthScreen()   -- 2x1 - H_AX, H_AY
  self:addThoughtsScreen() -- 3x1 - T_AX, T_AY, T_AZ
- self:addClassScreen()    -- ?x?
- self:addFeatScreen()     -- ?x?
- self:addSpellScreen()    -- ?x?
+ if self.ClassSystem then self:addClassScreen() end   -- ?x?
+ if self.FeatSystem  then self:addFeatScreen()  end   -- ?x?
+ if self.SpellSystem then self:addSpellScreen() end   -- ?x?
 
  -- Fill Frames
  self:fillMain()
@@ -171,12 +171,12 @@ function DetailedUnitView:addDetailsScreen()
 ------ Detailed Information
  --[[
  Detailed Information:
-   |      X       |      Y      |
- --|--------------|-------------|
- A | Attributes   | Skills      |
- --|--------------|-------------|
- B | Resistances  | Stats       |
- --------------------------------
+   |      X       |      Y      |      Z      |
+ --|--------------|-------------|-------------|
+ A |              |             | Resistances |
+ --| Attributes   | Skills      |-------------|
+ B |              |             | Stats       |
+ ----------------------------------------------
  Bottom UI:
   Back
  ]]
@@ -188,20 +188,20 @@ function DetailedUnitView:addDetailsScreen()
      frame_inset = 1,
      subviews    = {
        widgets.List{
-         view_id = 'D_AX',
-         frame   = {l = self.D_AX.anchor.left, t = self.D_AX.anchor.top, w = self.D_X_width, h = self.D_AX.height},
+         view_id = 'D_ABX',
+         frame   = {l = self.D_ABX.anchor.left, t = self.D_ABX.anchor.top, w = self.D_X_width, h = self.D_ABX.height},
        },
        widgets.List{
-         view_id = 'D_AY',
-         frame   = {l = self.D_AY.anchor.left, t = self.D_AY.anchor.top, w = self.D_Y_width, h = self.D_AY.height},
+         view_id = 'D_ABY',
+         frame   = {l = self.D_ABY.anchor.left, t = self.D_ABY.anchor.top, w = self.D_Y_width, h = self.D_ABY.height},
        },
        widgets.List{
-         view_id = 'D_BX',
-         frame   = {l = self.D_BX.anchor.left, t = self.D_BX.anchor.top, w = self.D_X_width, h = self.D_BX.height},
+         view_id = 'D_AZ',
+         frame   = {l = self.D_AZ.anchor.left, t = self.D_AZ.anchor.top, w = self.D_Z_width, h = self.D_AZ.height},
        },
        widgets.List{
-         view_id = 'D_BY',
-         frame   = {l = self.D_BY.anchor.left, t = self.D_BY.anchor.top, w = self.D_Y_width, h = self.D_BY.height},
+         view_id = 'D_BZ',
+         frame   = {l = self.D_BZ.anchor.left, t = self.D_BZ.anchor.top, w = self.D_Z_width, h = self.D_BZ.height},
        },
      }
    }
@@ -298,7 +298,7 @@ function DetailedUnitView:addClassScreen()
        widgets.List{
          view_id    = 'C_BX',
          frame      = {l = self.C_BX.anchor.left, t = self.C_BX.anchor.top, w = self.C_X_width, h = self.C_BX.height},
-         on_select  = self:callback('fillClasses'),
+         on_submit  = self:callback('fillClasses'),
          text_pen   = dfhack.pen.parse{fg=COLOR_DARKGRAY, bg=0},
          cursor_pen = dfhack.pen.parse{fg=COLOR_YELLOW, bg=0},
        },
@@ -389,30 +389,32 @@ function DetailedUnitView:getPositioningMain()
 end
 function DetailedUnitView:getPositioningDetails()
 ---- For now just set each cell to the same size
- local AX = {anchor = {}, width = 60, height = 20}
- local AY = {anchor = {}, width = 60, height = 20}
- local BX = {anchor = {}, width = 60, height = 20}
- local BY = {anchor = {}, width = 60, height = 20}
+ local ABX = {anchor = {}, width = 40, height = 40}
+ local ABY = {anchor = {}, width = 40, height = 40}
+ local AZ  = {anchor = {}, width = 40, height = 20}
+ local BZ  = {anchor = {}, width = 40, height = 20}
 ----
- local X_width = math.max(AX.width,BX.width)
- local Y_width = math.max(AY.width,BY.width)
+ local X_width = ABX.width
+ local Y_width = ABY.width
+ local Z_width = math.max(AZ.width,BZ.width)
 ----
- AX.anchor.top  = 0
- AY.anchor.top  = 0
- AX.anchor.left = 0
- AY.anchor.left = X_width + 4
+ ABX.anchor.top  = 0
+ ABY.anchor.top  = 0
+ ABX.anchor.left = 0
+ ABY.anchor.left = X_width + 4
 ----
- BX.anchor.top  = AX.height + 1
- BY.anchor.top  = AY.height + 1
- BX.anchor.left = 0
- BY.anchor.left = X_width + 4
+ AZ.anchor.top  = 0
+ AZ.anchor.left = X_width + Y_width + 8
+ BZ.anchor.top  = AZ.height + 1
+ BZ.anchor.left = X_width + Y_width + 8
 ----
- self.D_AX = AX
- self.D_AY = AY
- self.D_BX = BX
- self.D_BY = BY
+ self.D_ABX = ABX
+ self.D_ABY = ABY
+ self.D_AZ  = AZ
+ self.D_BZ  = BZ
  self.D_X_width = X_width
  self.D_Y_width = Y_width
+ self.D_Z_width = Z_width
 end
 function DetailedUnitView:getPositioningHealth()
 ---- For now just set each cell to the same size
@@ -496,7 +498,7 @@ function DetailedUnitView:fillMain()
 end
 function DetailedUnitView:fillDetails()
  local unit = self.target
- local grid = {'D_AX', 'D_AY', 'D_BX', 'D_BY'}
+ local grid = {'D_ABX', 'D_ABY', 'D_AZ', 'D_BZ'}
  local output = {}
  for i,g in pairs(grid) do
   output[g] = guiFunctions.getDetailsOutput(g, unit, self[g].width)
@@ -553,12 +555,9 @@ function DetailedUnitView:updateBottom(screen)
            { key = 'CUSTOM_SHIFT_H', text = ': Health    ', on_activate = self:callback('viewHealth')   },
            { key = 'CUSTOM_SHIFT_T', text = ': Thoughts  ', on_activate = self:callback('viewThoughts') },
           }
-   if self.ClassSystem or self.FeatSystem or self.SpellSystem then
-    table.insert(text, {text = NEWLINE})
-    if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_C', text = ': Classes  ', on_activate = self:callback('viewClasses')}) end
-    if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_F', text = ': Feats    ', on_activate = self:callback('viewFeats')  }) end
-    if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_S', text = ': Spells   ', on_activate = self:callback('viewSpells') }) end
-   end
+   if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_C', text = ': Classes  ', on_activate = self:callback('viewClasses')}) end
+   if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_F', text = ': Feats    ', on_activate = self:callback('viewFeats')  }) end
+   if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_S', text = ': Spells   ', on_activate = self:callback('viewSpells') }) end
   elseif screen == 'Details' then
    text = {
            { text = 'ESC: Back  '},

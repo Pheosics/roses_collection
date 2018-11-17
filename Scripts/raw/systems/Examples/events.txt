@@ -1,5 +1,6 @@
 [EVENT:SEASONAL_BUILDING_EXAMPLE]
  [NAME:example seasonal building change]
+ [DESCRIPTION:Changes the buildings subtype every season]
  [CHECK:SEASON]
  [CHANCE:100]
  [EFFECT:1]

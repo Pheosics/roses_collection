@@ -1,0 +1,14 @@
+reaction_enhExamples
+
+[OBJECT:REACTION]
+
+    [REACTION:BASIC_MINING]
+        [NAME:go mining]
+        {DESCRIPTION:dig up rocks from the mine shaft]
+        [BUILDING:MINE_SHAFT:NONE]
+        [PRODUCT:100:1:BOULDER:NONE:INORGANIC:BAUXITE]
+        [PRODUCT:100:1:BOULDER:NONE:INORGANIC:GNEISS]
+        {ON_START}
+	    {SKILL:MINING}
+	    {BASE_DURATION:1000}
+	    {DURATION_REDUCTION:50:10}
