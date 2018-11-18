@@ -87,9 +87,9 @@ function DetailedUnitView:init(args)
  self:addDetailsScreen()  -- 2x2 - D_AX, D_AY, D_BX, D_BY
  self:addHealthScreen()   -- 2x1 - H_AX, H_AY
  self:addThoughtsScreen() -- 3x1 - T_AX, T_AY, T_AZ
- if self.ClassSystem then self:addClassScreen() end   -- ?x?
- if self.FeatSystem  then self:addFeatScreen()  end   -- ?x?
- if self.SpellSystem then self:addSpellScreen() end   -- ?x?
+ self:addClassScreen()    -- ?x?
+ self:addFeatScreen()     -- ?x?
+ self:addSpellScreen()    -- ?x?
 
  -- Fill Frames
  self:fillMain()

@@ -104,8 +104,8 @@ function insertWidgetInput(input,method,list,options)
    for i = 1, #order do
     table.insert(temp_text, {text=tostring(tbl[order[i]]), rjustify=true, width=colwidth, pen=fgc})
    end
+   table.insert(input, {text=temp_text})
   end
-  table.insert(input, {text=temp_text})
  end
 
  return input
@@ -569,9 +569,9 @@ function getHealthOutput(grid,unit,w)
  Info = getHealthInfo(unit,w,'Detailed')
 
  if     grid == 'H_AX' then
-  insert = inserstWidgetInput(insert, 'center', 'Health', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Health', {width=w, pen=titleColor})
  elseif grid == 'H_AY' then
-  insert = inserstWidgetInput(insert, 'center', 'Syndromes', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Syndromes', {width=w, pen=titleColor})
   table.insert(insert, {text = {
                                 {text=center('Active Syndromes',hW), pen=headColor},
                                 {text=center('Start',7),             pen=headColor},
@@ -628,11 +628,11 @@ function getThoughtsOutput(grid,unit,w)
  Info = getThoughtInfo(unit,w,'Detailed')
  
  if     grid == 'T_AX' then
-  insert = inserstWidgetInput(insert, 'center', 'Thoughts', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Thoughts', {width=w, pen=titleColor})
  elseif grid == 'T_AY' then
-  insert = inserstWidgetInput(insert, 'center', 'Preferences', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Preferences', {width=w, pen=titleColor})
  elseif grid == 'T_AZ' then
-  insert = inserstWidgetInput(insert, 'center', 'Traits', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Traits', {width=w, pen=titleColor})
  end
  
  return insert
@@ -648,7 +648,7 @@ function getClassesOutput(grid,unit,w,choice)
  local fgc
 
  if grid == 'C_AX' then
-  insert = inserstWidgetInput(insert, 'center', 'Classes', {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', 'Classes', {width=w, pen=titleColor})
 
  elseif grid == 'C_BX' then
   Info = getClassInfo(unit,w,choice)
@@ -662,25 +662,25 @@ function getClassesOutput(grid,unit,w,choice)
   insert = inserstWidgetInput(insert, 'center', Info.Name, {width=w, pen=titleColor})
 
   -- REQUIREMENTS
-  insert = inserstWidgetInput(insert, 'header', {header='Requirements', second=''}, {width=w, pen=headColor})
-  insert = inserstWidgetInput(insert, 'header', {header='Classes:', second=''},     {width=w, pen=subColor})
-  insert = inserstWidgetInput(insert, 'list',   Info.RequiredClass,                 {width=w, tgc=c1, fac=c2})
-  insert = inserstWidgetInput(insert, 'header', {header='Attributes:', second=''},  {width=w, pen=subColor})
-  insert = inserstWidgetInput(insert, 'list',   Info.RequiredAttribute,             {width=w, tgc = c1, fac=c2})
-  insert = inserstWidgetInput(insert, 'header', {header='Skills:', second=''},      {width=w, pen=subColor})
-  insert = inserstWidgetInput(insert, 'list',   Info.RequiredSkill,                 {width=w, tgc = c1, fac=c2})
+  insert = insertWidgetInput(insert, 'header', {header='Requirements', second=''}, {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'header', {header='Classes:', second=''},     {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredClass,                 {width=w, tgc=c1, fac=c2})
+  insert = insertWidgetInput(insert, 'header', {header='Attributes:', second=''},  {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredAttribute,             {width=w, tgc = c1, fac=c2})
+  insert = insertWidgetInput(insert, 'header', {header='Skills:', second=''},      {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredSkill,                 {width=w, tgc = c1, fac=c2})
 
   -- CLASS BONUSES
-  insert = inserstWidgetInput(insert, 'header', {header='Class Bonuses', second=''}, {width=w, pen=headColor})
-  insert = inserstWidgetInput(insert, 'list',   Info.ClassBonus,                     {width=w, tgc=c1, fac=c2})
+  insert = insertWidgetInput(insert, 'header', {header='Class Bonuses', second=''}, {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'list',   Info.ClassBonus,                     {width=w, tgc=c1, fac=c2})
 
   -- LEVELING BONUSES
-  insert = inserstWidgetInput(insert, 'header', {header='Level Bonuses', second=''}, {width=w, pen=headColor})
-  insert = inserstWidgetInput(insert, 'list',   Info.LevelBonus,                     {width=w, tgc=c1, fac=c2})
+  insert = insertWidgetInput(insert, 'header', {header='Level Bonuses', second=''}, {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'list',   Info.LevelBonus,                     {width=w, tgc=c1, fac=c2})
 
   -- SPELLS AND ABILITIES
-  insert = inserstWidgetInput(insert, 'header', {header='Spells', second=''}, {width=w, pen=headColor})
-  insert = inserstWidgetInput(insert, 'list',   Info.Spells,                  {width=w, tgc=COLOR_WHITE, fac=COLOR_GREY})
+  insert = insertWidgetInput(insert, 'header', {header='Spells', second=''}, {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'list',   Info.Spells,                  {width=w, tgc=COLOR_WHITE, fac=COLOR_GREY})
 
  end
 
