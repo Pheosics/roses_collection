@@ -2,6 +2,14 @@ local utils = require 'utils'
 local split = utils.split_string
 local persistTable = require 'persist-table'
 local usages = {}
+local titleColor = COLOR_LIGHTCYAN
+local headColor  = COLOR_LIGHTMAGENTA
+local subColor   = COLOR_YELLOW
+local textColor  = COLOR_WHITE
+local numColor   = COLOR_LIGHTGREEN
+local colColor   = COLOR_WHITE
+local c1 = COLOR_LIGHTGREEN
+local c2 = COLOR_LIGHTRED
 
 --= String Functions
 function tchelper(first, rest)
@@ -16,19 +24,21 @@ end
 
 --= Widget Functions
 function insertWidgetInput(input,method,list,options)
+ if not list then return input end
  options = options or {}
- bgc = options.bgc or COLOR_YELLOW
- fgc = options.fgc or COLOR_LIGHTGREEN
- trueColor = options.tgc or COLOR_LIGHTGREEN
- falseColor = options.fac or COLOR_LIGHTRED
- pen = options.pen or COLOR_WHITE
- order = options.order
- colcolor = options.column_color or COLOR_WHITE
- colwidth = options.column_width or 6
- width = options.width or 40
- rjustify = options.rjustify or false
- temp_list_length = 0
- 
+ local bgc        = options.bgc or COLOR_YELLOW
+ local fgc        = options.fgc or COLOR_LIGHTGREEN
+ local trueColor  = options.tgc or COLOR_LIGHTGREEN
+ local falseColor = options.fac or COLOR_LIGHTRED
+ local pen        = options.pen or COLOR_WHITE
+ local order = options.order
+ local nohead = options.nohead or false
+ local colcolor = options.column_color or COLOR_WHITE
+ local colwidth = options.column_width or 6
+ local width = options.width or 40
+ local rjustify = options.rjustify or false
+ local abbrvs = {Total='Tot', Syndrome='Syn'}
+
  if method == 'center' then
   table.insert(input, {text = {{text=center(list,width), width=width, pen=pen}}})
  elseif method == 'text' then
@@ -43,7 +53,14 @@ function insertWidgetInput(input,method,list,options)
    end
   end
  elseif method == 'header' then
-  if type(list.second) == 'table' then
+  if not list.second then
+   for h,s in pairs(list) do
+    table.insert(input, {text = { 
+                                 {text=h,                width=#h,       pen=pen},
+                                 {text=s, rjustify=true, width=width-#h, pen=pen}
+                                }})
+   end
+  elseif type(list.second) == 'table' then
    local check = true
    if list.length == 0 then
     return input
@@ -57,13 +74,13 @@ function insertWidgetInput(input,method,list,options)
       fill = second
      end
      if check then
-      table.insert(input, {text = {
+      table.insert(input, {text = { 
                                    {text=list.header,         width=#list.header,       pen=pen},
                                    {text=fill, rjustify=true, width=width-#list.header, pen=pen}
                                   }})
       check = false
      else
-      table.insert(input, {text = {
+      table.insert(input, {text = { 
                                    {text='',                  width=#list.header,       pen=pen},
                                    {text=fill, rjustify=true, width=width-#list.header, pen=pen}
                                   }})
@@ -74,7 +91,7 @@ function insertWidgetInput(input,method,list,options)
    if list.second == '' or list.second == '--' then
     return input
    else
-    table.insert(input, {text = {
+    table.insert(input, {text = { 
                                  {text=list.header,                width=#list.header,       pen=pen},
                                  {text=list.second, rjustify=true, width=width-#list.header, pen=pen}
                                 }})
@@ -92,17 +109,20 @@ function insertWidgetInput(input,method,list,options)
  elseif method == 'table' then
   if not order then return input end
   hW = width - #order*colwidth
-  temp_text = {}
-  table.insert(temp_text, {text='', width=hW})
-  for i = 1, #order do
-   table.insert(temp_text, {text=order[i], rjustify=true, width=colwidth, pen=pen})
+  if not nohead then
+   temp_text = {}
+   table.insert(temp_text, {text='', width=hW})
+   for i = 1, #order do
+    header = abbrvs[order[i]] or order[i]
+    table.insert(temp_text, {text=center(header,colwidth), width=colwidth, pen=colColor})
+   end
+   table.insert(input, {text=temp_text})
   end
-  table.insert(input, {text=temp_text})
   for key,tbl in pairs(list) do
    temp_text = {}
    table.insert(temp_text, {text=key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper), width=hW, pen=bgc})
    for i = 1, #order do
-    table.insert(temp_text, {text=tostring(tbl[order[i]]), rjustify=true, width=colwidth, pen=fgc})
+    table.insert(temp_text, {text=center(tostring(tbl[order[i]]),colwidth), width=colwidth, pen=fgc})
    end
    table.insert(input, {text=temp_text})
   end
@@ -238,6 +258,10 @@ function getClassInfo(unit,w,Type)
   class = classTable[Type]
   unitT = dfhack.script_environment('functions/unit').getUnitTable(unit)
 
+  info.Name        = class.Name
+  info.Description = class.Description
+  info.Levels      = class.Levels
+
   info.RequiredClass     = {}
   for i,x in pairs(class.RequiredClass._children) do
    info.RequiredClass[x] = {}
@@ -308,8 +332,212 @@ function getClassInfo(unit,w,Type)
    info.Spells[n] = {}
    info.Spells[n].Text  = x
    info.Spells[n].Level = class.Spells[x].RequiredLevel
+   n = n + 1
   end
  end
+
+ return info
+end
+function getFeatInfo(unit,w,Type)
+ local info = {}
+ local persistTable = require 'persist-table'
+ local unitTable  = persistTable.GlobalTable.roses.UnitTable
+ if not unitTable[tostring(unit.id)] then return false end
+ local featTable = persistTable.GlobalTable.roses.FeatTable
+ local classTable = persistTable.GlobalTable.roses.ClassTable
+ unitFeats = unitTable[tostring(unit.id)].Feats
+
+ if Type == 'Basic' then
+  info.Current = 'A basic description of the units feats goes here'
+ elseif Type == 'All' then
+  info.Feats = {}
+  for i,x in pairs(featTable._children) do
+   info.Feats[x] = {}
+   if unitFeats[x] then
+    info.Feats[x].Learned = 'Yes'
+   else
+    info.Feats[x].Learned = 'No'
+   end
+  end
+ elseif Type == 'Learned' then
+  info.Feats = {}
+  for i,x in pairs(featTable._children) do
+   if unitFeat[x] then
+    info.Feat[x] = {}
+    info.Feats[x].Learned = 'Yes'
+   end
+  end
+ elseif Type == 'Class' then
+  info.Feats = {}
+  if unitTable[tostring(unit.id)].Classes.Current ~= 'NONE' then
+   currentClass = unitTable[tostring(unit.id)].Classes.Current
+   for i,x in pairs(featTable._children) do
+    if featTable[x].RequiredClass and featTable[x].RequiredClass[currentClass] then
+     info.Feats[x] = {}
+     if unitFeats[x] then
+      info.Feats[x].Learned = 'Yes'
+     else
+      info.Feats[x].Learned = 'No'
+     end
+    end
+   end
+  end
+
+ else
+  if not featTable[Type] then return false end
+  feat = featTable[Type]
+  unitT = dfhack.script_environment('functions/unit').getUnitTable(unit)
+
+  info.Name        = feat.Name
+  info.Description = feat.Description
+  info.Cost        = feat.Cost
+
+  info.RequiredClass     = {}
+  for i,x in pairs(feat.RequiredClass._children) do
+   info.RequiredClass[x] = {}
+   info.RequiredClass[x].Text  = 'Level '..feat.RequiredClass[x]..' '..classTable[x].Name
+   info.RequiredClass[x].Check = false
+   if unitT.Classes[x] then
+    if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
+     info.RequiredClass[x].Check = true
+    end
+   end
+  end
+
+  info.RequiredFeat     = {}
+  for i,x in pairs(feat.RequiredFeat._children) do
+   info.RequiredFeat[x] = {}
+   info.RequiredFeat[x].Text  = featTable[x].Name
+   info.RequiredFeat[x].Check = false
+   if unitT.Feats[x] then
+    info.RequiredFeat[x].Check = true
+   end
+  end
+
+  info.Effects = {}
+  n = 1
+  for i,x in pairs(feat.Effect._children) do
+   info.Effects[n] = {}
+   info.Effects[n].Text  = x
+   n = n + 1
+  end
+ end
+
+ return info
+end
+function getSpellInfo(unit,w,Type)
+ local info = {}
+ local persistTable = require 'persist-table'
+ local unitTable  = persistTable.GlobalTable.roses.UnitTable
+ if not unitTable[tostring(unit.id)] then return false end
+ local spellTable = persistTable.GlobalTable.roses.SpellTable
+ local classTable = persistTable.GlobalTable.roses.ClassTable
+ unitSpells = unitTable[tostring(unit.id)].Spells
+
+ if Type == 'Basic' then
+  info.Current = 'A basic description of the units feats goes here'
+ elseif Type == 'All' then
+  info.Spells = {}
+  for i,x in pairs(spellTable._children) do
+   info.Spells[x] = {}
+   info.Spells[x].Learned = 'No'
+   info.Spells[x].Active  = 'No'
+   if unitSpells[x] and unitSpells[x] == 'true' then info.Spells[x].Learned = 'Yes' end
+   if unitSpells.Active[x] then info.Spells[x].Active = 'Yes' end
+  end
+ elseif Type == 'Learned' then
+  info.Spells = {}
+  for i,x in pairs(featTable._children) do
+   if unitSpells[x] and unitSpells[x] == 'true' then
+    info.Spells[x] = {}
+    info.Spells[x].Learned = 'Yes'
+    info.Spells[x].Active  = 'No'
+    if unitSpells.Active[x] then info.Spells[x].Active = 'Yes' end
+   end
+  end
+ elseif Type == 'Class' then
+  info.Spells = {}
+  if unitTable[tostring(unit.id)].Classes.Current ~= 'NONE' then
+   currentClass = unitTable[tostring(unit.id)].Classes.Current
+   for i,x in pairs(spellTable._children) do
+    if spellTable[x].RequiredClass and spellTable[x].RequiredClass[currentClass] then
+     info.Spells[x] = {}
+     info.Spells[x].Learned = 'No'
+     info.Spells[x].Active  = 'No'
+     if unitSpells[x] and unitSpells[x] == 'true' then info.Spells[x].Learned = 'Yes' end
+     if unitSpells.Active[x] then info.Spells[x].Active = 'Yes' end
+    end
+   end
+  end
+ elseif Type == 'Civ' then
+  info.Spells = {}
+  if unitTable.Civilization and unit.civ_id >= 0 then
+   civTable = persistTable.GlobalTable.roses.EntityTable[tostring(unit.civ_id)].Civilization
+   for i,x in pairs(spellTable._children) do
+    if civTable.Spells and civTable.Spells[x] then
+     info.Spells[x] = {}
+     info.Spells[x].Learned = 'No'
+     info.Spells[x].Active  = 'No'
+     if unitSpells[x] and unitSpells[x] == 'true' then info.Spells[x].Learned = 'Yes' end
+     if unitSpells.Active[x] then info.Spells[x].Active = 'Yes' end
+    end
+   end
+  end
+
+ else
+  if not spellTable[Type] then return false end
+  spell = spellTable[Type]
+  unitT = dfhack.script_environment('functions/unit').getUnitTable(unit)
+
+  info.Name        = spell.Name
+  info.Description = spell.Description
+  info.Effect      = spell.Effect
+  info.Upgrade     = spell.Upgrade or 'NA'
+
+  info.Classification = {}
+  info.Classification.Level = spell.Classification.Level
+  for _,t in pairs(spell.Classification._children) do
+   info.Classification[t] = spell.Classification[t]
+  end
+
+  info.Details = {}
+  for _,t in pairs(spell.Details._children) do
+   info.Details[t] = spell.Details[t]
+  end
+
+  info.RequiredClass = {}
+  for i,x in pairs(spell.RequiredClass._children) do
+   info.RequiredClass[x] = {}
+   info.RequiredClass[x].Text  = 'Level '..spell.RequiredClass[x]..' '..classTable[x].Name
+   info.RequiredClass[x].Check = false
+   if unitT.Classes[x] then
+    if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
+     info.RequiredClass[x].Check = true
+    end
+   end
+  end
+
+  info.RequiredSpell = {}
+  for i,x in pairs(spell.RequiredSpell._children) do
+   info.RequiredFeat[x] = {}
+   info.RequiredFeat[x].Text  = spellTable[x].Name
+   info.RequiredFeat[x].Check = false
+   if unitT.Spells[x] then
+    info.RequiredFeat[x].Check = true
+   end
+  end
+
+  info.RequiredAttribute = {}
+  for i,x in pairs(spell.RequiredAttribute._children) do
+   info.RequiredAttribute[x] = {}
+   info.RequiredAttribute[x].Text  = spell.RequiredAttribute[x]..' '..x
+   info.RequiredAttribute[x].Check = false
+   if unitT and unitT.Attributes[x] then
+    if unitT.Attributes[x].Base >= info.RequiredAttribute[x].Level then
+     info.RequiredAttribute[x].Check = true
+    end
+   end
+  end
 
  return info
 end
@@ -394,11 +622,15 @@ function getSkillInfo(unit,w,Type)
   unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit).Skills
   for skill, tbl in pairs(unitTable) do
    if df.job_skill[skill] then
-    name = df.job_skill.attrs[skill].caption_noun
-    info.InGame[name] = tbl
+    if dfhack.units.getExperience(unit,df.job_skill[skill],true) > 0 then
+     name = df.job_skill.attrs[skill].caption_noun
+     info.InGame[name] = tbl
+    end
    else
-    name = persistTable.GlobalTable.roses.BaseTable.CustomSkills[skill]
-    info.Custom[name] = tbl
+    if tbl.Exp + tbl.Total + tbl.Base > 0 then
+     name = persistTable.GlobalTable.roses.BaseTable.CustomSkills[skill]
+     info.Custom[name] = tbl
+    end
    end
   end
  end
@@ -440,13 +672,10 @@ function getMainOutput(grid,unit,w,check)
  ]]
 
  local insert = {}
- local titleColor = COLOR_LIGHTCYAN
 
  if     (grid == 'AX') then -- Base Information
   Info = getBaseInfo(unit)
-  for h,s in pairs(Info) do
-   insert = insertWidgetInput(insert, 'header', {header=h, second=s}, {width=w})
-  end
+  insert = insertWidgetInput(insert, 'header', Info, {width=w})
  elseif (grid == 'AY') then -- Description
   Info = getDescriptionInfo(unit,w,'Basic')
   insert = insertWidgetInput(insert, 'center', 'Description', {width=w, pen=titleColor})
@@ -511,11 +740,6 @@ function getDetailsOutput(grid,unit,w)
  ----------------------------------------------
  ]]
  local insert = {}
- local titleColor = COLOR_LIGHTCYAN
- local headColor = COLOR_LIGHTMAGENTA
- local colColor = COLOR_WHITE
- local bgc = COLOR_YELLOW
- local fgc = COLOR_LIGHTGREEN
  local hW = w - 24
  local orderA = {'Total', 'Class', 'Item', 'Syndrome'}
  local orderB = {'Total', 'Class', 'Item', 'Exp'}
@@ -562,9 +786,6 @@ function getHealthOutput(grid,unit,w)
  --------------------------------
  ]]
  local insert = {}
- local titleColor = COLOR_LIGHTCYAN
- local headColor = COLOR_LIGHTMAGENTA
- local fgc = COLOR_WHITE
  local hW = w - 40
  Info = getHealthInfo(unit,w,'Detailed')
 
@@ -572,7 +793,7 @@ function getHealthOutput(grid,unit,w)
   insert = insertWidgetInput(insert, 'center', 'Health', {width=w, pen=titleColor})
  elseif grid == 'H_AY' then
   insert = insertWidgetInput(insert, 'center', 'Syndromes', {width=w, pen=titleColor})
-  table.insert(insert, {text = {
+  table.insert(insert, {text = { 
                                 {text=center('Active Syndromes',hW), pen=headColor},
                                 {text=center('Start',7),             pen=headColor},
                                 {text=center('Peaks',7),             pen=headColor},
@@ -581,7 +802,7 @@ function getHealthOutput(grid,unit,w)
                                 {text=center('Duration',10),         pen=headColor}
                                }})
   for i,x in pairs(Info.Syndromes) do
-   table.insert(insert, {text = {{text = x[1], width = hW, pen=COLOR_LIGHTGREEN}}})
+   table.insert(insert, {text = {{text = x[1], width = hW, pen=subColor}}})
    for j,y in pairs(Info.SyndromeDetails[i]) do
     if pcall(function() return y.sev end) then
      severity = y.sev
@@ -602,13 +823,13 @@ function getHealthOutput(grid,unit,w)
      ending = y['end']
      duration = x[3]
     end
-    table.insert(insert, {text = {
-                                  {text = effect,                  width = hW, pen=fgc},
-                                  {text = y.start,  rjustify=true, width = 7,  pen=fgc},
-                                  {text = y.peak,   rjustify=true, width = 7,  pen=fgc},
-                                  {text = severity, rjustify=true, width = 10, pen=fgc},
-                                  {text = ending,   rjustify=true, width = 6,  pen=fgc},
-                                  {text = duration, rjustify=true, width = 10, pen=fgc}
+    table.insert(insert, {text = { 
+                                  {text = effect,                  width = hW, pen=numColor},
+                                  {text = y.start,  rjustify=true, width = 7,  pen=numColor},
+                                  {text = y.peak,   rjustify=true, width = 7,  pen=numColor},
+                                  {text = severity, rjustify=true, width = 10, pen=numColor},
+                                  {text = ending,   rjustify=true, width = 6,  pen=numColor},
+                                  {text = duration, rjustify=true, width = 10, pen=numColor}
                                  }})
    end
   end
@@ -624,7 +845,6 @@ function getThoughtsOutput(grid,unit,w)
  -------------------------------------
  ]]
  local insert = {}
- local titleColor = COLOR_LIGHTCYAN
  Info = getThoughtInfo(unit,w,'Detailed')
  
  if     grid == 'T_AX' then
@@ -638,14 +858,16 @@ function getThoughtsOutput(grid,unit,w)
  return insert
 end
 function getClassesOutput(grid,unit,w,choice)
+ --[[ LAYOUT
+   |      X       |      Y      |
+ --|--------------|-------------|
+ A | Header       |             |
+ --|--------------| Details     |
+ B | Class List   |             |
+ --------------------------------
+ ]]
  local insert = {}
- local titleColor = COLOR_LIGHTCYAN
- local headColor = COLOR_LIGHTMAGENTA
- local subColor = COLOR_YELLOW
- local c1 = COLOR_LIGHTGREEN
- local c2 = COLOR_LIGHTRED
  local orderA = {'Level','Exp'}
- local fgc
 
  if grid == 'C_AX' then
   insert = insertWidgetInput(insert, 'center', 'Classes', {width=w, pen=titleColor})
@@ -653,40 +875,125 @@ function getClassesOutput(grid,unit,w,choice)
  elseif grid == 'C_BX' then
   Info = getClassInfo(unit,w,choice)
   if not Info then return insert end
-  insert = insertWidgetInput(insert, 'table',  Info.Classes, {width=w, order=orderA, column_width=7})
+  insert = insertWidgetInput(insert, 'table',  Info.Classes, {width=w, order=orderA, column_width=7 nohead=true})
   
  elseif grid == 'C_ABY' then
   local token = choice.text[1].text
   Info = getClassInfo(unit,w,token)
   if not Info then return insert end
-  insert = inserstWidgetInput(insert, 'center', Info.Name, {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'center', Info.Name,        {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Description, {width=w, pen=textColor})
 
   -- REQUIREMENTS
-  insert = insertWidgetInput(insert, 'header', {header='Requirements', second=''}, {width=w, pen=headColor})
-  insert = insertWidgetInput(insert, 'header', {header='Classes:', second=''},     {width=w, pen=subColor})
-  insert = insertWidgetInput(insert, 'list',   Info.RequiredClass,                 {width=w, tgc=c1, fac=c2})
-  insert = insertWidgetInput(insert, 'header', {header='Attributes:', second=''},  {width=w, pen=subColor})
-  insert = insertWidgetInput(insert, 'list',   Info.RequiredAttribute,             {width=w, tgc = c1, fac=c2})
-  insert = insertWidgetInput(insert, 'header', {header='Skills:', second=''},      {width=w, pen=subColor})
-  insert = insertWidgetInput(insert, 'list',   Info.RequiredSkill,                 {width=w, tgc = c1, fac=c2})
+  insert = insertWidgetInput(insert, 'center', 'Requirements',         {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'center', 'Classes',              {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredClass,     {width=w, tgc=c1, fac=c2})
+  insert = insertWidgetInput(insert, 'center', 'Attributes:',          {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredAttribute, {width=w, tgc = c1, fac=c2})
+  insert = insertWidgetInput(insert, 'center', 'Skills:',              {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredSkill,     {width=w, tgc = c1, fac=c2})
 
   -- CLASS BONUSES
-  insert = insertWidgetInput(insert, 'header', {header='Class Bonuses', second=''}, {width=w, pen=headColor})
-  insert = insertWidgetInput(insert, 'list',   Info.ClassBonus,                     {width=w, tgc=c1, fac=c2})
+  insert = insertWidgetInput(insert, 'center', 'Class Bonuses', {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'list',   Info.ClassBonus, {width=w, tgc=c1, fac=c2})
 
   -- LEVELING BONUSES
-  insert = insertWidgetInput(insert, 'header', {header='Level Bonuses', second=''}, {width=w, pen=headColor})
-  insert = insertWidgetInput(insert, 'list',   Info.LevelBonus,                     {width=w, tgc=c1, fac=c2})
+  insert = insertWidgetInput(insert, 'center', 'Level Bonuses', {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'list',   Info.LevelBonus, {width=w, tgc=c1, fac=c2})
 
   -- SPELLS AND ABILITIES
-  insert = insertWidgetInput(insert, 'header', {header='Spells', second=''}, {width=w, pen=headColor})
-  insert = insertWidgetInput(insert, 'list',   Info.Spells,                  {width=w, tgc=COLOR_WHITE, fac=COLOR_GREY})
+  insert = insertWidgetInput(insert, 'center', 'Spells',    {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'list',   Info.Spells, {width=w, tgc=COLOR_WHITE, fac=COLOR_GREY})
 
  end
 
  return insert
 end
-function getFeatsOutput(gird,unit,w)
+function getFeatsOutput(gird,unit,w,choice)
+ --[[ LAYOUT
+   |      X       |      Y      |
+ --|--------------|-------------|
+ A | Header       |             |
+ --|--------------| Details     |
+ B | Feat List    |             |
+ --------------------------------
+ ]]
+ local insert = {}
+ local orderA = {'Learned'}
+
+ if grid == 'F_AX' then
+  insert = insertWidgetInput(insert, 'center', 'Feats', {width=w, pen=titleColor})
+
+ elseif grid == 'F_BX' then
+  Info = getFeatInfo(unit,w,choice)
+  if not Info then return insert end
+  insert = insertWidgetInput(insert, 'table',  Info.Feats, {width=w, order=orderA, column_width=7, nohead=true})
+  
+ elseif grid == 'F_ABY' then
+  local token = choice.text[1].text
+  Info = getFeatInfo(unit,w,token)
+  if not Info then return insert end
+  insert = insertWidgetInput(insert, 'center', Info.Name,        {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Description, {width=w, pen=textColor})
+
+  -- REQUIREMENTS
+  insert = insertWidgetInput(insert, 'center', 'Requirements',     {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'center', 'Classes:',         {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredClass, {width=w, tgc=c1, fac=c2})
+  insert = insertWidgetInput(insert, 'center', 'Feats',            {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredFeat,  {width=w, tgc = c1, fac=c2})
+
+  -- CLASS BONUSES
+  insert = insertWidgetInput(insert, 'center', 'Effects',    {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'list',   Info.Effects, {width=w, tgc=c1, fac=c2})
+
+ end
+
+ return insert
 end
 function getSpellsOutput(grid,unit,w)
+ --[[ LAYOUT
+   |      X       |      Y      |
+ --|--------------|-------------|
+ A | Header       |             |
+ --|--------------| Details     |
+ B | Spell List   |             |
+ --------------------------------
+ ]]
+ local insert = {}
+ local orderA = {'Learned','Active'}
+
+ if grid == 'S_AX' then
+  insert = insertWidgetInput(insert, 'center', 'Spells', {width=w, pen=titleColor})
+
+ elseif grid == 'S_BX' then
+  Info = getSpellInfo(unit,w,choice)
+  if not Info then return insert end
+  insert = insertWidgetInput(insert, 'table',  Info.Spells, {width=w, order=orderA, column_width=7, nohead=true})
+  
+ elseif grid == 'S_ABY' then
+  local token = choice.text[1].text
+  Info = getSpellInfo(unit,w,token)
+  if not Info then return insert end
+  insert = insertWidgetInput(insert, 'center', Info.Name,           {width=w, pen=titleColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Description,    {width=w, pen=textColor})
+  insert = insertWidgetInput(insert, 'header', Info.Classification, {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'text',   Info.Effect,         {width=w, pen=textColor})
+
+  -- REQUIREMENTS
+  insert = insertWidgetInput(insert, 'center', 'Requirements',         {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'center', 'Classes',              {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredClass,     {width=w, tgc=c1, fac=c2})
+  insert = insertWidgetInput(insert, 'center', 'Attributes',           {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredAttribute, {width=w, tgc = c1, fac=c2})
+  insert = insertWidgetInput(insert, 'center', 'Spells:',              {width=w, pen=subColor})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredSpell,     {width=w, tgc = c1, fac=c2})
+
+  -- DETAILS
+  insert = insertWidgetInput(insert, 'center', 'Spell Details',   {width=w, pen=headColor})
+  insert = insertWidgetInput(insert, 'header', Info.SpellDetails, {width=w})
+
+ end
+
+ return insert
 end

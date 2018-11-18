@@ -95,7 +95,7 @@ if args.all or args.classSystem then
   if verbose then
    print('Classes:')
    for _,n in pairs(persistTable.GlobalTable.roses.ClassTable._children) do
-    print(persistTable.GlobalTable.roses.ClassTable[n])
+    printall_recurse(persistTable.GlobalTable.roses.ClassTable[n])
    end
   end
 

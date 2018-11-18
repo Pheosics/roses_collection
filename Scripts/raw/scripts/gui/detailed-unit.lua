@@ -5,6 +5,9 @@ local guiScript = require 'gui.script'
 local utils = require 'utils'
 local split = utils.split_string
 local persistTable = require 'persist-table'
+local textC     = COLOR_DARYGRAY
+local cursorC   = COLOR_YELLOW
+local inactiveC = COLOR_CYAN
 
 classSystem     = false
 featSystem      = false
@@ -68,7 +71,7 @@ function DetailedUnitView:init(args)
    widgets.Panel{
      view_id  = 'bottomView',
      frame    = { b = 0, h = 1},
-     subviews = {
+     subviews = { 
        widgets.Label{
          view_id = 'bottom_ui',
          frame   = { l = 0, t = 0},
@@ -84,21 +87,21 @@ function DetailedUnitView:init(args)
  self:addMainScreen()     -- 3x3 - AX, AY, AZ, BX, BY, BZ, CX, CY, CZ
 
  ---- Sub Views
- self:addDetailsScreen()  -- 2x2 - D_AX, D_AY, D_BX, D_BY
+ self:addDetailsScreen()  -- 3x2 - D_ABX, D_ABY, D_AZ, D_BZ
  self:addHealthScreen()   -- 2x1 - H_AX, H_AY
  self:addThoughtsScreen() -- 3x1 - T_AX, T_AY, T_AZ
- self:addClassScreen()    -- ?x?
- self:addFeatScreen()     -- ?x?
- self:addSpellScreen()    -- ?x?
+ self:addClassScreen()    -- 2x2 - C_AX, C_BX, C_ABY
+ self:addFeatScreen()     -- 2x2 - F_AX, F_BX, F_ABY
+ self:addSpellScreen()    -- 2x2 - S_AX, S_BX, S_ABY
 
  -- Fill Frames
  self:fillMain()
  self:fillDetails()
  self:fillHealth()
  self:fillThoughts()
- if self.ClassSystem then self:fillClasses('Learned',false) end
- if self.FeatSystem  then self:fillFeats('Learned',false)   end
- if self.SpellSystem then self:fillSpells('Learned',false)  end
+ if self.ClassSystem then self:fillClasses('All','List') end
+ if self.FeatSystem  then self:fillFeats('All','List')   end
+ if self.SpellSystem then self:fillSpells('All','List')  end
 
  -- Set Starting View
  self:viewMain()
@@ -126,7 +129,7 @@ function DetailedUnitView:addMainScreen()
      view_id     = 'main',
      frame       = { l = 0, r = 0 },
      frame_inset = 1,
-     subviews    = {
+     subviews    = { 
        widgets.List{
          view_id = 'AX',
          frame   = {l = self.AX.anchor.left, t = self.AX.anchor.top, w = self.X_width, h = self.AX.height},
@@ -186,7 +189,7 @@ function DetailedUnitView:addDetailsScreen()
      view_id     = 'detailedView',
      frame       = { l = 0, r = 0 },
      frame_inset = 1,
-     subviews    = {
+     subviews    = { 
        widgets.List{
          view_id = 'D_ABX',
          frame   = {l = self.D_ABX.anchor.left, t = self.D_ABX.anchor.top, w = self.D_X_width, h = self.D_ABX.height},
@@ -224,7 +227,7 @@ function DetailedUnitView:addHealthScreen()
      view_id     = 'healthView',
      frame       = { l = 0, r = 0 },
      frame_inset = 1,
-     subviews    = {
+     subviews    = { 
        widgets.List{
          view_id = 'H_AX',
          frame   = {l = self.H_AX.anchor.left, t = self.H_AX.anchor.top, w = self.H_X_width, h = self.H_AX.height},
@@ -254,7 +257,7 @@ function DetailedUnitView:addThoughtsScreen()
      view_id     = 'thoughtView',
      frame       = { l = 0, r = 0 },
      frame_inset = 1, 
-     subviews    = {
+     subviews    = { 
        widgets.List{
          view_id = 'T_AX',
          frame   = {l = self.T_AX.anchor.left, t = self.T_AX.anchor.top, w = self.T_X_width, h = self.T_AX.height},
@@ -290,7 +293,7 @@ function DetailedUnitView:addClassScreen()
      view_id     = 'classView',
      frame       = { l = 0, r = 0 },
      frame_inset = 1,
-     subviews    = {
+     subviews    = { 
        widgets.List{
          view_id = 'C_AX',
          frame   = {l = self.C_AX.anchor.left, t = self.C_AX.anchor.top, w = self.C_X_width, h = self.C_AX.height},
@@ -299,8 +302,8 @@ function DetailedUnitView:addClassScreen()
          view_id    = 'C_BX',
          frame      = {l = self.C_BX.anchor.left, t = self.C_BX.anchor.top, w = self.C_X_width, h = self.C_BX.height},
          on_submit  = self:callback('fillClasses'),
-         text_pen   = dfhack.pen.parse{fg=COLOR_DARKGRAY, bg=0},
-         cursor_pen = dfhack.pen.parse{fg=COLOR_YELLOW, bg=0},
+         text_pen   = dfhack.pen.parse{fg=textC,     bg=0},
+         cursor_pen = dfhack.pen.parse{fg=cursorC,   bg=0},
        },
        widgets.List{
          view_id = 'C_ABY',
@@ -311,30 +314,83 @@ function DetailedUnitView:addClassScreen()
  }
 end
 function DetailedUnitView:addFeatScreen()
+------ Feat Information
+ --[[
+ Feats:
+   |      X       |      Y      |
+ --|--------------|-------------|
+ A | Header       |             |
+ --|--------------| Details     |
+ B | Feat List    |             |
+ --------------------------------
+ Bottom UI:
+  Back
+ ]]
  self:getPositioningFeats()
  self:addviews{
    widgets.Panel{
      view_id     = 'featView',
      frame       = { l = 0, r = 0 },
      frame_inset = 1,
-     subviews    = {
+     subviews    = { 
+       widgets.List{
+         view_id = 'F_AX',
+         frame   = {l = self.F_AX.anchor.left, t = self.F_AX.anchor.top, w = self.F_X_width, h = self.F_AX.height},
+       },
+       widgets.List{
+         view_id    = 'F_BX',
+         frame      = {l = self.F_BX.anchor.left, t = self.F_BX.anchor.top, w = self.F_X_width, h = self.F_BX.height},
+         on_submit  = self:callback('fillFeats'),
+         text_pen   = dfhack.pen.parse{fg=COLOR_DARKGRAY, bg=0},
+         cursor_pen = dfhack.pen.parse{fg=COLOR_YELLOW, bg=0},
+       },
+       widgets.List{
+         view_id = 'F_ABY',
+         frame   = {l = self.F_ABY.anchor.left, t = self.F_ABY.anchor.top, w = self.F_Y_width, h = self.F_ABY.height},
+       },
      }   
    }
  }
 end
 function DetailedUnitView:addSpellScreen()
+------ Spell Information
+ --[[
+ Spells:
+   |      X       |      Y      |
+ --|--------------|-------------|
+ A | Header       |             |
+ --|--------------| Details     |
+ B | Spell List   |             |
+ --------------------------------
+ Bottom UI:
+  Back
+ ]]
  self:getPositioningSpells()
  self:addviews{
    widgets.Panel{
      view_id     = 'spellView',
      frame       = { l = 0, r = 0 },
      frame_inset = 1,
-     subviews    = {
+     subviews    = { 
+       widgets.List{
+         view_id = 'S_AX',
+         frame   = {l = self.S_AX.anchor.left, t = self.S_AX.anchor.top, w = self.S_X_width, h = self.S_AX.height},
+       },
+       widgets.List{
+         view_id    = 'S_BX',
+         frame      = {l = self.S_BX.anchor.left, t = self.S_BX.anchor.top, w = self.S_X_width, h = self.S_BX.height},
+         on_submit  = self:callback('fillSpells'),
+         text_pen   = dfhack.pen.parse{fg=COLOR_DARKGRAY, bg=0},
+         cursor_pen = dfhack.pen.parse{fg=COLOR_YELLOW, bg=0},
+       },
+       widgets.List{
+         view_id = 'S_ABY',
+         frame   = {l = self.S_ABY.anchor.left, t = self.S_ABY.anchor.top, w = self.S_Y_width, h = self.S_ABY.height},
+       },
      }   
    }
  }
 end
-
 
 --= Positioning Functions (get the width, height, and anchor points for each screen)
 function DetailedUnitView:getPositioningMain()
@@ -482,8 +538,50 @@ function DetailedUnitView:getPositioningClasses()
  self.C_Y_width = Y_width
 end
 function DetailedUnitView:getPositioningFeats()
+ local AX  = {anchor = {}, width = 40, height = 3}
+ local BX  = {anchor = {}, width = 40, height = 37}
+ local ABY = {anchor = {}, width = 80, height = 40}
+----
+ local X_width = math.max(AX.width,BX.width)
+ local Y_width = ABY.width
+----
+ AX.anchor.top  = 0
+ AX.anchor.left = 0
+----
+ BX.anchor.top  = AX.height + 1
+ BX.anchor.left = 0
+----
+ ABY.anchor.top  = 0
+ ABY.anchor.left = X_width + 4 
+----
+ self.F_AX  = AX
+ self.F_BX  = BX
+ self.F_ABY = ABY
+ self.F_X_width = X_width
+ self.F_Y_width = Y_width
 end
 function DetailedUnitView:getPositioningSpells()
+ local AX  = {anchor = {}, width = 40, height = 3}
+ local BX  = {anchor = {}, width = 40, height = 37}
+ local ABY = {anchor = {}, width = 80, height = 40}
+----
+ local X_width = math.max(AX.width,BX.width)
+ local Y_width = ABY.width
+----
+ AX.anchor.top  = 0
+ AX.anchor.left = 0
+----
+ BX.anchor.top  = AX.height + 1
+ BX.anchor.left = 0
+----
+ ABY.anchor.top  = 0
+ ABY.anchor.left = X_width + 4 
+----
+ self.S_AX  = AX
+ self.S_BX  = BX
+ self.S_ABY = ABY
+ self.S_X_width = X_width
+ self.S_Y_width = Y_width
 end
 
 --= Filling Functions (call functions/gui to get the information to put on the screen)
@@ -528,7 +626,7 @@ function DetailedUnitView:fillClasses(filter,details)
  local output = {}
  if details == nil then return end
  
- if details then
+ if details and details ~= 'List' then
   output = guiFunctions.getClassesOutput('C_ABY', unit, self.C_ABY.width, details)
   self.subviews.C_ABY:setChoices(output)
  else
@@ -540,17 +638,45 @@ function DetailedUnitView:fillClasses(filter,details)
   end
  end
 end
-function DetailedUnitView:fillFeats(filter)
+function DetailedUnitView:fillFeats(filter,details)
  local unit = self.target
+ local output = {}
+ if details == nil then return end
+ 
+ if details and details ~= 'List' then
+  output = guiFunctions.getFeatsOutput('F_ABY', unit, self.F_ABY.width, details)
+  self.subviews.F_ABY:setChoices(output)
+ else
+  local grid = {'F_AX','F_BX'}
+  local output = {}
+  for i,g in pairs(grid) do
+   output[g] = guiFunctions.getFeatsOutput(g, unit, self[g].width, filter)
+   self.subviews[g]:setChoices(output[g])
+  end
+ end
 end
-function DetailedUnitView:fillSpells(filter)
+function DetailedUnitView:fillSpells(filter,details)
  local unit = self.target
+ local output = {}
+ if details == nil then return end
+ 
+ if details and details ~= 'List' then
+  output = guiFunctions.getSpellsOutput('S_ABY', unit, self.S_ABY.width, details)
+  self.subviews.S_ABY:setChoices(output)
+ else
+  local grid = {'S_AX','S_BX'}
+  local output = {}
+  for i,g in pairs(grid) do
+   output[g] = guiFunctions.getSpellsOutput(g, unit, self[g].width, filter)
+   self.subviews[g]:setChoices(output[g])
+  end
+ end
 end
 
 --= Viewing Functions (change which screen is active and visible)
 function DetailedUnitView:updateBottom(screen)
  if      screen == 'Main' then
-   text = {
+   text = { 
            { key = 'CUSTOM_SHIFT_A', text = ': Details   ', on_activate = self:callback('viewDetails')  },
            { key = 'CUSTOM_SHIFT_H', text = ': Health    ', on_activate = self:callback('viewHealth')   },
            { key = 'CUSTOM_SHIFT_T', text = ': Thoughts  ', on_activate = self:callback('viewThoughts') },
@@ -559,110 +685,94 @@ function DetailedUnitView:updateBottom(screen)
    if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_F', text = ': Feats    ', on_activate = self:callback('viewFeats')  }) end
    if self.ClassSystem then table.insert(text, {key = 'CUSTOM_SHIFT_S', text = ': Spells   ', on_activate = self:callback('viewSpells') }) end
   elseif screen == 'Details' then
-   text = {
+   text = { 
            { text = 'ESC: Back  '},
           }
   elseif screen == 'Health' then
-   text = {
+   text = { 
            { text = 'ESC: Back  '},
           }
   elseif screen == 'Thoughts' then
-   text = {
+   text = { 
            { text = 'ESC: Back  '},
           }
   elseif screen == 'Classes' then
-   text = {
-           { key = 'CUSTOM_SHIFT_A', text = ': Show All Classes          ', on_activate = function () self:fillClasses('All',false)       end },
-           { key = 'CUSTOM_SHIFT_C', text = ': Show Civilization Classes ', on_activate = function () self:fillClasses('Civ',false)       end },
-           { key = 'CUSTOM_SHIFT_K', text = ': Show Known Classes        ', on_activate = function () self:fillClasses('Learned',false)   end },
-           { key = 'CUSTOM_SHIFT_V', text = ': Show Available Classes    ', on_activate = function () self:fillClasses('Available',false) end },
+   text = { 
+           { key = 'CUSTOM_SHIFT_A', text = ': Show All Classes          ', on_activate = function () self:fillClasses('All','List')       end },
+           { key = 'CUSTOM_SHIFT_C', text = ': Show Civilization Classes ', on_activate = function () self:fillClasses('Civ','List')       end },
+           { key = 'CUSTOM_SHIFT_K', text = ': Show Known Classes        ', on_activate = function () self:fillClasses('Learned','List')   end },
+           { key = 'CUSTOM_SHIFT_V', text = ': Show Available Classes    ', on_activate = function () self:fillClasses('Available','List') end },
            { text = 'ESC: Back'}
           }
-   text = {
-           { text = 'ESC: Back  '},
-          }
   elseif screen == 'Feats' then
-   text = {
-           { text = 'ESC: Back  '},
+   text = { 
+           { key = 'CUSTOM_SHIFT_A', text = ': Show All Feats   ', on_activate = function () self:fillFeats('All','List')     end },
+           { key = 'CUSTOM_SHIFT_C', text = ': Show Class Feats ', on_activate = function () self:fillFeats('Class','List')   end },
+           { key = 'CUSTOM_SHIFT_K', text = ': Show Known Feats ', on_activate = function () self:fillFeats('Learned','List') end },
+           { text = 'ESC: Back'}
           }
   elseif screen == 'Spells' then
-   text = {
-           { text = 'ESC: Back  '},
+   text = { 
+           { key = 'CUSTOM_SHIFT_A', text = ': Show All Spells          ', on_activate = function () self:fillSpells('All','List')     end },
+           { key = 'CUSTOM_SHIFT_C', text = ': Show Civilization Spells ', on_activate = function () self:fillSpells('Civ','List')     end },
+           { key = 'CUSTOM_SHIFT_K', text = ': Show Known Spells        ', on_activate = function () self:fillSpells('Learned','List') end },
+           { key = 'CUSTOM_SHIFT_L', text = ': Show Classes Spells      ', on_activate = function () self:fillSpells('Class','List')   end },
+           { text = 'ESC: Back'}
           }
   end
   self.subviews.bottom_ui:setText(text)
 end
+function DetailedUnitView:resetView()
+ for _,view in pairs(self.subviews) do
+  view.visible = false
+  view.active  = false
+ end
+end
 function DetailedUnitView:viewMain()
- self:updateBottom('Main') 
- self.subviews.main.visible         = true
- self.subviews.detailedView.visible = false
- self.subviews.healthView.visible   = false
- self.subviews.thoughtView.visible  = false
- self.subviews.classView.visible    = false
- self.subviews.featView.visible     = false
- self.subviews.spellView.visible    = false
+ self:updateBottom('Main')
+ self:resetView()
+
+ self.subviews.main.visible = true
 end
 function DetailedUnitView:viewDetails()
  self:updateBottom('Details')
- self.subviews.main.visible         = false
+ self:resetView()
+
  self.subviews.detailedView.visible = true
- self.subviews.healthView.visible   = false
- self.subviews.thoughtView.visible  = false
- self.subviews.classView.visible    = false
- self.subviews.featView.visible     = false
- self.subviews.spellView.visible    = false
 end
 function DetailedUnitView:viewHealth()
  self:updateBottom('Health')
- self.subviews.main.visible         = false
- self.subviews.detailedView.visible = false
- self.subviews.healthView.visible   = true
- self.subviews.thoughtView.visible  = false
- self.subviews.classView.visible    = false
- self.subviews.featView.visible     = false
- self.subviews.spellView.visible    = false
+ self:resetView()
+
+ self.subviews.healthView.visible = true
 end
 function DetailedUnitView:viewThoughts()
  self:updateBottom('Thoughts')
- self.subviews.main.visible         = false
- self.subviews.detailedView.visible = false
- self.subviews.healthView.visible   = false
- self.subviews.thoughtView.visible  = true
- self.subviews.classView.visible    = false
- self.subviews.featView.visible     = false
- self.subviews.spellView.visible    = false
+ self:resetView()
+
+ self.subviews.thoughtView.visible = true
 end
 function DetailedUnitView:viewClasses()
  self:updateBottom('Classes')
- self.subviews.main.visible         = false
- self.subviews.detailedView.visible = false
- self.subviews.healthView.visible   = false
- self.subviews.thoughtView.visible  = false
- self.subviews.classView.visible    = true
- self.subviews.featView.visible     = false
- self.subviews.spellView.visible    = false
+ self:resetView()
+
+ self.subviews.classView.visible = true
+ self.subviews.C_BX.active       = true
 end
 function DetailedUnitView:viewFeats()
  self:updateBottom('Feats')
- self.subviews.main.visible         = false
- self.subviews.detailedView.visible = false
- self.subviews.healthView.visible   = false
- self.subviews.thoughtView.visible  = false
- self.subviews.classView.visible    = false
- self.subviews.featView.visible     = true
- self.subviews.spellView.visible    = false
+ self:resetView()
+
+ self.subviews.featView.visible = true
+ self.subviews.F_BX.active      = true
 end
 function DetailedUnitView:viewSpells()
  self:updateBottom('Spells')
- self.subviews.main.visible         = false
- self.subviews.detailedView.visible = false
- self.subviews.healthView.visible   = false
- self.subviews.thoughtView.visible  = false
- self.subviews.classView.visible    = false
- self.subviews.featView.visible     = false
- self.subviews.spellView.visible    = true
+ self:resetView()
+ 
+ self.subviews.spellView.visible = true
+ self.subviews.S_BX.active       = true
 end
-
 
 --= Base Functions
 function DetailedUnitView:onInput(keys)
