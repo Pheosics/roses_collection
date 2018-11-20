@@ -47,7 +47,7 @@ corpse = nil
 if args.unit and tonumber(args.unit) then
  unit = df.unit.find(tonumber(args.unit))
  if not unit then return end
- if unit.flags1.dead then
+ if dfhack.units.isKilled(unit) then
   for _,id in pairs(unit.corpse_parts) do
    item = df.item.find(id)
    if df.item_corpsest:is_instance(item) and not item.body.components.body_part_status[0].missing and item.corpse_flags.unbutchered then

@@ -6,8 +6,9 @@ local utils = require 'utils'
 local split = utils.split_string
 local persistTable = require 'persist-table'
 local textC     = COLOR_DARYGRAY
-local cursorC   = COLOR_YELLOW
+local cursorC   = COLOR_LIGHTRED
 local inactiveC = COLOR_CYAN
+local views = {'main','detailedView','healthView','thoughtView','classView','featView','spellView'}
 
 classSystem     = false
 featSystem      = false
@@ -104,6 +105,9 @@ function DetailedUnitView:init(args)
  if self.SpellSystem then self:fillSpells('All','List')  end
 
  -- Set Starting View
+ for _,view in pairs(self.subviews) do
+  view.visible = true
+ end
  self:viewMain()
 end
 
@@ -301,9 +305,10 @@ function DetailedUnitView:addClassScreen()
        widgets.List{
          view_id    = 'C_BX',
          frame      = {l = self.C_BX.anchor.left, t = self.C_BX.anchor.top, w = self.C_X_width, h = self.C_BX.height},
-         on_submit  = self:callback('fillClasses'),
-         text_pen   = dfhack.pen.parse{fg=textC,     bg=0},
-         cursor_pen = dfhack.pen.parse{fg=cursorC,   bg=0},
+         on_select  = self:callback('fillClasses'),
+         text_pen   = textC,
+         cursor_pen = cursorC,
+		 inactive_pen = inactiveC
        },
        widgets.List{
          view_id = 'C_ABY',
@@ -340,9 +345,9 @@ function DetailedUnitView:addFeatScreen()
        widgets.List{
          view_id    = 'F_BX',
          frame      = {l = self.F_BX.anchor.left, t = self.F_BX.anchor.top, w = self.F_X_width, h = self.F_BX.height},
-         on_submit  = self:callback('fillFeats'),
-         text_pen   = dfhack.pen.parse{fg=COLOR_DARKGRAY, bg=0},
-         cursor_pen = dfhack.pen.parse{fg=COLOR_YELLOW, bg=0},
+         on_select  = self:callback('fillFeats'),
+         text_pen   = textC,
+         cursor_pen = cursorC,
        },
        widgets.List{
          view_id = 'F_ABY',
@@ -379,9 +384,9 @@ function DetailedUnitView:addSpellScreen()
        widgets.List{
          view_id    = 'S_BX',
          frame      = {l = self.S_BX.anchor.left, t = self.S_BX.anchor.top, w = self.S_X_width, h = self.S_BX.height},
-         on_submit  = self:callback('fillSpells'),
-         text_pen   = dfhack.pen.parse{fg=COLOR_DARKGRAY, bg=0},
-         cursor_pen = dfhack.pen.parse{fg=COLOR_YELLOW, bg=0},
+         on_select  = self:callback('fillSpells'),
+         text_pen   = textC,
+         cursor_pen = cursorC,
        },
        widgets.List{
          view_id = 'S_ABY',
@@ -648,7 +653,6 @@ function DetailedUnitView:fillFeats(filter,details)
   self.subviews.F_ABY:setChoices(output)
  else
   local grid = {'F_AX','F_BX'}
-  local output = {}
   for i,g in pairs(grid) do
    output[g] = guiFunctions.getFeatsOutput(g, unit, self[g].width, filter)
    self.subviews[g]:setChoices(output[g])
@@ -723,10 +727,11 @@ function DetailedUnitView:updateBottom(screen)
   self.subviews.bottom_ui:setText(text)
 end
 function DetailedUnitView:resetView()
- for _,view in pairs(self.subviews) do
-  view.visible = false
-  view.active  = false
+ for _,view in pairs(views) do
+  self.subviews[view].visible = false
+  self.subviews[view].active  = false
  end
+ --self.subviews.bottom_ui.visible = true
 end
 function DetailedUnitView:viewMain()
  self:updateBottom('Main')
@@ -757,7 +762,10 @@ function DetailedUnitView:viewClasses()
  self:resetView()
 
  self.subviews.classView.visible = true
- self.subviews.C_BX.active       = true
+ self.subviews.classView.active = true
+ self.subviews.C_BX.active  = true
+ self.subviews.C_BX:setSelected(2)
+printall(self.subviews.classView.subviews.C_BX.frame)
 end
 function DetailedUnitView:viewFeats()
  self:updateBottom('Feats')

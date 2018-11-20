@@ -104,7 +104,7 @@ function insertWidgetInput(input,method,list,options)
    else 
     fgc = falseColor
    end
-   table.insert(insert, {text = {{text=x.Text, width=width, pen=fgc}}})
+   table.insert(input, {text = {{text=x.Text, width=width, pen=fgc}}})
   end
  elseif method == 'table' then
   if not order then return input end
@@ -120,7 +120,8 @@ function insertWidgetInput(input,method,list,options)
   end
   for key,tbl in pairs(list) do
    temp_text = {}
-   table.insert(temp_text, {text=key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper), width=hW, pen=bgc})
+   title = key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+   table.insert(temp_text, {text=title, width=hW, pen=bgc, token=key})
    for i = 1, #order do
     table.insert(temp_text, {text=center(tostring(tbl[order[i]]),colwidth), width=colwidth, pen=fgc})
    end
@@ -130,7 +131,6 @@ function insertWidgetInput(input,method,list,options)
 
  return input
 end
-
 
 --=                      Detailed Unit Viewer Functions
 usages[#usages+1] = [===[
@@ -263,76 +263,88 @@ function getClassInfo(unit,w,Type)
   info.Levels      = class.Levels
 
   info.RequiredClass     = {}
-  for i,x in pairs(class.RequiredClass._children) do
-   info.RequiredClass[x] = {}
-   info.RequiredClass[x].Text  = 'Level '..class.RequiredClass[x]..' '..classTable[x].Name
-   info.RequiredClass[x].Check = false
-   if unitT.Classes[x] then
-    if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
-     info.RequiredClass[x].Check = true
+  if class.RequiredClass then
+   for i,x in pairs(class.RequiredClass._children) do
+    info.RequiredClass[x] = {}
+    info.RequiredClass[x].Text  = 'Level '..class.RequiredClass[x]..' '..classTable[x].Name
+    info.RequiredClass[x].Check = false
+    if unitT.Classes[x] then
+     if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
+      info.RequiredClass[x].Check = true
+     end
     end
    end
   end
-
+  
   info.RequiredAttribute = {}
-  for i,x in pairs(class.RequiredAttribute._children) do
-   info.RequiredAttribute[x] = {}
-   info.RequiredAttribute[x].Text  = class.RequiredAttribute[x]..' '..x
-   info.RequiredAttribute[x].Check = false
-   if unitT and unitT.Attributes[x] then
-    if unitT.Attributes[x].Base >= info.RequiredAttribute[x].Level then
-     info.RequiredAttribute[x].Check = true
+  if class.RequiredAttribute then
+   for i,x in pairs(class.RequiredAttribute._children) do
+    info.RequiredAttribute[x] = {}
+    info.RequiredAttribute[x].Text  = class.RequiredAttribute[x]..' '..x
+    info.RequiredAttribute[x].Check = false
+    if unitT and unitT.Attributes[x] then
+     if unitT.Attributes[x].Base >= info.RequiredAttribute[x].Level then
+      info.RequiredAttribute[x].Check = true
+     end
     end
    end
   end
-
+  
   info.RequiredSkill = {}
-  for i,x in pairs(class.RequiredSkill._children) do
-   info.RequiredSkill[x] = {}
-   info.RequiredSkill[x].Text  ='Level '..class.RequiredSkill[x]..' '..x
-   info.RequiredSkill[x].Check = true
-   if unitT and unitT.Skills[x] then
-    if unitT.Skills[x].Base >= info.RequiredSkill[x].Level then
-     info.RequiredSkill[x].Check = true
+  if class.RequiredSkill then
+   for i,x in pairs(class.RequiredSkill._children) do
+    info.RequiredSkill[x] = {}
+    info.RequiredSkill[x].Text  ='Level '..class.RequiredSkill[x]..' '..x
+    info.RequiredSkill[x].Check = true
+    if unitT and unitT.Skills[x] then
+     if unitT.Skills[x].Base >= info.RequiredSkill[x].Level then
+      info.RequiredSkill[x].Check = true
+     end
     end
    end
   end
-
+  
   info.ClassBonuses = {}
-  local n = 1
-  for i,t in pairs(class.Level['0'].Adjustments._children) do
-   for j,x in pairs(class.Level['0'].Adjustments[t]._children) do
-    info.ClassBonuses[n] = {}
-    info.ClassBonuses[n].Text = t..': '..class.Level['0'].Adjustments[t][x]..' '..x
-    info.ClassBonuses[n].Check = true
-    if tonumber(class.Level['0'].Adjustments[t][x]) < 0 then
-     info.ClassBonuses[n].Check = false
+  if class.Level['0'].Adjustments then
+   local n = 1
+   for i,t in pairs(class.Level['0'].Adjustments._children) do
+    for j,x in pairs(class.Level['0'].Adjustments[t]._children) do
+     info.ClassBonuses[n] = {}
+     info.ClassBonuses[n].Text = t..': '..class.Level['0'].Adjustments[t][x]..' '..x
+     info.ClassBonuses[n].Check = true
+     if tonumber(class.Level['0'].Adjustments[t][x]) < 0 then
+      info.ClassBonuses[n].Check = false
+     end
+     n = n + 1
     end
-    n = n + 1
    end
   end
-
+  
   info.LevelBonuses = {}
-  n = 1
-  for i,t in pairs(class.Level['0'].LevelBonus._children) do
-   for j,x in pairs(class.Level['0'].LevelBonus[t]._children) do
-    info.LevelBonuses[n] = {}
-    info.LevelBonuses[n].Text = t..': '..class.Level['0'].LevelBonus[t][x]..' '..x
-    info.LevelBonuses[n].Check = true
-    if tonumber(class.Level['0'].LevelBonus[t][x]) < 0 then 
-     info.LevelBonuses[n].Check = false
+  if class.Level['0'].LevelBonus then
+   local n = 1
+   for i,t in pairs(class.Level['0'].LevelBonus._children) do
+    for j,x in pairs(class.Level['0'].LevelBonus[t]._children) do
+     info.LevelBonuses[n] = {}
+     info.LevelBonuses[n].Text = t..': '..class.Level['0'].LevelBonus[t][x]..' '..x
+     info.LevelBonuses[n].Check = true
+     if tonumber(class.Level['0'].LevelBonus[t][x]) < 0 then 
+      info.LevelBonuses[n].Check = false
+     end
+     n = n + 1
     end
-    n = n + 1
    end
   end
-
+  
   info.Spells = {}
-  n = 1
-  for i,x in pairs(class.Spells._children) do
-   info.Spells[n] = {}
-   info.Spells[n].Text  = x
-   info.Spells[n].Level = class.Spells[x].RequiredLevel
-   n = n + 1
+  if class.Spells then
+   local n = 1
+   for i,x in pairs(class.Spells._children) do
+    info.Spells[n] = {}
+    info.Spells[n].Text  = x
+    info.Spells[n].Level = class.Spells[x].RequiredLevel
+    n = n + 1
+   end
   end
  end
 
@@ -398,7 +410,7 @@ function getFeatInfo(unit,w,Type)
    info.RequiredClass[x].Text  = 'Level '..feat.RequiredClass[x]..' '..classTable[x].Name
    info.RequiredClass[x].Check = false
    if unitT.Classes[x] then
-    if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
+    if tonumber(unitT.Classes[x].Level) >= tonumber(feat.RequiredClass[x]) then
      info.RequiredClass[x].Check = true
     end
    end
@@ -430,6 +442,7 @@ function getSpellInfo(unit,w,Type)
  local persistTable = require 'persist-table'
  local unitTable  = persistTable.GlobalTable.roses.UnitTable
  if not unitTable[tostring(unit.id)] then return false end
+ if not Type then return false end
  local spellTable = persistTable.GlobalTable.roses.SpellTable
  local classTable = persistTable.GlobalTable.roses.ClassTable
  unitSpells = unitTable[tostring(unit.id)].Spells
@@ -506,39 +519,46 @@ function getSpellInfo(unit,w,Type)
   end
 
   info.RequiredClass = {}
-  for i,x in pairs(spell.RequiredClass._children) do
-   info.RequiredClass[x] = {}
-   info.RequiredClass[x].Text  = 'Level '..spell.RequiredClass[x]..' '..classTable[x].Name
-   info.RequiredClass[x].Check = false
-   if unitT.Classes[x] then
-    if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
-     info.RequiredClass[x].Check = true
+  if spell.RequiredClass then
+   for i,x in pairs(spell.RequiredClass._children) do
+    info.RequiredClass[x] = {}
+    info.RequiredClass[x].Text  = 'Level '..spell.RequiredClass[x]..' '..classTable[x].Name
+    info.RequiredClass[x].Check = false
+    if unitT.Classes[x] then
+     if unitT.Classes[x].Level >= info.RequiredClass[x].Level then
+      info.RequiredClass[x].Check = true
+     end
     end
    end
   end
 
   info.RequiredSpell = {}
-  for i,x in pairs(spell.RequiredSpell._children) do
-   info.RequiredFeat[x] = {}
-   info.RequiredFeat[x].Text  = spellTable[x].Name
-   info.RequiredFeat[x].Check = false
-   if unitT.Spells[x] then
-    info.RequiredFeat[x].Check = true
-   end
-  end
-
-  info.RequiredAttribute = {}
-  for i,x in pairs(spell.RequiredAttribute._children) do
-   info.RequiredAttribute[x] = {}
-   info.RequiredAttribute[x].Text  = spell.RequiredAttribute[x]..' '..x
-   info.RequiredAttribute[x].Check = false
-   if unitT and unitT.Attributes[x] then
-    if unitT.Attributes[x].Base >= info.RequiredAttribute[x].Level then
-     info.RequiredAttribute[x].Check = true
+  if spell.RequiredSpell then
+   for i,x in pairs(spell.RequiredSpell._children) do
+    info.RequiredFeat[x] = {}
+    info.RequiredFeat[x].Text  = spellTable[x].Name
+    info.RequiredFeat[x].Check = false
+    if unitT.Spells[x] then
+     info.RequiredFeat[x].Check = true
     end
    end
   end
-
+  
+  info.RequiredAttribute = {}
+  if spell.RequiredAttribute then
+   for i,x in pairs(spell.RequiredAttribute._children) do
+    info.RequiredAttribute[x] = {}
+    info.RequiredAttribute[x].Text  = spell.RequiredAttribute[x]..' '..x
+    info.RequiredAttribute[x].Check = false
+    if unitT and unitT.Attributes[x] then
+     if unitT.Attributes[x].Base >= info.RequiredAttribute[x].Level then
+      info.RequiredAttribute[x].Check = true
+     end
+    end
+   end
+  end
+ end
+ 
  return info
 end
 function getDescriptionInfo(unit,w,Type)
@@ -875,10 +895,10 @@ function getClassesOutput(grid,unit,w,choice)
  elseif grid == 'C_BX' then
   Info = getClassInfo(unit,w,choice)
   if not Info then return insert end
-  insert = insertWidgetInput(insert, 'table',  Info.Classes, {width=w, order=orderA, column_width=7 nohead=true})
+  insert = insertWidgetInput(insert, 'table',  Info.Classes, {width=w, order=orderA, column_width=7, nohead=true})
   
  elseif grid == 'C_ABY' then
-  local token = choice.text[1].text
+  local token = choice.text[1].token
   Info = getClassInfo(unit,w,token)
   if not Info then return insert end
   insert = insertWidgetInput(insert, 'center', Info.Name,        {width=w, pen=titleColor})
@@ -889,9 +909,9 @@ function getClassesOutput(grid,unit,w,choice)
   insert = insertWidgetInput(insert, 'center', 'Classes',              {width=w, pen=subColor})
   insert = insertWidgetInput(insert, 'list',   Info.RequiredClass,     {width=w, tgc=c1, fac=c2})
   insert = insertWidgetInput(insert, 'center', 'Attributes:',          {width=w, pen=subColor})
-  insert = insertWidgetInput(insert, 'list',   Info.RequiredAttribute, {width=w, tgc = c1, fac=c2})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredAttribute, {width=w, tgc=c1, fac=c2})
   insert = insertWidgetInput(insert, 'center', 'Skills:',              {width=w, pen=subColor})
-  insert = insertWidgetInput(insert, 'list',   Info.RequiredSkill,     {width=w, tgc = c1, fac=c2})
+  insert = insertWidgetInput(insert, 'list',   Info.RequiredSkill,     {width=w, tgc=c1, fac=c2})
 
   -- CLASS BONUSES
   insert = insertWidgetInput(insert, 'center', 'Class Bonuses', {width=w, pen=headColor})
@@ -909,7 +929,7 @@ function getClassesOutput(grid,unit,w,choice)
 
  return insert
 end
-function getFeatsOutput(gird,unit,w,choice)
+function getFeatsOutput(grid,unit,w,choice)
  --[[ LAYOUT
    |      X       |      Y      |
  --|--------------|-------------|
@@ -930,7 +950,7 @@ function getFeatsOutput(gird,unit,w,choice)
   insert = insertWidgetInput(insert, 'table',  Info.Feats, {width=w, order=orderA, column_width=7, nohead=true})
   
  elseif grid == 'F_ABY' then
-  local token = choice.text[1].text
+  local token = choice.text[1].token
   Info = getFeatInfo(unit,w,token)
   if not Info then return insert end
   insert = insertWidgetInput(insert, 'center', Info.Name,        {width=w, pen=titleColor})
@@ -951,7 +971,7 @@ function getFeatsOutput(gird,unit,w,choice)
 
  return insert
 end
-function getSpellsOutput(grid,unit,w)
+function getSpellsOutput(grid,unit,w,choice)
  --[[ LAYOUT
    |      X       |      Y      |
  --|--------------|-------------|
@@ -972,7 +992,7 @@ function getSpellsOutput(grid,unit,w)
   insert = insertWidgetInput(insert, 'table',  Info.Spells, {width=w, order=orderA, column_width=7, nohead=true})
   
  elseif grid == 'S_ABY' then
-  local token = choice.text[1].text
+  local token = choice.text[1].token
   Info = getSpellInfo(unit,w,token)
   if not Info then return insert end
   insert = insertWidgetInput(insert, 'center', Info.Name,           {width=w, pen=titleColor})

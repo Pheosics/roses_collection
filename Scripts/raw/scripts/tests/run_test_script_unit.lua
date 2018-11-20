@@ -315,7 +315,7 @@ function script_checks()
   writeall('unit/butcher -unit '..tostring(unit.id)..' (Should fail and print "Unit is still alive and has not been ordered -kill")')
   output = dfhack.run_command_silent('unit/butcher -unit '..tostring(unit.id))
   writeall(output)
-  if unit.flags1.dead then
+  if dfhack.units.isKilled(unit) then
    unitCheck[#unitCheck+1] = 'Incorrectly killed the unit'
   end
 
@@ -326,7 +326,7 @@ function script_checks()
   writeall('Pausing run_test.lua for 5 in-game ticks')
   script.sleep(5,'ticks')
   writeall('Resuming run_test.lua')
-  if not unit.flags1.dead then
+  if not dfhack.units.isKilled(unit) then
    unitCheck[#unitCheck+1] = 'Failed to kill unit'
   end
   if #unit.corpse_parts < 1 then

@@ -298,6 +298,11 @@ function getUnitTable(unit)
    end
   end
  end
+ 
+ outTable.Feats = {}
+ 
+ outTable.Spells = {}
+ 
  return outTable
 end
 
