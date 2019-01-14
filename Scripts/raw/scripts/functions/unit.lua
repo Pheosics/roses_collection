@@ -78,7 +78,7 @@ function makeUnitTable(unit)
  --end
 end
 
-function getUnitTable(unit)
+function getUnitTable(unit,detailed)
  persistTable = require 'persist-table'
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 
@@ -302,6 +302,13 @@ function getUnitTable(unit)
  outTable.Feats = {}
  
  outTable.Spells = {}
+
+ -- Fill out all information from unit if required
+ if detailed then
+  outTable.Details = {}
+  -- Nothing for right now, thinking about adding Thoughts, Preferences, Dreams, etc...
+  -- but not sure that it would be any better than just reading directly from the unit.
+ end
  
  return outTable
 end

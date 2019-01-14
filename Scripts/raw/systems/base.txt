@@ -25,6 +25,7 @@
 [ATTRIBUTE:INTELLIGENCE]
 [ATTRIBUTE:LUCK]
 [ATTRIBUTE:CHARISMA]
+[ATTRIBUTE:PERCEPTION]
 
 #List of resistances, note that there is no max or min on resistances
 [RESISTANCE:MEGABEAST]

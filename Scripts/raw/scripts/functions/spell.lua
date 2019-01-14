@@ -12,7 +12,7 @@
 function calculateAttribute(unit,spell,base,check,verbose)
  -- Check that we have a valid unit
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unit then return attribute end
+ if not unit then return 0 end
 
  -- Get the Spell Table for this Spell
  local persistTable = require 'persist-table'
@@ -26,25 +26,25 @@ function calculateAttribute(unit,spell,base,check,verbose)
  -- Calculate the average of the Primary or Secondary Attributes
  if base == 'PRIMARY' then
   if check == 'SOURCE' then
-   table = spellTable.SourcePrimaryAttribute
+   Table = spellTable.SourcePrimaryAttribute
   elseif check == 'TARGET' then
-   table = spellTable.TargetPrimaryAttribute
+   Table = spellTable.TargetPrimaryAttribute
   end
  elseif base == 'SECONDARY' then
   if check == 'SOURCE' then
-   table = spellTable.SourceSecondaryAttribute
+   Table = spellTable.SourceSecondaryAttribute
   elseif check == 'TARGET' then
-   table = spellTable.TargetSecondaryAttribute
+   Table = spellTable.TargetSecondaryAttribute
   end
  end
 
  local attribute = 0
- if table then
-  for _,n in pairs(table._children) do
-   attCheck = table[n]
+ if Table then
+  for _,n in pairs(Table._children) do
+   attCheck = Table[n]
    attribute = attribute + dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',attCheck,verbose)
   end
-  attribute = attribute/(#table._children) 
+  attribute = attribute/(#Table._children) 
  end
  return attribute
 end

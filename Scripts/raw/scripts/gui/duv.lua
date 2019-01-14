@@ -6,96 +6,112 @@ local utils = require 'utils'
 local split = utils.split_string
 local persistTable = require 'persist-table'
 local guiFunctions = dfhack.script_environment('functions/gui')
-local outputFunction = guiFunctions.getJournalOutput
-local infoFunction   = guiFunctions.getJournalInfo
+local outputFunction = guiFunctions.getUnitOutput
+local infoFunction   = guiFunctions.getUnitInfo
 local textC     = COLOR_WHITE
 local cursorC   = COLOR_LIGHTRED
 local inactiveC = COLOR_CYAN
 local ckeys = {'A','B','C','D','E','F','G','H','I','J','K'}
-local extraScripts = {'librarian'}
 
-JournalUi = defclass(JournalUi, gui.FramedScreen)
-JournalUi.ATTRS={
-                  frame_style = gui.BOUNDARY_FRAME,
-                  frame_title = "Journal",
-                 }
+DetailedUnitView = defclass(DetailedUnitView, gui.FramedScreen)
+DetailedUnitView.ATTRS={
+                        frame_style = gui.BOUNDARY_FRAME,
+                        frame_title = "Detailed Unit Viewer"}
 
-views = {'main','creatureView','buildingView','itemView','reactionView','materialView','entityView','plantView'}
+views = {'main','detailedView','healthView','thoughtView','relationshipView','classView','featView','spellView'}
 ViewDetails = {
-               ['main']         = {
-                                   num_cols = 1, num_rows = 1, 
-                                   widths   = {{120}},
-                                   heights  = {{40}},
-                                   fill     = {nil}},
-               ['creatureView'] = {
-                                   num_cols  = 3, num_rows = 1, levels = 2,
-                                   widths    = {{30,30,60}},
-                                   heights   = {{40,40,40}},
-                                   fill      = {'CreatureList','on_submit','on_select'},
-                                   on_fills  = {'on_submit','on_select','none'},
-                                   on_submit = 'CasteList', on_select = 'CreatureDetails',
-                                   start     = 'ALL',
-                                   sortFlags = {'ALL','GOOD','EVIL','SAVAGE','CASTE_MEGABEAST'}}, --These are flags found in creature_raw.flags
-               ['buildingView'] = {
-                                   num_cols  = 3, num_rows = 1, levels = 2,
-                                   widths    = {{30,60}},
-                                   heights   = {{40,40,40}},
-                                   fill      = {'BuildingTypeList','on_submit','on_select'},
-                                   on_fills  = {'on_submit','on_select','none'},
-                                   on_submit = 'BuildingList', on_select = 'BuildingDetails',
-                                   start     = 'ALL',
-                                   sortFlags = {'ALL'}}, -- Right now there are no filters for buildings
-               ['itemView']     = {
-                                   num_cols  = 3, num_rows = 1, levels = 2,
-                                   widths    = {{30,30,60}},
-                                   heights   = {{40,40,40}},
-                                   fill      = {'ItemTypeList','on_submit','on_select'},
-                                   on_fills  = {'on_submit','on_select','none'},
-                                   on_submit = 'ItemList', on_select = 'ItemDetails',
-                                   start     = 'ALL',
-                                   sortFlags = {'ALL'}}, -- Right now there are no filters for items
-               ['reactionView'] = {
-                                   num_cols  = 3,
-                                   num_rows  = 1,
-                                   widths    = {{30,30,60}},
-                                   heights   = {{40,40,40}},
-                                   fill      = {'ReactionTypeList','on_submit','on_select'},
-                                   on_fills  = {'on_submit','on_select','none'},
-                                   on_submit = 'ReactionList', on_select = 'ReactionDetails',
-                                   start     = 'All'},
-               ['materialView'] = {
-                                   num_cols  = 3,
-                                   num_rows  = 1,
-                                   widths    = {{30,30,60}},
-                                   heights   = {{40,40,40}},
-                                   fill      = {'MaterialTypeList','on_submit','on_select'},
-                                   on_fills  = {'on_submit','on_select','none'},
-                                   on_submit = 'MaterialList',
-                                   on_select = 'MaterialDetails',
-                                   start     = 'All'},
-               ['entityView']   = {
-                                   num_cols  = 3,
-                                   num_rows  = 1,
-                                   widths    = {{30,30,60}},
-                                   heights   = {{40,40,40}},
-                                   fill      = {'EntityTypeList','on_submit','on_select'},
-                                   on_fills  = {'on_submit','on_select','none'},
-                                   on_submit = 'EntityList',
-                                   on_select = 'EntityDetails',
-                                   start     = 'All'},
-               ['plantView']    = {
-                                   num_cols  = 3, num_rows = 1, levels = 2,
-                                   widths    = {{30,30,60}},
-                                   heights   = {{40,40,40}},
-                                   fill      = {'PlantTypeList','on_submit','on_select'},
-                                   on_fills  = {'on_submit','on_select','none'},
-                                   on_submit = 'PlantList', on_select = 'PlantDetails',
-                                   start     = 'ALL',
-                                   sortFlags = {'ALL','EVIL','GOOD'}}, --These are flags found in plant_raws.flags
-               
+               ['main'] = {
+				            num_cols = 3,
+				            num_rows = 3,
+							col_pads = 4,
+							row_pads = 1,
+							widths   = {{40,40,40},
+							            {40,40,40},
+										{40,40,40}},
+							heights  = {{6, 10,60},
+							            {10,10, 0},
+										{10,10, 0}},
+							fill     = {'BaseInfo','Description','AppearanceBasic',
+										'WorshipBasic','HealthBasic',nil,
+										'RelationshipsBasic','AttributesBasic',nil}},
+			   ['detailedView']     = {
+				                    num_cols = 3,
+									num_rows = 2,
+									col_pads = 4,
+									row_pads = 1,
+									widths   = {{45,45,45},
+									            {45,45,45}},
+									heights  = {{40,40,20},
+									            {0,0,20}},
+									fill     = {'AttributesDetailed','SkillsDetailed','StatsDetailed',
+												nil,nil,'ResistancesDetailed'}},
+			   ['healthView']       = {
+				                  num_cols = 2,
+								  num_rows = 1,
+								  col_pads = 4,
+								  row_pads = 1,
+								  widths   = {{60,60}},
+								  heights  = {{40,40}},
+								  fill     = {'HealthDetailed','SyndromeDetailed'}},
+			   ['thoughtView']      = {
+				                  num_cols = 3,
+								  num_rows = 2,
+								  col_pads = 4,
+								  row_pads = 1,
+								  widths   = {{40,40,40},
+								              {40,40,40}},
+								  heights  = {{40,20,40},
+								              {0,20,0}},
+								  fill     = {'ThoughtsDetailed','PreferencesDetailed','TraitsDetailed',
+											  nil,'ValuesDetailed',nil}},
+			   ['relationshipView'] = {
+				                        num_cols = 2,
+										num_rows = 1,
+										col_pads = 4,
+										row_pads = 1,
+										widths = {{60,60}},
+										heights = {{40,40}},
+										fill = {nil,nil}},
+			   ['classView']        = {
+				                 num_cols = 2,
+								 num_rows = 1,
+								 col_pads = 4,
+								 row_pads = 1,
+								 widths   = {{40,80}},
+								 heights  = {{40,40}},
+								 fill     = {'ClassList','on_submit'},
+                                 on_fills = {'on_submit','none'},
+								 on_submit = 'ClassDetails',
+								 start     = 'All',
+                                 sortFlags = {'All','Civ','Learned','Available'}},
+			   ['featView']         = {
+				                num_cols = 2,
+								num_rows = 1,
+								col_pads = 4,
+								row_pads = 1,
+								widths   = {{40,80}},
+								heights  = {{40,40}},
+								fill     = {'FeatList','on_submit'},
+                                on_fills = {'on_submit','none'},
+								on_submit = 'FeatDetails',
+								start     = 'All',
+                                sortFlags = {'All','Class','Learned'}},
+			   ['spellView']        = {
+				                 num_cols = 2,
+								 num_rows = 1,
+								 col_pads = 4,
+								 row_pads = 1,
+								 widths   = {{40,80}},
+								 heights  = {{40,40}},
+								 fill     = {'SpellList','on_submit'},
+                                 on_fills = {'on_submit','none'},
+								 on_submit = 'SpellDetails',
+								 start     = 'All',
+                                 sortFlags = {'All','Civ','Learned','Class'}}
 }
 
-function JournalUi:init()
+function DetailedUnitView:init(args)
+ self.target = args.target
  self:checkActiveSystems()
  
  -- Set Starting values for information fill
@@ -110,7 +126,8 @@ function JournalUi:init()
  end
  
  -- Get All Information
- self.AllInfo = infoFunction(self)
+ self.AllInfo = infoFunction(self.target,self)
+ self.AllInfo.target = self.target
  
  -- Bottom UI
  self:addviews{
@@ -135,27 +152,7 @@ function JournalUi:init()
 
  -- Create Frames
  for v,_ in pairs(self.ViewDetails) do
-  if v == 'main' then -- Special Main frame
-   self:addviews{
-     widgets.Panel{
-       view_id  = v,
-       frame    = {l = 0, r = 0},
-       subviews = {
-         widgets.Label{
-         view_id = 'main_1',
-         frame = {t=10,l=10},
-         text ={
-                {text="Dwarf Fortress Journal and Compendium"}, NEWLINE,
-                {text=": Buildings ", key = "CUSTOM_SHIFT_B", on_activate=function () self:viewChange('buildingView') end}, NEWLINE,
-                {text=": Creatures ", key = "CUSTOM_SHIFT_C", on_activate=function () self:viewChange('creatureView') end}, NEWLINE,
-                {text=": Items     ", key = "CUSTOM_SHIFT_I", on_activate=function () self:viewChange('itemView')     end}, NEWLINE,
-                {text=": Materials ", key = "CUSTOM_SHIFT_M", on_activate=function () self:viewChange('materialView') end}, NEWLINE,
-                {text=": Plants    ", key = "CUSTOM_SHIFT_P", on_activate=function () self:viewChange('plantView')    end}, NEWLINE,
-                {text=": Reactions ", key = "CUSTOM_SHIFT_R", on_activate=function () self:viewChange('reactionView') end}
-               }}}}}
-  else
-   self:addScreen(v)
-  end
+  self:addScreen(v)
  end
 
  -- Fill Frames
@@ -166,7 +163,7 @@ function JournalUi:init()
  self:viewChange('main')
 end
 
-function JournalUi:checkActiveSystems()
+function DetailedUnitView:checkActiveSystems()
  if persistTable.GlobalTable.roses then
   systems = persistTable.GlobalTable.roses.Systems
   if systems.Class            == 'true' then classSystem     = true end
@@ -191,7 +188,7 @@ function JournalUi:checkActiveSystems()
 end
 
 --= Screen Functions (create the screens)
-function JournalUi:addScreen(view_id)
+function DetailedUnitView:addScreen(view_id)
  local grid = self:getPositioning(view_id)
  self:addviews{
    widgets.Panel{
@@ -205,7 +202,7 @@ function JournalUi:addScreen(view_id)
 end
 
 --= Positioning Functions (get the width, height, and anchor points for each screen)
-function JournalUi:getPositioning(view_id)
+function DetailedUnitView:getPositioning(view_id)
  local v = self.ViewDetails[view_id]
  local temp = {}
  local cell = 1
@@ -269,7 +266,7 @@ function JournalUi:getPositioning(view_id)
 end
 
 --= Filling Functions (call functions/gui to get the information to put on the screen)
-function JournalUi:fillView(view_id)
+function DetailedUnitView:fillView(view_id)
  local v = self.ViewDetails[view_id]
  local check = self.ViewCheckValue[view_id] or false
  local cells = v.num_cols * v.num_rows
@@ -284,7 +281,7 @@ function JournalUi:fillView(view_id)
   end
  end
 end
-function JournalUi:fillOnSubmit(x,selection)
+function DetailedUnitView:fillOnSubmit(x,selection)
  local view_id = selection.text[1].viewScreen
  local v = self.ViewDetails[view_id]
  local cell = self:getCell(view_id,'on_submit')
@@ -301,7 +298,7 @@ function JournalUi:fillOnSubmit(x,selection)
   self.subviews[view_id].CurrentLevel = self.subviews[view_id].CurrentLevel + 1
  end
 end
-function JournalUi:fillOnSelect(x,selection)
+function DetailedUnitView:fillOnSelect(x,selection)
  local view_id = selection.text[1].viewScreen
  local v = self.ViewDetails[view_id]
  local cell = self:getCell(view_id,'on_select')
@@ -311,7 +308,7 @@ function JournalUi:fillOnSelect(x,selection)
 end
 
 --= Check Functions (sets a special value to use in the filling functions)
-function JournalUi:changeCheckValue(view_id,value)
+function DetailedUnitView:changeCheckValue(view_id,value)
  if value then 
   self.ViewCheckValue[view_id] = value
  else
@@ -325,18 +322,25 @@ function JournalUi:changeCheckValue(view_id,value)
 end
 
 --= Viewing Functions (change which screen is active and visible)
-function JournalUi:updateBottom(screen)
+function DetailedUnitView:updateBottom(screen)
  if screen == 'main' then
-  text = {}
-   -- Add other peoples scripts to the list if they are detected
-   -- e.g. the Library script from PatrikLundell
-  for i,script in ipairs(extraScripts) do
-   if dfhack.findScript(script) then
-    table.insert(text,{key='CUSTOM_SHIFT_'..ckeys[i], text=': '..script..' ', on_activate = function () dfhack.run_script(script) end})
+   text = { 
+           { key = 'CUSTOM_SHIFT_A', text = ': Attributes  ',    on_activate = function () self:viewChange('detailedView')     end},
+           { key = 'CUSTOM_SHIFT_H', text = ': Health  ',        on_activate = function () self:viewChange('healthView')       end},
+           { key = 'CUSTOM_SHIFT_P', text = ': Personality  ',   on_activate = function () self:viewChange('thoughtView')      end},
+		   { key = 'CUSTOM_SHIFT_R', text = ': Relationships  ', on_activate = function () self:viewChange('relationshipView') end},
+          }
+   if self.ClassSystem then 
+    table.insert(text, {key = 'CUSTOM_SHIFT_C', text = ': Classes  ', on_activate = function () self:viewChange('classView') end}) 
    end
-  end
-  table.insert(text, { text = 'ESC: Close Journal  '})
-  self.subviews.bottomHeader:setText({{text='Extras:'}})
+   if self.ClassSystem then 
+    table.insert(text, {key = 'CUSTOM_SHIFT_F', text = ': Feats  ',   on_activate = function () self:viewChange('featView')  end}) 
+   end
+   if self.ClassSystem then 
+    table.insert(text, {key = 'CUSTOM_SHIFT_S', text = ': Spells  ',  on_activate = function () self:viewChange('spellView') end}) 
+   end
+  table.insert(text, { text = 'ESC: Close Viewer  '})
+  self.subviews.bottomHeader:setText({{text='Details:'}})
  elseif ViewDetails[screen] then
   text = {}
   if self.ViewDetails[screen].sortFlags then
@@ -351,20 +355,20 @@ function JournalUi:updateBottom(screen)
  end
  self.subviews.bottom_ui:setText(text)
 end
-function JournalUi:resetView()
+function DetailedUnitView:resetView()
  for _,view in pairs(views) do
   self.subviews[view].visible = false
   self.subviews[view].active  = false
  end
 end
-function JournalUi:viewChange(view_id)
+function DetailedUnitView:viewChange(view_id)
  self:updateBottom(view_id)
  self:resetView()
  
  self.subviews[view_id].visible = true
  self.subviews[view_id].active  = true
 end
-function JournalUi:getCurrentView()
+function DetailedUnitView:getCurrentView()
  local view_id = 'main'
  for view,_ in pairs(self.ViewDetails) do
   if self.subviews[view].visible then
@@ -374,7 +378,7 @@ function JournalUi:getCurrentView()
  end
  return view_id
 end
-function JournalUi:getCell(view_id,fill_id,parent)
+function DetailedUnitView:getCell(view_id,fill_id,parent)
  local x = 'fill'
  if parent then x = 'on_fills' end
  local v = self.ViewDetails[view_id]
@@ -391,7 +395,7 @@ function JournalUi:getCell(view_id,fill_id,parent)
 end
 
 --= Base Functions
-function JournalUi:onInput(keys)
+function DetailedUnitView:onInput(keys)
  if keys.LEAVESCREEN then
   view_id = self:getCurrentView()
   if view_id == 'main' then
@@ -410,9 +414,22 @@ function JournalUi:onInput(keys)
    end
   end
  else
-  JournalUi.super.onInput(self, keys)
+  DetailedUnitView.super.onInput(self, keys)
  end
 end
+function show_editor(trg)
+ local screen = DetailedUnitView{target=trg}
+ screen:show()
+end
 
-local screen = JournalUi{}
-screen:show()
+function getTargetFromScreens()
+ local my_trg
+ if dfhack.gui.getSelectedUnit(true) then
+  my_trg=dfhack.gui.getSelectedUnit(true)
+ else
+  qerror("No valid target found")
+ end
+ return my_trg
+end
+
+show_editor(getTargetFromScreens())

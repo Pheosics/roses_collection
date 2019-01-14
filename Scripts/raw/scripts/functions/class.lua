@@ -328,6 +328,8 @@ function makeSpellTable(test)
    spell = persistTable.GlobalTable.roses.SpellTable[spellToken]
    spell.Script = {}
    spell.Cost = '0'
+   spell.Classification = {}
+   spell.Details = {}
    scriptNum = 0
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
@@ -351,40 +353,28 @@ function makeSpellTable(test)
 	elseif test == '[COST' then
 	 spell.Cost = array[2]
     elseif test == '[TYPE' then
-     spell.Classification = spell.Classification or {}
      spell.Classification.Type = array[2]
     elseif test == '[SPHERE' then
-     spell.Classification = spell.Classification or {}
      spell.Classification.Sphere = array[2]
     elseif test == '[SCHOOL' then
-     spell.Classification = spell.Classification or {}
      spell.Classification.School = array[2]
     elseif test == '[DISCIPLINE' then
-     spell.Classification = spell.Classification or {}
      spell.Classification.Discipline = array[2]
     elseif test == '[SUBDISCIPLINE' then
-     spell.Classification = spell.Classification or {}
      spell.Classification.SubDiscipline = array[2]
     elseif test == '[RESISTABLE]' then
-     spell.Details = spell.Details or {}
      spell.Details.Resistable = 'true'
     elseif test == '[CAN_CRIT]' then
-     spell.Details = spell.Details or {}
      spell.Details.CanCrit = 'true'
     elseif test == '[PENETRATION' then
-     spell.Details = spell.Details or {}
      spell.Details.Penetration = array[2]
     elseif test == '[CAST_TIME' then
-     spell.Details = spell.Details or {}
      spell.Details.CastTime = array[2]
     elseif test == '[EXHAUSTION' then
-     spell.Details = spell.Details or {}
      spell.Details.Exhaustion = array[2]
     elseif test == '[HIT_MODIFIER' then
-     spell.Details = spell.Details or {}
      spell.Details.HitModifier = array[2]
     elseif test == '[HIT_MODIFIER_PERC' then
-     spell.Details = spell.Details or {}
      spell.Details.HitModifierPerc = array[2]
     elseif test == '[EXP_GAIN' then
      spell.Gains = spell.Gains or {}
