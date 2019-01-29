@@ -77,7 +77,7 @@ for i,resistance in ipairs(args.resistance) do
  if unitTable.Resistances[resistance] == nil then
   print('Invalid Resistance Token: '..resistance)
  else
-  current = unitTable.Resistance[resistance].Base
+  current = unitTable.Resistances[resistance].Base
   change = dfhack.script_environment('functions/misc').getChange(current,value[i],args.mode)
   dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,dur,'track',args.syndrome)
  end

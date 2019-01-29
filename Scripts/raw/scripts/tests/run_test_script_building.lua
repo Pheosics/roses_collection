@@ -1,5 +1,4 @@
 script = require 'gui.script'
-persistTable = require 'persist-table'
 
 function printplus(text,color)
  color = color or COLOR_WHITE
@@ -30,7 +29,6 @@ io.output(file)
 printplus('Running base/roses-init with no systems loaded')
 printplus('base/roses-init -verbose -testRun')
 dfhack.run_command_silent('base/roses-init -verbose -testRun')
-roses = persistTable.GlobalTable.roses
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- BUILDING SCRIPT CHECKS ----------------------------------------------------------------------------------------------------------------------------------------------------

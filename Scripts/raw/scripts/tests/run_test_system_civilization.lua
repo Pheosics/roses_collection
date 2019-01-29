@@ -1,5 +1,4 @@
 script = require 'gui.script'
-persistTable = require 'persist-table'
 
 function printplus(text,color)
  color = color or COLOR_WHITE
@@ -23,14 +22,13 @@ function writeall(tbl)
 end
 
 -- Open external output file
-file = io.open('run_test_output.txt','w')
+file = io.open('rto_civilization.txt','w')
 io.output(file)
 
 -- Initialize base/roses-init
 printplus('Running base/roses-init with no systems loaded')
 printplus('base/roses-init -verbose -testRun')
 dfhack.run_command_silent('base/roses-init -verbose -testRun')
-roses = persistTable.GlobalTable.roses
 
 printplus('')
 printplus('Running Base commands:')
@@ -61,9 +59,6 @@ writeall(output)
 function system_checks()
  local tableFunctions = dfhack.script_environment('functions/entity')
 
- local persistTable = require 'persist-table'
- local roses = persistTable.GlobalTable.roses
-
  printplus('Civilization System Checks Starting',COLOR_CYAN)
  civCheck = {}
 
@@ -79,8 +74,9 @@ function system_checks()
   writeall('')
   writeall('Creating Entity Table for MOUNTAIN entity')
   civID = df.global.ui.civ_id
-  tableFunctions.makeEntityTable(civID,true)
-  entityTable = persistTable.GlobalTable.roses.EntityTable[tostring(civID)]
+  dfhack.script_environment('functions/entity').makeEntityTable(civID,true)
+  roses = dfhack.script_environment('base/roses-init').roses
+  entityTable = roses.EntityTable[tostring(civID)]
   script.sleep(5,'ticks')
   if not entityTable.Civilization then
    civCheck[#civCheck+1] = 'Test Civilization 1 was not correctly assigned to the entity'
@@ -93,7 +89,8 @@ function system_checks()
   writeall('Force level increase, should add dragons to available mounts and change level method')
   output = dfhack.run_command_silent('civilizations/level-up -civ '..tostring(civID)..' -amount 1 -verbose')
   writeall(output)
-  entityTable = persistTable.GlobalTable.roses.EntityTable[tostring(civID)]
+  roses = dfhack.script_environment('base/roses-init').roses
+  entityTable = roses.EntityTable[tostring(civID)]
   if entityTable.Civilization.Level ~= '1' then
    civCheck[#civCheck+1] = 'Test Civilization 1 did not correctly level up from 0 to 1'
   end
@@ -106,7 +103,8 @@ function system_checks()
   writeall('Pausing run_test.lua for 3200 in-game ticks')
   script.sleep(6500,'ticks')
   writeall('Resuming run_test.lua')
-  entityTable = persistTable.GlobalTable.roses.EntityTable[tostring(civID)]
+  roses = dfhack.script_environment('base/roses-init').roses
+  entityTable = roses.EntityTable[tostring(civID)]
   if entityTable.Civilization.Level ~= '2' then
    civCheck[#civCheck+1] = 'Test Civilization 1 did not correctly level up from 1 to 2' end
   if #df.global.world.entities.all[civID].resources.animals.mount_races ~= 3 then
@@ -214,7 +212,8 @@ function system_checks()
   writeall('Force level increase, should fail to level up for many different reasons')
   output = dfhack.run_command_silent('civilizations/level-up -civ '..tostring(entity.id)..' -amount 1 -verbose')
   writeall(output)
-  entityTable = persistTable.GlobalTable.roses.EntityTable[tostring(entity.id)]
+  roses = dfhack.script_environment('base/roses-init').roses
+  entityTable = roses.EntityTable[tostring(entity.id)]
   if entityTable.Civilization.Level == '2' then
    civCheck[#civCheck+1] = 'Test Civilization 2 level 2 incorrectly applied, should have failed'
   end

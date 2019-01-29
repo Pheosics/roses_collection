@@ -31,12 +31,12 @@ getUnitTable(unit)
 ]===]
 
 function makeUnitTable(unit)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
 
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] = {}
- unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
+ roses.UnitTable[tostring(unit.id)] = {}
+ unitTable = roses.UnitTable[tostring(unit.id)]
  
  -- Basic Unit Information (Attributes, Skills, Traits, Resistances, Stats, etc...)
  unitTable.Attributes = {}
@@ -60,39 +60,39 @@ function makeUnitTable(unit)
  unitTable.SyndromeTrack = {}
  
  -- Needed for the Civilization System
- if unit.civ_id >= 0 and persistTable.GlobalTable.roses.CivilizationTable then
+ if unit.civ_id >= 0 and roses.CivilizationTable then
   unitTable.Civilization = ''
-  if safe_index(persistTable,'GlobalTable','roses','EntityTable',tostring(unit.civ_id),'Civilization') then
-   unitTable.Civilization = persistTable.GlobalTable.roses.EntityTable[tostring(unit.civ_id)].Civilization.Name
+  if safe_index(roses.EntityTable,tostring(unit.civ_id),'Civilization') then
+   unitTable.Civilization = roses.EntityTable[tostring(unit.civ_id)].Civilization.Name
   end
  end
  
  -- Needed for the Class System
- --if persistTable.GlobalTable.roses.Systems.Class == 'true' then
+ if roses.Systems.Class then
   unitTable.Classes = {}
   unitTable.Feats = {}
   unitTable.Spells = {}
   unitTable.Classes.Current = 'NONE'
-  unitTable.Feats.Points = '0'
+  unitTable.Feats.Points = 0
   unitTable.Spells.Active = {}
- --end
+ end
 end
 
 function getUnitTable(unit,detailed)
- persistTable = require 'persist-table'
+ roses = dfhack.script_environment('base/roses-init').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 
- if not persistTable.GlobalTable.roses then
+ if not roses then
   unitTable = nil
   baseTable = nil
  else
-  unitPersist = persistTable.GlobalTable.roses.UnitTable
+  unitPersist = roses.UnitTable
   if not unitPersist[tostring(unit.id)] then
    unitTable = nil
   else
    unitTable = unitPersist[tostring(unit.id)]
   end
-  baseTable = persistTable.GlobalTable.roses.BaseTable
+  baseTable = roses.BaseTable
  end
 
  local outTable = {}
@@ -150,8 +150,7 @@ function getUnitTable(unit,detailed)
  end
  -- Custom Attributes
  if baseTable then
-  for _,n in pairs(baseTable.CustomAttributes._children) do
-   attribute = baseTable.CustomAttributes[n]
+  for n,attribute in pairs(baseTable.CustomAttributes) do
    outTable.Attributes[attribute] = {}
    if unitTable and unitTable.Attributes[attribute] then
     outTable.Attributes[attribute].Base     = math.floor(tonumber(unitTable.Attributes[attribute].Base))
@@ -177,8 +176,7 @@ function getUnitTable(unit,detailed)
  outTable.Resistances = {}
  -- Custom Resistances (no in game resistances currently)
  if baseTable then
-  for _,n in pairs(baseTable.CustomResistances._children) do
-   resistance = baseTable.CustomResistances[n]
+  for n,resistance in pairs(baseTable.CustomResistances) do
    outTable.Resistances[resistance] = {}
    if unitTable and unitTable.Resistances[resistance] then
     outTable.Resistances[resistance].Base     = math.floor(tonumber(unitTable.Resistances[resistance].Base))
@@ -223,7 +221,7 @@ function getUnitTable(unit,detailed)
  end
  -- Custom Skills
  if baseTable then
-  for _,skill in pairs(baseTable.CustomSkills._children) do
+  for skill,_ in pairs(baseTable.CustomSkills) do
    outTable.Skills[skill] = {}
    if unitTable and unitTable.Skills[skill] then
     outTable.Skills[skill].Base     = math.floor(tonumber(unitTable.Skills[skill].Base))
@@ -252,8 +250,7 @@ function getUnitTable(unit,detailed)
  outTable.Stats = {}
  -- Custom Stats (no in game stats currently)
  if baseTable then
-  for _,n in pairs(baseTable.CustomStats._children) do
-   stat = baseTable.CustomStats[n]
+  for n,stat in pairs(baseTable.CustomStats) do
    outTable.Stats[stat] = {}
    if unitTable and unitTable.Stats[stat] then
     outTable.Stats[stat].Base     = math.floor(tonumber(unitTable.Stats[stat].Base))
@@ -288,9 +285,8 @@ function getUnitTable(unit,detailed)
  end
 
  outTable.Classes = {}
- if unitTable and persistTable.GlobalTable.roses.Systems.Class == 'true' then
-  classTable = persistTable.GlobalTable.roses.ClassTable
-  for i,x in pairs(classTable._children) do
+ if unitTable and roses.Systems.Class then
+  for x,_ in pairs(roses.ClassTable) do
    if unitTable.Classes[x] then
     outTable.Classes[x] = {}
     outTable.Classes[x].Level      = math.floor(tonumber(unitTable.Classes[x].Level))
@@ -300,9 +296,37 @@ function getUnitTable(unit,detailed)
  end
  
  outTable.Feats = {}
+ outTable.Feats.Points = 0
+ n = 0
+ if unitTable and roses.Systems.Feat then
+  outTable.Feats.Points = unitTable.Feats.Points
+  for x,_ in pairs(unitTable.Feats) do
+   if x ~= 'Points' then
+    n = n + 1
+    outTable.Feats[n] = x
+   end
+  end
+ end
  
  outTable.Spells = {}
-
+ outTable.Spells.Active = {}
+ outTable.Spells.Learned = {}
+ n_learned = 0
+ n_active  = 0
+ if unitTable and roses.Systems.Spell then
+  for x,y in pairs(unitTable.Spells) do
+   if x == 'Active' then
+    for spell,_ in pairs(y) do
+     n_active = n_active + 1
+     outTable.Spells.Active[n_active] = spell
+    end
+   else
+    n_learned = n_learned + 1
+    outTable.Spells.Learned[n_learned] = spell
+   end
+  end
+ end
+ 
  -- Fill out all information from unit if required
  if detailed then
   outTable.Details = {}
@@ -348,9 +372,9 @@ trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
 ]===]
 
 function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- unitPersist = persistTable.GlobalTable.roses.UnitTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ unitPersist = roses.UnitTable
 
  if alter == 'terminated' then return end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -375,10 +399,10 @@ function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
 
  if not Table[kind] then
   Table[kind] = {}
-  Table[kind].Base = '0'
-  Table[kind].Change = '0'
-  Table[kind].Class = '0'
-  Table[kind].Item = '0'
+  Table[kind].Base = 0
+  Table[kind].Change = 0
+  Table[kind].Class = 0
+  Table[kind].Item = 0
   Table[kind].StatusEffects = {}
  end
 
@@ -391,30 +415,30 @@ function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
  elseif alter == 'terminate' or alter == 'terminateclass' then
   trackTerminate(unit,Table,strname,func,syndrome,alter)
  elseif alter == 'class' then -- Track changes associated with a class
-  Table[kind].Class = tostring(math.floor(change + tonumber(Table[kind].Class)))
+  Table[kind].Class = math.floor(change + tonumber(Table[kind].Class))
  elseif alter == 'item' then -- Track changes associated with an item
-  Table[kind].Item = tostring(math.floor(change + tonumber(Table[kind].Item)))
+  Table[kind].Item = math.floor(change + tonumber(Table[kind].Item))
  end
 end
 
 function trackStart(unit,Table,strname,kind,change,dur,syndrome,cb_id)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- unitPersist = persistTable.GlobalTable.roses.UnitTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ unitPersist = roses.UnitTable
 
  typeTable = Table[kind]
  if dur > 0 then 
   statusTable = typeTable.StatusEffects
-  typeTable.Change = tostring(typeTable.Change + change)
-  local statusNumber = #statusTable._children -- If the change has a duration add a status effect to the StatusEffects table
-  statusTable[tostring(statusNumber+1)] = {}
-  statusTable[tostring(statusNumber+1)].End = tostring(math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur))
-  statusTable[tostring(statusNumber+1)].Change = tostring(math.floor(change))
-  statusTable[tostring(statusNumber+1)].Linked = 'False'
+  typeTable.Change = typeTable.Change + change
+  statusNumber = #statusTable -- If the change has a duration add a status effect to the StatusEffects table
+  statusTable[statusNumber+1] = {}
+  statusTable[statusNumber+1].End = math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
+  statusTable[statusNumber+1].Change = math.floor(change)
+  statusTable[statusNumber+1].Linked = false
   if syndrome then -- If the change has an associated syndrome, link the StatusEffects table and the SyndromeTrack table together
    changeSyndrome(unit,syndrome,'add')
    trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
-   statusTable[tostring(math.floor(statusNumber+1))].Linked = 'True'
+   statusTable[statusNumber+1].Linked = true
    if not trackTable[syndrome] then
     trackTable[syndrome] = {}
    end
@@ -424,26 +448,26 @@ function trackStart(unit,Table,strname,kind,change,dur,syndrome,cb_id)
    if not trackTable[syndrome][strname][kind] then
     trackTable[syndrome][strname][kind] = {}
    end
-   trackTable[syndrome][strname][kind].Number = tostring(math.floor(statusNumber+1))
-   trackTable[syndrome][strname][kind].CallBack = tostring(cb_id)
+   trackTable[syndrome][strname][kind].Number = math.floor(statusNumber+1)
+   trackTable[syndrome][strname][kind].CallBack = cb_id
   end
  else
-  typeTable.Base = tostring(math.floor(tonumber(typeTable.Base) + change)) -- No need for associating syndromes with permanent changes, if requested can add at a later time.
+  typeTable.Base = math.floor(tonumber(typeTable.Base) + change) -- No need for associating syndromes with permanent changes, if requested can add at a later time.
  end
 end
 
 function trackEnd(unit,Table,strname,kind,change,syndrome)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- unitPersist = persistTable.GlobalTable.roses.UnitTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ unitPersist = roses.UnitTable
 
  typeTable = Table[kind]
  statusTable = typeTable.StatusEffects
- typeTable.Change = tostring(math.floor(typeTable.Change - change))
- for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+ typeTable.Change = math.floor(typeTable.Change - change)
+ for i = #statusTable,1,-1 do -- Remove any naturally ended effects
   if statusTable[i] then
-   if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
-    if statusTable[i].Linked == 'True' and syndrome then
+   if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+    if statusTable[i].Linked and syndrome then
      trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
      if trackTable[syndrome][strname][kind].Number == i then trackTable[syndrome][strname] = nil end
     end
@@ -455,9 +479,9 @@ function trackEnd(unit,Table,strname,kind,change,syndrome)
 end
 
 function trackTerminate(unit,Table,strname,func,syndrome,alter)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- unitPersist = persistTable.GlobalTable.roses.UnitTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ unitPersist = roses.UnitTable
 
  -- If the change ends by force, check the syndrome tracker to determine effects                           --*
  if alter == 'terminate' then
@@ -465,13 +489,13 @@ function trackTerminate(unit,Table,strname,func,syndrome,alter)
   name = syndrome or 'NONE'
   if trackTable[name] then
    if trackTable[name][strname] then
-    for _,kindA in pairs(trackTable[name][strname]._children) do
+    for kindA,_ in pairs(trackTable[name][strname]) do
      typeTable = Table[kindA]
      statusTable = typeTable.StatusEffects
      local statusNumber = trackTable[name][strname][kindA].Number
      local callback = trackTable[name][strname][kindA].CallBack
-     typeTable.Change = tostring(math.floor(typeTable.Change - statusTable[statusNumber].Change))
-     func(unit.id,kindA,-tonumber(statusTable[statusNumber].Change),0,'terminated',nil)
+     typeTable.Change = math.floor(typeTable.Change - statusTable[statusNumber].Change)
+     func(unit.id,kindA,-statusTable[statusNumber].Change,0,'terminated',nil)
      dfhack.timeout_active(callback,nil)
      dfhack.script_environment('persist-delay').environmentDelete(callback)
      statusTable[statusNumber] = nil
@@ -486,13 +510,13 @@ function trackTerminate(unit,Table,strname,func,syndrome,alter)
   for _,name in pairs(syndromeNames) do
    if trackTable[name] then
     if trackTable[name][strname] then
-     for _,kindA in pairs(trackTable[name][strname]._children) do
+     for kindA,_ in pairs(trackTable[name][strname]) do
       typeTable = Table[kindA]
       statusTable = typeTable.StatusEffects
       local statusNumber = trackTable[name][strname][kindA].Number
       local callback = trackTable[name][strname][kindA].CallBack
-      typeTable.Change = tostring(typeTable.Change - statusTable[statusNumber].Change)
-      func(unit.id,kindA,-tonumber(statusTable[statusNumber].Change),0,'terminate',nil)
+      typeTable.Change = typeTable.Change - statusTable[statusNumber].Change
+      func(unit.id,kindA,-statusTable[statusNumber].Change,0,'terminate',nil)
       dfhack.timeout_active(callback,nil)
       dfhack.script_environment('persist-delay').environmentDelete(callback)
       statusTable[statusNumber] = nil
@@ -506,9 +530,9 @@ function trackTerminate(unit,Table,strname,func,syndrome,alter)
 end
 
 function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- unitPersist = persistTable.GlobalTable.roses.UnitTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ unitPersist = roses.UnitTable
 
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  Table = unitPersist[tostring(unit.id)]
@@ -517,41 +541,41 @@ function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
  alter = alter or 'track'
  if alter == 'track' then
   if dur > 0 then
-   tTable.Race.Current = tostring(race)
-   tTable.Caste.Current = tostring(caste)
+   tTable.Race.Current = race
+   tTable.Caste.Current = caste
    statusTable = tTable.StatusEffects
-   statusNumber = #statusTable._children
-   statusTable[tostring(statusNumber+1)] = {}
-   statusTable[tostring(statusNumber+1)].End = tostring(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
-   statusTable[tostring(statusNumber+1)].Race = tostring(unit.race)
-   statusTable[tostring(statusNumber+1)].Caste = tostring(unit.caste)
-   statusTable[tostring(statusNumber+1)].Linked = 'False'
+   statusNumber = #statusTable
+   statusTable[statusNumber+1] = {}
+   statusTable[statusNumber+1].End = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur
+   statusTable[statusNumber+1].Race = unit.race
+   statusTable[statusNumber+1].Caste = unit.caste
+   statusTable[statusNumber+1].Linked = false
    if syndrome then
     trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
-    statusTable[tostring(statusNumber+1)].Linked = 'True'
+    statusTable[statusNumber+1].Linked = true
     if not trackTable[syndrome] then
      trackTable[syndrome] = {}
     end
     if not trackTable[syndrome]['Transform'] then
      trackTable[syndrome]['Transform'] = {}
     end
-    trackTable[syndrome]['Transform'].Number = tostring(statusNumber+1)
-    trackTable[syndrome]['Transform'].CallBack = tostring(cb_id)
+    trackTable[syndrome]['Transform'].Number = statusNumber+1
+    trackTable[syndrome]['Transform'].CallBack = cb_id
    end
   else
-   tTable.Race.Base = tostring(race)
-   tTable.Caste.Base = tostring(caste)
-   tTable.Race.Current = tostring(race)
-   tTable.Caste.Current = tostring(caste)
+   tTable.Race.Base     = race
+   tTable.Caste.Base    = caste
+   tTable.Race.Current  = race
+   tTable.Caste.Current = caste
   end
  elseif alter == 'end' then
-  tTable.Race.Current = tostring(race)
-  tTable.Caste.Current = tostring(caste)
+  tTable.Race.Current = race
+  tTable.Caste.Current = caste
   statusTable = tTable.StatusEffects
-  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+  for i = #statusTable,1,-1 do -- Remove any naturally ended effects
    if statusTable[i] then
-    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
-     if statusTable[i].Linked == 'True' and syndrome then
+    if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+     if statusTable[i].Linked and syndrome then
       trackTable = unitTable[tostring(unit.id)].SyndromeTrack
       if trackTable[syndrome]['Transform'].Number == i then trackTable[syndrome]['Transform'] = nil end
      end
@@ -1054,9 +1078,9 @@ changeSyndrome(unit,syndromes,change,dur)
 ]===]
 
 function changeSyndrome(unit,syndromes,change,dur)
- persistTable = require 'persist-table'
- if change == 'terminate' and not persistTable.GlobalTable.roses then return end
- unitPersist = persistTable.GlobalTable.roses.UnitTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if change == 'terminate' and not roses then return end
+ unitPersist = roses.UnitTable
 
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if type(syndromes) ~= 'table' then syndromes = {syndromes} end
@@ -1778,6 +1802,30 @@ function getCounter(unit,counter)
  return location[counter] 
 end
 
+function getWound(unit,class,what)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ local outTable = {}
+ 
+ wounds = unit.body.wounds
+ for i,wound in pairs(wounds) do
+  outTable[i] = {}
+  outTable[i].ID = wound.id
+  outTable[i].Age = wound.age
+  --outTable[i].Attacker = df.unit.find(wound.attacker_unit_id)
+  --outTable[i].Syndrome = df.syndrome.find(wound.syndrome_id)
+  --outTable[i].Curse    = wound.curse
+  --outTable[i].Flags = wound.flags
+  outTable[i].Parts = {}
+  for j,part in pairs(wound.parts) do
+   outTable[i].Parts[j] = {}
+   outTable[i].Parts[j].BP_ID = part.body_part_id
+   outTable[i].Parts[j].LX_ID = part.layer_idx
+   outTable[i].Parts[j].Strain = part.strain
+  end
+ end
+ 
+ return outTable
+end
 --=                     Miscellanious Functions
 usages[#usages+1] = [===[
 
@@ -1881,7 +1929,6 @@ function makeProjectile(unit,velocity)
 end
 
 function findUnit(search)
- local persistTable = require 'persist-table'
  local primary = search[1]
  local secondary = search[2] or 'NONE'
  local tertiary = search[3] or 'NONE'
@@ -1934,15 +1981,6 @@ function findUnit(search)
     if tertiary == dfhack.units.getProfessionName(x) then
      n = n + 1
      targetList[n] = x
-    end
-   end
-  elseif secondary == 'CLASS' then
-   for i,x in pairs(unitList) do
-    if persistTable.GlobalTable.roses.UnitTable[x.id] then
-     if persistTable.GlobalTable.roses.UnitTable[x.id].Classes.Current.Name == tertiary then
-      n = n + 1
-      targetList[n] = x
-     end
     end
    end
   elseif secondary == 'SKILL' then
@@ -2060,8 +2098,7 @@ function createEquipment(unit,equip)
   -- Item Options: Items read from a template
   -- Mat Options: Materials read from a template
   template = equipment[2]
-  persistTable = require 'persist-table'
-  roses = persistTable.GlobalTable.roses
+  roses = dfhack.script_environment('base/roses-init').roses
   if safe_index(roses,'EquipmentTemplates',template) then
    tmp = roses.EquipmentTemplates[template]
    availItems = {weapon=tmp.Weapons,armor=tmp.Armor,helm=tmp.Helms,gloves=tmp.Gloves,

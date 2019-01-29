@@ -1,11 +1,6 @@
 --base/on-time.lua v1.0 | DFHack 43.05
 
-local persistTable = require 'persist-table'
-
-roses = persistTable.GlobalTable.roses
-if not roses then
- return
-end
+roses = dfhack.script_environment('base/roses-init').roses
 
 yearly = {}
 season = {}
@@ -15,8 +10,7 @@ daily = {}
 
 -- CivilizationTable Checks
 if roses.CivilizationTable and roses.EntityTable then
- for _,id in pairs(roses.EntityTable._children) do
-  entityTable = roses.EntityTable[id]
+ for id,entityTable in pairs(roses.EntityTable) do
   if entityTable.Civilization then
    method = entityTable.Civilization.CurrentMethod
    if method == 'YEARLY' then
@@ -38,8 +32,7 @@ end
 
 -- EventTable Checks
 if roses.EventTable then
- for _,id in pairs(roses.EventTable._children) do
-  event = roses.EventTable[id]
+ for id,event in pairs(roses.EventTable) do
   method = event.Check
   if method == 'YEARLY' then
    yearly[id] = 'EVENT'

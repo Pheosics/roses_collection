@@ -1,9 +1,4 @@
---base/classes.lua v1.0 | DFHack 43.05
-
-local persistTable = require 'persist-table'
-local utils = require 'utils'
-local split = utils.split_string
-local events = require "plugins.eventful"
+events = require "plugins.eventful"
 events.enableEvent(events.eventType.UNIT_DEATH,10)
 
 function expCheck(unit,unitTarget,radius)
@@ -23,8 +18,6 @@ function expCheck(unit,unitTarget,radius)
 end
 
 events.onUnitDeath.mainFunction=function(target_id)
- roses = persistTable.GlobalTable.roses
- if not roses then return  end
 
  target = df.unit.find(target_id)
  target_civ = target.civ_id
@@ -54,7 +47,9 @@ events.onUnitDeath.mainFunction=function(target_id)
  end
 
 -- GeneralTable Checks
- if roses.GlobalTable then
+ roses = dfhack.script_environment('base/roses-init').roses
+ if roses then
+  roses.GlobalTable.Kills = roses.GlobalTable.Kills or {}
   killTable = roses.GlobalTable.Kills
   if killer_id >= 0 then
    killTable.Total = killTable.Total or '0'
@@ -67,6 +62,7 @@ events.onUnitDeath.mainFunction=function(target_id)
    killTable[killer_civ_name] = killTable[killer_civ_name] or '0'
    killTable[killer_civ_name] = tostring(killTable[killer_civ_name] + 1)
   end
+  roses.GlobalTable.Deaths = roses.GlobalTable.Deaths or {}
   deathTable = roses.GlobalTable.Deaths
   deathTable.Total = deathTable.Total or '0'
   deathTable.Total = tostring(deathTable.Total + 1)
@@ -80,9 +76,10 @@ events.onUnitDeath.mainFunction=function(target_id)
  end
 
 -- EntityTable Checks
- if roses.EntityTable then
+ if roses then
   if killer_id >= 0 and killer_civ >= 0 then
    if not roses.EntityTable[tostring(killer_civ)] then dfhack.script_environment('functions/entity').makeEntityTable(tostring(killer_civ)) end
+   roses = dfhack.script_environment('base/roses-init').roses
    killTable = roses.EntityTable[tostring(killer_civ)].Kills
    killTable.Total = killTable.Total or '0'
    killTable.Total = tostring(killTable.Total + 1)
@@ -92,6 +89,7 @@ events.onUnitDeath.mainFunction=function(target_id)
   end
   if target_civ >= 0 then
    if not roses.EntityTable[tostring(target_civ)] then dfhack.script_environment('functions/entity').makeEntityTable(tostring(target_civ)) end
+   roses = dfhack.script_environment('base/roses-init').roses
    deathTable = roses.EntityTable[tostring(target_civ)].Deaths
    deathTable.Total = deathTable.Total or '0'
    deathTable.Total = tostring(deathTable.Total + 1)
@@ -102,7 +100,7 @@ events.onUnitDeath.mainFunction=function(target_id)
  end
 
 -- ClassTable Checks
- if roses.ClassTable and killer_id >= 0 then
+ if roses.Systems.Class and killer_id >= 0 then
   if safe_index(roses, 'EnhancedCreatureTable',target_race,target_caste,'Experience') then
    experience = tonumber(roses.EnhancedCreatureTable[target_race][target_caste].Experience)
   else

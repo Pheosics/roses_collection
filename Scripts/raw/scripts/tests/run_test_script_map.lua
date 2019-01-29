@@ -1,5 +1,4 @@
 script = require 'gui.script'
-persistTable = require 'persist-table'
 
 function printplus(text,color)
  color = color or COLOR_WHITE
@@ -30,7 +29,7 @@ io.output(file)
 printplus('Running base/roses-init with no systems loaded')
 printplus('base/roses-init -verbose -testRun')
 dfhack.run_command_silent('base/roses-init -verbose -testRun')
-roses = persistTable.GlobalTable.roses
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- MAP SCRIPT CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -215,8 +214,9 @@ function script_checks()
   writeall('Resuming run_test.lua')
 
   ---- Resume script and check that sources and sinks are working correctly
-  flowTable = roses.FlowTable
-  liquidTable = roses.LiquidTable
+  persistTable = require 'persist-table'
+  flowTable = persistTable.GlobalTable.roses.FlowTable
+  liquidTable = persistTable.GlobalTable.roses.LiquidTable
   liquidSource = false
   for _,n in pairs(liquidTable._children) do
    liquid = liquidTable[n]

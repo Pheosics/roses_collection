@@ -42,12 +42,11 @@ function permute(tab)
 end
 
 function changeCounter(counter,amount,extra)
- local persistTable = require 'persist-table'
- local roses = persistTable.GlobalTable.roses
+ roses = dfhack.script_environment('base/roses-init').roses
  if not roses then return end
  local utils = require 'utils'
  local split = utils.split_string
- counterTable = persistTable.GlobalTable.roses.CounterTable
+ counterTable = roses.CounterTable
  counters = split(counter,':')
  for i,x in pairs(counters) do
   if i == #counters then
@@ -91,12 +90,11 @@ function changeCounter(counter,amount,extra)
 end
 
 function checkCounter(counter,extra)
- local persistTable = require 'persist-table'
- local roses = persistTable.GlobalTable.roses
+ roses = dfhack.script_environment('base/roses-init').roses
  if not roses then return end
  local utils = require 'utils'
  local split = utils.split_string
- counterTable = persistTable.GlobalTable.roses.CounterTable
+ counterTable = roses.CounterTable
  counters = split(counter,':')
  for i,x in pairs(counters) do
   if (x == '!UNIT' or x == '!BUILDING' or x == '!ITEM') then
@@ -114,12 +112,11 @@ function checkCounter(counter,extra)
 end
 
 function getCounter(counter,extra)
- local persistTable = require 'persist-table'
- local roses = persistTable.GlobalTable.roses
+ roses = dfhack.script_environment('base/roses-init').roses
  if not roses then return end
  local utils = require 'utils'
  local split = utils.split_string
- counterTable = persistTable.GlobalTable.roses.CounterTable
+ counterTable = roses.CounterTable
  counters = split(counter,':')
  for i,x in pairs(counters) do
   if (x == '!UNIT' or x == '!BUILDING' or x == '!ITEM') then

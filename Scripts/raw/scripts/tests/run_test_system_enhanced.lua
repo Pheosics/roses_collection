@@ -1,5 +1,4 @@
 script = require 'gui.script'
-persistTable = require 'persist-table'
 
 function printplus(text,color)
  color = color or COLOR_WHITE
@@ -30,7 +29,6 @@ io.output(file)
 printplus('Running base/roses-init with no systems loaded')
 printplus('base/roses-init -verbose -testRun')
 dfhack.run_command_silent('base/roses-init -verbose -testRun')
-roses = persistTable.GlobalTable.roses
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 printplus('')
@@ -60,9 +58,9 @@ writeall(output)
 -- ENHANCED SYSTEM CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function system_checks()
- local unitFunctions = dfhack.script_environment('functions/unit')
+ local unitFunctions     = dfhack.script_environment('functions/unit')
  local enhancedFunctions = dfhack.script_environment('functions/enhanced')
- local tableFunctions = dfhack.script_environment('functions/tables')
+ local tableFunctions    = dfhack.script_environment('functions/tables')
 
  -- Get Units for checks
  local civ = {}
@@ -170,7 +168,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
   writeall('Resuming run_test.lua')
-  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
+  unitTable = unitFunctions.getUnitTable(unit)
   if unitTable.Skills.AXE.Item ~= '15' then
    EICheck[#EICheck+1] = 'Enhanced System - Item 1 equip skill change not correctly applied '..unitTable.Skills.AXE.Item
   end
@@ -181,7 +179,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(50,'ticks')
   writeall('Resuming run_test.lua')
-  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
+  unitTable = unitFunctions.getUnitTable(unit)
   if unitTable.Skills.AXE.Item ~= '0' then
    EICheck[#EICheck+1] = 'Enhanced System - Item 1 unequip skill change not correctly applied '..unitTable.Skills.AXE.Item
   end
@@ -198,7 +196,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(10,'ticks')
   writeall('Resuming run_test.lua')
-  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
+  unitTable = unitFunctions.getUnitTable(unit)
   if not unitTable.Spells.Active.TEST_SPELL_1 then
    EICheck[#EICheck+1] = 'Enhanced System - Item 2 equip spell change not correctly applied'
   end
@@ -209,7 +207,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 50 in-game ticks (so the item-trigger script can correctly trigger)')
   script.sleep(10,'ticks')
   writeall('Resuming run_test.lua')
-  unitTable = persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)]
+  unitTable = unitFunctions.getUnitTable(unit)
   if unitTable.Spells.Active.TEST_SPELL_1 then
    EICheck[#EICheck+1] = 'Enhanced System - Item 2 unequip spell change not correctly applied'
   end

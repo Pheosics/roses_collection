@@ -1,3 +1,6 @@
+local utils = require 'utils'
+local split = utils.split_string
+
 -- Functions for the Spell SubSystem in the Class System, vN/A
 -- NOTE: These scripts still need substantial work, and have not been tested yet (hence the N/A)
 --[[
@@ -15,8 +18,9 @@ function calculateAttribute(unit,spell,base,check,verbose)
  if not unit then return 0 end
 
  -- Get the Spell Table for this Spell
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ spellTable = roses.SpellTable
  if not spellTable[spell] then
   if verbose then print('Not a valid spell: '..spell) end
   return 0
@@ -40,11 +44,10 @@ function calculateAttribute(unit,spell,base,check,verbose)
 
  local attribute = 0
  if Table then
-  for _,n in pairs(Table._children) do
-   attCheck = Table[n]
+  for n,attCheck in pairs(Table) do
    attribute = attribute + dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',attCheck,verbose)
   end
-  attribute = attribute/(#Table._children) 
+  attribute = attribute/(#Table) 
  end
  return attribute
 end
@@ -55,8 +58,9 @@ function calculateSkill(unit,spell,base,verbose)
  if not unit then return 0 end
 
  -- Get the Spell Table for this Spell
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ spellTable = roses.SpellTable
  if not spellTable[spell] then
   if verbose then print('Not a valid spell: '..spell) end
   return 0
@@ -68,10 +72,10 @@ function calculateSkill(unit,spell,base,verbose)
 
  -- Get the TSSDS Skill
  local TSSDS = {}
- if spellTable.Type then table.insert(TSSDS,spellTable.Type) end
- if spellTable.Sphere then table.insert(TSSDS,spellTable.Sphere) end
- if spellTable.School then table.insert(TSSDS,spellTable.School) end
- if spellTable.Discipline then table.insert(TSSDS,spellTable.Discipline) end
+ if spellTable.Type          then table.insert(TSSDS,spellTable.Type)          end
+ if spellTable.Sphere        then table.insert(TSSDS,spellTable.Sphere)        end
+ if spellTable.School        then table.insert(TSSDS,spellTable.School)        end
+ if spellTable.Discipline    then table.insert(TSSDS,spellTable.Discipline)    end
  if spellTable.SubDiscipline then table.insert(TSSDS,spellTable.SubDiscipline) end
  for _,add in pairs(TSSDS) do
   sklCheck = add..'_'..base
@@ -87,8 +91,9 @@ function calculateStat(unit,spell,base,verbose)
  if not unit then return 0 end
 
  -- Get the Spell Table for this Spell
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ spellTable = roses.SpellTable
  if not spellTable[spell] then
   if verbose then print('Not a valid spell: '..spell) end
   return 0
@@ -126,8 +131,9 @@ function calculateResistance(unit,spell,verbose)
  if not unit then return 0 end
 
  -- Get the Spell Table for this Spell
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ spellTable = roses.SpellTable
  if not spellTable[spell] then
   if verbose then print('Not a valid spell: '..spell) end
   return 0
@@ -155,8 +161,9 @@ end
 
 function Spell(sourceID,targetID,spell,verbose)
  -- Get the SpellTable for this spell
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ spellTable = roses.SpellTable
  if not spellTable[spell] then
   if verbose then print('Not a valid spell: '..spell) end
   return
@@ -195,8 +202,7 @@ function Spell(sourceID,targetID,spell,verbose)
 
  -- Gain Skill
  if spellTable.SkillGain and sourceID then
-  for _,skill in pairs(spellTable.SkillGain._children) do
-   amount = spellTable.SkillGain[skill]
+  for skill,amount in pairs(spellTable.SkillGain) do
    dfhack.script_environment('functions/unit').changeSkillExp(sourceID,skill,amount)
   end
  end
@@ -204,8 +210,9 @@ end
 
 function castSpell(sourceID,targetID,spell)
  -- Get Spell Table for this Spell
- local persistTable = require 'persist-table'
- local spellTable = persistTable.GlobalTable.roses.SpellTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ spellTable = roses.SpellTable
  if not spellTable[spell] then
   if verbose then print('Not a valid spell: '..spell) end
   return
@@ -225,8 +232,7 @@ function castSpell(sourceID,targetID,spell)
  end
 
  -- Fill the script with correct values
- for _,i in pairs(spellTable.Script._children) do
-  script = spellTable.Script[i]
+ for i,script in pairs(spellTable.Script) do
   -- Calculate any necessary equation values
   while script:find('EQUATION') do
    look = string.match(script..'+',"EQUATION.(.-)[+%-*/]")
@@ -251,13 +257,12 @@ function castSpell(sourceID,targetID,spell)
 end
 
 function fillEquation(sourceID,targetID,spell,equation)
- local utils = require 'utils'
- local split = utils.split_string
- local persistTable = require 'persist-table'
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
  local unitFunctions = dfhack.script_environment('functions/unit')
 
  -- Get equation if a built in one
- local equationTable = persistTable.GlobalTable.roses.baseTable.Equations
+ local equationTable = roses.BaseTable.Equations
  if equationTable then
   if equationTable[string.upper(equation)] then 
    equation = equationTable[string.upper(equation)]
@@ -327,7 +332,7 @@ function fillEquation(sourceID,targetID,spell,equation)
 
  -- Check for spell calls (like SPELL.LEVEL)
  if spell then
-  spellTable = persistTable.GlobalTable.roses.SpellTable[spell]
+  spellTable = roses.SpellTable[spell]
   while equation:find('SPELL') do
    look = string.match(equation..'+',"SPELL.(.-)[+%-*/]")
    array = split(look,"%.")

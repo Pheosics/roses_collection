@@ -25,9 +25,9 @@ getItemTable(item)
 ]===]
 
 function makeItemTable(item)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- itemPersist = persistTable.GlobalTable.roses.ItemTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ itemPersist = roses.ItemTable
 
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  itemPersist[tostring(item.id)] = {}
@@ -38,7 +38,7 @@ function makeItemTable(item)
  itemTable.Material.StatusEffects = {}
 
  itemTable.Quality = {}
- itemTable.Quality.Base = tostring(item.quality)
+ itemTable.Quality.Base = item.quality
  itemTable.Quality.StatusEffects = {}
 
  itemTable.Subtype = {}
@@ -46,17 +46,17 @@ function makeItemTable(item)
  itemTable.Subtype.StatusEffects = {}
 
  itemTable.Stats = {}
- itemTable.Stats.Kills = '0'
+ itemTable.Stats.Kills = 0
 end
 
 function getItemTable(item)
- persistTable = require 'persist-table'
+ roses = dfhack.script_environment('base/roses-init').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
 
- if not persistTable.GlobalTable.roses then
+ if not roses then
   itemTable = nil
  else
-  itemPersist = persistTable.GlobalTable.roses.ItemTable
+  itemPersist = roses.ItemTable
   if not itemPersist[tostring(item.id)] then
    itemTable = nil
   else
@@ -109,9 +109,9 @@ trackSubtype(item,material,dur,alter)
 ]===]
 
 function trackMaterial(item,material,dur,alter)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- itemPersist = persistTable.GlobalTable.roses.ItemTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ itemPersist = roses.ItemTable
 
  if alter == 'terminated' then return end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
@@ -125,19 +125,19 @@ function trackMaterial(item,material,dur,alter)
  if alter == 'track' then
   if dur > 0 then
    statusTable = Table.StatusEffects
-   local statusNumber = #statusTable._children
-   statusTable[tostring(statusNumber+1)] = {}
-   statusTable[tostring(statusNumber+1)].End = tostring(math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur))
-   statusTable[tostring(statusNumber+1)].Change = material
-   statusTable[tostring(statusNumber+1)].Linked = 'False'
+   statusNumber = #statusTable
+   statusTable[statusNumber+1] = {}
+   statusTable[statusNumber+1].End = math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
+   statusTable[statusNumber+1].Change = material
+   statusTable[statusNumber+1].Linked = false
   else
    Table.Base = material
   end
  elseif alter == 'end' then
   statusTable = Table.StatusEffects
-  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+  for i = #statusTable,1,-1 do -- Remove any naturally ended effects
    if statusTable[i] then
-    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+    if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
      statusTable[i] = nil
     end
    end
@@ -148,9 +148,9 @@ function trackMaterial(item,material,dur,alter)
 end
 
 function trackQuality(item,quality,dur,alter)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- itemPersist = persistTable.GlobalTable.roses.ItemTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ itemPersist = roses.ItemTable
 
  if alter == 'terminated' then return end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
@@ -164,19 +164,19 @@ function trackQuality(item,quality,dur,alter)
  if alter == 'track' then
   if dur > 0 then
    statusTable = Table.StatusEffects
-   local statusNumber = #statusTable._children
-   statusTable[tostring(statusNumber+1)] = {}
-   statusTable[tostring(statusNumber+1)].End = tostring(math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur))
-   statusTable[tostring(statusNumber+1)].Change = tostring(quality)
-   statusTable[tostring(statusNumber+1)].Linked = 'False'
+   statusNumber = #statusTable
+   statusTable[statusNumber+1] = {}
+   statusTable[statusNumber+1].End = math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
+   statusTable[statusNumber+1].Change = quality
+   statusTable[statusNumber+1].Linked = false
   else
-   Table.Base = tostring(quality)
+   Table.Base = quality
   end
  elseif alter == 'end' then
   statusTable = Table.StatusEffects
-  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+  for i = #statusTable,1,-1 do -- Remove any naturally ended effects
    if statusTable[i] then
-    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+    if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
      statusTable[i] = nil
     end
    end
@@ -187,9 +187,9 @@ function trackQuality(item,quality,dur,alter)
 end
 
 function trackSubtype(item,subtype,dur,alter)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- itemPersist = persistTable.GlobalTable.roses.ItemTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
+ itemPersist = roses.ItemTable
 
  if alter == 'terminated' then return end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
@@ -203,19 +203,19 @@ function trackSubtype(item,subtype,dur,alter)
  if alter == 'track' then
   if dur > 0 then
    statusTable = Table.StatusEffects
-   local statusNumber = #statusTable._children
-   statusTable[tostring(statusNumber+1)] = {}
-   statusTable[tostring(statusNumber+1)].End = tostring(math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur))
-   statusTable[tostring(statusNumber+1)].Change = subtype
-   statusTable[tostring(statusNumber+1)].Linked = 'False'
+   statusNumber = #statusTable
+   statusTable[statusNumber+1] = {}
+   statusTable[statusNumber+1].End = math.floor(1200*28*3*4*df.global.cur_year + df.global.cur_year_tick + dur)
+   statusTable[statusNumber+1].Change = subtype
+   statusTable[statusNumber+1].Linked = false
   else
    Table.Base = subtype
   end
  elseif alter == 'end' then
   statusTable = Table.StatusEffects
-  for i = #statusTable._children,1,-1 do -- Remove any naturally ended effects
+  for i = #statusTable,1,-1 do -- Remove any naturally ended effects
    if statusTable[i] then
-    if tonumber(statusTable[i].End) <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
+    if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
      statusTable[i] = nil
     end
    end

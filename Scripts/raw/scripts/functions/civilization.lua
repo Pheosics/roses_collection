@@ -29,8 +29,8 @@ function tchelper(first, rest)
   return first:upper()..rest:lower()
 end
 
-function getData(test)
- print('Searching for Civilization information in entity files')
+function getData(test,verbose)
+ if verbose then print('Searching for Civilization information in entity files') end
  local filename = 'entity'
  local tokenCheck = '[ENTITY'
  local files = {}
@@ -43,7 +43,7 @@ function getData(test)
  end
  for _,location in ipairs(locations) do
   local path = dir..location
-  print('Looking in '..location)
+  if verbose then print('Looking in '..location) end
   if dfhack.internal.getDir(path) then
    for _,fname in pairs(dfhack.internal.getDir(path)) do
     if (split(fname,'_')[1] == filename or fname == filename..'.txt') and string.match(fname,'txt') then
@@ -54,10 +54,10 @@ function getData(test)
   end
  end
 
- if #files >= 1 then
+ if #files >= 1 and verbose then
   print('Civilization files found:')
   printall(files)
- else
+ elseif verbose then
   print('No Civilization files found')
   return false
  end
@@ -97,22 +97,22 @@ function getData(test)
 
 end
 
-function makeCivilizationTable()
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- persistTable.GlobalTable.roses.Systems.Civlization = 'false'
- dataFiles,dataInfoFiles,files = getData(test)
- if not dataFiles then return false end
+function makeCivilizationTable(runtest,verbose)
+ local Table = {}
+ local numCivs = 0
+ dataFiles,dataInfoFiles,files = getData(runtest,verbose)
+ if not dataFiles then return numCivs end
 
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
+   numCivs = numCivs + 1
    civToken  = x[1]
    startLine = x[2]
    endLine   = x[3]
-   persistTable.GlobalTable.roses.CivilizationTable[civToken] = {}
-   civ = persistTable.GlobalTable.roses.CivilizationTable[civToken]
+   Table[civToken] = {}
+   civ = Table[civToken]
    civ.Level = {}
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
@@ -288,8 +288,7 @@ function makeCivilizationTable()
   end
  end
 
- persistTable.GlobalTable.roses.Systems.Civlization = 'true'
- return true
+ return numCivs, Table
 end
 
 --=                     Class System Table Functions
@@ -316,10 +315,10 @@ checkEntity(id,method)
 ]===]
 
 function changeLevel(entity,verbose)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- civPersist = persistTable.GlobalTable.roses.CivilizationTable
- entityPersist = persistTable.GlobalTable.roses.EntityTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ civPersist = roses.CivilizationTable
+ entityPersist = roses.EntityTable
 
  if tonumber(entity) then entity = df.global.world.entities.all[tonumber(entity)] end
  if not entityPersist[tostring(entity.id)] then return end
@@ -336,24 +335,18 @@ function changeLevel(entity,verbose)
 
    if civilizationTable.Level[tostring(nextLevel)] then
     if civilizationTable.Level[tostring(nextLevel)].Remove then
-     for _,mtype in pairs(civilizationTable.Level[tostring(nextLevel)].Remove._children) do
-      depth1 = civilizationTable.Level[tostring(nextLevel)].Remove[mtype]
-      for _,stype in pairs(depth1._children) do
-       depth2 = depth1[stype]
-       for _,mobj in pairs(depth2._children) do
-        sobj = depth2[mobj]
+     for mtype,depth1 in pairs(civilizationTable.Level[tostring(nextLevel)].Remove) do
+      for stype,depth2 in pairs(depth1) do
+       for mobj,sobj in pairs(depth2) do
         dfhack.script_environment('functions/entity').changeResources(entity,mtype,stype,mobj,sobj,-1,verbose)
        end
       end
      end
     end
     if civilizationTable.Level[tostring(nextLevel)].Add then
-     for _,mtype in pairs(civilizationTable.Level[tostring(nextLevel)].Add._children) do
-      depth1 = civilizationTable.Level[tostring(nextLevel)].Add[mtype]
-      for _,stype in pairs(depth1._children) do
-       depth2 = depth1[stype]
-       for _,mobj in pairs(depth2._children) do
-        sobj = depth2[mobj]
+     for mtype,depth1 in pairs(civilizationTable.Level[tostring(nextLevel)].Add) do
+      for stype,depth2 in pairs(depth1) do
+       for mobj,sobj in pairs(depth2) do
         dfhack.script_environment('functions/entity').changeResources(entity,mtype,stype,mobj,sobj,1,verbose)
        end
       end
@@ -370,7 +363,9 @@ function changeLevel(entity,verbose)
 end
 
 function changeStanding(civ1,civ2,amount,verbose)
- diplomacyTable = persistTable.GlobalTable.roses.DiplomacyTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ diplomacyTable = roses.DiplomacyTable
  if diplomacyTable then
   if diplomacyTable[civ1] then
    if diplomacyTable[civ1][civ2] then
@@ -384,9 +379,9 @@ function changeStanding(civ1,civ2,amount,verbose)
 end
 
 function checkEntity(id,method,verbose)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- entityPersist = persistTable.GlobalTable.roses.EntityTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ entityPersist = roses.EntityTable
 
  entityTable = entityPersist[tostring(id)].Civilization
  if entityTable then
@@ -407,10 +402,10 @@ function checkEntity(id,method,verbose)
 end
 
 function checkRequirements(entityID,verbose)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return end
- civPersist = persistTable.GlobalTable.roses.CivilizationTable
- entityPersit = persistTable.GlobalTable.roses.EntityTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ civPersist = roses.CivilizationTable
+ entityPersist = roses.EntityTable
 
  if not entityPersist[tostring(entityID)] then 
   dfhack.script_environment('functions/entity').makeEntityTable(entityID,verbose)
@@ -440,8 +435,7 @@ function checkRequirements(entityID,verbose)
 
 -- Check for fortress wealth
  if check.Wealth then
-  for _,wtype in pairs(check.Wealth._children) do
-   local amount = tonumber(check.Wealth[wtype])
+  for wtype,amount in pairs(check.Wealth) do
    if df.global.ui.tasks.wealth[string.lower(wtype)] then
     if df.global.ui.tasks.wealth[string.lower(wtype)] < amount then
      return false
@@ -549,8 +543,7 @@ function checkRequirements(entityID,verbose)
 
 -- Check for counter
  if check.CounterMax then
-  for _,counter in pairs(check.CounterMax._children) do
-   a1 = tonumber(check.CounterMax[counter])
+  for counter,a1 in pairs(check.CounterMax) do
    a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
    if a1 and a2 then
     if a2 > a1 then
@@ -560,8 +553,7 @@ function checkRequirements(entityID,verbose)
   end
  end
  if check.CounterMin then
-  for _,counter in pairs(check.CounterMin._children) do
-   a1 = tonumber(check.CounterMin[counter])
+  for counter,a1 in pairs(check.CounterMin) do
    a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
    if a1 and a2 then
     if a2 < a1 then
@@ -571,8 +563,7 @@ function checkRequirements(entityID,verbose)
   end
  end
  if check.CounterEqual then
-  for _,counter in pairs(check.CounterEqual._children) do
-   a1 = tonumber(check.CounterEqual[counter])
+  for counter,a1 in pairs(check.CounterEqual) do
    a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
    if a1 and a2 then
     if not a2 == a1 then
@@ -584,9 +575,8 @@ function checkRequirements(entityID,verbose)
 
 -- Check for item
  if check.Item then
-  for _,itype in pairs(check.Item._children) do
-   for _,isubtype in pairs(check.Item[itype]._children) do
-    n1 = tonumber(check.Item[itype][isubtype])
+  for itype,Type in pairs(check.Item) do
+   for isubtype,n1 in pairs(Type) do
     n2 = 0
     for _,item in pairs(df.global.world.items.other[itype]) do
      if item.subtype.ID == isubtype then n2 = n2 + 1 end
@@ -600,8 +590,7 @@ function checkRequirements(entityID,verbose)
 
 -- Check for building
  if check.Building then
-  for _,building in pairs(check.Building._children) do
-   n1 = tonumber(check.Building[building])
+  for building,n1 in pairs(check.Building) do
    n2 = 0
    local buildingList = df.global.world.buildings.all
    for i,x in pairs(buildingList) do
@@ -621,8 +610,7 @@ function checkRequirements(entityID,verbose)
 
 -- Check for skill
  if check.Skill then
-  for _,skill in pairs(check.Skill._children) do
-   level = tonumber(check.Skill[skill])
+  for skill,level in pairs(check.Skill) do
    for _,unit in pairs(df.global.world.units.active) do
     if dfhack.units.getEffectiveSkill(unit,df.job_skill[skill]) < level then
      return false
@@ -632,13 +620,12 @@ function checkRequirements(entityID,verbose)
  end
 
 -- Check for class
- if check.Class and persistTable.GlobalTable.roses.ClassTable then
-  for _,classname in pairs(check.Class._children) do
-   level = tonumber(check.Class[classname])
+ if check.Class and roses.ClassTable then
+  for className,level in pairs(check.Class) do
    for _,unit in pairs(df.global.world.units.active) do
-    if persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] then
-     if persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes[classname] then
-      if tonumber(persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes[classname]) < level then
+    if roses.UnitTable[tostring(unit.id)] then
+     if roses.UnitTable[tostring(unit.id)].Classes[classname] then
+      if tonumber(roses.UnitTable[tostring(unit.id)].Classes[classname]) < level then
        return false
       end
      else
@@ -652,14 +639,13 @@ function checkRequirements(entityID,verbose)
  end
 
 -- Check for kills
- if check.CreatureKills and globalPersist then
-  for _,creature in pairs(check.CreatureKills._children) do
-   for _,caste in pairs(check.CreatureKills[creature]._children) do
-    n1 = tonumber(check.CreatureKills[creature][caste])
+ if check.CreatureKills and roses.GlobalTable then
+  for creature,Type in pairs(check.CreatureKills) do
+   for caste,n1 in pairs(Type) do
     if caste == 'ALL' or caste == 'TOTAL' then
-     n2 = persistTable.GlobalTable.roses.GlobalTable.Kills[creature].Total
+     n2 = roses.GlobalTable.Kills[creature].Total
     else
-     n2 = persistTable.GlobalTable.roses.GlobalTable.Kills[creature][caste]
+     n2 = roses.GlobalTable.Kills[creature][caste]
     end
     if n1 and n2 then
      if tonumber(n2) < n1 then
@@ -670,10 +656,9 @@ function checkRequirements(entityID,verbose)
   end
  end
 
- if check.EntityKills and persistTable.GlobalTable.roses.GlobalTable then
-  for _,entity in pairs(check.EntityKills._children) do
-   n1 = tonumber(check.EntityKills[entity])
-   n2 = persistTable.GlobalTable.roses.GlobalTable.Kills[entity]
+ if check.EntityKills and roses.GlobalTable then
+  for entity,n1 in pairs(check.EntityKills) do
+   n2 = roses.GlobalTable.Kills[entity]
    if n1 and n2 then
     if tonumber(n2) < n1 then
      return false
@@ -683,14 +668,13 @@ function checkRequirements(entityID,verbose)
  end
 
 -- Check for deaths
- if check.CreatureDeaths and persistTable.GlobalTable.roses.GlobalTable then
-  for _,creature in pairs(check.CreatureDeaths._children) do
-   for _,caste in pairs(check.CreatureDeaths[creature]._children) do
-    n1 = tonumber(check.CreatureDeaths[creature][caste])
+ if check.CreatureDeaths and roses.GlobalTable then
+  for creature,Type in pairs(check.CreatureDeaths) do
+   for caste,n1 in pairs(Type) do
     if caste == 'ALL' or caste == 'TOTAL' then
-     n2 = persistTable.GlobalTable.roses.GlobalTable.Deaths[creature].Total
+     n2 = roses.GlobalTable.Deaths[creature].Total
     else
-     n2 = persistTable.GlobalTable.roses.GlobalTable.Deaths[creature][caste]
+     n2 = roses.GlobalTable.Deaths[creature][caste]
     end
     if n1 and n2 then
      if tonumber(n2) < n1 then
@@ -701,10 +685,9 @@ function checkRequirements(entityID,verbose)
   end
  end
 
- if check.EntityDeaths and persistTable.GlobalTable.roses.GlobalTable then
-  for _,entity in pairs(check.EntityDeaths._children) do
-   n1 = tonumber(check.EntityDeaths[entity])
-   n2 = persistTable.GlobalTable.roses.GlobalTable.Deaths[entity]
+ if check.EntityDeaths and roses.GlobalTable then
+  for entity,n1 in pairs(check.EntityDeaths) do
+   n2 = roses.GlobalTable.Deaths[entity]
    if n1 and n2 then
     if tonumber(n2) < n1 then
      return false
@@ -714,11 +697,10 @@ function checkRequirements(entityID,verbose)
  end
 
 -- Check for sieges
- if check.Sieges and persistTable.GlobalTable.roses.GlobalTable then
-  for _,civ in pairs(check.Sieges._children) do
-   number = tonumber(check.Sieges[civ])
-   if persistTable.GlobalTable.roses.GlobalTable.Sieges[civ] then
-    if tonumber(persistTable.GlobalTable.roses.GlobalTable.Sieges[civ]) < number then
+ if check.Sieges and roses.GlobalTable then
+  for civ,number in pairs(check.Sieges) do
+   if roses.GlobalTable.Sieges[civ] then
+    if tonumber(roses.GlobalTable.Sieges[civ]) < number then
      return false
     end
    end
@@ -726,11 +708,10 @@ function checkRequirements(entityID,verbose)
  end
 
 -- Check for trades
- if check.Trades and persistTable.GlobalTable.roses.GlobalTable then
-  for _,civ in pairs(check.Trades._children) do
-   number = tonumber(check.Trades[civ])
-   if persistTable.GlobalTable.roses.GlobalTable.Trades[civ] then
-    if tonumber(persistTable.GlobalTable.roses.GlobalTable.Trades[civ]) < number then
+ if check.Trades and roses.GlobalTable then
+  for civ,number in pairs(check.Trades) do
+   if roses.GlobalTable.Trades[civ] then
+    if tonumber(roses.GlobalTable.Trades[civ]) < number then
      return false
     end
    end

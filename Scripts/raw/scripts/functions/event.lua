@@ -5,8 +5,8 @@ usages = {}
 
 ------------------------------------------------------------------------
 
-function getData(test)
- print('Searching for an Event file')
+function getData(test,verbose)
+ if verbose then print('Searching for an Event file') end
  local filename = 'events'
  local tokenCheck = '[EVENT'
  local files = {}
@@ -19,7 +19,7 @@ function getData(test)
  end
  for _,location in ipairs(locations) do
   local path = dir..location
-  print('Looking in '..location)
+  if verbose then print('Looking in '..location) end
   if dfhack.internal.getDir(path) then
    for _,fname in pairs(dfhack.internal.getDir(path)) do
     if (split(fname,'_')[1] == filename or fname == filename..'.txt') and string.match(fname,'txt') then
@@ -30,10 +30,10 @@ function getData(test)
   end
  end
 
- if #files >= 1 then
+ if #files >= 1 and verbose then
   print('Event files found:')
   printall(files)
- else
+ elseif verbose then
   print('No Event files found')
   return false
  end
@@ -72,22 +72,22 @@ function getData(test)
  return data, dataInfo, files
 end
 
-function makeEventTable(test)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- persistTable.GlobalTable.roses.Systems.Event = 'false'
- dataFiles,dataInfoFiles,files = getData(test)
- if not dataFiles then return false end
+function makeEventTable(runtest,verbose)
+ local Table = {}
+ local numEvents = 0
+ dataFiles,dataInfoFiles,files = getData(runtest,verbose)
+ if not dataFiles then return numEvents end
  
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
   data = dataFiles[file]
   for i,x in ipairs(dataInfo) do
+   numEvents = numEvents + 1
    eventToken = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   persistTable.GlobalTable.roses.EventTable[eventToken] = {}
-   event = persistTable.GlobalTable.roses.EventTable[eventToken]
+   Table[eventToken] = {}
+   event = Table[eventToken]
    event.Effect = {}
    event.Required = {}
    event.Delay = {}
@@ -315,14 +315,13 @@ function makeEventTable(test)
   end
  end
 
- persistTable.GlobalTable.roses.Systems.Event = 'true'
- return true
+ return numEvents, Table
 end
 
-function checkRequirements(event,effect,verbose)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- event = persistTable.GlobalTable.roses.EventTable[event]
+function checkRequirements(Event,effect,verbose)
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ event = roses.EventTable[Event]
  if not event then return false  end
 
  yes = true
@@ -351,8 +350,7 @@ function checkRequirements(event,effect,verbose)
  end
 -- Check for fortress wealth
  if check.Wealth then
-  for _,wtype in pairs(check.Wealth._children) do
-   local amount = tonumber(check.Wealth[wtype])
+  for wtype,amount in pairs(check.Wealth) do
    if df.global.ui.tasks.wealth[string.lower(wtype)] then
     if df.global.ui.tasks.wealth[string.lower(wtype)] < amount then
      return false
@@ -444,8 +442,7 @@ function checkRequirements(event,effect,verbose)
  end
 -- Check for counter
  if check.CounterMax then
-  for _,counter in pairs(check.CounterMax._children) do
-   a1 = tonumber(check.CounterMax[counter])
+  for counter,a1 in pairs(check.CounterMax) do
    a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
    if a1 and a2 then
     if a2 > a1 then
@@ -455,8 +452,7 @@ function checkRequirements(event,effect,verbose)
   end
  end
  if check.CounterMin then
-  for _,counter in pairs(check.CounterMin._children) do
-   a1 = tonumber(check.CounterMin[counter])
+  for counter,a1 in pairs(check.CounterMin) do
    a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
    if a1 and a2 then
     if a2 < a1 then
@@ -466,8 +462,7 @@ function checkRequirements(event,effect,verbose)
   end
  end
  if check.CounterEqual then
-  for _,counter in pairs(check.CounterEqual._children) do
-   a1 = tonumber(check.CounterEqual[counter])
+  for counter,a1 in pairs(check.CounterEqual) do
    a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
    if a1 and a2 then
     if not a2 == a1 then
@@ -478,9 +473,8 @@ function checkRequirements(event,effect,verbose)
  end
 -- Check for item
  if check.Item then
-  for _,itype in pairs(check.Item._children) do
-   for _,isubtype in pairs(check.Item[itype]._children) do
-    n1 = tonumber(check.Item[itype][isubtype])
+  for itype,Type in pairs(check.Item) do
+   for isubtype,n1 in pairs(Type) do
     n2 = 0
     for _,item in pairs(df.global.world.items.other[itype]) do
      if item.subtype.ID == isubtype then n2 = n2 + 1 end
@@ -493,8 +487,7 @@ function checkRequirements(event,effect,verbose)
  end
 -- Check for building
  if check.Building then
-  for _,building in pairs(check.Building._children) do
-   n1 = tonumber(check.Building[building])
+  for building,n1 in pairs(check.Building) do
    n2 = 0
    local buildingList = df.global.world.buildings.all
    for i,x in pairs(buildingList) do
@@ -513,8 +506,7 @@ function checkRequirements(event,effect,verbose)
  end
 -- Check for skill
  if check.Skill then
-  for _,skill in pairs(check.Skill._children) do
-   level = tonumber(check.Skill[skill])
+  for skill,level in pairs(check.Skill) do
    for _,unit in pairs(df.global.world.units.active) do
     if dfhack.units.getEffectiveSkill(unit,df.job_skill[skill]) < level then
      return false
@@ -523,9 +515,8 @@ function checkRequirements(event,effect,verbose)
   end 
  end
 -- Check for class
- if check.Class and persistTable.GlobalTable.roses.ClassTable then
-  for _,classname in pairs(check.Class._children) do
-   level = tonumber(check.Class[classname])
+ if check.Class and roses.Systems.Class then
+  for classname,level in pairs(check.Class) do
    for _,unit in pairs(df.global.world.units.active) do
     if persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] then
      if persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes[classname] then
@@ -542,14 +533,13 @@ function checkRequirements(event,effect,verbose)
   end
  end
 -- Check for kills
- if check.CreatureKills and persistTable.GlobalTable.roses.GlobalTable then
-  for _,creature in pairs(check.CreatureKills._children) do
-   for _,caste in pairs(check.CreatureKills[creature]._children) do
-    n1 = tonumber(check.CreatureKills[creature][caste])
+ if check.CreatureKills and roses.GlobalTable then
+  for creature,Type in pairs(check.CreatureKills) do
+   for caste,n1 in pairs(Type) do
     if caste == 'ALL' or caste == 'TOTAL' then
-     n2 = persistTable.GlobalTable.roses.GlobalTable.Kills[creature].Total
+     n2 = roses.GlobalTable.Kills[creature].Total
     else
-     n2 = persistTable.GlobalTable.roses.GlobalTable.Kills[creature][caste]
+     n2 = roses.GlobalTable.Kills[creature][caste]
     end
     if n1 and n2 then
      if tonumber(n2) < n1 then
@@ -559,10 +549,9 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
- if check.EntityKills and persistTable.GlobalTable.roses.GlobalTable then
-  for _,entity in pairs(check.EntityKills._children) do
-   n1 = tonumber(check.EntityKills[entity])
-   n2 = persistTable.GlobalTable.roses.GlobalTable.Kills[entity]
+ if check.EntityKills and roses.GlobalTable then
+  for entity,n1 in pairs(check.EntityKills) do
+   n2 = roses.GlobalTable.Kills[entity]
    if n1 and n2 then
     if tonumber(n2) < n1 then
      return false
@@ -571,14 +560,13 @@ function checkRequirements(event,effect,verbose)
   end
  end
 -- Check for deaths
- if check.CreatureDeaths and persistTable.GlobalTable.roses.GlobalTable then
-  for _,creature in pairs(check.CreatureDeaths._children) do
-   for _,caste in pairs(check.CreatureDeaths[creature]._children) do
-    n1 = tonumber(check.CreatureDeaths[creature][caste])
+ if check.CreatureDeaths and roses.GlobalTable then
+  for creature,Type in pairs(check.CreatureDeaths) do
+   for caste,n1 in pairs(Type) do
     if caste == 'ALL' or caste == 'TOTAL' then
-     n2 = persistTable.GlobalTable.roses.GlobalTable.Deaths[creature].Total
+     n2 = roses.GlobalTable.Deaths[creature].Total
     else
-     n2 = persistTable.GlobalTable.roses.GlobalTable.Deaths[creature][caste]
+     n2 = roses.GlobalTable.Deaths[creature][caste]
     end
     if n1 and n2 then
      if tonumber(n2) < n1 then
@@ -588,10 +576,9 @@ function checkRequirements(event,effect,verbose)
    end
   end
  end
- if check.EntityDeaths and persistTable.GlobalTable.roses.GlobalTable then
-  for _,entity in pairs(check.EntityDeaths._children) do
-   n1 = tonumber(check.EntityDeaths[entity])
-   n2 = persistTable.GlobalTable.roses.GlobalTable.Deaths[entity]
+ if check.EntityDeaths and roses.GlobalTable then
+  for entity,n1 in pairs(check.EntityDeaths) do
+   n2 = roses.GlobalTable.Deaths[entity]
    if n1 and n2 then
     if tonumber(n2) < n1 then
      return false
@@ -600,34 +587,32 @@ function checkRequirements(event,effect,verbose)
   end 
  end
 -- Check for sieges
- if check.Sieges and persistTable.GlobalTable.roses.GlobalTable then
-  for _,civ in pairs(check.Sieges._children) do
-   number = tonumber(check.Sieges[civ])
-   if persistTable.GlobalTable.roses.GlobalTable.Sieges[civ] then
-    if tonumber(persistTable.GlobalTable.roses.GlobalTable.Sieges[civ]) < number then
+ if check.Sieges and roses.GlobalTable then
+  for civ,number in pairs(check.Sieges) do
+   if roses.GlobalTable.Sieges[civ] then
+    if tonumber(roses.GlobalTable.Sieges[civ]) < number then
      return false
     end
    end
   end
  end
 -- Check for trades
- if check.Trades and persistTable.GlobalTable.roses.GlobalTable then
-  for _,civ in pairs(check.Trades._children) do
-   number = tonumber(check.Trades[civ])
-   if persistTable.GlobalTable.roses.GlobalTable.Trades[civ] then
-    if tonumber(persistTable.GlobalTable.roses.GlobalTable.Trades[civ]) < number then
+ if check.Trades and roses.GlobalTable then
+  for civ,number  in pairs(check.Trades) do
+   if roses.GlobalTable.Trades[civ] then
+    if tonumber(roses.GlobalTable.Trades[civ]) < number then
      return false
     end
    end
   end
  end
 -- Check for diplomacy
- if check.Diplomacy and persistTable.GlobalTable.roses.DiplomacyTable then
-  for _,dip_string in pairs(check.Diplomacy._children) do
+ if check.Diplomacy and roses.Systems.Civilization then
+  for dip_string,_ in pairs(check.Diplomacyn) do
    dip_array = split(dip_string,':')
    civ1,civ2,relation,number = dip_array[1],dip_array[2],dip_array[3],dip_array[4]
    if civ1 and civ2 and relation and number then
-    score = tonumber(persistTable.GlobalTable.roses.DiplomacyTable[civ1][civ2])
+    score = tonumber(roses.DiplomacyTable[civ1][civ2])
     if relation == 'GREATER' then
      if score < tonumber(number) then
       return false
@@ -644,9 +629,9 @@ function checkRequirements(event,effect,verbose)
 end
 
 function triggerEvent(event,effect,verbose)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- eventTable = persistTable.GlobalTable.roses.EventTable[event]
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ eventTable = roses.EventTable[event]
 
  effect = tostring(effect)
  if not eventTable then
@@ -704,15 +689,13 @@ function triggerEvent(event,effect,verbose)
    end
   end
  end
- for _,nscript in pairs(effectTable.Script._children) do
+ for nscript,script in pairs(effectTable.Script) do
   for _,filler in ipairs(fill) do
-   script = effectTable.Script[nscript]
    if filler[1] then script = script:gsub('EFFECT_UNIT',tostring(filler[1].id)) end
    if filler[2] then script = script:gsub('EFFECT_BUILDING',tostring(filler[2].id)) end
    if filler[3] then script = script:gsub('EFFECT_LOCATION',"[ "..tostring(filler[3].x).." "..tostring(filler[3].y).." "..tostring(filler[3].z).." ]") end
    if filler[4] then script = script:gsub('EFFECT_ITEM',tostring(filler[4].id)) end
-   for _,argnum in pairs(effectTable.Argument._children) do
-    argument = effectTable.Argument[argnum]
+   for argnum,argument in pairs(effectTable.Argument) do
     if argument.Variable and not argument.Equation then 
      input = split(argument.Variable,',')
     elseif argument.Equation and not argument.Variable then
@@ -765,14 +748,14 @@ function triggerEvent(event,effect,verbose)
 end
 
 function checkEvent(event,method,verbose)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- eventTable = persistTable.GlobalTable.roses.EventTable[event]
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ eventTable = roses.EventTable[event]
 
  local triggered = {}
  if checkRequirements(event,0,verbose) then
   triggered[0] = true
-  for _,i in pairs(eventTable.Effect._children) do
+  for i,_ in pairs(eventTable.Effect) do
    if checkRequirements(event,tonumber(i),verbose) then
     contingency = tonumber(eventTable.Effect[i].Contingent) or 0
     if triggered[contingency] then

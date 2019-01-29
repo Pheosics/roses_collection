@@ -1,5 +1,5 @@
-local persistTable = require 'persist-table'
-systems = persistTable.GlobalTable.roses.Systems
+roses = dfhack.script_environment('base/roses-init').roses
+systems = roses.Systems
 
 local utils = require 'utils'
 validArgs = utils.invert({
@@ -9,10 +9,9 @@ local args = utils.processArgs({...}, validArgs)
 verbose = args.verbose
 
 --= Enhanced Item Triggers
-if systems.EnhancedItem and systems.EnhancedItem == 'true' then
+if systems.EnhancedItem then
  if args.verbose then print('Setting up Enhanced Item Triggers') end
- for _,itemToken in ipairs(persistTable.GlobalTable.roses.EnhancedItemTable._children) do
-  item = persistTable.GlobalTable.roses.EnhancedItemTable[itemToken]
+ for itemToken,item in ipairs(roses.EnhancedItemTable) do
   -- trigger/action triggers
   if item.OnEquip then
    if verbose then print('trigger/action -actionType Equip -item '..itemToken..' -command [ enhanced/item-action -unit UNIT_ID -item ITEM_ID -action Equip ]') end
@@ -49,7 +48,7 @@ if systems.EnhancedItem and systems.EnhancedItem == 'true' then
    dfhack.run_command('trigger/action -actionType Shoot -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot ]')
   end
   if item.OnReport then
-   for _,reportType in ipairs(item.OnReport._children) do
+   for reportType,_ in ipairs(item.OnReport) do
     if verbose then print('trigger/action -actionType '..reportType..' -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action '..reportType..' ]') end
     dfhack.run_command('trigger/action -actionType '..reportType..' -item '..itemToken..' -command [ enhanced/item-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action '..reportType..' ]')
    end
@@ -71,7 +70,7 @@ if systems.EnhancedItem and systems.EnhancedItem == 'true' then
 end
 
 --= Enhanced Material Triggers
-if systems.EnhancedMaterial and systems.EnhancedMaterial == 'true' then
+if systems.EnhancedMaterial then
  local function matTrigger(material,materialToken,triggerType,verbose)
   -- trigger/action triggers
   if material.OnEquip then
@@ -109,7 +108,7 @@ if systems.EnhancedMaterial and systems.EnhancedMaterial == 'true' then
    dfhack.run_command('trigger/action -actionType Shoot -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action Shoot -matType '..triggerType..' ]')
   end
   if material.OnReport then
-   for _,reportType in ipairs(material.OnReport._children) do
+   for reportType,_ in ipairs(material.OnReport) do
     if verbose then print('trigger/action -actionType '..reportType..' -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action '..reportType..' -matType '..triggerType..' ]') end
     dfhack.run_command('trigger/action -actionType '..reportType..' -material '..materialToken..' -command [ enhanced/material-action -source ATTACKER_ID -target DEFENDER_ID -item ITEM_ID -action '..reportType..' -matType '..triggerType..' ]')
    end
@@ -130,25 +129,24 @@ if systems.EnhancedMaterial and systems.EnhancedMaterial == 'true' then
  end
  
  if verbose then print('Setting up Enhanced Material Triggers') end
- materials = persistTable.GlobalTable.roses.EnhancedMaterialTable
- for _,materialToken in pairs(materials.Inorganic._children) do
-  material = materials.Inorganic[materialToken]
-  materialToken = 'INORGANIC:'..materialToken
+ materials = roses.EnhancedMaterialTable
+ for matToken,material in pairs(materials.Inorganic) do
+  materialToken = 'INORGANIC:'..matToken
   matTrigger(material,materialToken,'Inorganic',verbose)
  end
- for _,token in pairs(materials.Creature._children) do
-  for _,index in pairs(materials.Creature[token]._children) do
+ for token,creature in pairs(materials.Creature) do
+  for index,caste in pairs(creature) do
    if index ~= 'ALL' then
-    material = materials.Creature[token][index]
+    material = caste
     materialToken = 'CREATURE:'..token..':'..index
     matTrigger(material,materialToken,'Creature',verbose)
    end
   end
  end
- for _,token in pairs(materials.Plant._children) do
-  for _,index in pairs(materials.Plant[token]._children) do
+ for token,plantType in pairs(materials.Plant) do
+  for index,plant in pairs(plantType) do
    if index ~= 'ALL' then
-    material = materials.Plant[token][index]
+    material = plant
     materialToken = 'PLANT:'..token..':'..index
     matTrigger(material,materialToken,'Plant',verbose)
    end
@@ -157,10 +155,9 @@ if systems.EnhancedMaterial and systems.EnhancedMaterial == 'true' then
 end
 
 --= Enhanced Building Triggers
-if systems.EnhancedBuilding and systems.EnhancedBuilding == 'true' then
+if systems.EnhancedBuilding then
  if verbose then print('Setting up Enhanced Building Triggers') end
- for _,buildingToken in pairs(persistTable.GlobalTable.roses.EnhancedBuildingTable._children) do
-  building = persistTable.GlobalTable.roses.EnhancedBuildingTable[buildingToken]
+ for buildingToken,building in pairs(roses.EnhancedBuildingTable) do
   checks = ''
   if building.OutsideOnly   then checks = checks .. ' -location Outside'                         end
   if building.InsideOnly    then checks = checks .. ' -location Inside'                          end
@@ -170,8 +167,7 @@ if systems.EnhancedBuilding and systems.EnhancedBuilding == 'true' then
   if building.RequiredMagma then checks = checks .. ' -requiredMagma ' .. building.RequiredMagma end
   if building.RequiredBuildings then
    temp = ' -requiredBuilding [ '
-   for _,bldg in pairs(building.RequiredBuildings._children) do
-    num = building.RequiredBuildings[bldg]
+   for bldg,num in pairs(building.RequiredBuildings) do
     temp = temp..bldg..':'..num..' '
    end
    temp = temp..']'
@@ -179,8 +175,7 @@ if systems.EnhancedBuilding and systems.EnhancedBuilding == 'true' then
   end
   if building.ForbiddenBuildings then
    temp = ' -forbiddenBuilding [ '
-   for _,bldg in pairs(building.ForbiddenBuildings._children) do
-    num = building.ForbiddenBuildings[bldg]
+   for bldg,num in pairs(building.ForbiddenBuildings) do
     temp = temp..bldg..':'..num..' '
    end
    temp = temp..']'
@@ -194,10 +189,9 @@ if systems.EnhancedBuilding and systems.EnhancedBuilding == 'true' then
 end
 
 --= Enhanced Reaction Triggers
-if systems.EnhancedReation and systems.EnhancedReaction == 'true' then
+if systems.EnhancedReation then
  if verbose then print('Setting up Enhanced Reaction Triggers') end
- for _,reactionToken in pairs(persistTable.GlobalTable.roses.EnhancedReactionTable._children) do
-  reaction = persistTable.GlobalTable.roses.EnhancedReactionTable[reactionToken]
+ for reactionToken,reaction in pairs(roses.EnhancedReactionTable) do
   if reaction.OnStart then
    checks = ' '
    if reaction.BaseDur and not reaction.DurReduction then checks = checks..'-delay '..reaction.BaseDur..' ' end

@@ -1,8 +1,8 @@
 --entity based functions, version 42.06a
 ---------------------------------------------------------------------------------------
 function makeEntityTable(entity,verbose)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return end
 
  if tonumber(entity) then
   civid = tonumber(entity)
@@ -14,8 +14,8 @@ function makeEntityTable(entity,verbose)
 
  local key = tostring(entity.id)
  local entity = entity.entity_raw.code
- local civilizations = persistTable.GlobalTable.roses.CivilizationTable
- local entityTable = persistTable.GlobalTable.roses.EntityTable
+ civilizations = roses.CivilizationTable
+ entityTable = roses.EntityTable
  if entityTable[key] then
   return
  else
@@ -34,31 +34,24 @@ function makeEntityTable(entity,verbose)
     entityTable.Civilization.CurrentPercent = civilizations[entity].LevelPercent
     entityTable.Civilization.Classes = {}
     if safe_index(civilizations,entity,'Level','0','Remove') then
-     for _,mtype in pairs(civilizations[entity].Level['0'].Remove._children) do
-      local depth1 = civilizations[entity].Level['0'].Remove[mtype]
-      for _,stype in pairs(depth1._children) do
-       local depth2 = depth1[stype]
-       for _,mobj in pairs(depth2._children) do
-        local sobj = depth2[mobj]
+     for mtype,depth1 in pairs(civilizations[entity].Level['0'].Remove) do
+      for stype,depth2 in pairs(depth1) do
+       for mobj,sobj in pairs(depth2) do
         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,verbose)
        end
       end
      end
     end
     if safe_index(civilizations,entity,'Level','0','Add') then
-     for _,mtype in pairs(civilizations[entity].Level['0'].Add._children) do
-      local depth1 = civilizations[entity].Level['0'].Add[mtype]
-      for _,stype in pairs(depth1._children) do
-       local depth2 = depth1[stype]
-       for _,mobj in pairs(depth2._children) do
-        local sobj = depth2[mobj]
+     for mtype,depth1 in pairs(civilizations[entity].Level['0'].Add) do
+      for stype,depth2 in pairs(depth1) do
+       for mobj,sobj in pairs(depth2) do
         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,verbose)
        end
       end
      end
      if safe_index(civilizations,entity,'Level','0','Classes') then
-      for _,class in pairs(civilizations[entity].Level['0'].Classes._children) do
-       level = tonumber(civilizations[entity].Level['0'].Classes[class])
+      for class,level in pairs(civilizations[entity].Level['0'].Classes) do
        if level > 0 then
         entityTable.Civilization.Classes[class] = tostring(level)
        else
@@ -439,341 +432,6 @@ function changeMisc(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeNoble(civ,position,direction,verbose)
- --if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
- --positions = civ.positions
- --if direction == -1 or direction == 'Remove' then
- -- for i,x in pairs(positions.own) do
- --  if position == x.code then
- --   positions.own:erase(i)
- --  end
- -- end
- -- for i,x in pairs(positions.site) do
- --  if position == x.code then
- --   positions.site:erase(i)
- --  end
- -- end
- -- for i,x in pairs(positions.conquered_site) do
- --  if position == x.code then
- --   positions.conquered_site:erase(i)
- --  end
- -- end
- --elseif direction == 1 or direction == 'Add' then
- -- local persistTable = require 'persist-table'
- -- entity = civ.entity_raw.code
- -- civilizationTable = persistTable.GlobalTable.roses.CivilizationTable[entity]
- -- if civilizationTable then
- --  if civilizationTable.Nobles then
- --   if civilizationTable.Nobles[position] then
- --    positionTable = civilizationTable.Nobles[position]
- --    pos = df['entity_position']:new()
- --    pos.code = position
- --    pos.id = positions.next_position_id
- --    positions.next_position_id = positions.next_position_id + 1
- --    for _,creature in pairs(positionTable.AllowedCreature._children) do
- --      local caste = positionTable.AllowedCreature[creature]
- --      for _,w in pairs(df.global.world.raws.creatures.all) do
- --       if creature == w.creature_id then
- --        for _,v in pairs(w.caste) do
- --         if caste == v.caste_id then
- --          pos.allowed_creature:insert('#',v.index)
- --         end
- --        end
- --       end
- --      end
- --     end
- --     for _,creature in pairs(positionTable.RejectedCreature._children) do
- --      local caste = positionTable.RejectedCreature[creature]
- --      for _,w in pairs(df.global.world.raws.creatures.all) do
- --       if creature == w.creature_id then
- --        for _,v in pairs(w.caste) do
- --         if caste == v.caste_id then
- --          pos.rejected_creature:insert('#',v.index)
- --         end
- --        end
- --       end
- --      end
- --     end
- --     for _,k in pairs(positionTable.AllowedClass._children) do
- --      local class = positionTable.AllowedClass[k]
- --      pos.allowed_class:insert('#',class)
- --     end
- --     for _,k in pairs(positionTable.RejectedClass._children) do
- --      local class = positionTable.RejectedClass[k]
- --      pos.rejected_class:insert('#',class)
- --     end
- --     if positionTable.Name then
- --      pos.name[0] = split(positionTable.Name,':')[1]
- --      pos.name[1] = split(positionTable.Name,':')[2]
- --      pos.name_female[0] = ''
- --      pos.name_female[1] = ''
- --      pos.name_male[0] = ''
- --      pos.name_male[1] = ''
- --     else
- --      pos.name[0] = ''
- --      pos.name[1] = ''
- --      pos.name_female[0] = ''
- --      pos.name_female[1] = ''
- --      pos.name_male[0] = ''
- --      pos.name_male[1] = ''
- --     end
- --     if positionTable.NameFemale then
- --      pos.name_female[0] = split(positionTable.NameFemale,':')[1]
- --      pos.name_female[1] = split(positionTable.NameFemale,':')[2]
- --     end
- --     if positionTable.NameMale then
- --      pos.name_male[0] = split(positionTable.NameMale,':')[1]
- --      pos.name_male[1] = split(positionTable.NameMale,':')[2]
- --     end
- --     if positionTable.Spouse then
- --      pos.spouse[0] = split(positionTable.Spouse,':')[1]
- --      pos.spouse[1] = split(positionTable.Spouse,':')[2]
- --      pos.spouse_female[0] = ''
- --      pos.spouse_female[1] = ''
- --      pos.spouse_male[0] = ''
- --      pos.spouse_male[1] = ''
- --     else
- --      pos.spouse[0] = ''
- --      pos.spouse[1] = ''
- --      pos.spouse_female[0] = ''
- --      pos.spouse_female[1] = ''
- --      pos.spouse_male[0] = ''
- --      pos.spouse_male[1] = ''
- --     end
- --     if positionTable.SpouseFemale then
- --      pos.spouse_female[0] = split(y['SpouseFemale'],':')[1]
- --      pos.spouse_female[1] = split(y['SpouseFemale'],':')[2]
- --     end
- --     if positionTable.SpouseMale then
- --      pos.spouse_male[0] = split(positionTable.SpouseMale,':')[1]
- --      pos.spouse_male[1] = split(positionTable.SpouseMale,':')[2]
- --     end
- --     if positionTable.Squad then
- --      pos.squad_size = tonumber(split(positionTable.Squad,':')[1])
- --      pos.squad[0] = split(positionTable.Squad,':')[2]
- --      pos.squad[1] = split(positionTable.Squad,':')[3]
- --     else
- --      pos.squad[0] = ''
- --      pos.squad[1] = ''
- --      pos.squad_size = 0
- --     end
- --     if positionTable.LandName then
- --      pos.land_name = positionTable.LandName
- --     else
- --      pos.land_name = ''
- --     end
- --     if positionTable.LandHolder then
- --      pos.land_holder = tonumber(positionTable.LandHolder)
- --     else
- --      pos.land_holder = 0
- --     end
- --     if positionTable.RequiredBoxes then
- --      pos.required_boxes = tonumber(positionTable.RequiredBoxes)
- --     else
- --      pos.required_boxes = 0
- --     end
- --     if positionTable.RequiredCabinets then
- --      pos.required_cabinets = tonumber(positionTable.RequiredCabinets)
- --     else
- --      pos.required_cabinets = 0
- --     end
- --     if positionTable.RequiredRacks then
- --      pos.required_racks = tonumber(positionTable.RequiredRacks)
- --     else
- --      pos.required_racks = 0
- --     end
- --     if positionTable.RequiredStands then
- --      pos.required_stands = tonumber(positionTable.RequiredStands)
- --     else
- --      pos.required_stands = 0
- --     end
- --     if positionTable.RequiredOffice then
- --      pos.required_office = tonumber(positionTable.RequiredOffice)
- --     else
- --      pos.required_office = 0
- --     end
- --     if positionTable.RequiredBedroom then
- --      pos.required_bedroom = tonumber(positionTable.RequiredBedroom)
- --     else
- --      pos.required_bedroom = 0
- --     end
- --     if positionTable.RequiredDining then
- --      pos.required_dining = tonumber(positionTable.RequiredDining)
- --     else
- --      pos.required_dining = 0
- --     end
- --     if positionTable.RequiredTomb then
- --      pos.required_tomb = tonumber(positionTable.RequiredTomb)
- --     else
- --      pos.required_tomb = 0
- --     end
- --     if positionTable.MandateMax then
- --      pos.mandate_max = tonumber(positionTable.MandateMax)
- --     else
- --      pos.mandate_max = 0
- --     end
- --     if positionTable.DemandMax then
- --      pos.demand_max = tonumber(positionTable.DemandMax)
- --     else
- --      pos.demand_max = 0
- --     end
- --     if positionTable.Color then
- --      pos.color[0] = split(positionTable.Color,':')[1]
- --      pos.color[1] = split(positionTable.Color,':')[2]
- --      pos.color[2] = split(positionTable.Color,':')[3]
- --     else
- --      pos.color[0] = 5
- --      pos.color[1] = 0
- --      pos.color[2] = 0
- --     end
- --     if positionTable.Precedence then
- --      pos.precedence = tonumber(positionTable.Precedence)
- --     else
- --      pos.precedence = -1
- --     end
- --     for v,w in pairs(pos.responsibilities) do
- --      if positionTable.Responsibility[v] then
- --       pos.responsibilities[v] = true
- --      else
- --       pos.responsibilities[v] = false
- --      end
- --     end
- --     for v,w in pairs(pos.flags) do
- --      if positionTable[v] then
- --       pos.flags[v] = true
- --      else
- --       pos.flags[v] = false
- --      end
- --     end
- --     if positionTable.Flags then
- --      for _,v in pairs(positionTable.Flags._children) do
- --       local w = positionTable.Flags[v]
- --       if pos.flags[v] then pos.flags[v] = true end
- --      end
- --     end
- --     if positionTable.Number then
- --      pos.number = tonumber(positionTable.Number)
- --     else
- --      pos.number = -1
- --     end
- --     for _,v in pairs(positionTable.AppointedBy._children) do
- --      p = -1
- --      own = false
- --      site = false
- --      for s,t in pairs(positions.own) do
- --       if v == t.code then
- --        p = t.id
- --        own = true
- --        break
- --       end
- --      end
- --      if p == -1 then
- --       for s,t in pairs(positions.site) do
- --        if v == t.code then
- --         p = t.id
- --         site = true
- --         break
- --        end
- --       end
- --      end
- --      if p == -1 then
- --       for s,t in pairs(positions.conquered_site) do
- --        if v == t.code then
- --         p = t.id
- --         break
- --        end
- --       end
- --      end
- --      if p == -1 then
- --       print('No valid APPOINTED_BY position found')
- --      else
- --       pos.appointed_by:insert('#',p)
- --       if own then pos.appointed_by_civ:insert('#',civid) end
- --       if site then pos.appointed_by_civ:insert('#',-1) end
- --      end
- --     end
- --     if positionTable.Commander then
- --      v = split(positionTable.Commander,':')[1]
- --      p = -1
- --      own = false
- --      site = false
- --      for s,t in pairs(positions.own) do
- --       if v == t.code then
- --        p = t.id
- --        own = true
- --        break
- --       end
- --      end
- --      if p == -1 then
- --       for s,t in pairs(positions.site) do
- --        if v == t.code then
- --         p = t.id
- --         site = true
- --         break
- --        end
- --       end
- --      end
- --      if p == -1 then
- --       for s,t in pairs(positions.conquered_site) do
- --        if v == t.code then
- --         p = t.id
- --         break
- --        end
- --       end
- --      end
- --      if p == -1 then
- --       print('No valid COMMANDER position found')
- --      else
- --       pos.commander_id:insert('#',p)
- --       pos.commander_types:insert('#',0)
- --       if own then pos.commander_civ:insert('#',civid) end
- --       if site then pos.commander_civ:insert('#',-1) end
- --      end
- --     end
- --     if positionTable.ReplacedBy then
- --      v = positionTable.ReplacedBy
- --      p = -1
- --      own = false
- --      site = false
- --      for s,t in pairs(positions.own) do
- --       if v == t.code then
- --        p = t.id
- --        own = true
- --        break
- --       end
- --      end
- --      if p == -1 then
- --       for s,t in pairs(positions.site) do
- --        if v == t.code then
- --         p = t.id
- --         site = true
- --         break
- --        end
- --       end
- --      end
- --      if p == -1 then
- --       for s,t in pairs(positions.conquered_site) do
- --        if v == t.code then
- --         p = t.id
- --         break
- --        end
- --       end
- --      end
- --      if p == -1 then
- --       print('No valid REPLACED_BY position found')
- --      else
- --       pos.replaced_by = p
- --      end
- --     else
- --      pos.replaced_by = -1
- --     end
- --     positions.own:insert('#',pos)
- --    else
- --     print('No valid position found in civilization.txt')
- --     return
- --    end
- --   end
- --  end
- -- end
 end
 
 function changeOrganic(civ,stype,mobj,sobj,direction,verbose)

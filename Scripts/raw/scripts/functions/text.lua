@@ -1,12 +1,61 @@
 -- This file contains a text translation for various flags and tokens in the 
 -- game that don't have a simple translation, or benefit from some additional
 -- information. As well as the text used to generate description strings
+local function fixString(str)
+ local outStr = ''
+ if str == '' then return str end
+ local array = str:split(',')
+ local n = #array
+ if str:endswith(',') or str:endswith(', ') then n = n - 1 end
+ if     n == 0 then
+  outStr = array[1]
+ elseif n == 1 then
+  outStr = array[1]
+ elseif n == 2 then
+  outStr = array[1]..' and'..array[2]
+ else
+  for i = 1, n-1 do
+   outStr = outStr..array[i]..','
+  end
+  outStr = outStr..' and'..array[n]
+ end
+ return outStr
+end
+local function getPronoun(unit)
+ local str1 = 'It'
+ local str2 = 'Its'
+ if unit.sex == 0 then
+  str1 = 'She'
+  str2 = 'Her'
+ elseif unit.sex == 1 then
+  str1 = 'He'
+  str2 = 'His'
+ end 
+ return str1, str2
+end
+local function get_hf_name(id,translate)
+  local hf = df.historical_figure.find (id)
+
+  if hf ~= nil then
+    if hf.name.has_name then
+      return dfhack.TranslateName (hf.name, translate)
+    else
+      return df.global.world.raws.creatures.all [hf.race].name [0]
+    end
+  
+  else  
+    return "<Unknown>"
+  end
+end
 
 -- Flags
 -- These are english translations for various flags
 -- e.g. NOPAIN = 'Does not feel pain'
 creatureFlags = {
--- BIOMES 
+ ['ALL_FLAGS'] = {},
+ 
+-- Biomes
+ ['BIOME_FLAGS'] = {
   ANY_LAND                              = 'Any Land',
   ALL_MAIN                              = 'All Main',
   ANY_OCEAN                             = 'Any Ocean',
@@ -140,15 +189,19 @@ creatureFlags = {
   BIOME_RIVER_TROPICAL_FRESHWATER       = 'Tropical Freshwater River',
   BIOME_RIVER_TROPICAL_BRACKISHWATER    = 'Tropical Brackishwater River',
   BIOME_RIVER_TROPICAL_SALTWATER        = 'Tropical Saltwater River',
-
+ },
+  
 -- Habitats
+ ['HABITAT_FLAGS'] = {
   AMPHIBIOUS = 'Amphibious',
   AQUATIC    = 'Aquatic',
   GOOD       = 'Living in good biomes',
   EVIL       = 'Living in evil biomes',
   SAVAGE     = 'Living in savage biomes',
-
+ },
+ 
 -- Activity
+ ['ACTIVITY_FLAGS'] = {
   ALL_ACTIVE  = 'At all times',
   DIURNAL     = 'During the day',
   NOCTURNAL   = 'During the night',
@@ -159,8 +212,10 @@ creatureFlags = {
   NO_SUMMER   = 'Absent during the summer',
   NO_AUTUMN   = 'Absent during the fall',
   NO_WINTER   = 'Absent during the winter',
-
+ },
+ 
 -- Utility
+ ['UTILITY_FLAGS'] = {
   COMMON_DOMESTIC   = 'Domesticated',
   WAGON_PULLER      = 'Can pull wagons',
   PACK_ANIMAL       = 'Can haul goods',
@@ -170,16 +225,20 @@ creatureFlags = {
   PET_EXOTIC        = 'Can be tamed with difficulty',
   MOUNT             = 'Can be used as a mount',
   MOUNT_EXOTIC      = 'Can be used as a mount',
+ },
  
--- Diet             
+-- Diet 
+ ['DIET_FLAGS'] = {            
   NO_EAT        = 'Does not need food',
   NO_DRINK      = 'Does not need drink',
   BONECARN      = 'Eats meat and bones',
   CARNIVORE     = 'Only eats meat',
   GRAZER        = 'Eats grass',
   GOBBLE_VERMIN = 'Eats vermin',
-
+ },
+ 
 -- Behavior
+ ['BEHAVIOR_FLAGS'] = {
   MISCHIEVOUS                 = 'Mischievous',
   CURIOUSBEAST_ANY            = 'Steals anything',
   CURIOUSBEAST_ITEM           = 'Steals items',
@@ -195,8 +254,10 @@ creatureFlags = {
   AT_PEACE_WITH_WILDLIFE      = 'At peace with wildlife',
   AMBUSHPREDATOR              = 'Ambushes prey',
   OPPOSED_TO_LIFE             = 'Hostile to the living',
-
+ },
+ 
 -- Movement
+ ['MOVEMENT_FLAGS'] = {
   FLIER          = 'Can fly',
   IMMOBILE       = 'Can not move',
   IMMOBILE_LAND  = 'Can not move on land',
@@ -208,8 +269,10 @@ creatureFlags = {
   SWIMS_LEARNED  = 'Can learn to swim',
   VERMIN_MICRO   = 'Moves in a swarm',
   UNDERSWIM      = 'Swims underwater',
-
+ },
+ 
 -- Immunities
+ ['IMMUNITY_FLAGS'] = {
   NO_DIZZINESS     = 'Does not get dizzy',
   NO_FEVERS        = 'Does not get fevers',
   NOEXERT          = 'Does not get tired',
@@ -224,8 +287,10 @@ creatureFlags = {
   FIREIMMUNE       = 'Immune to fire',
   FIREIMMUNE_SUPER = 'Immune to dragonfire',
   WEBIMMUNE        = 'Does not get caught in webs',
-
+ },
+ 
 -- Bonuses
+ ['BONUS_FLAGS'] = {
   WEBBER                = 'Creates webs',
   THICKWEB              = 'Webs large targets',
   MAGMA_VISION          = 'Can see in lava',
@@ -241,8 +306,10 @@ creatureFlags = {
   EXTRAVISION           = 'Can see in the dark',
   SLOW_LEARNER          = 'Slow learner',
   UTTERANCES            = 'Unintelligible utterances',
-
+ },
+ 
 -- Body Flags
+ ['BODY_FLAGS'] = {
   NOT_BUTCHERABLE                = 'Can not be butchered',
   COOKABLE_LIVE                  = 'Can be cooked live',
   NOSKULL                        = 'Does not have a skull',
@@ -252,8 +319,10 @@ creatureFlags = {
   NOTHOUGHT                      = 'Does not have a brain',
   NO_THOUGHT_CENTER_FOR_MOVEMENT = 'Does not need a brain to move',
   VEGETATION                     = 'Made of swampstuff',
-
+ },
+ 
 -- Types
+ ['TYPE_FLAGS'] = {
   FANCIFUL                 = 'Fanciful',
   CASTE_MEGABEAST          = 'Megabeast',
   CASTE_SEMIMEGABEAST      = 'Semi-Megabeast',
@@ -264,20 +333,34 @@ creatureFlags = {
   CASTE_UNIQUE_DEMON       = 'Unique Demon',
   CASTE_DEMON              = 'Demon',
   CASTE_NIGHT_CREATURE_ANY = 'Night Creature',
+ }
 }
+for flagType,flags in pairs(creatureFlags) do
+ for flag,str in pairs(flags) do
+  creatureFlags.ALL_FLAGS[flag] = str
+ end
+end
+
 plantFlags = {
+ ['ALL_FLAGS'] = {},
+ 
 -- Seasonal
+ ['SEASONAL_FLAGS'] = {
   SPRING = 'Grows during the spring',
   SUMMER = 'Grows during the summer',
   AUTUMN = 'Grows during the fall',
   WINTER = 'Grows during the winter',
-
+ },
+ 
 -- Edible
+ ['EDIBLE_FLAGS'] = {
   EDIBLE_VERMIN = 'Vermin',
   EDIBLE_RAW    = 'Raw',
   EDIBLE_COOKED = 'Cooked',
-
+ },
+ 
 -- Items
+ ['ITEM_FLAGS'] = {
   ITEMS_WEAPON        = 'Makes melee weapons',
   ITEMS_WEAPON_RANGED = 'Makes ranges weapons',
   ITEMS_ANVIL         = 'Makes anvils',
@@ -293,13 +376,17 @@ plantFlags = {
   ITEMS_LEATHER       = 'Makes leather items',
   ITEMS_SOFT          = 'Makes soft items',
   ITEMS_HARD          = 'Makes hard items',
-
+ },
+ 
 -- Types
+ ['TYPE_FLAGS'] = {
   IS_METAL = 'Metal',
   IS_GLASS = 'Glass',
   IS_STONE = 'Stone',
-
+ },
+ 
 -- Materials
+ ['MATERIAL_FLAGS'] = {
   SOFT             = 'Soft',
   HARD             = 'Hard',
   METAL            = 'Metal',
@@ -320,8 +407,10 @@ plantFlags = {
   SOFT_MAT         = 'Soft',
   METAL_WEAPON_MAT = 'Metal',
   CAN_STONE        = 'Stone',
-
+ },
+ 
 -- Uses
+ ['USE_FLAGS'] = {
   TRAINING                = 'Training',
   FURNITURE               = 'Furniture',
   LIQUID_COOKING          = 'Cooking',
@@ -346,9 +435,81 @@ plantFlags = {
   PROTECT_FOLDED_SHEETS   = 'Protect Paper',
   CONTAIN_WRITING         = 'Hold Writings',
   BOOKCASE                = 'Hold Books',
+ }
 }
+for flagType,flags in pairs(plantFlags) do
+ for flag,str in pairs(flags) do
+  plantFlags.ALL_FLAGS[flag] = str
+ end
+end
 
--- These tables are needed for generating the appearance string
+-- Health Strings (Wounds and Syndromes)
+function wound_string(bp,bp_status)
+ -- Missing and On fire are treated special and returned solo, the rest is combined with loss > damage
+ local outStr = ''
+ local bp_name = bp.name_singular[0].value
+ if bp_status.missing then
+  outStr = bp_name..' is missing'
+  return outStr
+ elseif bp_status.on_fire then
+  outStr = bp_name..' is on fire'
+  return outStr
+ else
+  outStr = bp_name
+  
+  -- Skin Check
+  if bp_status.skin_damage then 
+   outStr = outStr..' skin is damaged,' 
+  end
+  
+  -- Muscle Check
+  if bp_status.muscle_loss then
+   outStr = outStr..' muscles are gone,'
+  elseif bp_status.muscle_damage then
+   outStr = outStr..' muscles are damaged,'
+  end
+  
+  -- Bone Check
+  if bp_status.bone_loss then
+   outStr = outStr..' bones are gone,'
+  elseif bp_status.bone_damage then
+   outStr = outStr..' bones are damaged,'
+  end
+  
+  -- Organ Check
+  if bp_status.organ_loss then
+   outStr = outStr..' organs are gone,'
+  elseif bp_status.organ_damage then
+   outStr = outStr..' organs are damaged,'
+  end
+  if bp_status.spilled_guts then
+   outStr = outStr..' guts are spilled,'
+  end
+  
+  -- Nerve Check
+  if bp_status.motor_nerve_severed then
+   outStr = outStr..' motor nerves are severed,'
+  end
+  if bp_status.sensory_nerve_severed then
+   outStr = outStr..' sensory nerves are severed,'
+  end
+  
+  if outStr == bp_name then
+   outStr = nil
+  else
+   outStr = fixString(outStr)
+  end
+  
+  return outStr
+ end
+end
+function syndrome_string(syndrome)
+ local outStr
+ 
+ return outStr
+end
+
+-- These tables and functions are needed for generating the appearance string
 modifiers = { 
  [df.appearance_modifier_type.HEIGHT]          = {
    [-3] = 'extremely short',
@@ -543,16 +704,62 @@ modifiers = {
    [2]  = 'raspy',
    [3]  = 'guttural'},
 }
-styles = {
-  [df.tissue_style_type.NEATLY_COMBED] = 'neatly combed',
-  [df.tissue_style_type.BRAIDED]       = 'braided',
-  [df.tissue_style_type.DOUBLE_BRAIDS] = 'arranged in double braids',
-  [df.tissue_style_type.PONY_TAILS]    = 'tied in a pony tail',
-  [df.tissue_style_type.CLEAN_SHAVEN]  = 'clean shaven'
+styles    = {
+  [df.tissue_style_type.NEATLY_COMBED] = 'is neatly combed',
+  [df.tissue_style_type.BRAIDED]       = 'is braided',
+  [df.tissue_style_type.DOUBLE_BRAIDS] = 'is arranged in double braids',
+  [df.tissue_style_type.PONY_TAILS]    = 'is tied in a pony tail',
+  [df.tissue_style_type.CLEAN_SHAVEN]  = 'is clean shaven'
 }
+local function color_string(pattern)
+ local strOut = ''
+ local colors = df.global.world.raws.descriptors.colors
+
+ if     df.pattern_type[pattern.pattern] == 'STRIPES' then
+  if #pattern.colors == 1 then
+   strOut = colors[pattern.colors[0]].name..' with '..colors[pattern.colors[1]].name..' stripes'
+  else
+   strOut = colors[pattern.colors[0]].name..' with rainbow stripes'
+  end
+ elseif df.pattern_type[pattern.pattern] == 'SPOTS' then
+  strOut = colors[pattern.colors[0]].name..' with '..colors[pattern.colors[1]].name..' spots'
+ elseif df.pattern_type[pattern.pattern] == 'MOTTLED' then
+  strOut = 'mottled '..colors[pattern.colors[0]].name..' and '..colors[pattern.colors[1]].name
+ elseif df.pattern_type[pattern.pattern] == 'IRIS_EYE' then
+  strOut = colors[pattern.colors[2]].name
+ elseif df.pattern_type[pattern.pattern] == 'PUPIL_EYE' then
+  strOut = colors[pattern.colors[1]].name
+ else
+  strOut = colors[pattern.colors[0]].name
+ end
+   
+ return strOut
+end
+local function hair_string(bin,y,x)
+ local strOut = ''
+ local patterns = df.global.world.raws.descriptors.patterns
+ local colors = df.global.world.raws.descriptors.colors
+
+ if     bin == 1 then
+  strOut = colors[patterns[x].colors[0]].name ..' with a touch of '..colors[patterns[y].colors[0]].name
+ elseif bin == 2 then
+  strOut = colors[patterns[x].colors[0]].name ..' with streaks of '..colors[patterns[y].colors[0]].name
+ elseif bin == 3 then
+  strOut = colors[patterns[x].colors[0]].name ..' mixed with '..colors[patterns[y].colors[0]].name
+ elseif bin == 4 then
+  strOut = colors[patterns[y].colors[0]].name ..' mixed with '..colors[patterns[x].colors[0]].name
+ elseif bin == 5 then
+  strOut = colors[patterns[y].colors[0]].name ..' with streaks of '..colors[patterns[x].colors[0]].name
+ elseif bin == 6 then
+  strOut = colors[patterns[y].colors[0]].name ..' with a touch of '..colors[patterns[x].colors[0]].name
+ end
+ 
+ return strOut
+end
 function appearance_detail(unit)
  local raw = df.global.world.raws.creatures.all[unit.race].caste[unit.caste]
  local patterns = df.global.world.raws.descriptors.patterns
+ local colors = df.global.world.raws.descriptors.colors
  local appearance = unit.appearance
 
  local body = {}
@@ -569,9 +776,9 @@ function appearance_detail(unit)
   for j,n in pairs(style.list_idx) do
    otherHairs[style.noun] = {PartName   = style.noun, 
 	                         StyleToken = df.tissue_style_type[appearance.tissue_style[n]]}
-   partN = style.part_idx[j]
+   partN  = style.part_idx[j]
    layerN = style.layer_idx[j]
-   bpart = raw.body_info.body_parts[partN].layers[layerN]
+   bpart  = raw.body_info.body_parts[partN].layers[layerN]
    for k,idx in pairs(bpart.bp_modifiers) do
     x = raw.bp_appearance.modifier_idx[idx]
 	val = appearance.bp_modifiers[idx]
@@ -596,24 +803,63 @@ function appearance_detail(unit)
  if not hair then hair = {} end
  otherHairs.hair = nil
 
+ temp1 = {}
+ temp2 = {}
  for i,n in pairs(appearance.colors) do
   x = raw.color_modifiers[i].pattern_index[n]
-  if raw.color_modifiers[i].part == 'skin' then 
+  part = raw.color_modifiers[i].part
+  if part == 'skin' then 
    skin.ColorToken = patterns[x].id
-   skin.ColorString = patterns[x].id -- This is just for now, need to change it -ME
-  elseif raw.color_modifiers[i].part == 'eyes' then
+   skin.ColorString = color_string(patterns[x])
+  elseif part == 'eyes' then
    eyes.ColorToken = patterns[x].id
-   eyes.ColorString = patterns[x].id -- This is just for now, need to change it -ME
-  elseif raw.color_modifiers[i].part == 'hair' then
-   hair.ColorToken = patterns[x].id
-   hair.ColorString = patterns[x].id -- This is just for now, need to change it -ME
+   eyes.ColorString = color_string(patterns[x])
+  elseif part == 'hair' then
+   temp1[#temp1+1] = raw.color_modifiers[i]
+   temp2[#temp2+1] = n
   else
-   colorstring = patterns[x].id -- This is just for now, need to change it -ME
+   colorstring = color_string(patterns[x])
    partstring = raw.color_modifiers[i].part
-   otherColors[raw.color_modifiers[i].part] = {PartName    = raw.color_modifiers[i].part, 
-                                  PartString  = partstring, 
-								  ColorToken  = patterns[x].id, 
-								  ColorString = colorstring}
+   otherColors[part] = {PartName    = part, 
+                        PartString  = partstring, 
+						ColorToken  = patterns[x].id, 
+						ColorString = colorstring}
+  end
+ end
+ if #temp1 == 1 then
+  x = temp1[1].pattern_index[temp2[1]]
+  hair.ColorToken = patterns[x].id
+  hair.ColorString = colors[patterns[x].colors[0]].name
+ else
+  unitAge = dfhack.units.getAge(unit)*336
+  mod1 = 1
+  mod2 = 1
+  found = false
+  for i,mod in pairs(temp1) do
+   if unitAge >= mod.start_date and unitAge <= mod.end_date then
+    mod1 = i-1
+    mod2 = i
+    found = true
+   elseif not found and unitAge > mod.end_date then
+    mod1 = i
+    mod2 = i
+   end
+  end
+  x = temp1[mod2].pattern_index[temp2[mod2]]
+  y = temp1[mod1].pattern_index[temp2[mod1]]
+  hair.ColorToken = patterns[x].id
+  if mod1 == mod2 then
+   hair.ColorString = colors[patterns[x].colors[0]].name
+  else
+   d = (temp1[mod2].end_date - temp1[mod2].start_date)/6
+   bin = 6
+   for i = 1,6 do
+    if unitAge < temp1[mod2].start_date + i*d then
+     bin = i
+     break
+    end
+   end
+   hair.ColorString = hair_string(bin,x,y)
   end
  end
  
@@ -680,58 +926,58 @@ function appearance_detail(unit)
  -- Body appearance
  list.Body = {}
  for Type,_ in pairs(body) do
-  list.Body[Type] = {Part='Body', Type=Type, Value=body[Type].n, Bin=body[Type].y}
+  list.Body[Type] = {Part='Body', Type=Type, Value=body[Type].n, Bin=body[Type].y, _colorBin=body[Type].y}
   list.Body[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Body[Type].Bin]  
  end
  -- Skin appearance
  list.Skin = {}
- list.Skin.Color   = {Part='Skin',Type='Color',Value=skin.ColorToken, Bin=skin.ColorString, String=skin.ColorString}
+ list.Skin.Color   = {Part='Skin',Type='Color',Value=skin.ColorToken, Bin='--', String=skin.ColorString}
  list.Skin.WRINKLY = {Part='Skin',Type='WRINKLY',Value=skin.Wrinkles_n, Bin=skin.Wrinkles_y}
  list.Skin.WRINKLY.String = modifiers[df.appearance_modifier_type.WRINKLY][skin.Wrinkles_y]
  -- Eye appearance
  list.Eyes = {}
- list.Eyes.Color = {Part='Eyes', Type='Color', Value=eyes.ColorToken, Bin=eyes.ColorString, String=eyes.ColorString}
+ list.Eyes.Color = {Part='Eyes', Type='Color', Value=eyes.ColorToken, Bin='--', String=eyes.ColorString}
  for Type,_ in pairs(eyes) do
   if Type ~= 'ColorToken' and Type ~= 'ColorString' then
-   list.Eyes[Type] = {Part='Eyes', Type=Type, Value=eyes[Type].n, Bin=eyes[Type].y}
+   list.Eyes[Type] = {Part='Eyes', Type=Type, Value=eyes[Type].n, Bin=eyes[Type].y, _colorBin=eyes[Type].y}
    list.Eyes[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Eyes[Type].Bin]
   end
  end
  -- Hair appearance
  list.Hair = {}
- list.Hair.Color  = {Part='Hair', Type='Color', Value=hair.ColorToken, Bin=hair.ColorString, String=hair.ColorString}
- list.Hair.Style  = {Part='Hair', Type='Style', Value=hair.StyleToken, Bin=hair.StyleToken, String=styles[df.tissue_style_type[hair.StyleToken]]}
+ list.Hair.Color  = {Part='Hair', Type='Color', Value=hair.ColorToken, Bin='--', String=hair.ColorString}
+ list.Hair.Style  = {Part='Hair', Type='Style', Value=hair.StyleToken, Bin='--', String=styles[df.tissue_style_type[hair.StyleToken]]}
  for Type,_ in pairs(hair) do
   if Type ~= 'ColorToken' and Type ~= 'ColorString' and Type ~= 'StyleToken' and Type ~= 'PartName' then
-   list.Hair[Type] = {Part='Hair', Type=Type, Value=hair[Type].n, Bin=hair[Type].y}
+   list.Hair[Type] = {Part='Hair', Type=Type, Value=hair[Type].n, Bin=hair[Type].y, _colorBin=hair[Type].y}
    list.Hair[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Hair[Type].Bin]
   end
  end
  -- Ear appearance
  list.Ears = {}
  for Type,_ in pairs(ears) do
-  list.Ears[Type] = {Part='Ears', Type=Type, Value=ears[Type].n, Bin=ears[Type].y}
+  list.Ears[Type] = {Part='Ears', Type=Type, Value=ears[Type].n, Bin=ears[Type].y, _colorBin=ears[Type].y}
   list.Ears[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Ears[Type].Bin]
  end 
  -- Nose appearance
  list.Nose = {}
  for Type,_ in pairs(nose) do
-  list.Nose[Type] = {Part='Nose', Type=Type, Value=nose[Type].n, Bin=nose[Type].y}
+  list.Nose[Type] = {Part='Nose', Type=Type, Value=nose[Type].n, Bin=nose[Type].y, _colorBin=nose[Type].y}
   list.Nose[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Nose[Type].Bin]
  end
  -- Other colors
  list.OtherColors = {}
  for i,other in pairs(otherColors) do
-  list.OtherColors[i] = {}
-  list.OtherColors[i].Color = {Part=other.PartName, Type='Color', Value=other.ColorToken, Bin=other.ColorString, String=other.ColorString}
+  --list.OtherColors[i] = {}
+  list.OtherColors[i] = {Part=other.PartName, Type='Color', Value=other.ColorToken, Bin='--', String=other.ColorString}
  end
  -- Other hair styles (can they be colored differently???)
  for i,other in pairs(otherHairs) do
   list[i] = {}
-  list[i].Style  = {Part=other.PartName, Type='Style', Value=other.StyleToken, Bin=other.StyleToken, String=styles[df.tissue_style_type[other.StyleToken]]}
+  list[i].Style  = {Part=other.PartName, Type='Style', Value=other.StyleToken, Bin='--', String=styles[df.tissue_style_type[other.StyleToken]]}
   for Type,_ in pairs(other) do
    if Type ~= 'StyleToken' and Type ~= 'PartName' then
-    list[i][Type] = {Part=other.PartName, Type=Type, Value=other[Type].n, Bin=other[Type].y}
+    list[i][Type] = {Part=other.PartName, Type=Type, Value=other[Type].n, Bin=other[Type].y, _colorBin=other[Type].y}
 	list[i][Type].String = modifiers[df.appearance_modifier_type[Type]][list[i][Type].Bin]
    end
   end
@@ -740,17 +986,20 @@ function appearance_detail(unit)
  for i,part in pairs(parts) do
   list[i] = {}
   for j,Type in pairs(part) do
-   list[i][j] = {Part=i, Type=j, Value=Type.n, Bin=Type.y}
+   list[i][j] = {Part=i, Type=j, Value=Type.n, Bin=Type.y, _colorBin=Type.y}
    list[i][j].String = modifiers[df.appearance_modifier_type[j]][list[i][j].Bin]
   end
  end
  
  return list
 end
-function appearance_string(unit)
+function appearance_description(unit)
  local list = appearance_detail(unit)
  local strings = {}
- 
+ local strTemps = {}
+ local strOut = ''
+ p1,p2 = getPronoun(unit)
+
  -- Need to actually generate the strings associated with the details
  for bp, tbl in pairs(list) do
   strings[bp] = {}
@@ -758,14 +1007,117 @@ function appearance_string(unit)
    if df.appearance_modifier_type[x] then
     strings[bp][x] = modifiers[df.appearance_modifier_type[x]][y.Bin]
    elseif x == 'Color' then
-    strings[bp][x] = y.Bin
+    strings[bp][x] = y.String
    elseif x == 'Style' then
-    strings[bp][x] = styles[df.tissue_style_type[y.Bin]]
+    strings[bp][x] = styles[df.tissue_style_type[y.Value]]
    end
   end
  end
 
- return list, strings
+ strTemps['Body'] = ''
+ if strings['Body'] then
+  s1 = ''
+  s2 = ''
+  a = strings['Body'].HEIGHT or ''
+  if a ~= '' then s1 = 'is '..a end
+  b = strings['Body'].BROADNESS or ''
+  if b ~= '' then s2 = 'a '..b..' frame' end
+  if s2 ~= '' and s1 == '' then
+   strTemps['Body'] = p1..' has '..s2..'. '
+  elseif s1 ~= '' and s2 == '' then
+   strTemps['Body'] = p1..' '..s1..'. '
+  elseif s1 ~= '' and s2 ~= '' then
+   strTemps['Body'] = p1..' '..s1..' with '..s2..'. '
+  end
+ end
+ strTemps['Hair'] = ''
+ if strings['Hair'] then
+  if strings['Hair'].Style == 'clean shaven' then
+   strTemps['Hair'] = p2..' hair is clean shaven. '
+  else
+   s1 = ''
+   a = strings['Hair'].LENGTH or ''
+   if a ~= '' then s1 = s1..' '..a..',' end
+   b = strings['Hair'].CURLY  or ''
+   if b ~= '' then s1 = s1..' '..b..',' end
+   c = strings['Hair'].DENSE  or ''
+   if c ~= '' then s1 = s1..' '..c..',' end
+   d = strings['Hair'].Style  or ''
+   if d ~= '' then s1 = s1..' '..d..',' end
+   s1 = fixString(s1)
+   e = strings['Hair'].Color  or ''
+   if e ~= '' and s1 ~= '' then s1 = e..', '..s1 end
+   if e ~= '' and s1 == '' then s1 = e end
+   if s1 ~= '' then strTemps['Hair'] = p2..' hair is '..s1..'. ' end
+  end
+ end
+ strTemps['Eyes'] = ''
+ if strings['Eyes'] then
+  s1 = ''
+  a = strings['Eyes'].LARGE_IRIS or ''
+  if a ~= '' then s1 = s1..' '..a..',' end
+  b = strings['Eyes'].DEEP_SET or ''
+  if b ~= '' then s1 = s1..' '..b..',' end
+  c = strings['Eyes'].CLOSE_SET or ''
+  if c ~= '' then s1 = s1..' '..c..',' end
+  d = strings['Eyes'].ROUND_VS_NARROW or ''
+  if d ~= '' then s1 = s1..' '..d..',' end
+  s1 = fixString(s1)
+  e = strings['Eyes'].Color or ''
+  if e ~= '' and s1 ~= '' then 
+   s1 = e..', '..s1 
+  elseif e ~= '' and s1 == '' then
+   s1 = e
+  end
+  if s1 ~= '' then strTemps['Eyes'] = p2..' eyes are '..s1..'. ' end
+ end
+ strTemps['Skin'] = ''
+ if strings['Skin'] then
+  s1 = ''
+  a = strings['Skin'].WRINKLY or ''
+  if a ~= '' then s1 = a..', ' end
+  b = strings['Skin'].Color or ''
+  if b ~= '' then s1 = s1..b..' colored' end
+  if s1 ~= '' then strTemps['Skin'] = p1..' has '..s1..' skin. ' end
+ end
+ strTemps['Skull'] = ''
+ if strings['skull'] then
+  s1 = ''
+  a = strings['skull'].BROAD_CHIN or ''
+  if a ~= '' then s1 = s1..' '..a..',' end
+  b = strings['skull'].SQUARE_CHIN or ''
+  if b ~= '' then s1 = s1..' '..b..',' end
+  c = strings['skull'].JUTTING_CHIN or ''
+  if c ~= '' then s1 = s1..' '..c..',' end
+  if s1 ~= '' then
+   s1 = fixString(s1)
+   strTemps['Skull'] = p2..' chin is '..s1..'. '
+  end
+ end
+ strTemps['Head'] = ''
+ if strings['head'] then
+  s1 = ''
+  s2 = ''
+  a = strings['head'].HEIGHT or ''
+  b = strings['head'].BROADNESS or ''
+  if a ~= '' and b ~= '' then
+   s1 = a..' and '..b
+  else
+   s1 = a..b
+  end
+  c = strings['skull'].HIGH_CHEEKBONES or ''
+  if c ~= '' then s2 = c..' cheekbones' end
+  if s1 == '' and s2 ~= '' then
+   strTemps['Head'] = p2..' head has '..s2..'. '
+  elseif s1 ~= '' and s2 == '' then
+   strTemps['Head'] = p2..' head is '..s1..'. '
+  elseif s1 ~= '' and s2 ~= '' then
+   strTemps['Head'] = p2..' head is '..s1..' with '..s2..'. '
+  end
+ end
+ strOut = strTemps['Body']..strTemps['Skin']..strTemps['Eyes']..strTemps['Hair']..strTemps['Head']..strTemps['Skull']
+
+ return strOut
 end
 
 -- Attributes 
@@ -774,14 +1126,14 @@ end
 -- To reference the correct string, convert value into -4 to 4 bins based on average
 --  < -1000 | - 750 | -500 | -250 | 250 | 500 | 750 | 1000 >
 -- -4      -3      -2     -1      0     1     2     3      4
--- string = attributes_phys['STRENGTH'][bin]
+-- string = attributes_phys[ATTRIBUTE_TOKEN][bin]
 attributes_phys = { 
   [df.physical_attribute_type.STRENGTH]           = {
     [-4] = "unfathomably weak",
     [-3] = "unquestionably weak",
     [-2] = "very weak",
     [-1] = "weak",
-    [0]  = "",
+    [0]  = "average strength",
     [1]  = "strong",
     [2]  = "very strong",
     [3]  = "mighty",
@@ -791,7 +1143,7 @@ attributes_phys = {
     [-3] = "totally clumsy",
     [-2] = "quite clumsy",
     [-1] = "clumsy",
-    [0]  = "",
+    [0]  = "average agility",
     [1]  = "agile",
     [2]  = "very agile",
     [3]  = "extremely agile",
@@ -801,7 +1153,7 @@ attributes_phys = {
     [-3] = "remarkably flimsy",
     [-2] = "very flimsy",
     [-1] = "flimsy",
-    [0]  = "",
+    [0]  = "average toughness",
     [1]  = "tough",
     [2]  = "quite durable",
     [3]  = "incredibly tough",
@@ -811,7 +1163,7 @@ attributes_phys = {
     [-3] = "extremely quick to tire",
     [-2] = "very quick to tire",
     [-1] = "quick to tire",
-    [0]  = "",
+    [0]  = "average endurance",
     [1]  = "slow to tire",
     [2]  = "very slow to tire",
     [3]  = "indefatigable",
@@ -821,7 +1173,7 @@ attributes_phys = {
     [-3] = "really slow to heal",
     [-2] = "very slow to heal",
     [-1] = "slow to heal",
-    [0]  = "",
+    [0]  = "average recuperation",
     [1]  = "quick to heal",
     [2]  = "quite quick to heal",
     [3]  = "increadibly quick to heal",
@@ -831,7 +1183,7 @@ attributes_phys = {
 	[-3] = "really susceptible to disease",
 	[-2] = "quite susceptible to disease",
 	[-1] = "susceiptible to disease",
-	[0]  = "",
+	[0]  = "average disease resistance",
 	[1]  = "rarely sick",
 	[2]  = "very rarely sick",
 	[3]  = "almost never sick",
@@ -842,7 +1194,7 @@ attributes_ment = {
     [-3] = "a lousy intellect",
     [-2] = "very bad analytical abilities",
     [-1] = "poor analytic abilities",
-    [0]  = "",
+    [0]  = "average analytical ability",
     [1]  = "a good intellect",
     [2]  = "a sharp intellect",
     [3]  = "great analytical abilities",
@@ -852,7 +1204,7 @@ attributes_ment = {
     [-3] = "really poor focus",
     [-2] = "quite poor focus",
     [-1] = "poor focus",
-    [0]  = "",
+    [0]  = "average focus",
     [1]  = "the ability to focus",
     [2]  = "very good focus",
     [3]  = "a great ability to focus",
@@ -862,7 +1214,7 @@ attributes_ment = {
     [-3] = "next to no willpower",
     [-2] = "a large deficit of willpower",
     [-1] = "little willpower",
-    [0]  = "",
+    [0]  = "average willpower",
     [1]  = "willpower",
     [2]  = "a lot of willpower",
     [3]  = "an iron will",
@@ -872,7 +1224,7 @@ attributes_ment = {
     [-3] = "lousy creativity",
     [-2] = "poor creativity",
     [-1] = "meager creativity",
-    [0]  = "",
+    [0]  = "average creativity",
     [1]  = "good creativity",
     [2]  = "very good creativity",
     [3]  = "great creativity",
@@ -882,7 +1234,7 @@ attributes_ment = {
     [-3] = "lousy intuition",
     [-2] = "very bad intuition",
     [-1] = "bad intuition",
-    [0]  = "",
+    [0]  = "average intuition",
     [1]  = "good intuition",
     [2]  = "very good intuition",
     [3]  = "great intuition",
@@ -892,7 +1244,7 @@ attributes_ment = {
     [-3] = "very little patience",
     [-2] = "little patience",
     [-1] = "a shortage of patience",
-    [0]  = "",
+    [0]  = "average patience",
     [1]  = "a sum of patience",
     [2]  = "a great deal of patience",
     [3]  = "a deep well of patience",
@@ -902,7 +1254,7 @@ attributes_ment = {
     [-3] = "a really bad memory",
     [-2] = "a poor memory",
     [-1] = "an iffy memory",
-    [0]  = "",
+    [0]  = "average memory",
     [1]  = "a good memory",
     [2]  = "a great memory",
     [3]  = "an amazing memory",
@@ -912,7 +1264,7 @@ attributes_ment = {
     [-3] = "very little linguistic ability",
     [-2] = "little linguistic ability",
     [-1] = "a little difficulty with words",
-    [0]  = "",
+    [0]  = "average linguistic ability",
     [1]  = "a way with words",
     [2]  = "a natural inclination toward language",
     [3]  = "a great affinity for language",
@@ -922,7 +1274,7 @@ attributes_ment = {
     [-3] = "an atrocious spatial sense",
     [-2] = "poor spatial senses",
     [-1] = "a questionable spatial sense",
-    [0]  = "",
+    [0]  = "average spatial sense",
     [1]  = "a good spatial sense",
     [2]  = "a great feel for the surrounding space",
     [3]  = "an amazing spatial sense",
@@ -932,7 +1284,7 @@ attributes_ment = {
     [-3] = "next to no natural musical ability",
     [-2] = "little natural inclination toward music",
     [-1] = "an iffy sense for music",
-    [0]  = "",
+    [0]  = "average musicality",
     [1]  = "a feel for music",
     [2]  = "a natural ability with music",
     [3]  = "a great musical sense",
@@ -942,7 +1294,7 @@ attributes_ment = {
     [-3] = "a very clumsy kinesthetic sense",
     [-2] = "a poor kinesthetic sense",
     [-1] = "a meager kinesthetic sense",
-    [0]  = "",
+    [0]  = "average kinesthetic sense",
     [1]  = "a good kinesthetic sense",
     [2]  = "a very good sense of the position of own body",
     [3]  = "a great kinesthetic sense",
@@ -952,7 +1304,7 @@ attributes_ment = {
     [-3] = "next to no empathy",
     [-2] = "a very bad sense of empathy",
     [-1] = "poor empathy",
-    [0]  = "",
+    [0]  = "average empathy",
     [1]  = "an ability to read emotions fairly well",
     [2]  = "a very good sense of empathy",
     [3]  = "a great sense of empathy",
@@ -962,65 +1314,244 @@ attributes_ment = {
     [-3] = "a lack of understanding of social relationships",
     [-2] = "a poor ability to manage or understand social relationships",
     [-1] = "a meager ability with social relationships",
-    [0]  = "",
+    [0]  = "average social awareness",
     [1]  = "a good feel for social relationships",
     [2]  = "a very good feel for social relationships",
     [3]  = "a great feel for social relationships",
     [4]  = "a shockingly profound feel for social relationships"}}
-function attribute_string(attribute,unit)
+function attribute_string(attribute,v,n)
+ -- v = current attribute value
+ -- n = CREATURE:CASTE attribute ranges
  local bin = 0
  local str = ""
- local raw = df.global.world.raws.creatures.all[unit.race].caste[unit.sex].attributes
+ d = v-n[3]
+ if d >= 1000 then
+  bin = 4
+ elseif d >= 750 then
+  bin = 3
+ elseif d >= 500 then
+  bin = 2
+ elseif d >= 250 then
+  bin = 1
+ elseif d < -250 then
+  bin = -1
+ elseif d < -500 then
+  bin = -2
+ elseif d < -750 then
+  bin = -3
+ elseif d < -1000 then
+  bin = -4
+ end
  if df.physical_attribute_type[attribute] then
-  n = raw.phys_att_range[attribute]
-  v = unit.body.physical_attrs[attribute].value
-  d = v-n[3]
-  if d >= 1000 then
-   bin = 4
-  elseif d >= 750 then
-   bin = 3
-  elseif d >= 500 then
-   bin = 2
-  elseif d >= 250 then
-   bin = 1
-  elseif d < -250 then
-   bin = -1
-  elseif d < -500 then
-   bin = -2
-  elseif d < -750 then
-   bin = -3
-  elseif d < -1000 then
-   bin = -4
-  end
   str = attributes_phys[df.physical_attribute_type[attribute]][bin]
  elseif df.mental_attribute_type[attribute] then
-  n = raw.ment_att_range[attribute]
-  v = unit.status.current_soul.mental_attrs[attribute].value
-  d = v-n[3]
-  if d >= 1000 then
-   bin = 4
-  elseif d >= 750 then
-   bin = 3
-  elseif d >= 500 then
-   bin = 2
-  elseif d >= 250 then
-   bin = 1
-  elseif d < -250 then
-   bin = -1
-  elseif d < -500 then
-   bin = -2
-  elseif d < -750 then
-   bin = -3
-  elseif d < -1000 then
-   bin = -4
-  end
   str = attributes_ment[df.mental_attribute_type[attribute]][bin]
  else
   bin = 0 -- Figure out the bin
   str = "" -- No custom attribute strings yet
  end
- return str
+ return str, bin
 end
+function attribute_description(unit,Type)
+ local strOut = ''
+ local pronoun = getPronoun(unit)
+ 
+ if Type == 'Physical' then
+  plusStr  = ''
+  minusStr = ''
+  for attribute,_ in pairs(unit.body.physical_attrs) do
+   range = df.global.world.raws.creatures.all[unit.race].caste[unit.sex].attributes.phys_att_range[attribute]
+   value = unit.body.physical_attrs[attribute].value
+   tempstr, bin = attribute_string(attribute,value,range)
+   if     bin > 0 then
+    plusStr = plusStr..tempstr..', '
+   elseif bin < 0 then
+    minusStr = minusStr..tempstr..', '
+   end
+  end
+  plusStr = fixString(plusStr)
+  minusStr = fixString(minusStr)
+  if plusStr == '' and minusStr == '' then
+   strOut = pronoun..' is unremarkably average physically'
+  elseif plusStr == '' then
+   strOut = pronoun..' is '..minusStr
+  elseif minusStr == '' then
+   strOut = pronoun..' is '..plusStr
+  else
+   strOut = pronoun..' is '..plusStr..', but '..minusStr
+  end
+  
+ elseif Type == 'Mental' then
+  plusStr  = ''
+  minusStr = ''
+  for attribute,_ in pairs(unit.status.current_soul.mental_attrs) do
+   range = df.global.world.raws.creatures.all[unit.race].caste[unit.sex].attributes.ment_att_range[attribute]
+   value = unit.status.current_soul.mental_attrs[attribute].value
+   tempstr, bin = attribute_string(attribute,value,range)
+   if     bin > 0 then
+    plusStr = plusStr..tempstr..', '
+   elseif bin < 0 then
+    minusStr = minusStr..tempstr..', '
+   end
+  end
+  plusStr = fixString(plusStr)
+  minusStr = fixString(minusStr)
+  if plusStr == '' and minusStr == '' then
+   strOut = pronoun..' has unremarkably average mental attributes'
+  elseif plusStr == '' then
+   strOut = pronoun..' has '..minusStr
+  elseif minusStr == '' then
+   strOut = pronoun..' has '..plusStr
+  else
+   strOut = pronoun..' has '..plusStr..', but '..minusStr
+  end 
+ end
+ 
+ return strOut
+end
+
+-- Skills
+skills = {
+  ['Gathering']   = {
+    ['MINING']      = true,
+    ['WOODCUTTING'] = true,
+    ['TRAPPING']    = true,
+    ['HERBALISM']   = true,
+    ['FISH']        = true},
+  ['Crafting']    = {
+    ['CARPENTRY']       = true,
+    ['DETAILSTONE']     = true,
+    ['MASONRY']         = true,
+    ['TANNER']          = true,
+    ['WEAVING']         = true,
+    ['BREWING']         = true,
+    ['ALCHEMY']         = true,
+    ['CLOTHESMAKING']   = true,
+    ['CHEESEMAKING']    = true,
+    ['COOK']            = true,
+    ['SMELT']           = true,
+    ['EXTRACT_STRAND']  = true,
+    ['FORGE_WEAPON']    = true,
+    ['FORGE_ARMOR']     = true,
+    ['FORGE_FURNITURE'] = true,
+    ['CUTGEM']          = true,
+    ['ENCRUSTGEM']      = true,
+    ['WOODCRAFT']       = true,
+    ['STONECRAFT']      = true,
+    ['METALCRAFT']      = true,
+    ['GLASSMAKER']      = true,
+    ['LEATHERWORK']     = true,
+    ['BONECARVE']       = true,
+    ['SIEGECRAFT']      = true,
+    ['BOWYER']          = true,
+    ['MECHANICS']       = true,
+    ['WOOD_BURNING']    = true,
+    ['DESIGNBUILDING']  = true,
+    ['LYE_MAKING']      = true,
+    ['SOAP_MAKING']     = true,
+    ['POTASH_MAKING']   = true,
+    ['DYER']            = true,
+    ['KNAPPING']        = true,
+    ['POTTERY']         = true,
+    ['GLAZING']         = true,
+    ['PRESSING']        = true,
+    ['SPINNING']        = true,
+    ['WAX_WORKING']     = true,
+    ['PAPERMAKING']     = true,
+    ['BOOKBINDING']     = true},
+  ['Farming']     = {
+    ['ANIMALTRAIN']    = true,
+    ['ANIMCALCARE']    = true,
+    ['DISSECT_FISH']   = true,
+    ['DISSECT_VERMIN'] = true,
+    ['PROCESSFISH']    = true,
+    ['BUTCHER']        = true,
+    ['MILLING']        = true,
+    ['PROCESSPLANTS']  = true,
+    ['MILK']           = true,
+    ['PLANT']          = true,
+    ['TRACKING']       = true,
+    ['SHEARING']       = true,
+    ['BEEKEEPING']     = true,
+    ['GELD']           = true},
+  ['Military']    = {
+    ['AXE'] = true,
+    ['SWORD'] = true,
+    ['DAGGER'] = true,
+    ['MACE'] = true,
+    ['HAMMER'] = true,
+    ['SPEAR'] = true,
+    ['CROSSBOW'] = true,
+    ['SHIELD'] = true,
+    ['ARMOR'] = true,
+    ['SIEGEOPERATE'] = true,
+    ['PIKE'] = true,
+    ['WHIP'] = true,
+    ['BOW'] = true,
+    ['BLOWGUN'] = true,
+    ['THROW'] = true,
+    ['SNEAK'] = true,
+    ['DISCIPLINE'] = true,
+    ['SITUATIONAL_AWARENESS'] = true,
+    ['COORDINATION'] = true,
+    ['BALANCE'] = true,
+    ['MELEE_COMBAT'] = true,
+    ['RANGED_COMBAT'] = true,
+    ['WRESTLING'] = true,
+    ['BITE'] = true,
+    ['GRASP_STRIKE'] = true,
+    ['STANCE_STRIKE'] = true,
+    ['DODGING'] = true,
+    ['MISC_WEAPON'] = true,
+    ['MILITARY_TACTICS'] = true,},
+  ['Health']      = {
+    ['DRESS_WOUNDS'] = true,
+    ['DIAGNOSE']     = true,
+    ['SURGERY']      = true,
+    ['SET_BONE']     = true,
+    ['SUTURE']       = true},
+  ['Performance'] = {
+    ['WRITING']    = true,
+    ['PROSE']      = true,
+    ['POETRY']     = true,
+    ['DANCE']      = true,
+    ['MAKE_MUSIC'] = true,
+    ['SING_MUSIC'] = true,
+    ['PLAY_KEYBOARD_INSTRUMENT']   = true,
+    ['PLAY_STRINGED_INSTRUMENT']   = true,
+    ['PLAY_WIND_INSTRUMENT']       = true,
+    ['PLAY_PERCUSSION_INSTRUMENT'] = true},
+  ['Social']      = {
+    ['PERSUASION'] = true,
+    ['NEGOTIATION'] = true,
+    ['JUDGING_INTENT'] = true,
+    ['APPRAISAL'] = true,
+    ['ORGANIZATION'] = true,
+    ['RECORD_KEEPING'] = true,
+    ['LYING'] = true,
+    ['INTIMIDATION'] = true,
+    ['CONVERSATION'] = true,
+    ['COMEDY'] = true,
+    ['FLATTERY'] = true,
+    ['CONSOLE'] = true,
+    ['PACIFY'] = true,
+    ['KNOWLEDGE_ACQUISITION'] = true,
+    ['CONCENTRATION'] = true,
+    ['READING'] = true,
+    ['SPEAKING'] = true,
+    ['LEADERSHIP'] = true,
+    ['TEACHING'] = true,
+    ['CRITICAL_THINKING'] = true,
+    ['LOGIC'] = true,},
+  ['Science']     = {
+    ['MATHEMATICS']     = true,
+    ['ASTRONOMY']       = true, 
+    ['CHEMSITRY']       = true,
+    ['GEOGRAPHY']       = true,
+    ['OPTICS_ENGINEER'] = true,
+    ['FLUID_ENGINEER']  = true,
+    ['MAGIC_NATURE']    = true}
+}
 
 -- Traits/Facets (unit.status.current_soul.personality.traits)
 -- To reference the correct string use type and convert strength into -3 to 3 bins
@@ -1444,7 +1975,7 @@ function trait_string(trait,strength)
  elseif strength < 40 then
   bin = -1
  end
- return traits[trait][bin]
+ return traits[trait][bin], bin
 end
 
 -- Goals/Dreams (unit.status.current_soul.personality.dreams)
@@ -1464,6 +1995,26 @@ goals = { -- Taken directly from Patrik Lundell's thoughts.lua script
   [df.goal_type.SEE_THE_GREAT_NATURAL_SITES] = "seeing the great natural places of the world",
   [df.goal_type.IMMORTALITY]                 = "**immortality",
   [df.goal_type.MAKE_A_GREAT_DISCOVERY]      = "making a great discovery"}
+function goal_description(unit)
+ local outStr = ''
+ local outColor = COLOR_YELLOW
+ local personality = unit.status.current_soul.personality
+ local pronoun = getPronoun(unit)
+
+ for i, dream in ipairs (personality.dreams) do
+  if goals[dream.type] then
+   outStr = outStr..goals[dream.type]..", "
+  end
+ end
+ if outStr == '' then
+  outStr = pronoun.." has no dreams"
+ else
+  outStr = pronoun.." dreams of "..outStr
+  outStr = fixString(outStr)
+ end
+  
+ return outStr, outColor
+end
 
 -- Values (unit.status.current_soul.personality.values)
 -- To reference the correct string use value.type and convert value.strength into -3 to 3 bins
@@ -1751,7 +2302,7 @@ function value_string(value)
  elseif value.strength <= 40 then
   strength_bin = 2
  end
- return values[value.type][strength_bin]
+ return values[value.type][strength_bin], strength_bin
 end
 
 -- The following tables are all needed in order to get the thoughts/emotions strings
@@ -2822,9 +3373,190 @@ function thought_string(thought) -- Still need to do more work on this
  return str
 end
 
+focus = { -- Needs affect focus levels
+  [df.need_type.Socialize]       = {
+    [-1] = 'after being away from people',
+    [1]  = 'after spending time with people'},
+  [df.need_type.DrinkAlcohol]    = {
+    [-1] = 'after being kept from alcohol',
+    [1]  = 'after drinking'},
+  [df.need_type.PrayOrMedidate]  = {
+    [-1] = 'after being unable to pray', 
+    [1]  = 'after communing with their god'},
+  [df.need_type.StayOccupied]    = {
+    [-1] = 'after being unoccupied', 
+    [1]  = 'after staying occupied'},
+  [df.need_type.BeCreative]      = {
+    [-1] = 'after doing nothing creative',
+    [1]  = 'after doing something creative'},
+  [df.need_type.Excitement]      = {
+    [-1] = 'after leading an unexciting life',
+    [1]  = 'after doing something exciting'},
+  [df.need_type.LearnSomething]  = {
+    [-1] = 'after not learning anything',
+    [1]  = 'after learning something'},
+  [df.need_type.BeWithFamily]    = {
+    [-1] = 'after being away from family',
+    [1]  = 'after being with family'},
+  [df.need_type.BeWithFriends]   = {
+    [-1] = 'after being away from friends',
+    [1]  = 'after being with friends'},
+  [df.need_type.HearEloquence]   = {
+    [-1] = 'after being unable to hear an eloquent speach', 
+    [1]  = 'after hearing an eloquent speach'},
+  [df.need_type.UpholdTradition] = {
+    [-1] = 'after being away from tradition', 
+    [1]  = 'after upholding tradition'},
+  [df.need_type.SelfExamination] = {
+    [-1] = 'after a lack of introspection', 
+    [1]  = 'after self-examination'},
+  [df.need_type.MakeMerry]       = {
+    [-1] = 'after being unable to make merry',
+    [1]  = 'after making merry'},
+  [df.need_type.CraftObject]     = {
+    [-1] = 'after being unable to practice a craft',
+    [1]  = 'after practicing a craft'},
+  [df.need_type.MartialTraining] = {
+    [-1] = 'after being unable to practice a martial art',
+    [1]  = 'after practicing a martial art'},
+  [df.need_type.PracticeSkill]   = {
+    [-1] = 'after being unable to practice a skill',
+    [1]  = 'after practicing a skill'},
+  [df.need_type.TakeItEasy]      = {
+    [-1] = 'after being unable to take it easy',
+    [1]  = 'after taking it easy'},
+  [df.need_type.MakeRomance]     = {
+    [-1] = 'after being unable to make romance', 
+    [1]  = 'after making romance'},
+  [df.need_type.SeeAnimal]       = {
+    [-1] = 'after being away from animals', 
+    [1]  = 'after seeing animals'},
+  [df.need_type.SeeGreatBeast]   = {
+    [-1] = 'after being away from great beasts', 
+    [1]  = 'after seeing a great beast'},
+  [df.need_type.AcquireObject]   = {
+    [-1] = 'after being unable to aquire something',
+    [1]  = 'after acquiring something'},
+  [df.need_type.EatGoodMeal]     = {
+    [-1] = 'after a lack of decent meals',
+    [1]  = 'after eating a good meal'},
+  [df.need_type.Fight]           = {
+    [-1] = 'after being unable to fight',
+    [1]  = 'after fighting'},
+  [df.need_type.CauseTrouble]    = {
+    [-1] = 'after a lack of trouble-making',
+    [1]  = 'after causing trouble'},
+  [df.need_type.Argue]           = {
+    [-1] = 'after being unable to argue',
+    [1]  = 'after arguing'},
+  [df.need_type.BeExtravagant]   = {
+    [-1] = 'after being unable to be extravagant', 
+    [1]  = 'after being extravagant'},
+  [df.need_type.Wander]          = {
+    [-1] = 'after being unable to wander', 
+    [1]  = 'after wandering'},
+  [df.need_type.HelpSomebody]    = {
+    [-1] = 'after being unable to help anybody',
+    [1]  = 'after helping somebody'},
+  [df.need_type.ThinkAbstractly] = {
+    [-1] = 'after a lack of abstract thinking', 
+    [1]  = 'after thinking abstractly'},
+  [df.need_type.AdmireArt]       = {
+    [-1] = 'after being unable to admire art',
+    [1]  = 'after admiring art'}
+}
+function focus_string(need_type,focus_level)
+ local outStr = ''
+ local outColor = 0
+
+ if     focus_level > 299    then --unfettered +1
+  outStr = 'unfettered '..focus[need_type][1]
+  outCheck = 3
+ elseif focus_level > 199    then --level-headed +1
+  outStr = 'level-headed '..focus[need_type][1]
+  outCheck = 2
+ elseif focus_level > 99     then --untroubled +1
+  outStr = 'untroubled '..focus[need_type][1]
+  outCheck = 1
+ elseif focus_level > -999   then --not distracted -1
+  outStr = 'not distracted '..focus[need_type][-1]
+  outColor = 0
+ elseif focus_level > -9999  then --unfocused -1
+  outStr = 'unfocused '..focus[need_type][-1]
+  outColor = -1
+ elseif focus_levle > -99999 then --distracted -1
+  outStr = 'distracted '..focus[need_type][-1]
+  outColor = -2
+ else                             --badly distracted -1
+  outStr = 'badly distracted '..focus[need_type][-1]
+  outColor = -3
+ end
+ 
+ return outStr, outColor
+end
+function focus_description(unit)
+ local outStr = ''
+ local outColor = 0
+ local personality = unit.status.current_soul.personality
+ local pronoun = getPronoun(unit)
+ 
+ if personality.undistracted_focus > personality.current_focus then
+  if personality.undistracted_focus > personality.current_focus + 20 then
+   outStr = pronoun..' is badly distracted by unmet needs'
+   outColor = -3
+  else
+   outStr = pronoun..' is unfocused by unmet needs'
+   outColor = -1
+  end
+ elseif personality.undistracted_focus < personality.current_focus then
+  if personality.undistracted_focus <= personality.current_focus + 20 then
+   outStr = pronoun..' is very focused with satisfied needs'
+   outColor = 3
+  else
+   outStr = pronoun..' is somewhat focused with satisfied needs'
+   outColor = 1
+  end
+ else
+  outStr = pronoun..' is undistracted by unmet needs'
+  outColor = 0
+ end
+ 
+ return outStr, outColor
+end
+
+stress = {
+ ['Harrowed'] = 'has been utterly harrowed by the nightmare that is their tragic life',       -- 50000 >
+ ['Haggard']  = 'has become haggard and drawn due to the tremendous stresses placed on them', -- 25000 - 49999
+ ['Stressed'] = 'has been under a great deal of stress over the long term',                   -- 10000 - 24999
+ ['Normal']   = 'is not stressed'}                                                            -- 9999  <
+function stress_description(unit)
+ local outStr = ''
+ local outColor = 0
+ local stress_level = unit.status.current_soul.personality.stress_level
+ local cutoffs = dfhack.units.getStressCutoffs(unit)
+ local pronoun = getPronoun(unit)
+ 
+ if     stress_level > cutoffs[0] then
+  outStr = stress['Harrowed']
+  outColor = -3
+ elseif stress_level > cutoffs[1] then
+  outStr = stress['Haggard']
+  outColor = -2
+ elseif stress_level > cutoffs[2]  then
+  outStr = stress['Stressed']
+  outColor = -1
+ else -- There are negative cutoffs as well, not sure they actually do anything
+  outStr = stress['Normal']
+  outColor = 0
+ end
+ outstr = pronoun..' '..outStr
+ 
+ return outStr, outColor
+end
 
 function preference_string(preference) -- Taken from Patrik Lundell's thoughts.lua script
  local str = ''
+ local bin = 3
  if preference.type == df.unit_preference.T_type.LikeMaterial then
   if preference.mattype == 0 then
    str = "likes " .. string.lower (df.global.world.raws.inorganics [preference.matindex].id)
@@ -2877,6 +3609,7 @@ function preference_string(preference) -- Taken from Patrik Lundell's thoughts.l
      
  elseif preference.type == df.unit_preference.T_type.HateCreature then
   str = "absolutely detests " .. df.global.world.raws.creatures.all [preference.creature_id].name [1]
+  bin = -3
    
  elseif preference.type == df.unit_preference.T_type.LikeItem then
   if preference.item_subtype == -1 then
@@ -2951,10 +3684,34 @@ function preference_string(preference) -- Taken from Patrik Lundell's thoughts.l
   str = "likes the sight of " .. dfhack.TranslateName (df.global.world.dance_forms.all [preference.dance_form_id].name, true)
  end
 
- return str
+ return str, bin
 end
 
-function worship_string(deities) --Modified from Patrik Lundell's thoughts.lua script
+local function orientation_string(unit)
+ local orientation = 'Indeterminate'
+
+ -- Get orientation
+ o_flags = unit.status.current_soul.orientation_flags
+ if o_flags.indeterminate then
+  orientation = 'Indeterminate'
+ else
+  if (o_flags.romance_male or o_flags.marry_male) and
+     (o_flags.romance_female or o_flags.marry_female) then
+   orientation = 'Bisexual'
+  else
+   if (o_flags.romance_male or o_flags.marry_male) then
+    if unit.sex == 0 then orientation = 'Heterosexual' end
+	if unit.sex == 1 then orientation = 'Homosexual' end
+   elseif (o_flags.romance_female or o_flags.marry_female) then
+    if unit.sex == 0 then orientation = 'Homosexual' end
+	if unit.sex == 1 then orientation = 'Heterosexual' end
+   end
+  end
+ end
+ 
+ return orientation
+end
+local function worship_string(deities) --Modified from Patrik Lundell's thoughts.lua script
  local function worship_strength (strength)
   if strength < 10 then
    return " dubious "
@@ -2980,31 +3737,212 @@ function worship_string(deities) --Modified from Patrik Lundell's thoughts.lua s
  if str == '' then str = 'Not a worshiper of anything' end
  return str 
 end
-
-function relationship_string(spouse,children,mother,father) --Modified from Patrik Lundell's thoughts.lua script
- local str = ''
- if spouse then
-  str = "Is married to " .. spouse    
-  if #children == 0 then
-   str = str .. '\n'   
-  else
-   str = str .. " and has " .. tostring (#children) .. " children\n"
-  end 
- elseif #children ~= 0 then
-  str = str .. "Has " .. tostring (#children) .. " children\n"
- end
+local function friend_lt(f1, f2) -- Taken from Patrik Lundell's thoughts.lua script
+  local f1_relation_level = 3   --  Passing Acquaintance
+  local f2_relation_level = 3
+  
+  if #f1.attitude > 0 then
+    if f1.attitude [0] == 1 or    --  Friend
+       f1.attitude [0] == 2 or    --  Grudge
+       f1.attitude [0] == 3 then  --  Bonded
+      f1_relation_level = 1      --  Friend/Grudge/Bonded
     
- if mother then
-  str = str .. "Is the child of " .. mother  
-  if father then
-   str = str .. " and " .. father .. "\n" 
+    elseif f1.attitude [0] == 7 then
+      f1_relation_level = 2      --  Friendly Terms
+    end
+  end
+  
+  if #f2.attitude > 0 then
+    if f2.attitude [0] == 1 or    --  Friend
+       f2.attitude [0] == 2 or    --  Grudge
+       f2.attitude [0] == 3 then  --  Bonded
+      f2_relation_level = 1      --  Friend/Grudge/Bonded
+      
+    elseif f2.attitude [0] == 7 then
+      f2_relation_level = 2      --  Friendly Terms
+    end
+  end
+  
+  if f1_relation_level > f2_relation_level then
+    return true
+  
+  elseif f1_relation_level < f2_relation_level then
+    return false
+  end
+  
+  if f1_relation_level == 1 then  --  Friend/Grudge/Bonded
+    return f1.histfig_id > f2.histfig_id
+  end
+  
+  if f1.rank == f2.rank then
+    return f1.histfig_id > f2.histfig_id
+    
   else
-   str = str .. '\n'
-  end 
- elseif father then
-  str = str .. "Is the child of " .. father .. "\n"
- end
+    return f1.rank < f2.rank
+  end
+end
+function relationship_string(unit) --Modified from Patrik Lundell's thoughts.lua script
+ local mother
+ local father
+ local spouse
+ local children = {}
+ local deities = {}
+ local master
+ local apprentices = {}
+ local pronoun
+ local Pronoun
+ local child_type
+ local friends = {}
+ local outTable = {}
+ local Family = {}
+ local Friends = {}
+ local Grudges = {}
+ local MasterApprentice = {}
+ 
+ p1, p2 = getPronoun(unit)
+ hf = df.historical_figure.find(unit.hist_figure_id)
+ if hf ~= nil then
+  for i, histfig_link in ipairs (hf.histfig_links) do
+   if histfig_link._type == df.histfig_hf_link_motherst then
+    mother = get_hf_name (histfig_link.target_hf)
+    if mother == "" then
+     mother = nil
+    end
+        
+   elseif histfig_link._type == df.histfig_hf_link_fatherst then
+    father = get_hf_name (histfig_link.target_hf)
+    if father == "" then
+     father = nil
+    end
+          
+   elseif histfig_link._type == df.histfig_hf_link_spousest then
+    spouse = get_hf_name (histfig_link.target_hf)
+    if spose == "" then
+     spouse = nil
+    end
+        
+   elseif histfig_link._type == df.histfig_hf_link_childst then
+    table.insert (children, get_hf_name (histfig_link.target_hf))
+    if children [#children] == "" then  --  Presumed dead culled HF
+     table.remove (children, #children)
+    end
+          
+   elseif histfig_link._type == df.histfig_hf_link_deityst then
+    table.insert (deities, {get_hf_name (histfig_link.target_hf), histfig_link.link_strength})
+        
+   elseif histfig_link._type == df.histfig_hf_link_masterst then
+    master = get_hf_name (histfig_link.target_hf)
+    if master == "" then
+     master = nil
+    end
+          
+   elseif histfig_link._type == df.histfig_hf_link_apprenticest then
+    table.insert (apprentices, get_hf_name (histfig_link.target_hf))
+    if apprentices [#apprentices] == "" then
+     table.remove (apprentices, #apprentices)
+    end
+          
+   elseif histfig_link._type == df.histfig_hf_link_pet_ownerst then
+    --### Pet owner.
+        
+   elseif histfig_link._type == df.histfig_hf_link_former_masterst then
+    --### bard
+        
+   elseif histfig_link._type == df.histfig_hf_link_former_apprenticest then
+    --### bard
+        
+   elseif histfig_link._type == df.histfig_hf_link_loverst then
 
- if str == '' then str = 'No listed relationships' end
- return str
+   end
+  end
+
+  if spouse then
+   Family[#Family+1] = 'Is married to '..spouse
+  else
+   Family[#Family+1] = 'Is not married'
+  end
+  if #children == 0 then
+   Family[#Family+1] = 'Has no children'
+  else
+   Family[#Family+1] = 'Has '..tostring(#children)..' children'
+   for i = 1, #children do
+    Family[#Family+1] = children[i]
+   end
+  end
+      
+  if mother and father then
+   Family[#Family+1] = 'Is the '..child_type..' of '..mother..' and '..father
+  elseif mother then
+   Family[#Family+1] = 'Is the '..child_type..' of '..mother
+  elseif father then
+   Family[#Family+1] = 'Is the '..child_type..' of '..father
+  end
+      
+  if master then
+   MasterApprentice[#MasterApprentice+1] = 'Is an apprentice under '..master
+  end
+      
+  if #apprentices ~= 0 then
+   MasterApprentice[#MasterApprentice+1] = 'Is the master of '..tostring(#apprentices)
+   for i = 1, #apprentices do
+    MasterApprentice[#MasterApprentice+1] = apprentices[i]
+   end
+  end
+
+  if hf.info.relationships ~= nil then
+   for k, relation in ipairs (hf.info.relationships.list) do
+    table.insert (friends, relation)
+   end
+      
+   for k = 1, #friends - 1 do
+    for l = k + 1, #friends do
+     if friend_lt (friends [k], friends [l]) then
+      temp = friends [k]
+      friends [k] = friends [l]
+      friends [l] = temp
+     end
+    end
+   end      
+      
+   for k, relation in ipairs (friends) do
+    tempStr = ''
+    if relation.rank > 0 then
+     if #relation.attitude == 0 then
+      tempStr = "Passing Acquaintance " --.. tostring (relation.rank) .. " "
+          
+     elseif relation.attitude [0] == 1 then
+      tempStr = "Friend " --.. tostring (relation.counter [0]) .. " " .. tostring (relation.rank) .. " "
+          
+     elseif relation.attitude [0] == 2 then
+      tempStr = 'Grudge '
+          
+     elseif relation.attitude [0] == 3 then
+      tempStr = "Bonded "
+          
+     elseif relation.attitude [0] == 7 then
+      tempStr = "Friendly Terms " --.. tostring (relation.counter [0]) .. " " .. tostring (relation.rank) .. " "
+        
+     end
+     if tempStr == 'Grudge ' then
+      Grudges[#Grudges+1] = tempStr..get_hf_name (relation.histfig_id)
+     else
+      Friends[#Friends+1] = tempStr..get_hf_name (relation.histfig_id)
+     end
+    end
+   end
+  end
+ end
+ 
+ outTable.Mother = mother or 'Unknown'
+ outTable.Father = father or 'Unknown'
+ outTable.Spouse = spouse or 'None'
+ outTable.Children = children
+ outTable.Worship = worship_string(deities)
+ outTable.Orientation = orientation_string(unit)
+ outTable.Family = Family
+ outTable.Friends = Friends
+ outTable.Grudges = Grudges
+ outTable.MasterApprentice = MasterApprentice
+ 
+ return outTable
 end

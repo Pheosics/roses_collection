@@ -23,16 +23,17 @@ if args.forceAll then
 end
 
 triggered = {}
-eventTable = persistTable.GlobalTable.roses.EventTable
+roses = dfhack.script_environment('base/roses-init').roses
+eventTable = roses.EventTable
 event = args.event
 if not eventTable[event] then
  print('Not a valid event')
  return
 end
-if dfhack.script_environment('functions/event').checkRequirements(event,0,verbose) or force then
+if force or dfhack.script_environment('functions/event').checkRequirements(event,0,verbose) then
  triggered[0] = true
- for _,i in pairs(eventTable[event].Effect._children) do
-  if dfhack.script_environment('functions/event').checkRequirements(event,tonumber(i),verbose) or forceAll then
+ for i,_ in pairs(eventTable[event].Effect) do
+  if forceAll or dfhack.script_environment('functions/event').checkRequirements(event,tonumber(i),verbose) then
    triggered[tonumber(i)] = true
    contingency = tonumber(eventTable[event].Effect[i].Contingent) or 0
    if triggered[contingency] then dfhack.script_environment('functions/event').triggerEvent(event,tonumber(i),verbose) end

@@ -6,7 +6,7 @@ usages = {}
 usages[#usages+1] = [===[
 ]===]
 
-function getData(ttable,test)
+function getData(ttable,test,verbose)
  if ttable == 'Building' then
   tokenCheck = '[BUILDING'
   filename = 'building'
@@ -34,7 +34,7 @@ function getData(ttable,test)
  else
   return
  end
- print('Searching for a '..ttable..' file')
+ if verbose then print('Searching for a '..ttable..' file') end
  local files = {}
  local dir = dfhack.getDFPath()
  local locations = {'/raw/objects/'}
@@ -45,7 +45,7 @@ function getData(ttable,test)
  end
  for _,location in ipairs(locations) do
   local path = dir..location
-  print('Looking in '..location)
+  if verbose then print('Looking in '..location) end
   if dfhack.internal.getDir(path) then
    for _,fname in pairs(dfhack.internal.getDir(path)) do
     if (split(fname,'_')[1] == filename or fname == filename..'.txt') and string.match(fname,'txt') then
@@ -56,10 +56,10 @@ function getData(ttable,test)
   end
  end
 
- if #files >= 1 then
+ if #files >= 1 and verbose then
   print(ttable..' files found:')
   printall(files)
- else
+ elseif verbose then
   print('No '..ttable..' files found')
   return false
  end
@@ -105,12 +105,11 @@ function getData(ttable,test)
  return data, dataInfo, files
 end
 
-function makeEnhancedBuildingTable(test)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- persistTable.GlobalTable.roses.Systems.EnhancedBuilding = 'false'
- dataFiles,dataInfoFiles,files = getData('Building',test)
- if not dataFiles then return false end
+function makeEnhancedBuildingTable(runtest,verbose)
+ local Table = {}
+ local numEnhanced = 0
+ dataFiles,dataInfoFiles,files = getData('Building',runtest,verbose)
+ if not dataFiles then return numEnhanced end
 
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -119,10 +118,11 @@ function makeEnhancedBuildingTable(test)
    token      = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   persistTable.GlobalTable.roses.EnhancedBuildingTable[token] = {}
-   ptable = persistTable.GlobalTable.roses.EnhancedBuildingTable[token]
+   Table[token] = {}
+   ptable = Table[token]
    ptable.Scripts = {}
    scripts = 0
+   enhanced = false
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -137,36 +137,50 @@ function makeEnhancedBuildingTable(test)
      foo = 0
     elseif test == '{DESCRIPTION' then
      ptable.Description = array[2]
+     enhanced = true
     elseif test == '{MULTI_STORY' then
      ptable.MultiStory = array[2]
+     enhanced = true
     elseif test == '{TREE_BUILDING}' then
      ptable.TreeBuilding = 'true'
+     enhanced = true
     elseif test == '{BASEMENT}' then
      ptable.Basement = 'true'
+     enhanced = true
     elseif test == '{WALLS}' then
      ptable.Walls = 'true'
+     enhanced = true
     elseif test == '{OUTSIDE_ONLY}' then
      ptable.OutsideOnly = 'true'
+     enhanced = true
     elseif test == '{INSIDE_ONLY}' then
      ptable.InsideOnly = 'true'
+     enhanced = true
     elseif test == '{STAIRS' then
      ptable.Stairs = {}
      ptable.Stairs.x = array[2]
      ptable.Stairs.y = array[3]
+     enhanced = true
     elseif test == '{UPGRADE' then
      ptable.Upgrade = array[2]
+     enhanced = true
     elseif test == '{REQUIRED_WATER' then
      ptable.RequiredWater = array[2]
+     enhanced = true
     elseif test == '{REQUIRED_MAGMA' then
      ptable.RequiredMagma = array[2]
+     enhanced = true
     elseif test == '{REQUIRED_BUILDING' then
      ptable.RequiredBuildings = table.RequiredBuildings or {}
      ptable.RequiredBuildings[array[2]] = array[3]
+     enhanced = true
     elseif test == '{FORBIDDEN_BUILDING' then
      ptable.ForbiddenBuildings = table.ForbiddenBuildings or {}
      ptable.ForbiddenBuildings[array[2]] = array[3]
+     enhanced = true
     elseif test == '{MAX_AMOUNT' then
      ptable.MaxAmount = array[2]
+     enhanced = true
     elseif test == '{SCRIPT' or test == '{SPELL' then
      scripts = scripts + 1
      ptable.Scripts[tostring(scripts)] = {}
@@ -177,6 +191,7 @@ function makeEnhancedBuildingTable(test)
      frequency = string.sub(a,-(n-1),-2)
      ptable.Scripts[tostring(scripts)].Script = script
      ptable.Scripts[tostring(scripts)].Frequency = frequency
+     enhanced = true
     end
    end
    if ptable.OutsideOnly == 'true' and ptable.InsideOnly == 'true' then
@@ -184,19 +199,18 @@ function makeEnhancedBuildingTable(test)
     ptable.InsideOnly = nil
    end
    if scripts == 0 then ptable.Scripts = nil end
+   if not enhanced then Table[token] = nil else numEnhanced = numEnhanced + 1 end
   end
  end
 
- persistTable.GlobalTable.roses.Systems.EnhancedBuilding = 'true'
- return true
+ return numEnhanced, Table
 end
 
-function makeEnhancedCreatureTable(test)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- persistTable.GlobalTable.roses.Systems.EnhancedCreature = 'false'
- dataFiles,dataInfoFiles,files = getData('Creature',test)
- if not dataFiles then return false end
+function makeEnhancedCreatureTable(runtest,verbose)
+ local Table = {}
+ local numEnhanced = 0
+ dataFiles,dataInfoFiles,files = getData('Creature',runtest,verbose)
+ if not dataFiles then return numEnhanced end
 
  tokens = {}
  for _,file in ipairs(files) do
@@ -207,9 +221,9 @@ function makeEnhancedCreatureTable(test)
    startLine  = x[2]
    endLine    = x[3]
    tokens[token] = token
-   persistTable.GlobalTable.roses.EnhancedCreatureTable[token] = {}
-   persistTable.GlobalTable.roses.EnhancedCreatureTable[token]['ALL'] = {}
-
+   Table[token] = {}
+   Table[token]['ALL'] = {}
+   enhanced = false
    for n,c in pairs(df.global.world.raws.creatures.all) do
     if token == c.creature_id then
      creatureID = n
@@ -219,11 +233,11 @@ function makeEnhancedCreatureTable(test)
    if creatureID then
     for _,caste in pairs(df.global.world.raws.creatures.all[creatureID].caste) do
      casteToken = caste.caste_id
-     persistTable.GlobalTable.roses.EnhancedCreatureTable[token][casteToken] = {}
+     Table[token][casteToken] = {}
     end
    end
 
-   creature = persistTable.GlobalTable.roses.EnhancedCreatureTable[token]['ALL']
+   creature = Table[token]['ALL']
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -233,10 +247,10 @@ function makeEnhancedCreatureTable(test)
     end
     if test == '[CASTE' then
      caste = split(array[2],']')[1]
-     creature = persistTable.GlobalTable.roses.EnhancedCreatureTable[token][caste]
+     creature = Table[token][caste]
     elseif test == '[SELECT_CASTE' then
      caste = split(array[2],']')[1]
-     creature = persistTable.GlobalTable.roses.EnhancedCreatureTable[token][caste]
+     creature = Table[token][caste]
     elseif test == '[NAME' then
      creature.Name = split(array[2],']')[1]
     elseif test == '[DESCRIPTION' then
@@ -251,6 +265,7 @@ function makeEnhancedCreatureTable(test)
      creature.Size.Adult = array[4]
      creature.Size.Max = array[5]
      creature.Size.Variance = array[6]
+     enhanced = true
     elseif test == '{ATTRIBUTE' then
      creature.Attributes = creature.Attributes or {}
      creature.Attributes[array[2]] = {}
@@ -261,35 +276,42 @@ function makeEnhancedCreatureTable(test)
      creature.Attributes[array[2]]['5'] = array[7] or array[3]
      creature.Attributes[array[2]]['6'] = array[8] or array[3]
      creature.Attributes[array[2]]['7'] = array[9] or array[3]
+     enhanced = true
     elseif test == '{NATURAL_SKILL' then
      creature.Skills = creature.Skills or {}
      creature.Skills[array[2]] = {}
      creature.Skills[array[2]].Min = array[3]
      creature.Skills[array[2]].Max = array[4] or array[3]
+     enhanced = true
     elseif test == '{STAT' then
      creature.Stats = creature.Stats or {}
      creature.Stats[array[2]] = {}
      creature.Stats[array[2]].Min = array[3]
      creature.Stats[array[2]].Max = array[4] or array[3]
+     enhanced = true
     elseif test == '{RESISTANCE' then
      creature.Resistances = creature.Resistances or {}
      creature.Resistances[array[2]] = array[3]
+     enhanced = true
     elseif test == '{CLASS' then
      creature.Classes = creature.Classes or {}
      creature.Classes[array[2]] = {}
      creature.Classes[array[2]].Level = array[3]
      creature.Classes[array[2]].Interactions = array[4]
+     enhanced = true
     elseif test =='{INTERACTION' then
      creature.Interactions = creature.Interactions or {}
      creature.Interactions[array[2]] = {}
      creature.Interactions[array[2]].Probability = array[3]
+     enhanced = true
     end
    end
+   if not enhanced then Table[token] = nil else numEnhanced = numEnhanced + 1 end
   end
  end
 
 -- Copy any ALL caste data into the respective CREATURE:CASTE combo, CASTE caste data is given priority
- creatures = persistTable.GlobalTable.roses.EnhancedCreatureTable
+ creatures = Table
  for _,creatureToken in pairs(tokens) do
   for n,c in pairs(df.global.world.raws.creatures.all) do
    if creatureToken == c.creature_id then
@@ -297,16 +319,16 @@ function makeEnhancedCreatureTable(test)
     break
    end
   end
-  if creatureID then
+  if creatureID and creatures[creatureToken] then
    for _,caste in pairs(df.global.world.raws.creatures.all[creatureID].caste) do
     casteToken = caste.caste_id
     if not creatures[creatureToken][casteToken] then creatures[creatureToken][casteToken] = {} end
     if creatures[creatureToken].ALL then
-     for _,x in pairs(creatures[creatureToken].ALL._children) do
+     for x,_ in pairs(creatures[creatureToken].ALL) do
       if not creatures[creatureToken][casteToken][x] then
        creatures[creatureToken][casteToken][x] = creatures[creatureToken].ALL[x]
       else
-       for _,y in pairs(creatures[creatureToken].ALL[x]._children) do
+       for y,_ in pairs(creatures[creatureToken].ALL[x]) do
         if not creatures[creatureToken][casteToken][x][y] then
          creatures[creatureToken][casteToken][x][y] = creatures[creatureToken].ALL[x][y]
         end
@@ -318,16 +340,14 @@ function makeEnhancedCreatureTable(test)
   end
  end
 
- persistTable.GlobalTable.roses.Systems.EnhancedCreature = 'true'
- return true
+ return numEnhanced, Table
 end
 
-function makeEnhancedItemTable(test)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- persistTable.GlobalTable.roses.Systems.EnhancedItem = 'false'
- dataFiles,dataInfoFiles,files = getData('Item',test)
- if not dataFiles then return false end
+function makeEnhancedItemTable(runtest,verbose)
+ local Table = {}
+ local numEnhanced = 0
+ dataFiles,dataInfoFiles,files = getData('Item',runtest,verbose)
+ if not dataFiles then return numEnhanced end
 
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -336,9 +356,10 @@ function makeEnhancedItemTable(test)
    token      = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   persistTable.GlobalTable.roses.EnhancedItemTable[token] = {}
-   item = persistTable.GlobalTable.roses.EnhancedItemTable[token]
+   Table[token] = {}
+   item = Table[token]
    scripts = 0
+   enhanced = false
    for j = startLine,endLine,1 do
     testa = data[j]:gsub("%s+","")
     test = split(testa,':')[1]
@@ -353,8 +374,10 @@ function makeEnhancedItemTable(test)
      foo = 0
     elseif test == '{DESCRIPTION' then
      item.Description = array[2]
+     enhanced = true
     elseif test == '{CLASS' then
      item.Class = array[2]
+     enhanced = true
     elseif test == '{ON_REPORT' then
      item.OnReport = item.OnReport or {}
      item.OnReport[array[2]] = {}
@@ -364,155 +387,200 @@ function makeEnhancedItemTable(test)
      else
       onTable.Chance = '100'
      end
+     enhanced = true
     elseif test == '{ON_EQUIP' then
      item.OnEquip = item.OnEquip or {}
      onTable = item.OnEquip
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_EQUIP}' then
      item.OnEquip = item.OnEquip or {}
      onTable = item.OnEquip
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_ATTACK' then
      item.OnAttack = item.OnAttack or {}
      onTable = item.OnAttack
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_ATTACK}' then
      item.OnAttack = item.OnAttack or {}
      onTable = item.OnAttack
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_SHOOT' then
      item.OnShoot = item.OnShoot or {}
      onTable = item.OnShoot
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_SHOOT}' then
      item.OnShoot = item.OnSHoot or {}
      onTable = item.OnShoot
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_PARRY' then
      item.OnParry = item.OnParry or {}
      onTable = item.OnParry
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_PARRY}' then
      item.OnParry = item.OnParry or {}
      onTable = item.OnParry
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_DODGE' then
      item.OnDodge = item.OnDodge or {}
      onTable = item.OnDodge
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_DODGE}' then
      item.OnDodge = item.OnDodge or {}
      onTable = item.OnDodge
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_BLOCK' then
      item.OnBlock = item.OnBlock or {}
      onTable = item.OnBlock
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_BLOCK}' then
      item.OnBlock = item.OnBlock or {}
      onTable = item.OnBlock
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_WOUND' then
      item.OnWound = item.OnWound or {}
      onTable = item.OnWound
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_WOUND}' then
      item.OnWound = item.OnWound or {}
      onTable = item.OnWound
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_PROJECTILE_MOVE}' then
      item.OnProjectileMove = item.OnProjectileMove or {}
      onTable = item.OnProjectileMove
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_PROJECTILE_MOVE' then
      item.OnProjectileMove = item.OnProjectileMove or {}
      onTable = item.OnProjectileMove
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_PROJECTILE_HIT}' then
      item.OnProjectileHit = item.OnProjectileHit or {}
      onTable = item.OnProjectileHit
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_PROJECTILE_HIT' then
      item.OnProjectileHit = item.OnProjectileHit or {}
      onTable = item.OnProjectileHit
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ON_PROJECTILE_FIRED}' then
      item.OnProjectileFired = item.OnProjectileFired or {}
      onTable = item.OnProjectileFired
      onTable.Chance = '100'
+     enhanced = true
     elseif test == '{ON_PROJECTILE_FIRED' then
      item.OnProjectileFired = item.OnProjectileFired or {}
      onTable = item.OnProjectileFired
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{TRIGGER_CHANCE' then
      onTable.Chance = array[2]
+     enhanced = true
     elseif test == '{ATTRIBUTE_CHANGE' then
      onTable.Attributes = onTable.Attributes or {}
      onTable.Attributes[array[2]] = array[3]
+     enhanced = true
     elseif test == '{SKILL_CHANGE' then
      onTable.Skills = onTable.Skills or {}
      onTable.Skills[array[2]] = array[3]
+     enhanced = true
     elseif test == '{TRAIT_CHANGE' then
      onTable.Traits = onTable.Traits or {}
      onTable.Traits[array[2]] = array[3]
+     enhanced = true
     elseif test == '{STAT_CHANGE' then
      onTable.Stats = onTable.Stats or {}
      onTable.Stats[array[2]] = array[3]
+     enhanced = true
     elseif test == '{RESISTANCE_CHANGE' then
      onTable.Resistances = onTable.Resistances or {}
      onTable.Resistances[array[2]] = array[3]
+     enhanced = true
     elseif test == '{INTERACTION_ADD' then
      onTable.Interactions = onTable.Interactions or {}
      onTable.Interactions[#onTable.Interactions+1] = array[2]
+     enhanced = true
     elseif test == '{SYNDROME_ADD' then
      onTable.Syndromes = onTable.Syndromes or {}
      onTable.Syndromes[#onTable.Syndromes+1] = array[2]
+     enhanced = true
     elseif test == '{ATTACKER_ATTRIBUTE_CHANGE' then
      onTable.AttackerAttributes = onTable.AttackerAttributes or {}
      onTable.AttackerAttributes[array[2]] = array[3]
+     enhanced = true
     elseif test == '{ATTACKER_SKILL_CHANGE' then
      onTable.AttackerSkills = onTable.AttackerSkills or {}
      onTable.AttackerSkills[array[2]] = array[3]
+     enhanced = true
     elseif test == '{ATTACKER_TRAIT_CHANGE' then
      onTable.AttackerTraits = onTable.AttackerTraits or {}
      onTable.AttackerTraits[array[2]] = array[3]
+     enhanced = true
     elseif test == '{ATTACKER_STAT_CHANGE' then
      onTable.AttackerStats = onTable.AttackerStats or {}
      onTable.AttackerStats[array[2]] = array[3]
+     enhanced = true
     elseif test == '{ATTACKER_RESISTANCE_CHANGE' then
      onTable.AttackerResistances = onTable.AttackerResistances or {}
      onTable.AttackerResistances[array[2]] = array[3]
+     enhanced = true
     elseif test == '{ATTACKER_INTERACTION_ADD' then
      onTable.AttackerInteractions = onTable.AttackerInteractions or {}
      onTable.AttackerInteractions[#onTable.AttackerInteractions+1] = array[2]
+     enhanced = true
     elseif test == '{ATTACKER_SYNDROME_ADD' then
      onTable.AttackerSyndromes = onTable.AttackerSyndromes or {}
      onTable.AttackerSyndromes[#onTable.AttackerSyndromes+1] = array[2]
+     enhanced = true
     elseif test == '{ATTACKER_CHANGE_DUR' then
      onTable.AttackerDur = array[2]
+     enhanced = true
     elseif test == '{DEFENDER_ATTRIBUTE_CHANGE' then
      onTable.DefenderAttributes = onTable.DefenderAttributes or {}
      onTable.DefenderAttributes[array[2]] = array[3]
+     enhanced = true
     elseif test == '{DEFENDER_SKILL_CHANGE' then
      onTable.DefenderSkills = onTable.DefenderSkills or {}
      onTable.DefenderSkills[array[2]] = array[3]
+     enhanced = true
     elseif test == '{DEFENDER_TRAIT_CHANGE' then
      onTable.DefenderTraits = onTable.DefenderTraits or {}
      onTable.DefenderTraits[array[2]] = array[3]
+     enhanced = true
     elseif test == '{DEFENDER_STAT_CHANGE' then
      onTable.DefenderStats = onTable.DefenderStats or {}
      onTable.DefenderStats[array[2]] = array[3]
+     enhanced = true
     elseif test == '{DEFENDER_RESISTANCE_CHANGE' then
      onTable.DefenderResistances = onTable.DefenderResistances or {}
      onTable.DefenderResistances[array[2]] = array[3]
+     enhanced = true
     elseif test == '{DEFENDER_INTERACTION_ADD' then
      onTable.DefenderInteractions = onTable.DefenderInteractions or {}
      onTable.DefenderInteractions[#onTable.DefenderInteractions+1] = array[2]
+     enhanced = true
     elseif test == '{DEFENDER_SYNDROME_ADD' then
      onTable.DefenderSyndromes = onTable.DefenderSyndromes or {}
      onTable.DefenderSyndromes[#onTable.DefenderSyndromes+1] = array[2]
+     enhanced = true
     elseif test == '{DEFENDER_CHANGE_DUR' then
      onTable.DefenderDur = array[2]
+     enhanced = true
     elseif test == '{SCRIPT' or test == '{SPELL' then
      onTable.Scripts = onTable.Scripts or {}
      scripts = scripts + 1
@@ -524,36 +592,34 @@ function makeEnhancedItemTable(test)
      chance = string.sub(a,-(n-1),-2)
      onTable.Scripts[tostring(scripts)].Script = script
      onTable.Scripts[tostring(scripts)].Chance = chance
+     enhanced = true
     end
    end
+   if not enhanced then Table[token] = nil else numEnhanced = numEnhanced + 1 end
   end
  end
 
- persistTable.GlobalTable.roses.Systems.EnhancedItem = 'true'
- return true
+ return numEnhanced, Table
 end
 
-
-function makeEnhancedMaterialTable(test)
- persistTable.GlobalTable.roses.Systems.EnhancedMaterial = 'false'
+function makeEnhancedMaterialTable(runtest,verbose)
+ local Table = {}
+ local numEnhanced = 0
  print('Enhanced System - Materials, not currently working')
- return false
+ return numEnhanced
 
  --materialFiles,  materialInfoFiles   materialfiles  = getData('Material' ,test)
  --inorganicFiles, inorganicInfoFiles, inorganicfiles = getData('Inorganic',test)
  --plantFiles,     plantInfoFiles,     plantfiles     = getData('PlantMat' ,test)
  --animalFiles,    animalInfoFiles,    animalfiles    = getData('AnimalMat',test)
 
- --persistTable.GlobalTable.roses.Systems.EnhancedMaterial = 'true'
-
 end
 
-function makeEnhancedReactionTable(test)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- persistTable.GlobalTable.roses.Systems.EnhancedReaction = 'false'
- dataFiles,dataInfoFiles,files = getData('Reaction',test)
- if not dataFiles then return false end
+function makeEnhancedReactionTable(runtest,verbose)
+ local Table = {}
+ local numEnhanced = 0
+ dataFiles,dataInfoFiles,files = getData('Reaction',runtest,verbose)
+ if not dataFiles then return numEnhanced end
 
  for _,file in ipairs(files) do
   dataInfo = dataInfoFiles[file]
@@ -562,11 +628,12 @@ function makeEnhancedReactionTable(test)
    token      = x[1]
    startLine  = x[2]
    endLine    = x[3]
-   persistTable.GlobalTable.roses.EnhancedReactionTable[token] = {}
-   ptable = persistTable.GlobalTable.roses.EnhancedReactionTable[token]
+   Table[token] = {}
+   ptable = Table[token]
    ptable.Scripts = {}
    scripts = 0
    products = 0
+   enhanced = false
    for j = startLine,endLine,1 do
     test = data[j]:gsub("%s+","")
     test = split(test,':')[1]
@@ -581,26 +648,36 @@ function makeEnhancedReactionTable(test)
      foo = 0
     elseif test == '{DESCRIPTION' then
      ptable.Description = array[2]
+     enhanced = true
     elseif test == '{BASE_DURATION' then
      ptable.BaseDur = array[2]
+     enhanced = true
     elseif test == '{REQUIRED_MAGMA' then
      ptable.RequiredMagma = array[2]
+     enhanced = true
     elseif test == '{REQUIRED_WATER' then
      ptable.RequiredWater = array[2]
+     enhanced = true
     elseif test == '[SKILL' then -- Take raw table skill
      ptable.Skill = split(array[2],']')[1]
+     enhanced = true
     elseif test == '{SKILL' then -- OR custom table skill
      ptable.Skill = array[2]
+     enhanced = true
     elseif test == '{ON_PRODUCT}' then
      ptable.OnProduct = 'true'
+     enhanced = true
     elseif test == '{ON_START}' then
      ptable.OnStart = 'true'
+     enhanced = true
     elseif test == '{ON_FINISH}' then
      ptable.OnFinish = 'true'
+     enhanced = true
     elseif test == '{DURATION_REDUCTION' then
      ptable.DurReduction = {}
      ptable.DurReduction.Increment = array[2]
      ptable.DurReduction.MaxReduction = array[3]
+     enhanced = true
     elseif test == '{ADDITIONAL_PRODUCT' then
      ptable.Products = table.Products or {}
      products = products + 1
@@ -612,23 +689,27 @@ function makeEnhancedReactionTable(test)
      ptable.Products[num].MaterialSubType = array[5]
      ptable.Products[num].ItemType = array[6]
      ptable.Products[num].ItemSubType = array[7]
+     enhanced = true
     elseif test == '{FREEZE}' then
      ptable.Frozen = 'true'
+     enhanced = true
     elseif test == '{REMOVE}' then
      ptable.Disappear = 'true'
+     enhanced = true
     elseif test == '{SCRIPT' then
      scripts = scripts + 1
      script = data[j]
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
      ptable.Scripts[tostring(scripts)] = script
+     enhanced = true
     end
    end
+   if not enhanced then Table[token] = nil else numEnhanced = numEnhanced + 1 end
   end
  end
 
- persistTable.GlobalTable.roses.Systems.EnhancedReaction = 'true'
- return true
+ return numEnhanced, Table
 end
 
 --=                     Enhanced System - Building  Functions
@@ -636,9 +717,9 @@ usages[#usages+1] = [===[
 ]===]
 
 function buildingCreated(building)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- buildingEnhanced = persistTable.GlobalTable.roses.EnhancedBuildingTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ buildingEnhanced = roses.EnhancedBuildingTable
  
  ctype = building:getCustomType()
  if ctype < 0 then return end
@@ -648,8 +729,7 @@ function buildingCreated(building)
  
  -- Run any scripts attached to the building
  if EBuilding.Scripts then
-  for _,i in pairs(EBuilding.Scripts._children) do
-   x = EBuilding.Scripts[i]
+  for i,x in pairs(EBuilding.Scripts) do
    local script = x.Script
    local frequency = tonumber(x.Frequency)
    script = script:gsub('BUILDING_ID',tostring(building.id))
@@ -680,10 +760,10 @@ usages[#usages+1] = [===[
 ]===]
 
 function enhanceCreature(unit)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- creatureEnhanced = persistTable.GlobalTable.roses.EnhancedCreatureTable
- unitPersist = persistTable.GlobalTable.roses.UnitTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ creatureEnhanced = roses.EnhancedCreatureTable
+ unitPersist = roses.UnitTable
  
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if not unit then return false end
@@ -698,7 +778,7 @@ function enhanceCreature(unit)
    unitTable = unitPersist[tostring(unit.id)]
    if unitTable.Enhanced then return end
 
-   unitTable.Enhanced = 'true'
+   unitTable.Enhanced = true
    local ctable = creatureEnhanced[creatureID][casteID]
    if ctable.Attributes   then setN(unit, 'Attributes', ctable.Attributes) end
    if ctable.Skills       then setN(unit, 'Skills', ctable.Skills) end
@@ -711,11 +791,11 @@ function enhanceCreature(unit)
  end
 end
 
-function setN(unit,ttype, ctable)
+function setN(unit,ttype,ctable)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 
- for _,entry in pairs(ctable._children) do
+ for entry,_ in pairs(ctable) do
   if not unitTable[ttype][entry] then return false end
   current = unitTable[ttype][entry].Base
   if ttype == 'Skills' then
@@ -772,9 +852,9 @@ function enhanceItemsInventory(unit)
 end
 
 function onItemEquip(item,unit)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- itemTable = persistTable.GlobalTable.roses.EnhancedItemTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ itemTable = roses.EnhancedItemTable
 
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -783,59 +863,51 @@ function onItemEquip(item,unit)
  itemTable = itemTable[item.subtype.id]
  onTable = itemTable.OnEquip
  if onTable.Attributes then
-  for _,attribute in pairs(onTable.Attributes._children) do
-   change = onTable.Attributes[attribute]
+  for attribute,change in pairs(onTable.Attributes) do
    dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,0,'item')
   end
  end
  if onTable.Resistances then
-  for _,resistance in pairs(onTable.Resistances._children) do
-   change = onTable.Resistances[resistance]
+  for resistance,change in pairs(onTable.Resistances) do
    dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,0,'item')
   end
  end
  if onTable.Skills then
-  for _,skill in pairs(onTable.Skills._children) do
-   change = onTable.Skills[skill]
+  for skill,change in pairs(onTable.Skills) do
    dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,0,'item')
   end
  end
  if onTable.Stats then
-  for _,stat in pairs(onTable.Stats._children) do
-   change = onTable.Stats[stat]
+  for stat,change in pairs(onTable.Stats) do
    dfhack.script_environment('functions/unit').changeStat(unit,stat,change,0,'item')
   end
  end
  if onTable.Traits then
-  for _,trait in pairs(onTable.Traits._children) do
-   change = onTable.Traits[trait]
+  for trait,change in pairs(onTable.Traits) do
    dfhack.script_environment('functions/unit').changeTrait(unit,trait,change,0,'item')
   end
  end
  if onTable.Syndromes then
-  for _,n in pairs(onTable.Syndromes._children) do
-   syndrome = onTable.Syndromes[n]
+  for n,syndrome in pairs(onTable.Syndromes) do
    dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'add',0)
   end
  end
  if onTable.Interactions then
-  for _,n in pairs(onTable.Interactions._children) do
-   syndrome = onTable.Interactions[n]
+  for n,syndrome in pairs(onTable.Interactions) do
    dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'force',verbose)
   end
  end
  if onTable.Scripts then
-  for _,n in pairs(onTable.Scripts._children) do
-   script = onTable.Scripts[n]
+  for n,script in pairs(onTable.Scripts) do
    dfhack.run_command(script)
   end
  end
 end
 
 function onItemUnEquip(item,unit)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- itemTable = persistTable.GlobalTable.roses.EnhancedItemTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ itemTable = roses.EnhancedItemTable
 
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -844,53 +916,46 @@ function onItemUnEquip(item,unit)
  itemTable = itemTable[item.subtype.id]
  onTable = itemTable.OnEquip
  if onTable.Attributes then
-  for _,attribute in pairs(onTable.Attributes._children) do
-   change = tonumber(onTable.Attributes[attribute])
+  for attribute,change in pairs(onTable.Attributes) do
    dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,-change,0,'item')
   end
  end
  if onTable.Resistances then
-  for _,resistance in pairs(onTable.Resistances._children) do
-   change = tonumber(onTable.Resistances[resistance])
+  for resistance,change in pairs(onTable.Resistances) do
    dfhack.script_environment('functions/unit').changeResistance(unit,resistance,-change,0,'item')
   end
  end
  if onTable.Skills then
-  for _,skill in pairs(onTable.Skills._children) do
-   change = tonumber(onTable.Skills[skill])
+  for skill,change in pairs(onTable.Skills) do
    dfhack.script_environment('functions/unit').changeSkill(unit,skill,-change,0,'item')
   end
  end
  if onTable.Stats then
-  for _,stat in pairs(onTable.Stats._children) do
-   change = tonumber(onTable.Stats[stat])
+  for stat,change in pairs(onTable.Stats) do
    dfhack.script_environment('functions/unit').changeStat(unit,stat,-change,0,'item')
   end
  end
  if onTable.Traits then
-  for _,trait in pairs(onTable.Traits._children) do
-   change = tonumber(onTable.Traits[trait])
+  for trait,change in pairs(onTable.Traits) do
    dfhack.script_environment('functions/unit').changeTrait(unit,trait,-change,0,'item')
   end
  end
  if onTable.Syndromes then
-  for _,n in pairs(onTable.Syndromes._children) do
-   syndrome = onTable.Syndromes[n]
+  for n,syndrome in pairs(onTable.Syndromes) do
    dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'erase',0)
   end
  end
  if onTable.Interactions then
-  for _,n in pairs(onTable.Interactions._children) do
-   syndrome = onTable.Interactions[n]
+  for n,syndrome in pairs(onTable.Interactions) do
    dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'remove',verbose)
   end
  end
 end
 
 function onItemAction(item,onAction,attacker,defender,options)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- itemTable = persistTable.GlobalTable.roses.EnhancedItemTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ itemTable = roses.EnhancedItemTable
 
  if tonumber(item) then item = df.item.find(tonumber(item)) end
 
@@ -921,51 +986,43 @@ function onItemAction(item,onAction,attacker,defender,options)
   if unit then
    dur = tonumber(dur)
    if onTable[add..'Attributes'] then
-    for _,attribute in pairs(onTable[add..'Attributes']._children) do
-     change = onTable[add..'Attributes'][attribute]
+    for attribute,change in pairs(onTable[add..'Attributes']) do
      dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,'item')
     end
    end
    if onTable[add..'Resistances'] then
-    for _,resistance in pairs(onTable[add..'Resistances']._children) do
-     change = onTable[add..'Resistances'][resistance]
+    for resistance,change in pairs(onTable[add..'Resistances']) do
      dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,dur,'item')
     end
    end
    if onTable[add..'Skills'] then
-    for _,skill in pairs(onTable[add..'Skills']._children) do
-     change = onTable[add..'Skills'][skill]
+    for skill,change in pairs(onTable[add..'Skills']) do
      dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,dur,'item')
     end
    end
    if onTable[add..'Stats'] then
-    for _,stat in pairs(onTable[add..'Stats']._children) do
-     change = onTable[add..'Stats'][stat]
+    for stat,change in pairs(onTable[add..'Stats']) do
      dfhack.script_environment('functions/unit').changeStat(unit,stat,change,dur,'item')
     end
    end
    if onTable[add..'Traits'] then
-    for _,trait in pairs(onTable[add..'Traits']._children) do
-     change = onTable[add..'Traits'][trait]
+    for trait,change in pairs(onTable[add..'Traits']) do
      dfhack.script_environment('functions/unit').changeTrait(unit,trait,change,dur,'item')
     end
    end
    if onTable[add..'Syndromes'] then
-    for _,n in pairs(onTable[add..'Syndromes']._children) do
-     syndrome = onTable[add..'Syndromes'][n]
+    for n,syndrome in pairs(onTable[add..'Syndromes']) do
      dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'add',dur)
     end
    end
    if onTable[add..'Interactions'] then
-    for _,n in pairs(onTable[add..'Interactions']._children) do
-     syndrome = onTable[add..'Interactions'][n]
+    for n,syndrome in pairs(onTable[add..'Interactions']) do
      dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'add',dur)
     end
    end
   end
  end
- for _,n in pairs(onTable.Scripts._children) do
-  x = onTable.Scripts[n]
+ for n,x in pairs(onTable.Scripts) do
   script = x.Script
   if rand:random(100) <= x.Chance then
    if attacker then script = script:gsub('SOURCE_UNIT_ID',tostring(attacker.id)) end
@@ -986,9 +1043,9 @@ function enhanceMaterialsInventory(unit)
 end
 
 function onMaterialEquip(item,unit)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- matTable = persistTable.GlobalTable.roses.EnhancedMaterialTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ matTable = roses.EnhancedMaterialTable
 
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -1014,66 +1071,58 @@ function onMaterialEquip(item,unit)
  end
 
  if onTable.Attributes then
-  for _,attribute in pairs(onTable.Attributes._children) do
-   change = onTable.Attributes[attribute]
+  for attribute,change in pairs(onTable.Attributes) do
    dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,0,'item')
   end
  end
 
  if onTable.Resistances then
-  for _,resistance in pairs(onTable.Resistances._children) do
-   change = onTable.Resistances[resistance]
+  for resistance,change in pairs(onTable.Resistances) do
    dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,0,'item')
   end
  end
 
  if onTable.Skills then
-  for _,skill in pairs(onTable.Skills._children) do
-   change = onTable.Skills[skill]
+  for skill,change in pairs(onTable.Skills) do
    dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,0,'item')
   end
  end
 
  if onTable.Stats then
-  for _,stat in pairs(onTable.Stats._children) do
-   change = onTable.Stats[stat]
+  for stat,change in pairs(onTable.Stats) do
    dfhack.script_environment('functions/unit').changeStat(unit,stat,change,0,'item')
   end
  end
 
  if onTable.Traits then
-  for _,trait in pairs(onTable.Traits._children) do
-   change = onTable.Traits[trait]
+  for trait,change in pairs(onTable.Traits) do
    dfhack.script_environment('functions/unit').changeTrait(unit,trait,change,0,'item')
   end
  end
 
  if onTable.Syndromes then
-  for _,n in pairs(onTable.Syndromes._children) do
-   syndrome = onTable.Syndromes[n]
+  for n,syndrome in pairs(onTable.Syndromes) do
    dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'add',0)
   end
  end
 
  if onTable.Interactions then
-  for _,n in pairs(onTable.Interactions._children) do
-   syndrome = onTable.Interactions[n]
+  for n,syndrome in pairs(onTable.Interactions) do
    dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'force',verbose)
   end
  end
 
  if onTable.Scripts then
-  for _,n in pairs(onTable.Scripts._children) do
-   script = onTable.Scripts[n]
+  for n,script in pairs(onTable.Scripts) do
    dfhack.run_command(script)
   end
  end
 end
 
 function onMaterialUnEquip(item,unit)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- matTable = persistTable.GlobalTable.roses.EnhancedMaterialTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ matTable = roses.EnhancedMaterialTable
 
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
@@ -1099,59 +1148,52 @@ function onMaterialUnEquip(item,unit)
  end
 
  if onTable.Attributes then
-  for _,attribute in pairs(onTable.Attributes._children) do
-   change = tonumber(onTable.Attributes[attribute])
+  for attribute,change in pairs(onTable.Attributes) do
    dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,-change,0,'item')
   end
  end
 
  if onTable.Resistances then
-  for _,resistance in pairs(onTable.Resistances._children) do
-   change = tonumber(onTable.Resistances[resistance])
+  for resistance,change in pairs(onTable.Resistances) do
    dfhack.script_environment('functions/unit').changeResistance(unit,resistance,-change,0,'item')
   end
  end
 
  if onTable.Skills then
-  for _,skill in pairs(onTable.Skills._children) do
-   change = tonumber(onTable.Skills[skill])
+  for skill,change in pairs(onTable.Skills) do
    dfhack.script_environment('functions/unit').changeSkill(unit,skill,-change,0,'item')
   end
  end
 
  if onTable.Stats then
-  for _,stat in pairs(onTable.Stats._children) do
-   change = tonumber(onTable.Stats[stat])
+  for stat,change in pairs(onTable.Stats) do
    dfhack.script_environment('functions/unit').changeStat(unit,stat,-change,0,'item')
   end
  end
 
  if onTable.Traits then
-  for _,trait in pairs(onTable.Traits._children) do
-   change = tonumber(onTable.Traits[trait])
+  for trait,change in pairs(onTable.Traits) do
    dfhack.script_environment('functions/unit').changeTrait(unit,trait,-change,0,'item')
   end
  end
 
  if onTable.Syndromes then
-  for _,n in pairs(onTable.Syndromes._children) do
-   syndrome = onTable.Syndromes[n]
+  for n,syndrome in pairs(onTable.Syndromes) do
    dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'erase',0)
   end
  end
 
  if onTable.Interactions then
-  for _,n in pairs(onTable.Interactions._children) do
-   syndrome = onTable.Interactions[n]
+  for n,syndrome in pairs(onTable.Interactions) do
    dfhack.script_environment('functions/class').changeSpell(unit,syndrome,'remove',verbose)
   end
  end
 end
 
 function onMaterialAction(item,onAction,attacker,defender,options)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- matTable = persistTable.GlobalTable.roses.EnhancedMaterialTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ matTable = roses.EnhancedMaterialTable
 
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  local matToken = dfhack.matinfo.decode(item.mat_type,item.mat_index):getToken()
@@ -1198,51 +1240,43 @@ function onMaterialAction(item,onAction,attacker,defender,options)
   if unit then
    dur = tonumber(dur)
    if onTable[add..'Attributes'] then
-    for _,attribute in pairs(onTable[add..'Attributes']._children) do
-     change = onTable[add..'Attributes'][attribute]
+    for attribute,change in pairs(onTable[add..'Attributes']) do
      dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,'item')
     end
    end
    if onTable[add..'Resistances'] then
-    for _,resistance in pairs(onTable[add..'Resistances']._children) do
-     change = onTable[add..'Resistances'][resistance]
+    for resistance,change in pairs(onTable[add..'Resistances']) do
      dfhack.script_environment('functions/unit').changeResistance(unit,resistance,change,dur,'item')
     end
    end
    if onTable[add..'Skills'] then
-    for _,skill in pairs(onTable[add..'Skills']._children) do
-     change = onTable[add..'Skills'][skill]
+    for skill,change in pairs(onTable[add..'Skills']) do
      dfhack.script_environment('functions/unit').changeSkill(unit,skill,change,dur,'item')
     end
    end
    if onTable[add..'Stats'] then
-    for _,stat in pairs(onTable[add..'Stats']._children) do
-     change = onTable[add..'Stats'][stat]
+    for stat,change in pairs(onTable[add..'Stats']) do
      dfhack.script_environment('functions/unit').changeStat(unit,stat,change,dur,'item')
     end
    end
    if onTable[add..'Traits'] then
-    for _,trait in pairs(onTable[add..'Traits']._children) do
-     change = onTable[add..'Traits'][trait]
+    for trait,change in pairs(onTable[add..'Traits']) do
      dfhack.script_environment('functions/unit').changeTrait(unit,trait,change,dur,'item')
     end
    end
    if onTable[add..'Syndromes'] then
-    for _,n in pairs(onTable[add..'Syndromes']._children) do
-     syndrome = onTable[add..'Syndromes'][n]
+    for n,syndrome in pairs(onTable[add..'Syndromes']) do
      dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'add',dur)
     end
    end
    if onTable[add..'Interactions'] then
-    for _,n in pairs(onTable[add..'Interactions']._children) do
-     syndrome = onTable[add..'Interactions'][n]
+    for n,syndrome in pairs(onTable[add..'Interactions']) do
      dfhack.script_environment('functions/unit').changeSyndrome(unit,syndrome,'add',dur)
     end
    end
   end
  end
- for _,n in pairs(onTable.Scripts._children) do
-  x = onTable.Scripts[n]
+ for n,x in pairs(onTable.Scripts) do
   script = x.Script
   if rand:random(100) <= x.Chance then
    if attacker then script = script:gsub('SOURCE_UNIT_ID',tostring(attacker.id)) end
@@ -1259,15 +1293,14 @@ usages[#usages+1] = [===[
 ]===]
 
 function reactionStart(reactionToken,worker,building,job)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- reactionEnhanced = persistTable.GlobalTable.roses.EnhancedReactionTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ reactionEnhanced = roses.EnhancedReactionTable
 
  reaction = reactionEnhanced[reactionToken]
  if not reaction then return end
 
- for _,i in pairs(reaction.Scripts._children) do
-  script = reaction.Scripts[i]
+ for i,script in pairs(reaction.Scripts) do
   script = script:gsub('WORKER_ID',tostring(worker.id))
   script = script:gsub('UNIT_ID',tostring(worker.id))
   script = script:gsub('BUILDING_ID',tostring(building.id))
@@ -1278,15 +1311,14 @@ function reactionStart(reactionToken,worker,building,job)
 end
 
 function reactionEnd(reactionToken,worker,building)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- reactionEnhanced = persistTable.GlobalTable.roses.EnhancedReactionTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ reactionEnhanced = roses.EnhancedReactionTable
 
  reaction = reactionEnhanced[reactionToken]
  if not reaction then return end
 
- for _,i in pairs(reaction.Scripts._children) do
-  script = reaction.Scripts[i]
+ for i,script in pairs(reaction.Scripts) do
   script = script:gsub('WORKER_ID',tostring(worker.id))
   script = script:gsub('UNIT_ID',tostring(worker.id))
   script = script:gsub('BUILDING_ID',tostring(building.id))
@@ -1297,15 +1329,14 @@ function reactionEnd(reactionToken,worker,building)
 end
 
 function reactionProduct(reactionToken,worker,building,inputItems,outputItems)
- persistTable = require 'persist-table'
- if not persistTable.GlobalTable.roses then return false end
- reactionEnhanced = persistTable.GlobalTable.roses.EnhancedReactionTable
+ roses = dfhack.script_environment('base/roses-init').roses
+ if not roses then return false end
+ reactionEnhanced = roses.EnhancedReactionTable
 
  reaction = reactionEnhanced[reactionToken]
  if not reaction then return end
 
- for _,i in pairs(reaction.Scripts._children) do
-  script = reaction.Scripts[i]
+ for i,script in pairs(reaction.Scripts) do
   script = script:gsub('WORKER_ID',tostring(worker.id))
   script = script:gsub('UNIT_ID',tostring(worker.id))
   script = script:gsub('BUILDING_ID',tostring(building.id))
