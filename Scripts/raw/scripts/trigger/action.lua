@@ -33,6 +33,7 @@ validArgs = utils.invert({
  'contaminant',
  'creature',
  'attack',
+ 'show',
 })
 local args = utils.processArgs({...}, validArgs)
 
@@ -96,6 +97,37 @@ arguments:
             CONTAMINANT_MATERIAL
             anything -> anything
 ]])
+ return
+end
+
+if args.show then
+ print('Attack Triggers')
+ printall_recurse(attackTriggers)
+ print('')
+ print('Shoot Triggers')
+ printall_recurse(shootTriggers)
+ print('')
+  print('Block Triggers')
+ printall_recurse(blockTriggers)
+ print('')
+  print('Dodge Triggers')
+ printall_recurse(dodgeTriggers)
+ print('')
+  print('Equip Triggers')
+ printall_recurse(equipTriggers)
+ print('')
+  print('Parry Triggers')
+ printall_recurse(parryTriggers)
+ print('')
+  print('UnEquip Triggers')
+ printall_recurse(unequipTriggers)
+ print('')
+  print('Wound Triggers')
+ printall_recurse(woundTriggers)
+ print('')
+  print('Report Triggers')
+ printall_recurse(reportTriggers)
+ print('')
  return
 end
 
@@ -510,8 +542,9 @@ end
 -- Eventful function for when a unit shoots a projectile
 onShoot.shoot=function(projectile)
  if not projectile then print('Something weird happened! ',unit_id,action) return false end
+ if df.proj_unitst:is_instance(projectile) then return false end -- don't trigger for unit projectiles
  local intable = {}
- intable.unit = projectile.firer
+ intable.unit = projectile.firer or {}
  intable.item = df.item.find(projectile.bow_id)
  intable.projectile = projectile
  intable.projItem = projectile.item

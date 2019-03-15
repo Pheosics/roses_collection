@@ -8,16 +8,15 @@
 ]]
 function getChange(current,value,mode)
  local change = 0
- if mode == 'Fixed' or mode == 'fixed' then
+ if mode:upper() == 'FIXED' then
   change = tonumber(value)
- elseif mode == 'Percent' or mode == 'percent' then
+ elseif mode:upper() == 'PERCENT' then
   local percent = tonumber(value)/100
   change = current*percent - current
- elseif mode == 'Set' or mode == 'set' then
+ elseif mode:upper() == 'SET' then
   change = tonumber(value) - current
  else
-  print('No method for change defined')
-  return
+  change = tonumber(value)
  end 
  return change
 end
@@ -42,8 +41,9 @@ function permute(tab)
 end
 
 function changeCounter(counter,amount,extra)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not tonumber(amount) then return end
+ 
  local utils = require 'utils'
  local split = utils.split_string
  counterTable = roses.CounterTable
@@ -54,82 +54,23 @@ function changeCounter(counter,amount,extra)
    break
   end
   if (x == '!UNIT' or x == '!BUILDING' or x == '!ITEM') then
-   if not counterTable[tostring(extra)] then
-    counterTable[tostring(extra)] = {}
+   if not counterTable[extra] then
+    counterTable[extra] = {}
    end
-   counterTable = counterTable[tostring(extra)]
+   counterTable = counterTable[extra]
   elseif not counterTable[x] then
    if i ~= #counters then
     counterTable[x] = {}
-   else
-    if tonumber(amount) then
-     counterTable[x] = '0'
-    else
-     counterTable[x] = amount
-    end
    end
    counterTable = counterTable[x]
   else
    counterTable = counterTable[x]
   end
  end
- if tonumber(amount) then
-  if not counterTable[endc] then
-   counterTable[endc] = '0'
-  end
-  if tonumber(counterTable[endc]) then
-   counterTable[endc] = tostring(counterTable[endc] + tonumber(amount))
-  else
-   print("Can't add an integer to a string counter")
-   return
-  end
- else
-  counterTable[endc] = amount
+ if not counterTable[endc] then
+  counterTable[endc] = 0
  end
+ counterTable[endc] = counterTable[endc] + amount
+
  return counterTable[endc]
-end
-
-function checkCounter(counter,extra)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- local utils = require 'utils'
- local split = utils.split_string
- counterTable = roses.CounterTable
- counters = split(counter,':')
- for i,x in pairs(counters) do
-  if (x == '!UNIT' or x == '!BUILDING' or x == '!ITEM') then
-   if not counterTable[tostring(extra)] then
-    return false
-   end
-   counterTable = counterTable[tostring(extra)]
-  elseif not counterTable[x] then
-   return false
-  else
-   counterTable = counterTable[x]
-  end
- end
- return true
-end
-
-function getCounter(counter,extra)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- local utils = require 'utils'
- local split = utils.split_string
- counterTable = roses.CounterTable
- counters = split(counter,':')
- for i,x in pairs(counters) do
-  if (x == '!UNIT' or x == '!BUILDING' or x == '!ITEM') then
-   if not counterTable[tostring(extra)] then
-    counterTable[tostring(extra)] = {}
-   end
-   counterTable = counterTable[tostring(extra)]
-  elseif not counterTable[x] then
-   print('Counter not found')
-   return
-  else
-   counterTable = counterTable[x]
-  end
- end
- return counterTable
 end

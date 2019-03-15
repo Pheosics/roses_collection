@@ -1,5 +1,5 @@
 script = require 'gui.script'
-roses = dfhack.script_environment('base/roses-init').roses
+roses = dfhack.script_environment('base/roses-table').roses
 
 function printplus(text,color)
  color = color or COLOR_WHITE
@@ -26,10 +26,10 @@ end
 file = io.open('run_test_output.txt','w')
 io.output(file)
 
--- Initialize base/roses-init
-printplus('Running base/roses-init with no systems loaded')
-printplus('base/roses-init -verbose -testRun')
-dfhack.run_command_silent('base/roses-init -verbose -testRun')
+-- Initialize base/roses-table
+printplus('Running base/roses-table with no systems loaded')
+printplus('base/roses-table -verbose -testRun')
+dfhack.run_command_silent('base/roses-table -verbose -testRun')
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- WRAPPER SCRIPT CHECKS -----------------------------------------------------------------------------------------------------------------------------------------------------

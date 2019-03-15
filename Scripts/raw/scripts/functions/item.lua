@@ -25,13 +25,12 @@ getItemTable(item)
 ]===]
 
 function makeItemTable(item)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- itemPersist = roses.ItemTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
- itemPersist[tostring(item.id)] = {}
- itemTable = itemPersist[tostring(item.id)]
+ if not roses or not item then return end
+
+ roses.ItemTable[item.id] = {}
+ itemTable = roses.ItemTable[item.id]
 
  itemTable.Material = {}
  itemTable.Material.Base = dfhack.matinfo.getToken(item.mat_type,item.mat_index)
@@ -50,17 +49,18 @@ function makeItemTable(item)
 end
 
 function getItemTable(item)
- roses = dfhack.script_environment('base/roses-init').roses
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
-
+ if not item then return end
+ 
  if not roses then
   itemTable = nil
  else
   itemPersist = roses.ItemTable
-  if not itemPersist[tostring(item.id)] then
+  if not itemPersist[item.id] then
    itemTable = nil
   else
-   itemTable = itemPersist[tostring(item.id)]
+   itemTable = itemPersist[item.id]
   end
  end
 
@@ -109,17 +109,16 @@ trackSubtype(item,material,dur,alter)
 ]===]
 
 function trackMaterial(item,material,dur,alter)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- itemPersist = roses.ItemTable
-
  if alter == 'terminated' then return end
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
- Table = itemPersist[tostring(item.id)]
- if not Table then makeItemTable(item) end
- Table = itemPersist[tostring(item.id)]['Material']
- func = changeMaterial
+ if not roses or not item then return end
  
+ if not roses.ItemTable[item.id] then makeItemTable(item) end
+ roses = dfhack.script_environment('base/roses-table').roses
+ 
+ Table = roses.ItemTable[item.id]['Material']
+ func = changeMaterial
  alter = alter or 'track'
  alter = string.lower(alter)
  if alter == 'track' then
@@ -148,15 +147,15 @@ function trackMaterial(item,material,dur,alter)
 end
 
 function trackQuality(item,quality,dur,alter)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- itemPersist = roses.ItemTable
-
  if alter == 'terminated' then return end
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
- Table = itemPersist[tostring(item.id)]
- if not Table then makeItemTable(item) end
- Table = itemPersist[tostring(item.id)]['Quality']
+ if not roses or not item then return end
+ 
+ if not roses.ItemTable[item.id] then makeItemTable(item) end
+ roses = dfhack.script_environment('base/roses-table').roses
+ 
+ Table = roses.ItemTable[item.id]['Quality']
  func = changeQuality
 
  alter = alter or 'track'
@@ -187,15 +186,15 @@ function trackQuality(item,quality,dur,alter)
 end
 
 function trackSubtype(item,subtype,dur,alter)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- itemPersist = roses.ItemTable
-
  if alter == 'terminated' then return end
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
- Table = itemPersist[tostring(item.id)]
- if not Table then makeItemTable(item) end
- Table = itemPersist[tostring(item.id)]['Subtype']
+ if not roses or not item then return end
+ 
+ if not roses.ItemTable[item.id] then makeItemTable(item) end
+ roses = dfhack.script_environment('base/roses-table').roses
+ 
+ Table = roses.ItemTable[item.id]['Subtype']
  func = changeSubtype
 
  alter = alter or 'track'
@@ -264,6 +263,8 @@ changeSubtype(item,subtype,dur,track)
 
 function changeMaterial(item,material,dur,track)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if not item then return end
+ 
  itemTable = getItemTable(item)
  mat = dfhack.matinfo.find(material)
  save = dfhack.matinfo.getToken(item.mat_type,item.mat_index)
@@ -275,6 +276,8 @@ end
 
 function changeQuality(item,quality,dur,track)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if not item then return end
+ 
  itemTable = getItemTable(item)
  save = item.quality
  if quality > 5 then quality = 5 end
@@ -286,6 +289,8 @@ end
 
 function changeSubtype(item,subtype,dur,track)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if not item then return end
+ 
  itemTable = getItemTable(item)
  local itemType = item:getType()
  local itemSubtype = item:getSubtype()
@@ -323,6 +328,8 @@ getAttack(item,attack)
 
 function getAttack(item,attack)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if not item then return end
+ 
  attackID = false
  if attack == 'Random' then
   local rand = dfhack.random.new()
@@ -435,45 +442,49 @@ end
 
 function removal(item)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if not item then return end
  dfhack.items.remove(item)
 end
 
 function equip(item,unit,bodyPart,mode) --from modtools/equip-item
-  --it is assumed that the item is on the ground
-  --taken from expwnent and modified
-  if tonumber(item) then item = df.item.find(tonumber(item)) end
-  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
-  item.flags.on_ground = false
-  item.flags.in_inventory = true
-  local block = dfhack.maps.getTileBlock(item.pos)
-  local occupancy = block.occupancy[item.pos.x%16][item.pos.y%16]
-  for k,v in ipairs(block.items) do
-    if v == item.id then
-      block.items:erase(k)
-      break
-    end
-  end
-  local foundItem = false
-  for k,v in ipairs(block.items) do
-    local blockItem = df.item.find(v)
-    if blockItem.pos.x == item.pos.x and blockItem.pos.y == item.pos.y then
-      foundItem = true
-      break
-    end
-  end
-  if not foundItem then
-    occupancy.item = false
-  end
-  local inventoryItem = df.unit_inventory_item:new()
-  inventoryItem.item = item
-  inventoryItem.mode = mode
-  inventoryItem.body_part_id = bodyPart
-  unit.inventory:insert(#unit.inventory,inventoryItem)
+ --it is assumed that the item is on the ground
+ --taken from expwnent and modified
+ if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not item or not unit then return end
+ item.flags.on_ground = false
+ item.flags.in_inventory = true
+ local block = dfhack.maps.getTileBlock(item.pos)
+ local occupancy = block.occupancy[item.pos.x%16][item.pos.y%16]
+ for k,v in ipairs(block.items) do
+   if v == item.id then
+     block.items:erase(k)
+     break
+   end
+ end
+ local foundItem = false
+ for k,v in ipairs(block.items) do
+   local blockItem = df.item.find(v)
+   if blockItem.pos.x == item.pos.x and blockItem.pos.y == item.pos.y then
+     foundItem = true
+     break
+   end
+ end
+ if not foundItem then
+   occupancy.item = false
+ end
+ local inventoryItem = df.unit_inventory_item:new()
+ inventoryItem.item = item
+ inventoryItem.mode = mode
+ inventoryItem.body_part_id = bodyPart
+ unit.inventory:insert(#unit.inventory,inventoryItem)
 end
 
 function unequip(item,unit) --basically just reversed modtools/equip-item
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not item or not unit then return end
+ 
  local slot = -1
  for i,x in pairs(unit.inventory) do
   if x.item.id == item.id then
@@ -519,6 +530,7 @@ makeProjectileShoot(item,origin,target,options)
 
 function makeProjectileFall(item,origin,velocity)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if not item then return end
  proj = dfhack.items.makeProjectile(item)
  proj.origin_pos.x=origin[1]
  proj.origin_pos.y=origin[2]
@@ -542,6 +554,7 @@ end
 
 function makeProjectileShot(item,origin,target,options)
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if not item then return end
  if options then
   velocity = options.velocity or 20
   hit_chance = options.accuracy or 50

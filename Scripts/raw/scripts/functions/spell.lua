@@ -14,19 +14,14 @@ local split = utils.split_string
 ------------------------------------------------------------------------
 function calculateAttribute(unit,spell,base,check,verbose)
  -- Check that we have a valid unit
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unit then return 0 end
+ if not roses or not unit or not roses.SpellTable[spell] then return 0 end
 
  -- Get the Spell Table for this Spell
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- spellTable = roses.SpellTable
- if not spellTable[spell] then
-  if verbose then print('Not a valid spell: '..spell) end
-  return 0
- end
- spellTable = spellTable[spell]
-
+ spellTable = roses.SpellTable[spell]
+ unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
+ 
  -- Calculate the average of the Primary or Secondary Attributes
  if base == 'PRIMARY' then
   if check == 'SOURCE' then
@@ -45,7 +40,7 @@ function calculateAttribute(unit,spell,base,check,verbose)
  local attribute = 0
  if Table then
   for n,attCheck in pairs(Table) do
-   attribute = attribute + dfhack.script_environment('functions/unit').getUnit(unit,'Attributes',attCheck,verbose)
+   attribute = attribute + unitTable.Attributes[attcheck].Total
   end
   attribute = attribute/(#Table) 
  end
@@ -54,121 +49,65 @@ end
 
 function calculateSkill(unit,spell,base,verbose)
  -- Check that we have a valid unit
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unit then return 0 end
+ if not roses or not unit or not roses.SpellTable[spell] then return 0 end
 
  -- Get the Spell Table for this Spell
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- spellTable = roses.SpellTable
- if not spellTable[spell] then
-  if verbose then print('Not a valid spell: '..spell) end
-  return 0
- end
- spellTable = spellTable[spell]
+ spellTable = roses.SpellTable[spell]
+ unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 
- -- Get the Global Skill
- local skill = dfhack.script_environment('functions/unit').getUnit(unit,'Skills',base,verbose)
-
- -- Get the TSSDS Skill
- local TSSDS = {}
- if spellTable.Type          then table.insert(TSSDS,spellTable.Type)          end
- if spellTable.Sphere        then table.insert(TSSDS,spellTable.Sphere)        end
- if spellTable.School        then table.insert(TSSDS,spellTable.School)        end
- if spellTable.Discipline    then table.insert(TSSDS,spellTable.Discipline)    end
- if spellTable.SubDiscipline then table.insert(TSSDS,spellTable.SubDiscipline) end
- for _,add in pairs(TSSDS) do
-  sklCheck = add..'_'..base
-  skill = skill + dfhack.script_environment('functions/unit').getUnit(unit,'Skills',sklCheck,verbose)
- end
+ -- Get the Skill Level
+ skill = unitTable.Skills[base] or 0
 
  return skill
 end
 
 function calculateStat(unit,spell,base,verbose)
  -- Check that we have a valid unit
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unit then return 0 end
+ if not roses or not unit or not roses.SpellTable[spell] then return 0 end
 
  -- Get the Spell Table for this Spell
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- spellTable = roses.SpellTable
- if not spellTable[spell] then
-  if verbose then print('Not a valid spell: '..spell) end
-  return 0
- end
- spellTable = spellTable[spell]
+ spellTable = roses.SpellTable[spell]
+ unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 
  -- Get the Global Stat
- local stat = dfhack.script_environment('functions/unit').getUnit(unit,'Stats',base,verbose)
-
- -- Get the TSSDS Stats
- local TSSDS = {}
- if spellTable.Type then table.insert(TSSDS,spellTable.Type) end
- if spellTable.Sphere then table.insert(TSSDS,spellTable.Sphere) end
- if spellTable.School then table.insert(TSSDS,spellTable.School) end
- if spellTable.Discipline then table.insert(TSSDS,spellTable.Discipline) end
- if spellTable.SubDiscipline then table.insert(TSSDS,spellTable.SubDiscipline) end
- for _,add in pairs(TSSDS) do
-  sttCheck = add..'_'..base
-  stat = stat + dfhack.script_environment('functions/unit').getUnit(unit,'Stats',sttCheck,verbose)
- end
+ stat = unitTable.Stats[base] or 0
 
  -- Spells have innate penetration and hit modifiers that need to be taken into account
  if base == 'PENETRATION' then
-  if spellTable.Penetration then stat = stat + tonumber(spellTable.Penetration) end
+  if spellTable.Penetration then stat = stat + spellTable.Penetration end
  elseif base == 'HIT_CHANCE' then
-  if spellTable.HitModifier then stat = stat + tonumber(spellTable.HitModifier) end
-  if spellTable.HitModifierPerc then stat = stat*(tonumber(spellTable.HitModifierPerc)/100) end
+  if spellTable.HitModifier then stat = stat + spellTable.HitModifier end
+  if spellTable.HitModifierPerc then stat = stat*(spellTable.HitModifierPerc/100) end
  end
  return stat
 end
 
-function calculateResistance(unit,spell,verbose)
+function calculateResistance(unit,spell,base,verbose)
  -- Check that we have a valid unit
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unit then return 0 end
+ if not roses or not unit or not roses.SpellTable[spell] then return 0 end
 
  -- Get the Spell Table for this Spell
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- spellTable = roses.SpellTable
- if not spellTable[spell] then
-  if verbose then print('Not a valid spell: '..spell) end
-  return 0
- end
- spellTable = spellTable[spell]
+ spellTable = roses.SpellTable[spell]
  if not spellTable.Resistable then return 0 end
+ unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
 
- -- Get any global resistance
- local resistance = dfhack.script_environment('functions/unit').getUnit(unit,'Resistances','RESISTANCE',verbose)
-
- -- Get the TSSDS Resistances 
- local TSSDS = {}
- if spellTable.Type then table.insert(TSSDS,spellTable.Type) end
- if spellTable.Sphere then table.insert(TSSDS,spellTable.Sphere) end
- if spellTable.School then table.insert(TSSDS,spellTable.School) end
- if spellTable.Discipline then table.insert(TSSDS,spellTable.Discipline) end
- if spellTable.SubDiscipline then table.insert(TSSDS,spellTable.SubDiscipline) end
- for _,add in pairs(TSSDS) do
-  resCheck = add..'_'..base
-  resistance = resistance + dfhack.script_environment('functions/unit').getUnit(unit,'Resistances',rstCheck,verbose)
- end
+ -- Get any global resistance (need to figure out how to calculate grouped resistances -ME)
+ resistance = unitTable.Resistances[base]
 
  return resistance
 end
 
 function Spell(sourceID,targetID,spell,verbose)
  -- Get the SpellTable for this spell
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- spellTable = roses.SpellTable
- if not spellTable[spell] then
-  if verbose then print('Not a valid spell: '..spell) end
-  return
- end
- spellTable = spellTable[spell]
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not roses.SpellTable[spell] then return end
+ spellTable = roses.SpellTable[spell]
 
  -- Calculate Exhaustion and Casting Speed
  if sourceID then
@@ -197,10 +136,10 @@ function Spell(sourceID,targetID,spell,verbose)
  -- Add Exhaustion
  if exhaustion > 0 and sourceID then dfhack.script_environment('functions/unit').changeCounter(sourceID,'exhaustion',exhaustion) end
 
- -- Gain Experience
+ -- Gain Experience (class experience)
  if spellTable.ExperienceGain and sourceID then dfhack.script_environment('functions/class').addExperience(sourceID,tonumber(spellTable.ExperienceGain)) end
 
- -- Gain Skill
+ -- Gain Skill (skill experience)
  if spellTable.SkillGain and sourceID then
   for skill,amount in pairs(spellTable.SkillGain) do
    dfhack.script_environment('functions/unit').changeSkillExp(sourceID,skill,amount)
@@ -210,23 +149,18 @@ end
 
 function castSpell(sourceID,targetID,spell)
  -- Get Spell Table for this Spell
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- spellTable = roses.SpellTable
- if not spellTable[spell] then
-  if verbose then print('Not a valid spell: '..spell) end
-  return
- end
- spellTable = spellTable[spell]
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not roses.SpellTable[spell] then return end
+ spellTable = roses.SpellTable[spell]
 
  -- Change Unit IDs to strings for output
  if sourceID then
-  sourceStr = tostring(source.id)
+  sourceStr = tostring(sourceID)
  else
   sourceStr = "\\-1"
  end
  if targetID then
-  targetStr = tostring(target.id)
+  targetStr = tostring(targetID)
  else
   targetStr = "\\-1"
  end
@@ -251,13 +185,13 @@ function castSpell(sourceID,targetID,spell)
  end
 
  -- Handle the script announcements
- -- TODO
+ -- TODO -ME
  -- source_name = dfhack.unit.getVisibleName(df.unit.find(tonumber(source)))
  -- target_name = dfhack.unit.getVisibleName(df.unit.find(tonumber(target)))
 end
 
-function fillEquation(sourceID,targetID,spell,equation)
- roses = dfhack.script_environment('base/roses-init').roses
+function fillEquation(sourceID,targetID,spell,equation) -- Does this still actually work??? -ME
+ roses = dfhack.script_environment('base/roses-table').roses
  if not roses then return end
  local unitFunctions = dfhack.script_environment('functions/unit')
 

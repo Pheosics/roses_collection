@@ -32,7 +32,10 @@ functions['unit']     = dfhack.script_environment('functions/unit')
 functions['item']     = dfhack.script_environment('functions/item')
 functions['building'] = dfhack.script_environment('functions/building')
 functions['map']      = dfhack.script_environment('functions/map')
-functions['wrapper']  = dfhack.script_environment('functions/wrapper')
+--functions['wrapper']  = dfhack.script_environment('functions/wrapper')
+functions['attack']   = dfhack.script_environment('functions/attack')
+functions['entity']   = dfhack.script_environment('functions/entity')
+
 
 for fname,f in pairs(functions) do
  writeall(string.upper(fname)..' FUNCTIONS')
@@ -45,7 +48,7 @@ dir = dfhack.getDFPath()..'/raw/scripts/'
 file = io.open('Scripts.txt','w')
 io.output(file)
 
-s = {'unit','map','building','item'}
+s = {'unit','map','building','item','entity'}
 for _,folder in pairs(s) do
  writeall(string.upper(folder).. ' SCRIPTS')
  for _,fname in pairs(dfhack.internal.getDir(dir..folder..'/')) do
@@ -57,3 +60,5 @@ for _,folder in pairs(s) do
  end
 end
 io.close()
+
+-- SYSTEMS HELP FILE

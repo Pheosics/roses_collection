@@ -142,6 +142,7 @@ function makeClassTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],']')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if     test == '[NAME' then
      class.Name = array[2]
@@ -235,9 +236,9 @@ function makeClassTable(runtest,verbose)
     end
    end
    for lvl = 0, tonumber(class.Levels) do
-    if not class.Level[tostring(lvl)] then
+    if not class.Level[lvl] then
      print('Level '..tostring(lvl)..' not found for Class '..classToken)
-     class.Level[tostring(lvl)] = {}
+     class.Level[lvl] = {}
     end
    end
   end
@@ -272,6 +273,7 @@ function makeFeatTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],']')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if     test == '[NAME' then
      feat.Name = array[2]
@@ -292,13 +294,13 @@ function makeFeatTable(runtest,verbose)
      feat.ForbiddenFeat = feat.ForbiddenFeat or {}
      feat.ForbiddenFeat[array[2]] = array[2]
     elseif test == '[EFFECT' then
-     feat.Effect[tostring(effects)] = array[2]
+     feat.Effect[effects] = array[2]
      effects = effects + 1
     elseif test == '[SCRIPT' then
      script = data[j]:gsub("%s+","")
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
-     feat.Script[tostring(scripts)] = script
+     feat.Script[scripts] = script
      scripts = scripts + 1
     end
    end
@@ -325,7 +327,7 @@ function makeSpellTable(runtest,verbose)
    Table[spellToken] = {}
    spell = Table[spellToken]
    spell.Script = {}
-   spell.Cost = '0'
+   spell.Cost = 0
    spell.Classification = {}
    spell.Details = {}
    scriptNum = 0
@@ -335,6 +337,7 @@ function makeSpellTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],']')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if     test == '[NAME' then
      spell.Name = array[2]
@@ -428,7 +431,7 @@ function makeSpellTable(runtest,verbose)
      script = data[j]
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
-     spell.Script[tostring(scriptNum)] = script
+     spell.Script[scriptNum] = script
      scriptNum = scriptNum + 1
     end
    end
@@ -470,34 +473,27 @@ changeClass(unit,change)
 ]===]
 
 function addExperience(unit,amount,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- unitPersist = roses.UnitTable
- classPersist = roses.ClassTable
-
- -- Check if unit passed is unit ID or unit struct
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
-
- -- Make sure unit has a valid UnitTable, return if they don't
- if not unitPersist[tostring(unit.id)] then return end
- local unitTable = unitPersist[tostring(unit.id)]
+ if not roses or not unit or not roses.UnitTable[unit.id] then return false end
 
  -- Get units current class, return if current class is NONE
- local unitClasses = unitTable.Classes
- local currentClass = unitClasses.Current
+ unitTable    = roses.UnitTable[unit.id]
+ unitClasses  = unitTable.Classes
+ currentClass = unitClasses.Current
  if currentClass == 'NONE' then return end
  class = unitClasses[currentClass]
 
  -- Add experience to the current class 
- class.Experience = tostring(tonumber(class.Experience)+amount)
- class.SkillExp = tostring(tonumber(class.SkillExp)+amount)
+ class.Experience = class.Experience + amount
+ class.SkillExp   = class.SkillExp + amount
 
  -- Check if enough experience to level up
- classLevel = tonumber(class.Level)
+ classLevel = class.Level
  nextLevel = math.floor(classLevel+1)
- if classLevel < tonumber(classPersist[currentClass].Levels) then
-  nextExpLevel = tonumber(classPersist[currentClass].Level[tostring(nextLevel)].Experience) or 0
-  if tonumber(class.Experience) >= nextExpLevel then
+ if classLevel < roses.ClassTable[currentClass].Levels then
+  nextExpLevel = roses.ClassTable[currentClass].Level[nextLevel].Experience or 0
+  if class.Experience >= nextExpLevel then
    if verbose then print('Unit leveled up!') end
    changeLevel(unit,verbose)
   end
@@ -505,38 +501,31 @@ function addExperience(unit,amount,verbose)
 end
 
 function changeLevel(unit,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- unitPersist = roses.UnitTable
- classPersist = roses.ClassTable
-
- -- Check if unit passed is unit ID or unit struct
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
-
- -- Make sure unit has a valid UnitTable, return if they don't
- if not unitPersist[tostring(unit.id)] then return false end
- local unitTable = unitPersist[tostring(unit.id)]
+ if not roses or not unit or not roses.UnitTable[unit.id] then return false end
+ if not roses then return false end
 
  -- Get units current class, return if current class is NONE
- local unitClasses = unitTable.Classes
- local currentClass = unitClasses.Current
+ unitTable    = roses.UnitTable[unit.id]
+ unitClasses  = unitTable.Classes
+ currentClass = unitClasses.Current
  if currentClass == 'NONE' then return false end
 
- local class = unitClasses[currentClass]
- local level = tonumber(class.Level)
-
- local classTable = classPersist[currentClass]
+ class = unitClasses[currentClass]
+ level = class.Level
+ classTable = roses.ClassTable[currentClass]
  local maxLevel = false
  -- For now assume amount is only ever +1
- if level >= tonumber(classTable.Levels) then
+ if level >= classTable.Levels then
   if verbose then print('Already at max level') end
   return false
  else
-  if level + 1 == tonumber(classTable.Levels) then maxLevel = true end
-  class.Level = tostring(level+1)
+  if level + 1 == classTable.Levels then maxLevel = true end
+  class.Level = level+1
  end
- classTableLevel = classTable.Level[tostring(level + 1)]
- classTablePrev  = classTable.Level[tostring(level)]
+ classTableLevel = classTable.Level[level + 1]
+ classTablePrev  = classTable.Level[level]
 
  unitFunctions = dfhack.script_environment('functions/unit')
  -- Apply permenant changes
@@ -559,11 +548,11 @@ function changeLevel(unit,verbose)
    for mType,Type in pairs(classTablePrev.Adjustments) do
     for sType,adjust in pairs(Type) do
      local change = -1*adjust
-     if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
-     if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
-     if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
-     if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
-     if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+     if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,change,-1,'class') end
+     if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,change,-1,'class') end
+     if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,change,-1,'class') end
+     if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,change,-1,'class') end
+     if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,change,-1,'class') end
     end
    end
   end
@@ -571,23 +560,23 @@ function changeLevel(unit,verbose)
   for mType,Type in pairs(classTableLevel.Adjustments) do
    for sType,adjust in pairs(Type) do
     local change = adjust
-    if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,change,0,'class') end
-    if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,change,0,'class') end
-    if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,change,0,'class') end
-    if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,change,0,'class') end
-    if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,change,0,'class') end
+    if mType == 'Attribute'  then unitFunctions.changeAttribute( unit,sType,change,-1,'class') end
+    if mType == 'Resistance' then unitFunctions.changeResistance(unit,sType,change,-1,'class') end
+    if mType == 'Skill'      then unitFunctions.changeSkill(     unit,sType,change,-1,'class') end
+    if mType == 'Stat'       then unitFunctions.changeStat(      unit,sType,change,-1,'class') end
+    if mType == 'Trait'      then unitFunctions.changeTrait(     unit,sType,change,-1,'class') end
    end
   end
  end
 
  -- Check if this level gives feat points
- if classTableLevel.FeatPoints and tonumber(classTableLevel.FeatPoints) then
-  unitTable.Feats.Points = tonumber(classTableLevel.FeatPoints) + tonumber(unitTable.Feats.Points)
+ if classTableLevel.FeatPoints and classTableLevel.FeatPoints then
+  unitTable.Feats.Points = classTableLevel.FeatPoints + unitTable.Feats.Points
  end
 
  -- Check for spells learned this level
  for spell,spellTable in pairs(classTable.Spells) do
-  if level + 1 >= tonumber(spellTable.RequiredLevel) then
+  if level + 1 >= spellTable.RequiredLevel then
    if spellTable.AutoLearn then
     changeSpell(unit,spell,'learn',verbose)
    end
@@ -598,7 +587,7 @@ function changeLevel(unit,verbose)
  if maxLevel then
   if verbose then print('Maximum level for class '..classTable.Name..' reached!') end
   if classTable.AutoUpgrade then
-   if verbose then print('Auto upgrading class to '..classPersist[classTable.AutoUpgrade].Name) end
+   if verbose then print('Auto upgrading class to '..roses.ClassTable[classTable.AutoUpgrade].Name) end
    changeClass(unit,classTable.AutoUpgrade,verbose)
   end
  end
@@ -607,20 +596,21 @@ function changeLevel(unit,verbose)
 end
 
 function changeClass(unit,change,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- unitPersist = roses.UnitTable
- classPersist = roses.ClassTable
+ roses = dfhack.script_environment('base/roses-table').roses
  unitFunctions = dfhack.script_environment('functions/unit')
- 
- -- Check if unit passed is unit ID or unit struct
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ print(unit.id)
+ if not roses or not unit or not unitFunctions then return false end
 
  -- Make sure unit has a valid UnitTable, create if they don't
- if not unitPersist[tostring(unit.id)] then
-  dfhack.script_environment('functions/unit').makeUnitTable(unit)
+ if not roses.UnitTable[unit.id] then
+ printall(roses.UnitTable)
+  unitFunctions.makeUnitTable(unit)
  end
- local unitTable = unitPersist[tostring(unit.id)]
+ printall(roses.UnitTable)
+ roses = dfhack.script_environment('base/roses-table').roses
+ printall(roses.UnitTable)
+ unitTable = roses.UnitTable[unit.id]
 
  -- Check that not already the class to change into
  if unitTable.Classes.Current == change then
@@ -629,7 +619,7 @@ function changeClass(unit,change,verbose)
  end
 
  -- Check that the class to change into exists
- local nextClassTable = classPersist[change]
+ local nextClassTable = roses.ClassTable[change]
  if not nextClassTable then
   if verbose then print('No such class to change into: '..change) end
   return false
@@ -643,8 +633,8 @@ function changeClass(unit,change,verbose)
 
  -- If unit has a class already remove the class changes 
  if unitTable.Classes.Current ~= 'NONE' then
-  local currentClassTable = classPersist[unitTable.Classes.Current]
-  local currentUnitClass  = unitTable.Classes[unitTable.Classes.Current]
+  currentClassTable = roses.ClassTable[unitTable.Classes.Current]
+  currentUnitClass  = unitTable.Classes[unitTable.Classes.Current]
 
   -- Remove Class Name
   changeName(unit,change,'remove')
@@ -676,14 +666,14 @@ function changeClass(unit,change,verbose)
   newLevel = unitTable.Classes[change].Level
  else
   unitTable.Classes[change] = {}
-  unitTable.Classes[change].Level = '0'
-  unitTable.Classes[change].Experience = '0'
-  unitTable.Classes[change].SkillExp = '0'
-  newLevel = '0'
+  unitTable.Classes[change].Level      = 0
+  unitTable.Classes[change].Experience = 0
+  unitTable.Classes[change].SkillExp   = 0
+  newLevel = 0
  end
 
  -- Add Level Adjustments for new class
- classLevelTable = classPersist[change].Level[newLevel]
+ classLevelTable = roses.ClassTable[change].Level[newLevel]
  if classLevelTable then
   if classLevelTable.Adjustments then
    for mType,Type in pairs(classLevelTable.Adjustments) do
@@ -700,11 +690,11 @@ function changeClass(unit,change,verbose)
  end
 
  -- Add new class name to unit
- --changeName(unit,change,'add')
+ changeName(unit,change,'add')
 
  -- Add new class spells to unit
- for spell,spellTable in pairs(classPersist[change].Spells) do
-  if level + 1 > tonumber(spellTable.RequiredLevel) then
+ for spell,spellTable in pairs(roses.ClassTable[change].Spells) do
+  if level + 1 > spellTable.RequiredLevel then
    if spellTable.AutoLearn then
     changeSpell(unit,spell,'learn',verbose)
    elseif unitTable.Spells[spell] then
@@ -721,28 +711,19 @@ function changeClass(unit,change,verbose)
 end
 
 function changeName(unit,name,direction,verbose)
- if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if direction == 'add' then
-  dfhack.script_environment('functions/unit').changeSyndrome(unit,name,'add',0)
- elseif direction == 'remove' then
-  dfhack.script_environment('functions/unit').changeSyndrome(unit,name,'erase',0)
- elseif direction == 'removeall' then
-  dfhack.script_environment('functions/unit').changeSyndrome(unit,'CLASS_NAME','eraseClass',0)
- end
+ -- Think of a different way for name changes
 end
 
 function changeSpell(unit,spell,direction,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- unitPersist = roses.UnitTable
- classPersist = roses.ClassTable
- spellPersist = roses.SpellTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unitPersist[tostring(unit.id)] then
+ if not roses or not unit then return false end
+ 
+ if not roses.UnitTable[unit.id] then
   dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
- unitTable = unitPersist[tostring(unit.id)]
+ roses = dfhack.script_environment('base/roses-table').roses
+ unitTable = roses.UnitTable[unit.id]
 
  if direction == 'learn' and unitTable.Spells[spell] then direction = 'add' end
 
@@ -768,7 +749,7 @@ function changeSpell(unit,spell,direction,verbose)
  -- Check if the unit is learning the spell 
  if direction == 'learn' then
   currentClassName = unitTable.Classes.Current
-  if not classPersist[currentClassName] then return false end
+  if not roses.ClassTable[currentClassName] then return false end
   currentClass = unitTable.Classes[currentClassName]
   if unitTable.Spells.Active[spell] then
    if verbose then print('Spell already known and active') return end
@@ -776,11 +757,11 @@ function changeSpell(unit,spell,direction,verbose)
   test, upgrade = checkRequirementsSpell(unit,spell,verbose)
   if test then
    if verbose then print('Spell learned, adding to unit') end
-   unitTable.Spells[spell] = '1'
+   unitTable.Spells[spell] = 1
    dfhack.script_environment('functions/unit').changeSyndrome(unit,spell,'add',0)
    unitTable.Spells.Active[spell] = spell
-   if spellPersist[spell] then
-    currentClass.SkillExp = tostring(tonumber(currentClass.SkillExp) - tonumber(spellPersist[spell].Cost))
+   if roses.SpellTable[spell] then
+    currentClass.SkillExp = currentClass.SkillExp - roses.SpellTable[spell].Cost
    end
   end
   if upgrade then
@@ -791,38 +772,37 @@ function changeSpell(unit,spell,direction,verbose)
 
  -- Bypass spell requirements and just learn/add to unit
  if direction == 'force' then
-  unitTable.Spells[spell] = '1'
+  unitTable.Spells[spell] = 1
   dfhack.script_environment('functions/unit').changeSyndrome(unit,spell,'add',0)
   unitTable.Spells.Active[spell] = spell
  end
 end
 
 function checkRequirementsClass(unit,check,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- unitPersist = roses.UnitTable
- classPersist = roses.ClassTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unitPersist[tostring(unit.id)] then 
+ if not roses or not unit then return false end
+ 
+ if not roses.UnitTable[unit.id] then 
   dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
- unitTable = unitPersist[tostring(unit.id)]
+ roses = dfhack.script_environment('base/roses-table').roses
+ unitTable = roses.UnitTable[unit.id]
  unitClasses = unitTable.Classes
  unitInfo = dfhack.script_environment('functions/unit').getUnitTable(unit)
 
- if not classPersist[check] then
+ if not roses.ClassTable[check] then
   if verbose then print ('No specified class to check for requirements') end
   return false
  end
- classTable = classPersist[check]
+ classTable = roses.ClassTable[check]
 
  -- Check for Required Class
  if classTable.RequiredClass then
   for class,checkLevel in pairs(classTable.RequiredClass) do
    if not unitClasses[class] then return false end
    local classLevel = unitClasses[class].Level
-   if tonumber(classLevel) < tonumber(checkLevel) then
+   if classLevel < checkLevel then
     if verbose then print('Class requirements not met. '..class..' level '..checkLevel..' needed. Current level is '..tostring(classLevel)) end
     return false
    end
@@ -834,7 +814,7 @@ function checkRequirementsClass(unit,check,verbose)
   for class,checkLevel in pairs(classTable.ForbiddenClass) do
    if unitClasses[class] then
     local classLevel = unitClasses[class].Level
-    if tonumber(classLevel) >= tonumber(checkLevel) and tonumber(checkLevel) ~= 0 then
+    if classLevel >= checkLevel and checkLevel ~= 0 then
      if verbose then print('Already a member of a forbidden class. '..class) end
      return false
     end
@@ -846,7 +826,7 @@ function checkRequirementsClass(unit,check,verbose)
  if classTable.RequiredAttribute then
   for attr,checkValue in pairs(classTable.RequiredAttribute) do
    local unitsValue = unitInfo.Attributes[attr].Base or 0
-   if unitsValue < tonumber(checkValue) then
+   if unitsValue < checkValue then
     if verbose then print('Attribute requirements not met. '..checkValue..' '..attr..' needed. Current amount is '..tostring(unitValue)) end
     return false
    end
@@ -857,7 +837,7 @@ function checkRequirementsClass(unit,check,verbose)
  if classTable.RequiredSkill then
   for skill,checkValue in pairs(classTable.RequiredSkill) do
    local unitsValue = unitInfo.Skills[skill].Base or 0
-   if unitsValue < tonumber(checkValue) then
+   if unitsValue < checkValue then
     if verbose then print('Skill requirements not met. '..checkValue..' '..attr..' needed. Current amount is '..tostring(unitValue)) end
     return false
    end
@@ -868,7 +848,7 @@ function checkRequirementsClass(unit,check,verbose)
  if classTable.RequiredTrait then
   for trait,checkValue in pairs(classTable.RequiredTrait) do
    local unitsValue = unitInfo.Traits[trait].Base or 0
-   if unitsValue < tonumber(checkValue) then
+   if unitsValue < checkValue then
     if verbose then print('Trait requirements not met. '..checkValue..' '..attr..' needed. Current amount is '..tostring(unitValue)) end
     return false
    end
@@ -879,26 +859,24 @@ function checkRequirementsClass(unit,check,verbose)
 end
 
 function checkRequirementsSpell(unit,check,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- unitPersist = roses.UnitTable
- classPersist = roses.ClassTable
- spellPersist = roses.SpellTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unitPersist[tostring(unit.id)] then 
+ if not roses or not unit then return false end
+ 
+ if not roses.UnitTable[unit.id] then 
   dfhack.script_environment('functions/unit').makeUnitTable(unit)
  end
- unitTable = unitPersist[tostring(unit.id)]
+ roses          = dfhack.script_environment('base/roses-table').roses
+ unitTable      = roses.UnitTable[unit.id]
  unitClassTable = unitTable.Classes[unitTable.Classes.Current]
- unitInfo = dfhack.script_environment('functions/unit').getUnitTable(unit)
- classTable = classPersist[unitTable.Classes.Current]
+ unitInfo       = dfhack.script_environment('functions/unit').getUnitTable(unit)
+ classTable     = roses.ClassTable[unitTable.Classes.Current]
 
- if not spellPersist[check] then
+ if not roses.SpellTable[check] then
   if verbose then print ('No specified spell to check for requirements') end
   return false
  end
- spellTable = spellPersist[check]
+ spellTable = roses.SpellTable[check]
 
  -- Check if the spell is class restricted
  if spellTable.ClassRestricted then
@@ -910,7 +888,7 @@ function checkRequirementsSpell(unit,check,verbose)
  if spellTable.RequiredClass then
   for class,checkLevel in pairs(spellTable.RequiredClass) do
    if unitTable.Classes[class] then
-    if tonumber(unitTable[class].Level) < tonumber(checkLevel) then
+    if unitTable[class].Level < checkLevel then
      return false
     end
    else
@@ -949,7 +927,7 @@ function checkRequirementsSpell(unit,check,verbose)
  -- Check for Required Attribute
  if spellTable.RequiredAttribute then
   for attr,checkValue in pairs(spellTable.RequiredAttribute) do
-   if unitInfo.Attributes[attr].Base < tonumber(checkValue) then
+   if unitInfo.Attributes[attr].Base < checkValue then
     return false
    end
   end
@@ -957,7 +935,7 @@ function checkRequirementsSpell(unit,check,verbose)
 
  -- Check for Cost
  if spellTable.Cost then
-  if tonumber(unitClassTable.SkillExp) < tonumber(spellTable.Cost) then
+  if unitClassTable.SkillExp < spellTable.Cost then
    if verbose then print('Not enough points to learn spell. Needed '..spellTable.Cost..' currently have '..unitClassTable.SkillExp) end
    return false
   end
@@ -987,25 +965,20 @@ addFeat(unit,feat)
 ]===]
 
 function addFeat(unit,feat,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- unitPersist = roses.UnitTable
- featPersist = roses.FeatTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unitPersist[tostring(unit.id)] then return end
- unitFeats = unitPersist[tostring(unit.id)].Feats
-
- featTable = featPersist[feat]
+ if not roses or not unit or not roses.UnitTable[unit.id] then return end
+ 
+ unitFeats = roses.UnitTable[unit.id].Feats
+ featTable = roses.FeatTable[feat]
  if not featTable then
   if verbose then print('Not a valid feat: '..feat) end
   return
  end
 
- test = checkRequirementsFeat(unit,feat,verbose)
- if test then
-  unitFeats[feat] = 'true'
-  unitFeats.Points = tostring(tonumber(unitFeats.Points) - tonumber(featTable.Cost))
+ if checkRequirementsFeat(unit,feat,verbose) then
+  roses.UnitTable[unit.id].Feats[feat] = feat
+  roses.UnitTable[unit.id].Feats.Points = roses.UnitTable[unit.id].Feats.Points - featTable.Cost
   for _,script in pairs(featTable.Script) do
    effect = script:gsub('UNIT_ID',key)
    dfhack.run_command(effect)
@@ -1014,24 +987,20 @@ function addFeat(unit,feat,verbose)
 end
 
 function checkRequirementsFeat(unit,feat,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- unitPersist = roses.UnitTable
- featPersist = roses.FeatTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unitPersist[tostring(unit.id)] then return end
- unitTable = unitPersist[tostring(unit.id)]
- unitFeats = unitTable.Feats
+ if not roses or not unit or not roses.UnitTable[unit.id] then return false end
+ 
+ unitTable   = roses.UnitTable[unit.id]
+ unitFeats   = unitTable.Feats
  unitClasses = unitTable.Classes
-
- featTable = featPersist[feat]
+ featTable   = roses.FeatTable[feat]
  if not featTable then
   if verbose then print('Not a valid feat: '..feat) end
-  return
+  return false
  end
 
- if tonumber(featTable.Cost) > tonumber(unitFeats.Points) then
+ if featTable.Cost > unitFeats.Points then
   if verbose then print('Not enough feat points to learn feat') end
   return false
  end
@@ -1039,7 +1008,7 @@ function checkRequirementsFeat(unit,feat,verbose)
  if featTable.ForbiddenClass then
   for class,level in pairs(featTable.ForbiddenClass) do
    if unitClasses[class] then
-    if tonumber(level) < tonumber(unitClasses[class].Level) then
+    if level < unitClasses[class].Level then
      if verbose then print('Unit has too many levels in a forbidden class') end
      return false
     end
@@ -1071,7 +1040,7 @@ function checkRequirementsFeat(unit,feat,verbose)
     if verbose then print('Unit does not have the required class') end
     return false
    else
-    if tonumber(level) > tonumber(unitClasses[class].Level) then
+    if level > unitClasses[class].Level then
      if verbose then print('Unit does not have the required level of required class') end
      return false
     end

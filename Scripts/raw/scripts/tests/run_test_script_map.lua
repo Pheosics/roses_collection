@@ -320,7 +320,7 @@ function script_checks()
   if #tileCheck == 0 then
    printplus('PASSED: map/material-change',COLOR_GREEN)
   else
-   printplus('FAILED: map/material-change',COLOR_RED)
+   printplus('FAILED: map/material-change < Very likely to fail ',COLOR_RED)
    writeall(tileCheck)
   end
 
@@ -392,7 +392,7 @@ function script_checks()
   if #tileCheck == 0 then
    printplus('PASSED: map/temperature-change', COLOR_GREEN)
   else
-   printplus('FAILED: map/temperature-change', COLOR_RED)
+   printplus('FAILED: map/temperature-change < Very likely to fail', COLOR_RED)
    writeall(tileCheck)
   end
 

@@ -54,20 +54,21 @@ NOTE: All computed values are based on Urist DaVinci's work.
 
 function addAttack(unit,defender_id,body_id,target_id,item_id,attack_id,hitchance,velocity,delay,flags)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
  action = df.unit_action:new()
  action.id = unit.next_action_id
  unit.next_action_id = unit.next_action_id + 1
  action.type = 1
  attack_action = action.data.attack
- attack_action.target_unit_id = math.floor(tonumber(defender_id))
- attack_action.attack_item_id = math.floor(tonumber(item_id)) or -1
+ attack_action.target_unit_id      = math.floor(tonumber(defender_id))
+ attack_action.attack_item_id      = math.floor(tonumber(item_id))   or -1
  attack_action.target_body_part_id = math.floor(tonumber(target_id)) or -1
- attack_action.attack_body_part_id = math.floor(tonumber(body_id)) or -1
- attack_action.attack_velocity = math.floor(tonumber(velocity)) or 0
- attack_action.attack_id = math.floor(tonumber(attack_id)) or 0
- attack_action.attack_accuracy = math.floor(tonumber(hitchance)) or 0
- attack_action.timer1 = math.floor(tonumber(delay)) or 0
- attack_action.timer2 = math.floor(tonumber(delay)) or 0
+ attack_action.attack_body_part_id = math.floor(tonumber(body_id))   or -1
+ attack_action.attack_velocity     = math.floor(tonumber(velocity))  or 0
+ attack_action.attack_id           = math.floor(tonumber(attack_id)) or 0
+ attack_action.attack_accuracy     = math.floor(tonumber(hitchance)) or 0
+ attack_action.timer1              = math.floor(tonumber(delay))     or 0
+ attack_action.timer2              = math.floor(tonumber(delay))     or 0
  if flags then
   for _,flag in ipairs(flags) do
    attack_action[string.lower(flag)] = true
@@ -86,6 +87,7 @@ end
 
 function getAttack(unit,main_type,sub_type)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
  local attack = {}
  if main_type == 'Equipped' then
   item = dfhack.script_environment('functions/unit').getInventoryType(unit,'WEAPON')[1]
@@ -115,7 +117,8 @@ end
 function getAttackItem(unit,item,attack)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
-
+ if not unit or not item then return end
+ 
  material = dfhack.matinfo.decode(item.mat_type,item.mat_index).material
 
  weight = math.floor(item.subtype.size*material.solid_density/100000)
@@ -134,6 +137,8 @@ end
 
 function getAttackUnit(unit,bp_id,attack)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  body_part = unit.body.body_plan.body_parts[bp_id]
 
  vel_mod = unit.body.body_plan.attacks[attack].velocity_modifier
@@ -189,6 +194,8 @@ end
 
 function checkCoverage(unit,bp_id,inventory_item)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  covers = false
  item = inventory_item.item
  itype = df.item_type[item:getType()]
@@ -314,6 +321,8 @@ end
 function computeAttackValues(attacker,defender,attack_type,attack_subtype,defense_type,defense_subtype)
  if tonumber(attacker) then attacker = df.unit.find(tonumber(attacker)) end
  if tonumber(defender) then defender = df.unit.find(tonumber(defender)) end
+ if not attacker or not defender then return end
+ 
  target = getDefense(defender,defense_type,defense_subtype)
  attack = getAttack(attacker,attack_type,attack_subtype)
  if target.items then momentum_deduction1 = computeAttackValuesItems(attacker,defender,attack,target) end

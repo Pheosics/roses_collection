@@ -25,7 +25,7 @@ end
 file = io.open('rto_event.txt','w')
 io.output(file)
 
--- Initialize base/roses-init
+-- Initialize base/roses-table
 printplus('Running base/roses-init with no systems loaded')
 printplus('base/roses-init -verbose -testRun')
 dfhack.run_command_silent('base/roses-init -verbose -testRun')
@@ -71,7 +71,7 @@ function system_checks()
   writeall('Forcing Test Event 1 to trigger, both effects should fail')
   output = dfhack.run_command_silent('events/trigger -event TEST_EVENT_1 -force -verbose')
   writeall(output)
-  roses = dfhack.script_environment('base/roses-init').roses
+  roses = dfhack.script_environment('base/roses-table').roses
   if not roses.CounterTable.TEST_EVENT_1_EFFECT_1 then
    eventCheck[#eventCheck + 1] = 'Test Event 1 Effect 1 not triggered'
   end
@@ -84,7 +84,7 @@ function system_checks()
   writeall('Pausing run_test.lua for 3200 in-game ticks')
   script.sleep(3200,'ticks')
   writeall('Resuming run_test.lua')
-  roses = dfhack.script_environment('base/roses-init').roses
+  roses = dfhack.script_environment('base/roses-table').roses
   if roses.CounterTable.TEST_EVENT_2_EFFECT_1 then
    eventCheck[#eventCheck + 1] = 'Test Event 2 Effect 1 incorrectly triggered'
   end

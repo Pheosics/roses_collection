@@ -39,7 +39,8 @@ validArgs = utils.invert({
  'location',
  'item',
  'material',
- 'test'
+ 'test',
+ 'force'
 })
 
 local args = utils.processArgs({...}, validArgs)
@@ -145,6 +146,11 @@ if not free then
  end
 end
 
+if args.force then
+ quad = 4
+ free = true
+end
+
 if not free then
  print('Building location not free')
  return
@@ -167,6 +173,11 @@ pos.y = y
 pos.z = z
 
 filters = dfhack.buildings.getFiltersByType({},mtype,stype,ctype)
+if not filters then
+ filters = dfhack.buildings.getFiltersByType({},mtype,stype,0)
+ --filters = dfhack.buildings.input_filter_defaults
+end
+
 building = dfhack.buildings.constructBuilding({pos=pos,type=mtype,subtype=stype,custom=ctype,filters=filters})
 building.construction_stage = stages
 dfhack.job.removeJob(building.jobs[0])

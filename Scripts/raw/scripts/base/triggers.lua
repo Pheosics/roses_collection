@@ -1,17 +1,17 @@
-roses = dfhack.script_environment('base/roses-init').roses
-systems = roses.Systems
-
 local utils = require 'utils'
 validArgs = utils.invert({
  'verbose',
 })
 local args = utils.processArgs({...}, validArgs)
 verbose = args.verbose
+roses = dfhack.script_environment('base/roses-table').roses
+systems = roses.Systems
 
 --= Enhanced Item Triggers
 if systems.EnhancedItem then
  if args.verbose then print('Setting up Enhanced Item Triggers') end
- for itemToken,item in ipairs(roses.EnhancedItemTable) do
+ for itemToken,item in pairs(roses.EnhancedItemTable) do
+  if verbose then print(itemToken) end
   -- trigger/action triggers
   if item.OnEquip then
    if verbose then print('trigger/action -actionType Equip -item '..itemToken..' -command [ enhanced/item-action -unit UNIT_ID -item ITEM_ID -action Equip ]') end
@@ -183,8 +183,8 @@ if systems.EnhancedBuilding then
   end 
   if verbose then print('trigger/building -building '..buildingToken..checks..' -created -command [ enhanced/building -created -buildingID BUILDING_ID ]') end
   dfhack.run_command('trigger/building -building '..buildingToken..checks..' -created -command [ enhanced/building -created -buildingID BUILDING_ID ]')
-  if verbose then print('trigger/building -building '..buildingToken..' -destroyed -command [ enhanced/building -destroyed -buildingToken BUILDING_TOKEN -buildingLocation BUILDING_LOCATION ]') end
-  dfhack.run_command('trigger/building -building '..buildingToken..' -destroyed -command [ enhanced/building -destroyed -buildingToken BUILDING_TOKEN -buildingLocation BUILDING_LOCATION ]')
+  if verbose then print('trigger/building -building '..buildingToken..' -destroyed -command [ enhanced/building -destroyed -buildingID BUILDING_ID ]') end
+  dfhack.run_command('trigger/building -building '..buildingToken..' -destroyed -command [ enhanced/building -destroyed -buildingID BUILDING_ID ]')
  end
 end
 

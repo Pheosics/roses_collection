@@ -47,61 +47,61 @@ events.onUnitDeath.mainFunction=function(target_id)
  end
 
 -- GeneralTable Checks
- roses = dfhack.script_environment('base/roses-init').roses
+ roses = dfhack.script_environment('base/roses-table').roses
  if roses then
   roses.GlobalTable.Kills = roses.GlobalTable.Kills or {}
   killTable = roses.GlobalTable.Kills
   if killer_id >= 0 then
-   killTable.Total = killTable.Total or '0'
-   killTable.Total = tostring(killTable.Total + 1)
+   killTable.Total = killTable.Total or 0
+   killTable.Total = killTable.Total + 1
    killTable[killer_creature_name] = killTable[killer_creature_name] or {}
-   killTable[killer_creature_name].Total = killTable[killer_creature_name].Total or '0'
-   killTable[killer_creature_name].Total = tostring(killTable[killer_creature_name].Total + 1)
-   killTable[killer_creature_name][killer_caste_name] = killTable[killer_creature_name][killer_caste_name] or '0'
-   killTable[killer_creature_name][killer_caste_name] = tostring(killTable[killer_creature_name][killer_caste_name] + 1)
-   killTable[killer_civ_name] = killTable[killer_civ_name] or '0'
-   killTable[killer_civ_name] = tostring(killTable[killer_civ_name] + 1)
+   killTable[killer_creature_name].Total = killTable[killer_creature_name].Total or 0
+   killTable[killer_creature_name].Total = killTable[killer_creature_name].Total + 1
+   killTable[killer_creature_name][killer_caste_name] = killTable[killer_creature_name][killer_caste_name] or 0
+   killTable[killer_creature_name][killer_caste_name] = killTable[killer_creature_name][killer_caste_name] + 1
+   killTable[killer_civ_name] = killTable[killer_civ_name] or 0
+   killTable[killer_civ_name] = killTable[killer_civ_name] + 1
   end
   roses.GlobalTable.Deaths = roses.GlobalTable.Deaths or {}
   deathTable = roses.GlobalTable.Deaths
-  deathTable.Total = deathTable.Total or '0'
-  deathTable.Total = tostring(deathTable.Total + 1)
+  deathTable.Total = deathTable.Total or 0
+  deathTable.Total = deathTable.Total + 1
   deathTable[target_creature_name] = deathTable[target_creature_name] or {}
-  deathTable[target_creature_name].Total = deathTable[target_creature_name].Total or '0'
-  deathTable[target_creature_name].Total = tostring(deathTable[target_creature_name].Total + 1)
-  deathTable[target_creature_name][target_caste_name] = deathTable[target_creature_name][target_caste_name] or '0'
-  deathTable[target_creature_name][target_caste_name] = tostring(deathTable[target_creature_name][target_caste_name] + 1)
-  deathTable[target_civ_name] = deathTable[target_civ_name] or '0'
-  deathTable[target_civ_name] = tostring(deathTable[target_civ_name] + 1)
+  deathTable[target_creature_name].Total = deathTable[target_creature_name].Total or 0
+  deathTable[target_creature_name].Total = deathTable[target_creature_name].Total + 1
+  deathTable[target_creature_name][target_caste_name] = deathTable[target_creature_name][target_caste_name] or 0
+  deathTable[target_creature_name][target_caste_name] = deathTable[target_creature_name][target_caste_name] + 1
+  deathTable[target_civ_name] = deathTable[target_civ_name] or 0
+  deathTable[target_civ_name] = deathTable[target_civ_name] + 1
  end
 
 -- EntityTable Checks
  if roses then
   if killer_id >= 0 and killer_civ >= 0 then
-   if not roses.EntityTable[tostring(killer_civ)] then dfhack.script_environment('functions/entity').makeEntityTable(tostring(killer_civ)) end
-   roses = dfhack.script_environment('base/roses-init').roses
-   killTable = roses.EntityTable[tostring(killer_civ)].Kills
-   killTable.Total = killTable.Total or '0'
-   killTable.Total = tostring(killTable.Total + 1)
+   if not roses.EntityTable[killer_civ] then dfhack.script_environment('functions/entity').makeEntityTable(killer_civ) end
+   roses = dfhack.script_environment('base/roses-table').roses
+   killTable = roses.EntityTable[killer_civ].Kills
+   killTable.Total = killTable.Total or 0
+   killTable.Total = killTable.Total + 1
    killTable[killer_creature_name] = killTable[killer_creature_name] or {}
-   killTable[killer_creature_name][killer_caste_name] = killTable[killer_creature_name][killer_caste_name] or '0'
-   killTable[killer_creature_name][killer_caste_name] = tostring(killTable[killer_creature_name][killer_caste_name] + 1)
+   killTable[killer_creature_name][killer_caste_name] = killTable[killer_creature_name][killer_caste_name] or 0
+   killTable[killer_creature_name][killer_caste_name] = killTable[killer_creature_name][killer_caste_name] + 1
   end
   if target_civ >= 0 then
-   if not roses.EntityTable[tostring(target_civ)] then dfhack.script_environment('functions/entity').makeEntityTable(tostring(target_civ)) end
-   roses = dfhack.script_environment('base/roses-init').roses
-   deathTable = roses.EntityTable[tostring(target_civ)].Deaths
-   deathTable.Total = deathTable.Total or '0'
-   deathTable.Total = tostring(deathTable.Total + 1)
+   if not roses.EntityTable[target_civ] then dfhack.script_environment('functions/entity').makeEntityTable(target_civ) end
+   roses = dfhack.script_environment('base/roses-table').roses
+   deathTable = roses.EntityTable[target_civ].Deaths
+   deathTable.Total = deathTable.Total or 0
+   deathTable.Total = deathTable.Total + 1
    deathTable[target_creature_name] = deathTable[target_creature_name] or {}
-   deathTable[target_creature_name][target_caste_name] = deathTable[target_creature_name][target_caste_name] or '0'
-   deathTable[target_creature_name][target_caste_name] = tostring(deathTable[target_creature_name][target_caste_name] + 1)
+   deathTable[target_creature_name][target_caste_name] = deathTable[target_creature_name][target_caste_name] or 0
+   deathTable[target_creature_name][target_caste_name] = deathTable[target_creature_name][target_caste_name] + 1
   end
  end
 
 -- ClassTable Checks
  if roses.Systems.Class and killer_id >= 0 then
-  if safe_index(roses, 'EnhancedCreatureTable',target_race,target_caste,'Experience') then
+  if safe_index(roses,'EnhancedCreatureTable',target_race,target_caste,'Experience') then
    experience = tonumber(roses.EnhancedCreatureTable[target_race][target_caste].Experience)
   else
    experience = 1

@@ -98,6 +98,7 @@ function makeEventTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],']')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if test == '[NAME' then
      event.Name = array[2]
@@ -179,12 +180,12 @@ function makeEventTable(runtest,verbose)
      numberOfEffects = numberOfEffects + 1
      event.Effect[number] = {}
      effect = event.Effect[number]
-     effect.Arguments = '0'
+     effect.Arguments = 0
      effect.Argument = {}
      effect.Required = {}
      effect.Script = {}
      effect.Delay = {}
-     effect.Scripts = '0'
+     effect.Scripts = 0
     elseif test == '[EFFECT_NAME' then
      effect.Name = array[2]
     elseif test == '[EFFECT_CHANCE' then
@@ -263,38 +264,38 @@ function makeEventTable(runtest,verbose)
     elseif test == '[EFFECT_UNIT' then
      effect.Unit = {}
      local temptable = {select(2,table.unpack(array))}
-     strint = '1'
+     strint = 1
      for _,v in pairs(temptable) do
       effect.Unit[strint] = v
-      strint = tostring(math.floor(strint+1))
+      strint = strint + 1
      end
     elseif test == '[EFFECT_LOCATION' then
      effect.Location = {}
      local temptable = {select(2,table.unpack(array))}
-     strint = '1'
+     strint = 1
      for _,v in pairs(temptable) do
       effect.Location[strint] = v
-      strint = tostring(math.floor(strint+1))
+      strint = strint + 1
      end
     elseif test == '[EFFECT_BUILDING' then
      effect.Building = {}
      local temptable = {select(2,table.unpack(array))}
-     strint = '1'
+     strint = 1
      for _,v in pairs(temptable) do
       effect.Building[strint] = v
-      strint = tostring(math.floor(strint+1))
+      strint = strint + 1
      end
     elseif test == '[EFFECT_ITEM' then
      effect.Item = {}
      local temptable = {select(2,table.unpack(array))}
-     strint = '1'
+     strint = 1
      for _,v in pairs(temptable) do
       effect.Item[strint] = v
-      strint = tostring(math.floor(strint+1))
+      strint = strint + 1
      end
     elseif test == '[EFFECT_ARGUMENT' then
      argnumber = array[2]
-     effect.Arguments = tostring(effect.Arguments + 1)
+     effect.Arguments = effect.Arguments + 1
      effect.Argument[argnumber] = {}
      argument = effect.Argument[argnumber]
     elseif test == '[ARGUMENT_WEIGHTING' then
@@ -304,14 +305,14 @@ function makeEventTable(runtest,verbose)
     elseif test == '[ARGUMENT_VARIABLE' then
      argument.Variable = array[2]
     elseif test == '[EFFECT_SCRIPT' then
-     effect.Scripts = tostring(math.floor(effect.Scripts + 1))
+     effect.Scripts = effect.Scripts + 1
      script = data[j]:gsub("%s+"," ")
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
      effect.Script[effect.Scripts] = script
     end
    end
-   event.Effects = tostring(numberOfEffects)
+   event.Effects = numberOfEffects
   end
  end
 
@@ -319,23 +320,21 @@ function makeEventTable(runtest,verbose)
 end
 
 function checkRequirements(Event,effect,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not roses.EventTable[Event] then return false end
+ 
  event = roses.EventTable[Event]
- if not event then return false  end
-
  yes = true
  if effect == 0 or effect == nil then
-  check = event.Required
-  chance = tonumber(event.Chance)
+  check  = event.Required
+  chance = event.Chance
  else
-  check = event.Effect[tostring(effect)].Required
-  chance = tonumber(event.Effect[tostring(effect)].Chance)
-  if not chance then chance = tonumber(event.Chance) end
+  check  = event.Effect[effect].Required
+  chance = event.Effect[effect].Chance
+  if not chance then chance = event.Chance end
  end
- if not check then return false end
+ if not check or not chance then return false end
 -- Check for chance occurance
- if not chance then chance = 0 end
  local rand = dfhack.random.new()
  local rnum = rand:random(100)
  if rnum > chance then
@@ -343,8 +342,7 @@ function checkRequirements(Event,effect,verbose)
  end
 -- Check for amount of time passed
  if check.Time then
-  local x = tonumber(check.Time)
-  if df.global.ui.fortress_age < x then
+  if df.global.ui.fortress_age < check.Time then
    return false
   end
  end
@@ -360,8 +358,7 @@ function checkRequirements(Event,effect,verbose)
  end
 -- Check for fortress population
  if check.Population then
-  local x = tonumber(check.Population)
-  if df.global.ui.tasks.population < x then
+  if df.global.ui.tasks.population < check.Population then
    return false
   end
  end
@@ -374,76 +371,66 @@ function checkRequirements(Event,effect,verbose)
  end
 -- Check for trees cut
  if check.TreeCut then
-  local x = check.TreeCut
-  if df.global.ui.trees_removed < tonumber(x) then
+  if df.global.ui.trees_removed < check.TreeCut then
    return false
   end
  end
 -- Check for fortress rank
  if check.Rank then
-  local x = tonumber(check.Rank)
-  if df.global.ui.fortress_rank < x then
+  if df.global.ui.fortress_rank < check.Rank then
    return false
   end
  end
 -- Check for progress
  if check.ProgressPopulation then
-  local x = tonumber(check.ProgressPopulation)
-  if df.global.ui.progress_population < x then
+  if df.global.ui.progress_population < check.ProgressPopulation then
    return false
   end 
  end
  if check.ProgressTrade then
-  local x = tonumber(check.ProgressTrade)
-  if df.global.ui.progress_trade < x then
+  if df.global.ui.progress_trade < check.ProgressTrade then
    return false
   end 
  end
  if check.ProgressProduction then
-  local x = tonumber(check.ProgressProduction)
-  if df.global.ui.progress_production < x then
+  if df.global.ui.progress_production < check.ProgressProduction then
    return false
   end 
  end
 -- Check for artifacts
  if check.NumArtifacts then
-  local x = tonumber(check.NumArtifacts)
-  if df.global.ui.tasks.num_artifacts < x then
+  if df.global.ui.tasks.num_artifacts < check.NumArtifacts then
    return false
   end 
  end
 -- Check for total deaths
  if check.TotDeaths then
-  local x = tonumber(check.TotDeaths)
-  if df.global.ui.tasks.total_deaths < x then
+  if df.global.ui.tasks.total_deaths < check.TotDeaths then
    return false
   end 
  end
 -- Check for insanities
  if check.TotInsanities then
-  local x = tonumber(check.TotInsanities)
-  if df.global.ui.tasks.total_insanities < x then
+  if df.global.ui.tasks.total_insanities < check.TotInsanities then
    return false
   end 
  end
 -- Check for executions
  if check.TotExecutions then
-  local x = tonumber(check.TotExecutions)
-  if df.global.ui.tasks.total_executions < x then
+  if df.global.ui.tasks.total_executions < check.TotExecutions then
    return false
   end 
  end 
 -- Check for migrant waves
  if check.MigrantWaves then
-  local x = tonumber(check.MigrantWaves)
-  if df.global.ui.tasks.migrant_wave_idx < x then
+  if df.global.ui.tasks.migrant_wave_idx < check.MigrantWaves then
    return false
   end 
  end
 -- Check for counter
  if check.CounterMax then
   for counter,a1 in pairs(check.CounterMax) do
-   a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
+   a2 = dfhack.script_environment('functions/misc').getCounter(counter)
    if a1 and a2 then
     if a2 > a1 then
      return false
@@ -453,7 +440,7 @@ function checkRequirements(Event,effect,verbose)
  end
  if check.CounterMin then
   for counter,a1 in pairs(check.CounterMin) do
-   a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
+   a2 = dfhack.script_environment('functions/misc').getCounter(counter)
    if a1 and a2 then
     if a2 < a1 then
      return false
@@ -463,7 +450,7 @@ function checkRequirements(Event,effect,verbose)
  end
  if check.CounterEqual then
   for counter,a1 in pairs(check.CounterEqual) do
-   a2 = tonumber(dfhack.script_environment('functions/misc').getCounter(counter))
+   a2 = dfhack.script_environment('functions/misc').getCounter(counter)
    if a1 and a2 then
     if not a2 == a1 then
      return false
@@ -518,9 +505,9 @@ function checkRequirements(Event,effect,verbose)
  if check.Class and roses.Systems.Class then
   for classname,level in pairs(check.Class) do
    for _,unit in pairs(df.global.world.units.active) do
-    if persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)] then
-     if persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes[classname] then
-      if tonumber(persistTable.GlobalTable.roses.UnitTable[tostring(unit.id)].Classes[classname]) < level then
+    if persistTable.GlobalTable.roses.UnitTable[unit.id] then
+     if persistTable.GlobalTable.roses.UnitTable[unit.id].Classes[classname] then
+      if persistTable.GlobalTable.roses.UnitTable[unit.id].Classes[classname] < level then
        return false
       end
      else
@@ -542,7 +529,7 @@ function checkRequirements(Event,effect,verbose)
      n2 = roses.GlobalTable.Kills[creature][caste]
     end
     if n1 and n2 then
-     if tonumber(n2) < n1 then
+     if n2 < n1 then
       return false
      end
     end
@@ -553,7 +540,7 @@ function checkRequirements(Event,effect,verbose)
   for entity,n1 in pairs(check.EntityKills) do
    n2 = roses.GlobalTable.Kills[entity]
    if n1 and n2 then
-    if tonumber(n2) < n1 then
+    if n2 < n1 then
      return false
     end
    end
@@ -569,7 +556,7 @@ function checkRequirements(Event,effect,verbose)
      n2 = roses.GlobalTable.Deaths[creature][caste]
     end
     if n1 and n2 then
-     if tonumber(n2) < n1 then
+     if n2 < n1 then
       return false
      end
     end
@@ -580,7 +567,7 @@ function checkRequirements(Event,effect,verbose)
   for entity,n1 in pairs(check.EntityDeaths) do
    n2 = roses.GlobalTable.Deaths[entity]
    if n1 and n2 then
-    if tonumber(n2) < n1 then
+    if n2 < n1 then
      return false
     end
    end
@@ -590,7 +577,7 @@ function checkRequirements(Event,effect,verbose)
  if check.Sieges and roses.GlobalTable then
   for civ,number in pairs(check.Sieges) do
    if roses.GlobalTable.Sieges[civ] then
-    if tonumber(roses.GlobalTable.Sieges[civ]) < number then
+    if roses.GlobalTable.Sieges[civ] < number then
      return false
     end
    end
@@ -600,7 +587,7 @@ function checkRequirements(Event,effect,verbose)
  if check.Trades and roses.GlobalTable then
   for civ,number  in pairs(check.Trades) do
    if roses.GlobalTable.Trades[civ] then
-    if tonumber(roses.GlobalTable.Trades[civ]) < number then
+    if roses.GlobalTable.Trades[civ] < number then
      return false
     end
    end
@@ -612,13 +599,13 @@ function checkRequirements(Event,effect,verbose)
    dip_array = split(dip_string,':')
    civ1,civ2,relation,number = dip_array[1],dip_array[2],dip_array[3],dip_array[4]
    if civ1 and civ2 and relation and number then
-    score = tonumber(roses.DiplomacyTable[civ1][civ2])
+    score = roses.DiplomacyTable[civ1][civ2]
     if relation == 'GREATER' then
-     if score < tonumber(number) then
+     if score < number then
       return false
      end
     elseif relation == 'LESS' then
-     if score > tonumber(number) then
+     if score > number then
       return false
      end
     end
@@ -629,11 +616,10 @@ function checkRequirements(Event,effect,verbose)
 end
 
 function triggerEvent(event,effect,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
+ roses = dfhack.script_environment('base/roses-table').roses
  if not roses then return false end
+ 
  eventTable = roses.EventTable[event]
-
- effect = tostring(effect)
  if not eventTable then
   if verbose then print('No such event to trigger: '..event) end
   return
@@ -647,19 +633,19 @@ function triggerEvent(event,effect,verbose)
  delayTable = eventTable.Delay
  if delayTable then
   if delayTable['STATIC'] then
-   delay = tonumber(delayTable['STATIC'])
+   delay = delayTable['STATIC']
   elseif delayTable['RANDOM'] then
    local rand = dfhack.random.new()
-   delay = rand:random(tonumber(delayTable['RANDOM']))+1
+   delay = rand:random(delayTable['RANDOM'])+1
   end
  end
  delayTable = effectTable.Delay
  if delayTable then
   if delayTable['STATIC'] then
-   delay = delay + tonumber(delayTable['STATIC'])
+   delay = delay + delayTable['STATIC']
   elseif delayTable['RANDOM'] then
    local rand = dfhack.random.new()
-   delay = delay + rand:random(tonumber(delayTable['RANDOM']))+1
+   delay = delay + rand:random(delayTable['RANDOM'])+1
   end
  end
  units,buildings,locations,items = {},{},{},{}
@@ -748,19 +734,19 @@ function triggerEvent(event,effect,verbose)
 end
 
 function checkEvent(event,method,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not roses.EventTable[event] then return false end
+ 
  eventTable = roses.EventTable[event]
-
  local triggered = {}
  if checkRequirements(event,0,verbose) then
   triggered[0] = true
   for i,_ in pairs(eventTable.Effect) do
-   if checkRequirements(event,tonumber(i),verbose) then
+   if checkRequirements(event,i,verbose) then
     contingency = tonumber(eventTable.Effect[i].Contingent) or 0
     if triggered[contingency] then
-     triggered[tonumber(i)] = true
-     triggerEvent(event,tonumber(i),verbose)
+     triggered[i] = true
+     triggerEvent(event,i,verbose)
      if verbose then print('Event effect triggered '..event) end
     end
    end

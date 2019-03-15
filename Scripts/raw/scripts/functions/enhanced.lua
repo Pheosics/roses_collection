@@ -129,6 +129,7 @@ function makeEnhancedBuildingTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if test == '[NAME' then -- Take raw building name
      ptable.Name = split(array[2],']')[1]
@@ -142,24 +143,29 @@ function makeEnhancedBuildingTable(runtest,verbose)
      ptable.MultiStory = array[2]
      enhanced = true
     elseif test == '{TREE_BUILDING}' then
-     ptable.TreeBuilding = 'true'
+     ptable.TreeBuilding = true
      enhanced = true
     elseif test == '{BASEMENT}' then
-     ptable.Basement = 'true'
+     ptable.Basement = true
      enhanced = true
     elseif test == '{WALLS}' then
-     ptable.Walls = 'true'
+     ptable.Walls = true
      enhanced = true
     elseif test == '{OUTSIDE_ONLY}' then
-     ptable.OutsideOnly = 'true'
+     ptable.OutsideOnly = true
      enhanced = true
     elseif test == '{INSIDE_ONLY}' then
-     ptable.InsideOnly = 'true'
+     ptable.InsideOnly = true
      enhanced = true
     elseif test == '{STAIRS' then
      ptable.Stairs = {}
      ptable.Stairs.x = array[2]
      ptable.Stairs.y = array[3]
+     enhanced = true
+    elseif test == '{ANCHOR' then
+     ptable.Anchor = {}
+     ptable.Anchor.x = array[2]
+     ptable.Anchor.y = array[3]
      enhanced = true
     elseif test == '{UPGRADE' then
      ptable.Upgrade = array[2]
@@ -183,18 +189,18 @@ function makeEnhancedBuildingTable(runtest,verbose)
      enhanced = true
     elseif test == '{SCRIPT' or test == '{SPELL' then
      scripts = scripts + 1
-     ptable.Scripts[tostring(scripts)] = {}
+     ptable.Scripts[scripts] = {}
      a = data[j]
      a = table.concat({select(2,table.unpack(split(a,':')))},':')
      n = string.find(string.reverse(a),':')
      script = string.sub(a,1,-(n+1))
      frequency = string.sub(a,-(n-1),-2)
-     ptable.Scripts[tostring(scripts)].Script = script
-     ptable.Scripts[tostring(scripts)].Frequency = frequency
+     ptable.Scripts[scripts].Script = script
+     ptable.Scripts[scripts].Frequency = frequency
      enhanced = true
     end
    end
-   if ptable.OutsideOnly == 'true' and ptable.InsideOnly == 'true' then
+   if ptable.OutsideOnly and ptable.InsideOnly then
     ptable.OutsideOnly = nil
     ptable.InsideOnly = nil
    end
@@ -244,6 +250,7 @@ function makeEnhancedCreatureTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if test == '[CASTE' then
      caste = split(array[2],']')[1]
@@ -269,13 +276,13 @@ function makeEnhancedCreatureTable(runtest,verbose)
     elseif test == '{ATTRIBUTE' then
      creature.Attributes = creature.Attributes or {}
      creature.Attributes[array[2]] = {}
-     creature.Attributes[array[2]]['1'] = array[3]
-     creature.Attributes[array[2]]['2'] = array[4] or array[3]
-     creature.Attributes[array[2]]['3'] = array[5] or array[3]
-     creature.Attributes[array[2]]['4'] = array[6] or array[3]
-     creature.Attributes[array[2]]['5'] = array[7] or array[3]
-     creature.Attributes[array[2]]['6'] = array[8] or array[3]
-     creature.Attributes[array[2]]['7'] = array[9] or array[3]
+     creature.Attributes[array[2]][1] = array[3]
+     creature.Attributes[array[2]][2] = array[4] or array[3]
+     creature.Attributes[array[2]][3] = array[5] or array[3]
+     creature.Attributes[array[2]][4] = array[6] or array[3]
+     creature.Attributes[array[2]][5] = array[7] or array[3]
+     creature.Attributes[array[2]][6] = array[8] or array[3]
+     creature.Attributes[array[2]][7] = array[9] or array[3]
      enhanced = true
     elseif test == '{NATURAL_SKILL' then
      creature.Skills = creature.Skills or {}
@@ -366,6 +373,7 @@ function makeEnhancedItemTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if     test == '[NAME' then -- Take raw item name
      item.Name = split(array[2],']')[1]
@@ -385,7 +393,7 @@ function makeEnhancedItemTable(runtest,verbose)
      if array[3] then
       onTable.Chance = array[3]
      else
-      onTable.Chance = '100'
+      onTable.Chance = 100
      end
      enhanced = true
     elseif test == '{ON_EQUIP' then
@@ -396,7 +404,7 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_EQUIP}' then
      item.OnEquip = item.OnEquip or {}
      onTable = item.OnEquip
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_ATTACK' then
      item.OnAttack = item.OnAttack or {}
@@ -406,7 +414,7 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_ATTACK}' then
      item.OnAttack = item.OnAttack or {}
      onTable = item.OnAttack
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_SHOOT' then
      item.OnShoot = item.OnShoot or {}
@@ -416,7 +424,7 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_SHOOT}' then
      item.OnShoot = item.OnSHoot or {}
      onTable = item.OnShoot
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_PARRY' then
      item.OnParry = item.OnParry or {}
@@ -426,7 +434,7 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_PARRY}' then
      item.OnParry = item.OnParry or {}
      onTable = item.OnParry
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_DODGE' then
      item.OnDodge = item.OnDodge or {}
@@ -436,7 +444,7 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_DODGE}' then
      item.OnDodge = item.OnDodge or {}
      onTable = item.OnDodge
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_BLOCK' then
      item.OnBlock = item.OnBlock or {}
@@ -446,7 +454,7 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_BLOCK}' then
      item.OnBlock = item.OnBlock or {}
      onTable = item.OnBlock
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_WOUND' then
      item.OnWound = item.OnWound or {}
@@ -456,12 +464,12 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_WOUND}' then
      item.OnWound = item.OnWound or {}
      onTable = item.OnWound
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_PROJECTILE_MOVE}' then
      item.OnProjectileMove = item.OnProjectileMove or {}
      onTable = item.OnProjectileMove
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_PROJECTILE_MOVE' then
      item.OnProjectileMove = item.OnProjectileMove or {}
@@ -471,7 +479,7 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_PROJECTILE_HIT}' then
      item.OnProjectileHit = item.OnProjectileHit or {}
      onTable = item.OnProjectileHit
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_PROJECTILE_HIT' then
      item.OnProjectileHit = item.OnProjectileHit or {}
@@ -481,7 +489,7 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{ON_PROJECTILE_FIRED}' then
      item.OnProjectileFired = item.OnProjectileFired or {}
      onTable = item.OnProjectileFired
-     onTable.Chance = '100'
+     onTable.Chance = 100
      enhanced = true
     elseif test == '{ON_PROJECTILE_FIRED' then
      item.OnProjectileFired = item.OnProjectileFired or {}
@@ -584,14 +592,14 @@ function makeEnhancedItemTable(runtest,verbose)
     elseif test == '{SCRIPT' or test == '{SPELL' then
      onTable.Scripts = onTable.Scripts or {}
      scripts = scripts + 1
-     onTable.Scripts[tostring(scripts)] = {}
+     onTable.Scripts[scripts] = {}
      a = data[j]
      a = table.concat({select(2,table.unpack(split(a,':')))},':')
      n = string.find(string.reverse(a),':')
      script = string.sub(a,1,-(n+1))
      chance = string.sub(a,-(n-1),-2)
-     onTable.Scripts[tostring(scripts)].Script = script
-     onTable.Scripts[tostring(scripts)].Chance = chance
+     onTable.Scripts[scripts].Script = script
+     onTable.Scripts[scripts].Chance = chance
      enhanced = true
     end
    end
@@ -640,6 +648,7 @@ function makeEnhancedReactionTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if     test == '[NAME' then -- Take raw reaction name
      ptable.Name = split(array[2],']')[1]
@@ -665,13 +674,13 @@ function makeEnhancedReactionTable(runtest,verbose)
      ptable.Skill = array[2]
      enhanced = true
     elseif test == '{ON_PRODUCT}' then
-     ptable.OnProduct = 'true'
+     ptable.OnProduct = true
      enhanced = true
     elseif test == '{ON_START}' then
-     ptable.OnStart = 'true'
+     ptable.OnStart = true
      enhanced = true
     elseif test == '{ON_FINISH}' then
-     ptable.OnFinish = 'true'
+     ptable.OnFinish = true
      enhanced = true
     elseif test == '{DURATION_REDUCTION' then
      ptable.DurReduction = {}
@@ -681,27 +690,26 @@ function makeEnhancedReactionTable(runtest,verbose)
     elseif test == '{ADDITIONAL_PRODUCT' then
      ptable.Products = table.Products or {}
      products = products + 1
-     num = tostring(products)
-     ptable.Products[num] = {}
-     ptable.Products[num].Chance = array[2]
-     ptable.Products[num].Number = array[3]
-     ptable.Products[num].MaterialType = array[4]
-     ptable.Products[num].MaterialSubType = array[5]
-     ptable.Products[num].ItemType = array[6]
-     ptable.Products[num].ItemSubType = array[7]
+     ptable.Products[products] = {}
+     ptable.Products[products].Chance = array[2]
+     ptable.Products[products].Number = array[3]
+     ptable.Products[products].MaterialType = array[4]
+     ptable.Products[products].MaterialSubType = array[5]
+     ptable.Products[products].ItemType = array[6]
+     ptable.Products[products].ItemSubType = array[7]
      enhanced = true
     elseif test == '{FREEZE}' then
-     ptable.Frozen = 'true'
+     ptable.Frozen = true
      enhanced = true
     elseif test == '{REMOVE}' then
-     ptable.Disappear = 'true'
+     ptable.Disappear = true
      enhanced = true
     elseif test == '{SCRIPT' then
      scripts = scripts + 1
      script = data[j]
      script = table.concat({select(2,table.unpack(split(script,':')))},':')
      script = string.sub(script,1,-2)
-     ptable.Scripts[tostring(scripts)] = script
+     ptable.Scripts[scripts] = script
      enhanced = true
     end
    end
@@ -717,21 +725,26 @@ usages[#usages+1] = [===[
 ]===]
 
 function buildingCreated(building)
- roses = dfhack.script_environment('base/roses-init').roses
+ roses = dfhack.script_environment('base/roses-table').roses
  if not roses then return false end
- buildingEnhanced = roses.EnhancedBuildingTable
- 
  ctype = building:getCustomType()
  if ctype < 0 then return end
  buildingToken = df.global.world.raws.buildings.all[ctype].code
- if not buildingEnhanced[buildingToken] then return end
- EBuilding = buildingEnhanced[buildingToken]
+ if not roses.EnhancedBuildingTable[buildingToken] then return end
+ EBuilding = roses.EnhancedBuildingTable[buildingToken]
+ if not roses.BuildingTable[building.id] then
+  dfhack.script_environment('functions/building').makeBuildingTable(building)
+ end
+ roses = dfhack.script_environment('base/roses-table').roses
+ bldgTable = roses.BuildingTable[building.id]
+ bldgTable.Enhanced = true
  
  -- Run any scripts attached to the building
  if EBuilding.Scripts then
+  bldgTable.Scripts = true
   for i,x in pairs(EBuilding.Scripts) do
    local script = x.Script
-   local frequency = tonumber(x.Frequency)
+   local frequency = x.Frequency
    script = script:gsub('BUILDING_ID',tostring(building.id))
    script = script:gsub('BUILDING_TOKEN',buildingToken)
    script = script:gsub('BUILDING_LOCATION',""..tostring(building.centerx).." "..tostring(building.centery).." "..tostring(building.z).."")
@@ -739,13 +752,124 @@ function buildingCreated(building)
    if frequency > 0 then dfhack.timeout(frequency,'ticks',function () buildingTrigger(building.id,script,frequency,true) end) end
   end
  end
- 
- -- Still need to figure out how to do the multi-story thing
+
+ if EBuilding.MultiStory and EBuilding.MultiStory > 1 then
+  bldgTable.MultiStory = true
+  bldgTable.Stories = {}
+  mid_x = building.centerx
+  mid_y = building.centery
+  walk = dfhack.maps.ensureTileBlock(mid_x,mid_y,building.z).walkable[mid_x%16][mid_y%16]
+  
+  -- Create stairs
+  if EBuilding.Stairs then
+   x = building.x1 + EBuilding.Stairs.x - 1
+   y = building.y1 + EBuilding.Stairs.x - 1
+   z = building.z
+   bldgTable.StairTileType = df.tiletype[dfhack.maps.getTileType(x,y,z)]
+   bldgTable.Stairs = {x=x,y=y,z=z}
+   dfhack.script_environment('functions/map').setTileType('StoneStairU',x,y,z)
+  end
+
+  for i = 1, EBuilding.MultiStory-1 do
+   level_token = '!'..buildingToken..'_LEVEL_'..tostring(i+1)
+   level_bldg = nil
+   for k,v in pairs(df.global.world.raws.buildings.all) do
+    if v.code == level_token then
+     level_bldg = v
+     break
+    end
+   end
+   if not level_bldg then return end
+   xLevel = mid_x - math.floor((level_bldg.dim_x+1)/2) + 1
+   yLevel = mid_y - math.floor((level_bldg.dim_y+1)/2) + 1
+   zLevel = building.z + i
+   location = '-location [ '..tostring(xLevel)..' '..tostring(yLevel)..' '..tostring(zLevel)..' ]'
+   dfhack.run_command('building/create '..location..' -type Workshop -subtype '..level_token..' -force')
+   bldgTable.Stories[level_token] = building.id + i
+   roses.BuildingTable[building.id + i] = {}
+   roses.BuildingTable[building.id + i].Story = building.id
+   
+   -- Create floor (489)
+   for x = xLevel, xLevel + level_bldg.dim_x-1 do
+    for y = yLevel, yLevel + level_bldg.dim_y-1 do
+     dfhack.script_environment('functions/map').setTileType('ConstructedFloor',x,y,zLevel)
+     -- Shouldn't alter the impassible tiles -ME
+     x0 = x-xLevel
+     y0 = y-yLevel
+     if level_bldg.tile_block[x0][y0] == 0 then
+      dfhack.maps.ensureTileBlock(x,y,zLevel).occupancy[x%16][y%16].building = 2
+      dfhack.maps.ensureTileBlock(x,y,zLevel).walkable[x%16][y%16] = walk
+     else
+      -- Tile is impassible, but it should already be impassible by construction
+      dfhack.maps.ensureTileBlock(x,y,zLevel).occupancy[x%16][y%16].building = 6 
+      dfhack.maps.ensureTileBlock(x,y,zLevel).walkable[x%16][y%16] = 0      
+     end
+    end
+   end
+   
+   level_enhanced = roses.EnhancedBuildingTable[level_token]
+   if level_enhanced then
+    if level_enhanced.Stairs then
+     x = xLevel + level_enhanced.Stairs.x - 1
+     y = yLevel + level_enhanced.Stairs.x - 1
+     if i == EBuilding.MultiStory then
+      dfhack.script_environment('functions/map').setTileType('StoneStairD',x,y,zLevel)
+     else
+      dfhack.script_environment('functions/map').setTileType('StoneStairUD',x,y,zLevel)
+     end
+    end
+   end
+  end
+ end 
 end
 
 function buildingDestroyed(building)
- -- Once I can do the multi-story thing in buildingCreated() I will need to figure out how to undo it
- return false
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not building.Enhanced then return false end
+ 
+ if building.Scripts then
+  -- Building scripts should automatically stop once the building is deconstructed
+  -- If we need to manually stop them or if there is a script to only run on deconstruct
+  -- put that here -ME
+ end
+ 
+ if building.MultiStory or building.Story then
+  if building.Story then building = roses.BuildingTable[building.Story] end -- Get the base building
+  if not building or not building.Token or not roses.EnhancedBuildingTable[building.Token] then
+   error 'Something went wrong when trying to deconstruct the building'
+  end
+  EBuilding = roses.EnhancedBuildingTable[building.Token]
+  -- Deconstruct from top down
+  for i = EBuilding.MultiStory-1,1,-1 do
+   level_token = '!'..building.Token..'_LEVEL_'..tostring(i+1)
+   level_id = building.Stories[level_token]
+   if level_id then
+    level_bldg = df.building.find(level_id)
+    if level_bldg then
+     for x = level_bldg.x1, level_bldg.x2 do
+      for y = level_bldg.y1, level_bldg.y2 do
+       dfhack.script_environment('functions/map').setTileType('OpenSpace',x,y,level_bldg.z)
+       dfhack.maps.ensureTileBlock(x,y,level_bldg.z).walkable[x%16][y%16] = 0          
+      end
+     end
+     level_bldg.construction_stage = 0
+     b = dfhack.buildings.deconstruct(level_bldg)
+    end
+   end
+   if roses.BuildingTable[level_id] then roses.BuildingTable[level_id] = nil end
+  end
+  
+  if building.ID and df.building.find(building.ID) then
+   df.building.find(building.ID).construction_stage = 0
+   dfhack.buildings.deconstruct(df.building.find(building.ID))
+  end
+  
+  if building.StairTileType and building.Stairs then
+   dfhack.script_environment('functions/map').setTileType(building.StairTileType,building.Stairs.x,building.Stairs.y,building.Stairs.z)
+  end
+ end
+ 
+ if building.ID and roses.BuildingTable[building.ID] then roses.BuildingTable[building.ID] = nil end
 end
 
 function buildingTrigger(buildingID,script,frequency,continue)
@@ -760,29 +884,27 @@ usages[#usages+1] = [===[
 ]===]
 
 function enhanceCreature(unit)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- creatureEnhanced = roses.EnhancedCreatureTable
- unitPersist = roses.UnitTable
- 
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- if not unit then return false end
+ if not roses or not unit then return false end
+ creatureEnhanced = roses.EnhancedCreatureTable
 
  if creatureEnhanced then
   local creatureID = df.global.world.raws.creatures.all[unit.race].creature_id
-  local casteID = df.global.world.raws.creatures.all[unit.race].caste[unit.caste].caste_id
+  local casteID    = df.global.world.raws.creatures.all[unit.race].caste[unit.caste].caste_id
   if safe_index(creatureEnhanced,creatureID,casteID) then
-   if not unitPersist[tostring(unit.id)] then 
+   if not roses.UnitTable[unit.id] then 
     dfhack.script_environment('functions/unit').makeUnitTable(unit)
    end
-   unitTable = unitPersist[tostring(unit.id)]
+   roses = dfhack.script_environment('base/roses-table').roses
+   unitTable = roses.UnitTable[unit.id]
    if unitTable.Enhanced then return end
 
    unitTable.Enhanced = true
    local ctable = creatureEnhanced[creatureID][casteID]
-   if ctable.Attributes   then setN(unit, 'Attributes', ctable.Attributes) end
-   if ctable.Skills       then setN(unit, 'Skills', ctable.Skills) end
-   if ctable.Stats        then setN(unit, 'Stats', ctable.Stats) end
+   if ctable.Attributes   then setN(unit, 'Attributes',  ctable.Attributes)  end
+   if ctable.Skills       then setN(unit, 'Skills',      ctable.Skills)      end
+   if ctable.Stats        then setN(unit, 'Stats',       ctable.Stats)       end
    if ctable.Resistances  then setN(unit, 'Resistances', ctable.Resistances) end
    --if table.Size         then setSize(unit, table.Size) end
    --if table.Classes      then setClass(unit, table.Classes) end
@@ -793,7 +915,8 @@ end
 
 function setN(unit,ttype,ctable)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- unitTable = dfhack.script_environment('functions/unit').getUnitTable(unit)
+ unitFunctions = dfhack.script_environment('functions/unit')
+ unitTable = unitFunctions.getUnitTable(unit)
 
  for entry,_ in pairs(ctable) do
   if not unitTable[ttype][entry] then return false end
@@ -803,30 +926,26 @@ function setN(unit,ttype,ctable)
   else
    rn = math.random(0,100)
    if rn > 95 then
-    value = ctable[entry]['7']
+    value = ctable[entry][7]
    elseif rn > 85 then
-    value = ctable[entry]['6']
+    value = ctable[entry][6]
    elseif rn > 65 then
-    value = ctable[entry]['5']
+    value = ctable[entry][5]
    elseif rn < 5 then
-    value = ctable[entry]['1']
+    value = ctable[entry][1]
    elseif rn < 15 then
-    value = ctable[entry]['2']
+    value = ctable[entry][2]
    elseif rn < 35 then
-    value = ctable[entry]['3']
+    value = ctable[entry][3]
    else
-    value = ctable[entry]['4']
+    value = ctable[entry][4]
    end
   end
-  change = dfhack.script_environment('functions/misc').getChange(current,tonumber(value),'set')
-  if ttype == 'Attributes' then
-   dfhack.script_environment('functions/unit').changeAttribute(unit,entry,change,0,'track')
-  elseif ttype == 'Stats' then
-   dfhack.script_environment('functions/unit').changeStat(unit,entry,change,0,'track')
-  elseif ttype == 'Resistances' then
-   dfhack.script_environment('functions/unit').changeResistance(unit,entry,change,0,'track')
-  elseif ttype == 'Skills' then
-   dfhack.script_environment('functions/unit').changeSkill(unit,entry,change,0,'track')
+  change = dfhack.script_environment('functions/misc').getChange(current,value,'set')
+  if ttype == 'Attributes'      then unitFunctions.changeAttribute(unit,entry,change,0,'track')
+  elseif ttype == 'Stats'       then unitFunctions.changeStat(unit,entry,change,0,'track')
+  elseif ttype == 'Resistances' then unitFunctions.changeResistance(unit,entry,change,0,'track')
+  elseif ttype == 'Skills'      then unitFunctions.changeSkill(unit,entry,change,0,'track')
   end
  end
 end
@@ -852,13 +971,12 @@ function enhanceItemsInventory(unit)
 end
 
 function onItemEquip(item,unit)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- itemTable = roses.EnhancedItemTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not roses or not item or not unit then return false end
 
+ itemTable = roses.EnhancedItemTable
  if not safe_index(itemTable,item.subtype.id,'OnEquip') then return end
  itemTable = itemTable[item.subtype.id]
  onTable = itemTable.OnEquip
@@ -905,13 +1023,12 @@ function onItemEquip(item,unit)
 end
 
 function onItemUnEquip(item,unit)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- itemTable = roses.EnhancedItemTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not roses or not item or not unit then return false end
 
+ itemTable = roses.EnhancedItemTable
  if not safe_index(itemTable,item.subtype.id,'OnEquip') then return end
  itemTable = itemTable[item.subtype.id]
  onTable = itemTable.OnEquip
@@ -953,38 +1070,34 @@ function onItemUnEquip(item,unit)
 end
 
 function onItemAction(item,onAction,attacker,defender,options)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- itemTable = roses.EnhancedItemTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
-
+ if not roses or not item then return false end
+ 
+ itemTable = roses.EnhancedItemTable
  if not safe_index(itemTable,item.subtype.id,onAction) then return end
- itemTable = itemTable[item.subtype.id]
- onTable = itemTable[onAction]
- chance = tonumber(onTable.Chance)
+ onTable = itemTable[item.subtype.id][onAction]
  local rand = dfhack.random.new()
- if rand:random(100) > chance then return end
+ if rand:random(100) > onTable.Chance then return end
  
  if attacker then if tonumber(attacker) then attacker = df.unit.find(tonumber(attacker)) end end
  if defender then if tonumber(defender) then defender = df.unit.find(tonumber(defender)) end end
+ 
  options  = options or {}
  velocity = options.velocity or 0
  accuracy = options.accuracy or 0
  wound    = options.wound    or -1
- 
  for _,add in pairs({'Attacker','Defender'}) do
   unit = nil
   if add == 'Attacker' and attacker then
    unit = attacker
    dur = onTable.AttackerDur or 0
   end
-  if add == 'Defender' then
+  if add == 'Defender' and defender then
    unit = defender
    dur = onTable.DefenderDur or 0  
   end
   if unit then
-   dur = tonumber(dur)
    if onTable[add..'Attributes'] then
     for attribute,change in pairs(onTable[add..'Attributes']) do
      dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,'item')
@@ -1043,15 +1156,14 @@ function enhanceMaterialsInventory(unit)
 end
 
 function onMaterialEquip(item,unit)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- matTable = roses.EnhancedMaterialTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not roses or not item or not unit then return false end
+
+ matTable = roses.EnhancedMaterialTable
  local matToken = dfhack.matinfo.decode(item.mat_type,item.mat_index):getToken()
  local array = split(matToken,':')
-
  if array[1] == 'INORGANIC' then
   matTable = matTable.Inorganic
   if not safe_index(matTable,array[2],'OnEquip') then return end
@@ -1120,15 +1232,14 @@ function onMaterialEquip(item,unit)
 end
 
 function onMaterialUnEquip(item,unit)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- matTable = roses.EnhancedMaterialTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not roses or not item or not unit then return false end
+ 
+ matTable = roses.EnhancedMaterialTable
  local matToken = dfhack.matinfo.decode(item.mat_type,item.mat_index):getToken()
  local array = split(matToken,':')
-
  if array[1] == 'INORGANIC' then
   matTable = matTable.Inorganic
   if not safe_index(matTable,array[2],'OnEquip') then return end
@@ -1191,11 +1302,11 @@ function onMaterialUnEquip(item,unit)
 end
 
 function onMaterialAction(item,onAction,attacker,defender,options)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- matTable = roses.EnhancedMaterialTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(item) then item = df.item.find(tonumber(item)) end
+ if not roses or not item then return false end
+ 
+ matTable = roses.EnhancedMaterialTable
  local matToken = dfhack.matinfo.decode(item.mat_type,item.mat_index):getToken()
  local array = split(matToken,':')
 
@@ -1216,29 +1327,27 @@ function onMaterialAction(item,onAction,attacker,defender,options)
   if not safe_index(matTable,array[2],onAction) then return end
   onTable = matTable[array[2]][onAction]
  end
- chance = tonumber(onTable.Chance)
  local rand = dfhack.random.new()
- if rand:random(100) > chance then return end
+ if rand:random(100) > onTable.Chance then return end
  
  if attacker then if tonumber(attacker) then attacker = df.unit.find(tonumber(attacker)) end end
  if defender then if tonumber(defender) then defender = df.unit.find(tonumber(defender)) end end
+
  options  = options or {}
  velocity = options.velocity or 0
  accuracy = options.accuracy or 0
  wound    = options.wound    or -1
- 
  for _,add in pairs({'Attacker','Defender'}) do
   unit = nil
   if add == 'Attacker' and attacker then
    unit = attacker
    dur = onTable.AttackerDur or 0
   end
-  if add == 'Defender' then
+  if add == 'Defender' and defender then
    unit = defender
    dur = onTable.DefenderDur or 0  
   end
   if unit then
-   dur = tonumber(dur)
    if onTable[add..'Attributes'] then
     for attribute,change in pairs(onTable[add..'Attributes']) do
      dfhack.script_environment('functions/unit').changeAttribute(unit,attribute,change,dur,'item')
@@ -1293,13 +1402,10 @@ usages[#usages+1] = [===[
 ]===]
 
 function reactionStart(reactionToken,worker,building,job)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- reactionEnhanced = roses.EnhancedReactionTable
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not roses.EnhancedReactionTable[reactionToken] then return false end
 
- reaction = reactionEnhanced[reactionToken]
- if not reaction then return end
-
+ reaction = roses.EnhancedReactionTable[reactionToken]
  for i,script in pairs(reaction.Scripts) do
   script = script:gsub('WORKER_ID',tostring(worker.id))
   script = script:gsub('UNIT_ID',tostring(worker.id))
@@ -1311,13 +1417,10 @@ function reactionStart(reactionToken,worker,building,job)
 end
 
 function reactionEnd(reactionToken,worker,building)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- reactionEnhanced = roses.EnhancedReactionTable
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not roses.EnhancedReactionTable[reactionToken] then return false end
 
- reaction = reactionEnhanced[reactionToken]
- if not reaction then return end
-
+ reaction = roses.EnhancedReactionTable[reactionToken]
  for i,script in pairs(reaction.Scripts) do
   script = script:gsub('WORKER_ID',tostring(worker.id))
   script = script:gsub('UNIT_ID',tostring(worker.id))
@@ -1329,13 +1432,10 @@ function reactionEnd(reactionToken,worker,building)
 end
 
 function reactionProduct(reactionToken,worker,building,inputItems,outputItems)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- reactionEnhanced = roses.EnhancedReactionTable
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not roses.EnhancedReactionTable[reactionToken] then return false end
 
- reaction = reactionEnhanced[reactionToken]
- if not reaction then return end
-
+ reaction = roses.EnhancedReactionTable[reactionToken]
  for i,script in pairs(reaction.Scripts) do
   script = script:gsub('WORKER_ID',tostring(worker.id))
   script = script:gsub('UNIT_ID',tostring(worker.id))

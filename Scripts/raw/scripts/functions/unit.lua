@@ -1,6 +1,6 @@
 -- Unit Based Functions
 int16 = 30000000
-skillCap = 20
+skillCap = 50
 utils = require 'utils'
 split = utils.split_string
 usages = {}
@@ -31,12 +31,12 @@ getUnitTable(unit)
 ]===]
 
 function makeUnitTable(unit)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- roses.UnitTable[tostring(unit.id)] = {}
- unitTable = roses.UnitTable[tostring(unit.id)]
+ if not roses or not unit then return end
+ 
+ roses.UnitTable[unit.id] = {}
+ unitTable = roses.UnitTable[unit.id]
  
  -- Basic Unit Information (Attributes, Skills, Traits, Resistances, Stats, etc...)
  unitTable.Attributes = {}
@@ -53,8 +53,8 @@ function makeUnitTable(unit)
  unitTable.General.Transform.Caste = {}
  unitTable.General.Transform.StatusEffects = {}
  unitTable.General.Summoned = {}
- unitTable.General.Kills = '0'
- unitTable.General.Deaths = '0'
+ unitTable.General.Kills = 0
+ unitTable.General.Deaths = 0
  
  -- Tracking Unit Information
  unitTable.SyndromeTrack = {}
@@ -62,35 +62,36 @@ function makeUnitTable(unit)
  -- Needed for the Civilization System
  if unit.civ_id >= 0 and roses.CivilizationTable then
   unitTable.Civilization = ''
-  if safe_index(roses.EntityTable,tostring(unit.civ_id),'Civilization') then
-   unitTable.Civilization = roses.EntityTable[tostring(unit.civ_id)].Civilization.Name
+  if safe_index(roses.EntityTable,unit.civ_id,'Civilization') then
+   unitTable.Civilization = roses.EntityTable[unit.civ_id].Civilization.Name
   end
  end
  
  -- Needed for the Class System
- if roses.Systems.Class then
+ --if roses.Systems.Class then
   unitTable.Classes = {}
   unitTable.Feats = {}
   unitTable.Spells = {}
   unitTable.Classes.Current = 'NONE'
   unitTable.Feats.Points = 0
   unitTable.Spells.Active = {}
- end
+ --end
 end
 
 function getUnitTable(unit,detailed)
- roses = dfhack.script_environment('base/roses-init').roses
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
-
+ if not unit then return end
+ 
  if not roses then
   unitTable = nil
   baseTable = nil
  else
   unitPersist = roses.UnitTable
-  if not unitPersist[tostring(unit.id)] then
+  if not unitPersist[unit.id] then
    unitTable = nil
   else
-   unitTable = unitPersist[tostring(unit.id)]
+   unitTable = unitPersist[unit.id]
   end
   baseTable = roses.BaseTable
  end
@@ -112,10 +113,10 @@ function getUnitTable(unit,detailed)
    outTable.Attributes[attribute].Syndrome = 0
   end
   if unitTable and unitTable.Attributes[attribute] then 
-   outTable.Attributes[attribute].Base   = math.floor(tonumber(unitTable.Attributes[attribute].Base))
-   outTable.Attributes[attribute].Item   = math.floor(tonumber(unitTable.Attributes[attribute].Item))
-   outTable.Attributes[attribute].Class  = math.floor(tonumber(unitTable.Attributes[attribute].Class))
-   outTable.Attributes[attribute].Change = math.floor(tonumber(unitTable.Attributes[attribute].Change))
+   outTable.Attributes[attribute].Base   = unitTable.Attributes[attribute].Base
+   outTable.Attributes[attribute].Item   = unitTable.Attributes[attribute].Item
+   outTable.Attributes[attribute].Class  = unitTable.Attributes[attribute].Class
+   outTable.Attributes[attribute].Change = unitTable.Attributes[attribute].Change
   else
    outTable.Attributes[attribute].Base   = x
    outTable.Attributes[attribute].Item   = 0
@@ -137,10 +138,10 @@ function getUnitTable(unit,detailed)
    outTable.Attributes[attribute].Syndrome = 0
   end
   if unitTable and unitTable.Attributes[attribute] then 
-   outTable.Attributes[attribute].Base   = math.floor(tonumber(unitTable.Attributes[attribute].Base))
-   outTable.Attributes[attribute].Item   = math.floor(tonumber(unitTable.Attributes[attribute].Item))
-   outTable.Attributes[attribute].Class  = math.floor(tonumber(unitTable.Attributes[attribute].Class))
-   outTable.Attributes[attribute].Change = math.floor(tonumber(unitTable.Attributes[attribute].Change))
+   outTable.Attributes[attribute].Base   = unitTable.Attributes[attribute].Base
+   outTable.Attributes[attribute].Item   = unitTable.Attributes[attribute].Item
+   outTable.Attributes[attribute].Class  = unitTable.Attributes[attribute].Class
+   outTable.Attributes[attribute].Change = unitTable.Attributes[attribute].Change
   else
    outTable.Attributes[attribute].Base   = x
    outTable.Attributes[attribute].Item   = 0
@@ -153,15 +154,15 @@ function getUnitTable(unit,detailed)
   for n,attribute in pairs(baseTable.CustomAttributes) do
    outTable.Attributes[attribute] = {}
    if unitTable and unitTable.Attributes[attribute] then
-    outTable.Attributes[attribute].Base     = math.floor(tonumber(unitTable.Attributes[attribute].Base))
-    outTable.Attributes[attribute].Item     = math.floor(tonumber(unitTable.Attributes[attribute].Item))
-    outTable.Attributes[attribute].Class    = math.floor(tonumber(unitTable.Attributes[attribute].Class))
-    outTable.Attributes[attribute].Change   = math.floor(tonumber(unitTable.Attributes[attribute].Change))
+    outTable.Attributes[attribute].Base     = unitTable.Attributes[attribute].Base
+    outTable.Attributes[attribute].Item     = unitTable.Attributes[attribute].Item
+    outTable.Attributes[attribute].Class    = unitTable.Attributes[attribute].Class
+    outTable.Attributes[attribute].Change   = unitTable.Attributes[attribute].Change
     outTable.Attributes[attribute].Syndrome = 0
-    outTable.Attributes[attribute].Total    = math.floor(tonumber(unitTable.Attributes[attribute].Base)
-                                             + tonumber(unitTable.Attributes[attribute].Item)
-                                             + tonumber(unitTable.Attributes[attribute].Class)
-                                             + tonumber(unitTable.Attributes[attribute].Change))
+    outTable.Attributes[attribute].Total    = (unitTable.Attributes[attribute].Base
+                                              +unitTable.Attributes[attribute].Item
+                                              +unitTable.Attributes[attribute].Class
+                                              +unitTable.Attributes[attribute].Change)
    else
     outTable.Attributes[attribute].Base     = 0
     outTable.Attributes[attribute].Item     = 0
@@ -179,15 +180,15 @@ function getUnitTable(unit,detailed)
   for n,resistance in pairs(baseTable.CustomResistances) do
    outTable.Resistances[resistance] = {}
    if unitTable and unitTable.Resistances[resistance] then
-    outTable.Resistances[resistance].Base     = math.floor(tonumber(unitTable.Resistances[resistance].Base))
-    outTable.Resistances[resistance].Item     = math.floor(tonumber(unitTable.Resistances[resistance].Item))
-    outTable.Resistances[resistance].Class    = math.floor(tonumber(unitTable.Resistances[resistance].Class))
-    outTable.Resistances[resistance].Change   = math.floor(tonumber(unitTable.Resistances[resistance].Change))
+    outTable.Resistances[resistance].Base     = unitTable.Resistances[resistance].Base
+    outTable.Resistances[resistance].Item     = unitTable.Resistances[resistance].Item
+    outTable.Resistances[resistance].Class    = unitTable.Resistances[resistance].Class
+    outTable.Resistances[resistance].Change   = unitTable.Resistances[resistance].Change
     outTable.Resistances[resistance].Syndrome = 0
-    outTable.Resistances[resistance].Total    = math.floor(tonumber(unitTable.Resistances[resistance].Base)
-                                               + tonumber(unitTable.Resistances[resistance].Item)
-                                               + tonumber(unitTable.Resistances[resistance].Class)
-                                               + tonumber(unitTable.Resistances[resistance].Change))
+    outTable.Resistances[resistance].Total    = (unitTable.Resistances[resistance].Base
+                                                +unitTable.Resistances[resistance].Item
+                                                +unitTable.Resistances[resistance].Class
+                                                +unitTable.Resistances[resistance].Change)
    else
     outTable.Resistances[resistance].Base     = 0
     outTable.Resistances[resistance].Item     = 0
@@ -204,14 +205,14 @@ function getUnitTable(unit,detailed)
  for id = 1, 134 do
   skill = df.job_skill[id]
   outTable.Skills[skill] = {}
-  outTable.Skills[skill].Exp      = math.floor(dfhack.units.getExperience(unit,id,false))
-  outTable.Skills[skill].Total    = math.floor(dfhack.units.getNominalSkill(unit,id,false))
-  outTable.Skills[skill].Rust     = math.floor(outTable.Skills[skill].Total - dfhack.units.getNominalSkill(unit,id,true))
+  outTable.Skills[skill].Exp      = dfhack.units.getExperience(unit,id,false)
+  outTable.Skills[skill].Total    = dfhack.units.getNominalSkill(unit,id,false)
+  outTable.Skills[skill].Rust     = outTable.Skills[skill].Total - dfhack.units.getNominalSkill(unit,id,true)
   if unitTable and unitTable.Skills[skill] then
-   outTable.Skills[skill].Base   = math.floor(tonumber(unitTable.Skills[skill].Base))
-   outTable.Skills[skill].Item   = math.floor(tonumber(unitTable.Skills[skill].Item))
-   outTable.Skills[skill].Class  = math.floor(tonumber(unitTable.Skills[skill].Class))
-   outTable.Skills[skill].Change = math.floor(tonumber(unitTable.Skills[skill].Change))
+   outTable.Skills[skill].Base   = unitTable.Skills[skill].Base
+   outTable.Skills[skill].Item   = unitTable.Skills[skill].Item
+   outTable.Skills[skill].Class  = unitTable.Skills[skill].Class
+   outTable.Skills[skill].Change = unitTable.Skills[skill].Change
   else
    outTable.Skills[skill].Base = outTable.Skills[skill].Total
    outTable.Skills[skill].Item   = 0
@@ -224,14 +225,14 @@ function getUnitTable(unit,detailed)
   for skill,_ in pairs(baseTable.CustomSkills) do
    outTable.Skills[skill] = {}
    if unitTable and unitTable.Skills[skill] then
-    outTable.Skills[skill].Base     = math.floor(tonumber(unitTable.Skills[skill].Base))
-    outTable.Skills[skill].Item     = math.floor(tonumber(unitTable.Skills[skill].Item))
-    outTable.Skills[skill].Class    = math.floor(tonumber(unitTable.Skills[skill].Class))
-    outTable.Skills[skill].Change   = math.floor(tonumber(unitTable.Skills[skill].Change))
-    outTable.Skills[skill].Total    = math.floor(tonumber(unitTable.Skills[skill].Base)
-                                     + tonumber(unitTable.Skills[skill].Item)
-                                     + tonumber(unitTable.Skills[skill].Class)
-                                     + tonumber(unitTable.Skills[skill].Change))
+    outTable.Skills[skill].Base     = unitTable.Skills[skill].Base
+    outTable.Skills[skill].Item     = unitTable.Skills[skill].Item
+    outTable.Skills[skill].Class    = unitTable.Skills[skill].Class
+    outTable.Skills[skill].Change   = unitTable.Skills[skill].Change
+    outTable.Skills[skill].Total    = (unitTable.Skills[skill].Base
+                                      +unitTable.Skills[skill].Item
+                                      +unitTable.Skills[skill].Class
+                                      +unitTable.Skills[skill].Change)
     outTable.Skills[skill].Exp      = 0
     outTable.Skills[skill].Rust     = 0
    else
@@ -253,15 +254,15 @@ function getUnitTable(unit,detailed)
   for n,stat in pairs(baseTable.CustomStats) do
    outTable.Stats[stat] = {}
    if unitTable and unitTable.Stats[stat] then
-    outTable.Stats[stat].Base     = math.floor(tonumber(unitTable.Stats[stat].Base))
-    outTable.Stats[stat].Item     = math.floor(tonumber(unitTable.Stats[stat].Item))
-    outTable.Stats[stat].Class    = math.floor(tonumber(unitTable.Stats[stat].Class))
-    outTable.Stats[stat].Change   = math.floor(tonumber(unitTable.Stats[stat].Change))
+    outTable.Stats[stat].Base     = unitTable.Stats[stat].Base
+    outTable.Stats[stat].Item     = unitTable.Stats[stat].Item
+    outTable.Stats[stat].Class    = unitTable.Stats[stat].Class
+    outTable.Stats[stat].Change   = unitTable.Stats[stat].Change
     outTable.Stats[stat].Syndrome = 0
-    outTable.Stats[stat].Total    = math.floor(tonumber(unitTable.Stats[stat].Base)
-                                   + tonumber(unitTable.Stats[stat].Item)
-                                   + tonumber(unitTable.Stats[stat].Class)
-                                   + tonumber(unitTable.Stats[stat].Change))
+    outTable.Stats[stat].Total    = (unitTable.Stats[stat].Base
+                                    +unitTable.Stats[stat].Item
+                                    +unitTable.Stats[stat].Class
+                                    +unitTable.Stats[stat].Change)
    else                                   
     outTable.Stats[stat].Base     = 0
     outTable.Stats[stat].Item     = 0
@@ -276,7 +277,7 @@ function getUnitTable(unit,detailed)
  outTable.Traits = {}
  for trait,value in pairs(unit.status.current_soul.personality.traits) do
   outTable.Traits[trait] = {}
-  outTable.Traits[trait].Total    = math.floor(unit.status.current_soul.personality.traits[trait])
+  outTable.Traits[trait].Total    = unit.status.current_soul.personality.traits[trait]
   outTable.Traits[trait].Base     = outTable.Traits[trait].Total
   outTable.Traits[trait].Item     = 0
   outTable.Traits[trait].Class    = 0
@@ -285,12 +286,12 @@ function getUnitTable(unit,detailed)
  end
 
  outTable.Classes = {}
- if unitTable and roses.Systems.Class then
+ if unitTable then
   for x,_ in pairs(roses.ClassTable) do
    if unitTable.Classes[x] then
     outTable.Classes[x] = {}
-    outTable.Classes[x].Level      = math.floor(tonumber(unitTable.Classes[x].Level))
-    outTable.Classes[x].Experience = math.floor(tonumber(unitTable.Classes[x].Experience))
+    outTable.Classes[x].Level      = unitTable.Classes[x].Level
+    outTable.Classes[x].Experience = unitTable.Classes[x].Experience
    end
   end
  end
@@ -298,7 +299,7 @@ function getUnitTable(unit,detailed)
  outTable.Feats = {}
  outTable.Feats.Points = 0
  n = 0
- if unitTable and roses.Systems.Feat then
+ if unitTable then
   outTable.Feats.Points = unitTable.Feats.Points
   for x,_ in pairs(unitTable.Feats) do
    if x ~= 'Points' then
@@ -313,7 +314,7 @@ function getUnitTable(unit,detailed)
  outTable.Spells.Learned = {}
  n_learned = 0
  n_active  = 0
- if unitTable and roses.Systems.Spell then
+ if unitTable then
   for x,y in pairs(unitTable.Spells) do
    if x == 'Active' then
     for spell,_ in pairs(y) do
@@ -351,7 +352,7 @@ trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
            strname  = Tracked type (Valid Values: Attribute, Resistance, Skill, Stat, Trait)
            kind     = Tracked subtype (e.g. STRENGTH for a strname of Attribute)
            change   = Amount of change
-           syndrome =  SYN_NAME of a syndrome to associate with the change
+           syndrome = SYN_NAME of a syndrome to associate with the change
            dur      = Length of change in in-game ticks
            alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
            cb_id    = If dur > 0 then the cb_id is needed to properly track the change
@@ -372,28 +373,28 @@ trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
 ]===]
 
 function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- unitPersist = roses.UnitTable
-
  if alter == 'terminated' then return end
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- Table = unitPersist[tostring(unit.id)]
- if not Table then makeUnitTable(unit) end
+ if not roses or not unit then return end
+ 
+ if not roses.UnitTable[unit.id] then makeUnitTable(unit) end
+ roses = dfhack.script_environment('base/roses-table').roses
+ 
  if strname == 'Attribute' then
-  Table = unitPersist[tostring(unit.id)]['Attributes']
+  Table = roses.UnitTable[unit.id]['Attributes']
   func = changeAttribute
  elseif strname == 'Resistance' then
-  Table = unitPersist[tostring(unit.id)]['Resistances']
+  Table = roses.UnitTable[unit.id]['Resistances']
   func = changeResistance
  elseif strname == 'Skill' then
-  Table = unitPersist[tostring(unit.id)]['Skills']
+  Table = roses.UnitTable[unit.id]['Skills']
   func = changeSkill
  elseif strname == 'Stat' then
-  Table = unitPersist[tostring(unit.id)]['Stats']
+  Table = roses.UnitTable[unit.id]['Stats']
   func = changeStat
  elseif strname == 'Trait' then
-  Table = unitPersist[tostring(unit.id)]['Traits']
+  Table = roses.UnitTable[unit.id]['Traits']
   func = changeTrait
  end
 
@@ -415,16 +416,16 @@ function trackCore(unit,strname,kind,change,syndrome,dur,alter,cb_id)
  elseif alter == 'terminate' or alter == 'terminateclass' then
   trackTerminate(unit,Table,strname,func,syndrome,alter)
  elseif alter == 'class' then -- Track changes associated with a class
-  Table[kind].Class = math.floor(change + tonumber(Table[kind].Class))
+  Table[kind].Class = change + Table[kind].Class
  elseif alter == 'item' then -- Track changes associated with an item
-  Table[kind].Item = math.floor(change + tonumber(Table[kind].Item))
+  Table[kind].Item = change + Table[kind].Item
  end
 end
 
 function trackStart(unit,Table,strname,kind,change,dur,syndrome,cb_id)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- unitPersist = roses.UnitTable
+ roses = dfhack.script_environment('base/roses-table').roses
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not roses or not unit then return end
 
  typeTable = Table[kind]
  if dur > 0 then 
@@ -437,7 +438,7 @@ function trackStart(unit,Table,strname,kind,change,dur,syndrome,cb_id)
   statusTable[statusNumber+1].Linked = false
   if syndrome then -- If the change has an associated syndrome, link the StatusEffects table and the SyndromeTrack table together
    changeSyndrome(unit,syndrome,'add')
-   trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
+   trackTable = roses.UnitTable[unit.id].SyndromeTrack
    statusTable[statusNumber+1].Linked = true
    if not trackTable[syndrome] then
     trackTable[syndrome] = {}
@@ -452,14 +453,14 @@ function trackStart(unit,Table,strname,kind,change,dur,syndrome,cb_id)
    trackTable[syndrome][strname][kind].CallBack = cb_id
   end
  else
-  typeTable.Base = math.floor(tonumber(typeTable.Base) + change) -- No need for associating syndromes with permanent changes, if requested can add at a later time.
+  typeTable.Base = typeTable.Base + change -- No need for associating syndromes with permanent changes, if requested can add at a later time.
  end
 end
 
 function trackEnd(unit,Table,strname,kind,change,syndrome)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- unitPersist = roses.UnitTable
+ roses = dfhack.script_environment('base/roses-table').roses
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not roses or not unit then return end
 
  typeTable = Table[kind]
  statusTable = typeTable.StatusEffects
@@ -468,7 +469,7 @@ function trackEnd(unit,Table,strname,kind,change,syndrome)
   if statusTable[i] then
    if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
     if statusTable[i].Linked and syndrome then
-     trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
+     trackTable = roses.UnitTable[unit.id].SyndromeTrack
      if trackTable[syndrome][strname][kind].Number == i then trackTable[syndrome][strname] = nil end
     end
     statusTable[i] = nil
@@ -479,13 +480,13 @@ function trackEnd(unit,Table,strname,kind,change,syndrome)
 end
 
 function trackTerminate(unit,Table,strname,func,syndrome,alter)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- unitPersist = roses.UnitTable
+ roses = dfhack.script_environment('base/roses-table').roses
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not roses or not unit then return end
 
  -- If the change ends by force, check the syndrome tracker to determine effects                           --*
  if alter == 'terminate' then
-  trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
+  trackTable = roses.UnitTable[unit.id].SyndromeTrack
   name = syndrome or 'NONE'
   if trackTable[name] then
    if trackTable[name][strname] then
@@ -494,7 +495,7 @@ function trackTerminate(unit,Table,strname,func,syndrome,alter)
      statusTable = typeTable.StatusEffects
      local statusNumber = trackTable[name][strname][kindA].Number
      local callback = trackTable[name][strname][kindA].CallBack
-     typeTable.Change = math.floor(typeTable.Change - statusTable[statusNumber].Change)
+     typeTable.Change = typeTable.Change - statusTable[statusNumber].Change
      func(unit.id,kindA,-statusTable[statusNumber].Change,0,'terminated',nil)
      dfhack.timeout_active(callback,nil)
      dfhack.script_environment('persist-delay').environmentDelete(callback)
@@ -505,7 +506,7 @@ function trackTerminate(unit,Table,strname,func,syndrome,alter)
    end
   end
  elseif alter == 'terminateclass' then
-  local trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
+  local trackTable = roses.UnitTable[unit.id].SyndromeTrack
   syndromeNames = checkSyndrome(unit.id,syndrome,'class')
   for _,name in pairs(syndromeNames) do
    if trackTable[name] then
@@ -530,14 +531,14 @@ function trackTerminate(unit,Table,strname,func,syndrome,alter)
 end
 
 function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
- unitPersist = roses.UnitTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
- Table = unitPersist[tostring(unit.id)]
- if not Table then makeUnitTable(unit) end
- tTable = unitPersist[tostring(unit.id)].General.Transform
+ if not roses or not unit then return end
+ 
+ if not roses.UnitTable[unit.id] then makeUnitTable(unit) end
+ roses = dfhack.script_environment('base/roses-table').roses
+ 
+ tTable = roses.UnitTable[unit.id].General.Transform
  alter = alter or 'track'
  if alter == 'track' then
   if dur > 0 then
@@ -551,7 +552,7 @@ function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
    statusTable[statusNumber+1].Caste = unit.caste
    statusTable[statusNumber+1].Linked = false
    if syndrome then
-    trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
+    trackTable = roses.UnitTable[unit.id].SyndromeTrack
     statusTable[statusNumber+1].Linked = true
     if not trackTable[syndrome] then
      trackTable[syndrome] = {}
@@ -576,7 +577,7 @@ function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
    if statusTable[i] then
     if statusTable[i].End <= 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick then
      if statusTable[i].Linked and syndrome then
-      trackTable = unitTable[tostring(unit.id)].SyndromeTrack
+      trackTable = roses.UnitTable[unit.id].SyndromeTrack
       if trackTable[syndrome]['Transform'].Number == i then trackTable[syndrome]['Transform'] = nil end
      end
      statusTable[i] = nil
@@ -585,7 +586,7 @@ function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
    end
   end  
  elseif alter == 'terminate' then
-  trackTable = unitTable[tostring(unit.id)].SyndromeTrack
+  trackTable = roses.UnitTable[unit.id].SyndromeTrack
   if syndrome then name = syndrome end
   if trackTable[name] then
    if trackTable[name]['Transform'] then
@@ -603,7 +604,7 @@ function trackTransformation(unit,race,caste,dur,alter,syndrome,cb_id)
    changeSyndrome(unit.id,syndrome,'erase')
   end
  elseif alter == 'terminateClass' then
-  trackTable = unitTable[tostring(unit.id)].SyndromeTrack
+  trackTable = roses.UnitTable[unit.id].SyndromeTrack
   syndromeNames = checkSyndrome(unit.id,syndrome,'class')
   for _,name in pairs(syndromeNames) do
    if trackTable[name] then
@@ -704,6 +705,8 @@ changeTrait(unit,trait,change,dur,track,syndrome)
 
 function changeAttribute(unit,attribute,change,dur,track,syndrome)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  unitTable = getUnitTable(unit)
  if not unitTable.Attributes[attribute] then
   print('functions/unit.changeAttribute: Invalid Attribute Token - '..attribute)
@@ -733,6 +736,8 @@ end
 
 function changeCounter(unit,counter,change,dur)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  if (counter == 'webbed' or counter == 'stunned' or counter == 'winded' or counter == 'unconscious'
      or counter == 'pain' or counter == 'nausea' or counter == 'dizziness' or counter == 'suffocation') then
   location = unit.counters
@@ -778,6 +783,8 @@ end
 
 function changeResistance(unit,resistance,change,dur,track,syndrome)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  unitTable = getUnitTable(unit)
  if not unitTable.Resistances[resistance] then
   print('functions/unit.changeResistance: Invalid Resistance Token - '..resistance)
@@ -793,13 +800,15 @@ end
 
 function changeSkill(unit,skill,change,dur,track,syndrome)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  unitTable = getUnitTable(unit)
  if not unitTable.Skills[skill] then
   print('functions/unit.changeSkill: Invalid Skill Token - '..skill)
   return
  end
- current = unitTable.Skills[skill].Base
- value = math.floor(current + change)
+ current = unitTable.Skills[skill].Total
+ value = current + change
  if value > skillCap then
   value = skillCap
   change = skillCap - current
@@ -831,6 +840,8 @@ end
 
 function changeStat(unit,stat,change,dur,track,syndrome)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  unitTable = getUnitTable(unit)
  if not unitTable.Stats[stat] then
   print('functions/unit.changeStat: Invalid Stat Token - '..stat)
@@ -846,6 +857,8 @@ end
 
 function changeTrait(unit,trait,change,dur,track,syndrome)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  unitTable = getUnitTable(unit)
  if not unitTable.Traits[trait] then
   print('functions/unit.changeTrait: Invalid Trait Token - '..trait)
@@ -895,6 +908,8 @@ changeInteraction(unit,interaction_id,timer,types)
 
 function changeAction(unit,action_type,timer)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  if timer == 'clear' then
   actions = unit.actions
   for i = #actions-1,0,-1 do
@@ -930,6 +945,8 @@ end
 
 function changeInteraction(unit,interaction_id,timer,types)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  if timer == 'clear' or timer == 'clearAll' then timer = 0 end
  if types == 'Innate' or types == 'Both' then
   for i,id in ipairs(unit.curse.own_interaction) do
@@ -993,6 +1010,8 @@ changeWound()
 
 function changeBody(unit,part,changeType,change,dur)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  changeType = string.upper(changeType)
  
  if changeType == 'TEMPERATURE' then
@@ -1031,6 +1050,8 @@ end
 
 function changeRace(unit,race,caste,dur,track,syndrome)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ 
  trackTransformation(unit,race,caste,dur,track,syndrome,cb_id)
  cur_race = unit.race
  cur_caste = unit.caste
@@ -1078,11 +1099,11 @@ changeSyndrome(unit,syndromes,change,dur)
 ]===]
 
 function changeSyndrome(unit,syndromes,change,dur)
- roses = dfhack.script_environment('base/roses-init').roses
- if change == 'terminate' and not roses then return end
- unitPersist = roses.UnitTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return end
+ if (change == 'terminate' or change == 'terminateClass') and not roses then return end
+
  if type(syndromes) ~= 'table' then syndromes = {syndromes} end
  unitID = tostring(unit.id)
  for _,syndrome in pairs(syndromes) do
@@ -1093,8 +1114,8 @@ function changeSyndrome(unit,syndromes,change,dur)
   elseif change == 'eraseClass' then
    dfhack.run_command('modtools/add-syndrome -target '..unitID..' -eraseClass '..syndrome)
   elseif change == 'terminate' or change == 'terminateClass' then
-   if not unitPersist[tostring(unit.id)] then return end
-   local trackTable = unitPersist[tostring(unit.id)].SyndromeTrack
+   if not roses.UnitTable[unit.id] then return end
+   local trackTable = roses.UnitTable[unit.id].SyndromeTrack
    if trackTable[syndrome] then
     trackCore(unit,'Attribute',nil,nil,syndrome,nil,change,nil)
     trackCore(unit,'Resistance',nil,nil,syndrome,nil,change,nil)
@@ -1188,6 +1209,8 @@ checkDistance(unit,location,distance)
 ]===]
 
 function checkClass(unit,class)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return false end
  check, x = checkClassCreature(unit,class)
  if check then return true,x end
  check, x = checkClassSyndrome(unit,class)
@@ -1197,6 +1220,7 @@ end
 
 function checkClassCreature(unit,class)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not class then return false end
  if type(class) ~= 'table' then class = {class} end
 
  local unitraws = df.creature_raw.find(unit.race)
@@ -1216,6 +1240,7 @@ end
 
 function checkClassSyndrome(unit,class)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not class then return false end
  if type(class) ~= 'table' then class = {class} end
 
  local actives = unit.syndromes.active
@@ -1236,6 +1261,7 @@ end
 
 function checkCreatureRace(unit,creature)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not creature then return false end
  if type(creature) ~= 'table' then creature = {creature} end
 
  local unitraws = df.creature_raw.find(unit.race)
@@ -1253,6 +1279,7 @@ end
 
 function checkCreatureSyndrome(unit,syndrome)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not syndrome then return false end
  if type(syndrome) ~= 'table' then syndrome = {syndrome} end
  
  local actives = unit.syndromes.active
@@ -1269,6 +1296,7 @@ end
 
 function checkCreatureToken(unit,token)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not token then return false end
  if type(token) ~= 'table' then token = {token} end
 
  local unitraws = df.creature_raw.find(unit.race)
@@ -1293,6 +1321,7 @@ end
 
 function checkDistance(unit,location,distance)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not distance then return false end
  if tonumber(distance) then distance = {distance, distance, distance} end
 
  local mapx, mapy, mapz = dfhack.maps.getTileSize()
@@ -1345,6 +1374,9 @@ getBodyRandom(unit)
 ]===]
 
 function getBodyParts(unit,partType,partSubType)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not partType then return {} end
+ 
  partType = string.lower(partType)
  if partType == 'category' then
   return getBodyCategory(unit,partSubType)
@@ -1365,6 +1397,7 @@ end
 function getBodyCategory(unit,category)
  -- Check a unit for body parts that match a given category(s)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not category then return {} end
  if type(category) == 'string' then category = {category} end
  local parts = {}
  local body = unit.body.body_plan.body_parts
@@ -1383,6 +1416,7 @@ end
 function getBodyToken(unit,token)
  -- Check a unit for body parts that match a given token(s).
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not token then return {} end
  if type(token) == 'string' then token = {token} end
 
  local parts = {}
@@ -1402,6 +1436,7 @@ end
 function getBodyFlag(unit,flag)
  -- Check a unit for body parts that match a given flag(s).
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not flag then return {} end
  if type(flag) == 'string' then flag = {flag} end
 
  local parts = {}
@@ -1420,6 +1455,7 @@ end
 
 function getBodyConnectedParts(unit,parts)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not parts then return {} end
  if type(parts) ~= 'table' then parts = {parts} end
  for i,x in pairs(parts) do
   for j,y in pairs(unit.body.body_plan.body_parts) do
@@ -1433,6 +1469,7 @@ end
 
 function getBodyPartGlobalLayers(unit,part)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not part then return {} end
  global_layers = {}
  for i,x in pairs(unit.body.body_plan.layer_part) do
   if x == part then table.insert(global_layers,i) end
@@ -1442,6 +1479,7 @@ end
 
 function getBodyRandom(unit)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return  end
  local rand = dfhack.random.new()
  local totwght = 0
  local weights = {}
@@ -1494,6 +1532,7 @@ function getBodyCorpseParts(unit)
  elseif tonumber(unit) then
   unit = df.unit.find(tonumber(unit))
  end
+ if not unit then return {Unit=-1,Corpse=false,Parts={}} end
  corpseparts = {Unit=unit.id,Corpse=false,Parts={}}
  for _,id in pairs(unit.corpse_parts) do
   item = df.item.find(id)
@@ -1542,6 +1581,8 @@ getInventory(unit,inventoryType,inventorySubType)
 ]===]
 
 function getInventory(unit,inventoryType,inventorySubType)
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not inventoryType then return {} end
  inventoryType = string.lower(inventoryType)
  if inventoryType == 'itemtype' then
   return getInventoryType(unit,inventorySubType)
@@ -1558,6 +1599,7 @@ end
 function getInventoryType(unit,item_type)
  -- Check a unit for any inventory items of a given type(s).
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not item_type then return {} end
  if type(item_type) == 'string' then item_type = {item_type} end
 
  local items = {}
@@ -1576,6 +1618,7 @@ end
 
 function getInventoryBodyPart(unit,bodyPart)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not bodyPart then return {} end
  if type(bodyPart) ~= 'table' then bodyPart = {bodyPart} end
  
  local items = {}
@@ -1592,6 +1635,7 @@ end
 
 function getInventoryMode(unit,mode)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not mode then return {} end
  if type(mode) ~= 'table' then mode = {mode} end
 
  local items = {}
@@ -1645,10 +1689,19 @@ getCounter(unit,counter)
            unit    = Unit struct or unit ID
            counter = Counter token (e.g. webbed)
   Returns: Value of counter
+  
+getSpeed(unit,what)
+  Purpose: Get the kph value of a units gait information
+  Calls:   NONE
+  Inputs:
+           unit = Unit struct, unit ID, or caste raw
+           what = (Valid Values: WALK, SWIM, CRAWL, CLIMB, FLY)
+  Returns: value of speed in kph, returns nil if the unit does not have any gait information
 ]===]
 
 function getAttack(unit,attack_type)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not attack_type then return end
  if attack_type == 'Random' then
   local rand = dfhack.random.new()
   local totwght = 0
@@ -1688,6 +1741,7 @@ end
 
 function getEmotion(unit,emotion,thought)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not emotion or not thought then return {} end
  thought = df.unit_thought_type[thought]
  emotion = df.emotion_type[emotion]
  local list = {}
@@ -1721,6 +1775,7 @@ end
 
 function getSyndrome(unit,class,what)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not class or not what then return end
  if type(class) ~= 'table' then class = {class} end
 
  local actives = unit.syndromes.active
@@ -1786,6 +1841,8 @@ end
 
 function getCounter(unit,counter)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not counter then return 0 end
+ 
  if (counter == 'webbed' or counter == 'stunned' or counter == 'winded' or counter == 'unconscious'
      or counter == 'pain' or counter == 'nausea' or counter == 'dizziness') then
   location = unit.counters
@@ -1804,6 +1861,7 @@ end
 
 function getWound(unit,class,what)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit then return {} end
  local outTable = {}
  
  wounds = unit.body.wounds
@@ -1826,6 +1884,202 @@ function getWound(unit,class,what)
  
  return outTable
 end
+
+function getSpeed(unit,what)
+ local gait
+ local speed = 0
+ what = what or 'WALK'
+ if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if unit._type == df.caste_raw then -- check if we fed it a unit or a caste raw
+  gait = unit.body_info.gait_info[what]
+ else
+  gait = df.creature_raw.find(unit.race).caste[unit.caste].body_info.gait_info[what]
+ end
+ if not gait then return nil end
+ if #gait == 0 then return nil end
+ local top_speed = gait[0].full_speed
+ 
+ if     top_speed >= 8775 then 
+  speed = 1
+ elseif top_speed >= 4388 then 
+  speed = 2
+ elseif top_speed >= 2925 then 
+  speed = 3
+ elseif top_speed >= 2193 then 
+  speed = 4
+ elseif top_speed >= 1755 then 
+  speed = 5
+ elseif top_speed >= 1463 then 
+  speed = 6
+ elseif top_speed >= 1254 then 
+  speed = 7
+ elseif top_speed >= 1097 then 
+  speed = 8
+ elseif top_speed >= 975 then  
+  speed = 9
+ elseif top_speed >= 878 then 
+  speed = 10
+ elseif top_speed >= 798 then 
+  speed = 11
+ elseif top_speed >= 731 then 
+  speed = 12
+ elseif top_speed >= 675 then 
+  speed = 13
+ elseif top_speed >= 627 then 
+  speed = 14
+ elseif top_speed >= 585 then 
+  speed = 15
+ elseif top_speed >= 548 then 
+  speed = 16
+ elseif top_speed >= 516 then 
+  speed = 17
+ elseif top_speed >= 488 then 
+  speed = 18
+ elseif top_speed >= 462 then 
+  speed = 19
+ elseif top_speed >= 439 then 
+  speed = 20
+ elseif top_speed >= 418 then 
+  speed = 21
+ elseif top_speed >= 399 then 
+  speed = 22
+ elseif top_speed >= 382 then 
+  speed = 23
+ elseif top_speed >= 366 then 
+  speed = 24
+ elseif top_speed >= 351 then 
+  speed = 25
+ elseif top_speed >= 338 then 
+  speed = 26
+ elseif top_speed >= 325 then 
+  speed = 27
+ elseif top_speed >= 313 then 
+  speed = 28
+ elseif top_speed >= 303 then 
+  speed = 29
+ elseif top_speed >= 293 then 
+  speed = 30
+ elseif top_speed >= 283 then 
+  speed = 31
+ elseif top_speed >= 274 then 
+  speed = 32
+ elseif top_speed >= 266 then 
+  speed = 33
+ elseif top_speed >= 258 then 
+  speed = 34
+ elseif top_speed >= 251 then 
+  speed = 35
+ elseif top_speed >= 244 then 
+  speed = 36
+ elseif top_speed >= 237 then 
+  speed = 37
+ elseif top_speed >= 231 then 
+  speed = 38
+ elseif top_speed >= 225 then 
+  speed = 39
+ elseif top_speed >= 219 then 
+  speed = 40
+ elseif top_speed >= 214 then 
+  speed = 41
+ elseif top_speed >= 209 then 
+  speed = 42
+ elseif top_speed >= 204 then 
+  speed = 43
+ elseif top_speed >= 199 then 
+  speed = 44
+ elseif top_speed >= 195 then 
+  speed = 45
+ elseif top_speed >= 191 then 
+  speed = 46
+ elseif top_speed >= 187 then 
+  speed = 47
+ elseif top_speed >= 183 then 
+  speed = 48
+ elseif top_speed >= 179 then 
+  speed = 49
+ elseif top_speed >= 176 then 
+  speed = 50
+ elseif top_speed >= 173 then 
+  speed = 51
+ elseif top_speed >= 169 then 
+  speed = 52
+ elseif top_speed >= 166 then 
+  speed = 53
+ elseif top_speed >= 163 then 
+  speed = 54
+ elseif top_speed >= 160 then 
+  speed = 55
+ elseif top_speed >= 157 then 
+  speed = 56
+ elseif top_speed >= 154 then 
+  speed = 57
+ elseif top_speed >= 151 then 
+  speed = 58
+ elseif top_speed >= 149 then 
+  speed = 59
+ elseif top_speed >= 146 then 
+  speed = 60
+ elseif top_speed >= 144 then 
+  speed = 61
+ elseif top_speed >= 142 then 
+  speed = 62
+ elseif top_speed >= 139 then 
+  speed = 63
+ elseif top_speed >= 137 then 
+  speed = 64
+ elseif top_speed >= 135 then 
+  speed = 65
+ elseif top_speed >= 133 then 
+  speed = 66
+ elseif top_speed >= 131 then 
+  speed = 67
+ elseif top_speed >= 129 then 
+  speed = 68
+ elseif top_speed >= 127 then 
+  speed = 69
+ elseif top_speed >= 125 then 
+  speed = 70
+ elseif top_speed >= 124 then 
+  speed = 71
+ elseif top_speed >= 122 then 
+  speed = 72
+ elseif top_speed >= 120 then 
+  speed = 73
+ elseif top_speed >= 119 then 
+  speed = 74
+ elseif top_speed >= 117 then 
+  speed = 75
+ elseif top_speed >= 115 then 
+  speed = 76
+ elseif top_speed >= 114 then 
+  speed = 77
+ elseif top_speed >= 112 then 
+  speed = 78
+ elseif top_speed >= 111 then 
+  speed = 79
+ elseif top_speed >= 109 then 
+  speed = 80
+ elseif top_speed >= 108 then 
+  speed = 81
+ elseif top_speed >= 107 then 
+  speed = 82
+ elseif top_speed >= 105 then 
+  speed = 83
+ elseif top_speed >= 104 then 
+  speed = 84
+ elseif top_speed >= 103 then 
+  speed = 85
+ elseif top_speed >= 102 then 
+  speed = 86
+ elseif top_speed >= 100 then 
+  speed = 87
+ else
+  speed = 88
+ end
+ 
+ return speed
+end
+
 --=                     Miscellanious Functions
 usages[#usages+1] = [===[
 
@@ -1853,10 +2107,12 @@ findUnit(search)
   Inputs:
            search = Search table (e.g. { RANDOM, PROFESSION, CARPENTER })
   Returns: Table of all units that meet search criteria
+  
 ]===]
 
 function move(unit,location)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
+ if not unit or not location then return end
  pos = {}
  pos.x = tonumber(location.x) or tonumber(location[1]) or tonumber(unit.pos.x)
  pos.y = tonumber(location.y) or tonumber(location[2]) or tonumber(unit.pos.y)
@@ -1877,7 +2133,7 @@ end
 
 function makeProjectile(unit,velocity)
  if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
-
+ if not unit or not velocity then return end
  local vx = velocity[1]
  local vy = velocity[2]
  local vz = velocity[3]
@@ -2098,7 +2354,7 @@ function createEquipment(unit,equip)
   -- Item Options: Items read from a template
   -- Mat Options: Materials read from a template
   template = equipment[2]
-  roses = dfhack.script_environment('base/roses-init').roses
+  roses = dfhack.script_environment('base/roses-table').roses
   if safe_index(roses,'EquipmentTemplates',template) then
    tmp = roses.EquipmentTemplates[template]
    availItems = {weapon=tmp.Weapons,armor=tmp.Armor,helm=tmp.Helms,gloves=tmp.Gloves,

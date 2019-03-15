@@ -1,6 +1,6 @@
 --base/on-time.lua v1.0 | DFHack 43.05
 
-roses = dfhack.script_environment('base/roses-init').roses
+roses = dfhack.script_environment('base/roses-table').roses
 
 yearly = {}
 season = {}

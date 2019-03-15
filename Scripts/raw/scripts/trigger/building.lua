@@ -50,6 +50,7 @@ Arguments::
 
 validArgs = utils.invert({
  'help',
+ 'show',
  'clear',
  'building',
  'location',
@@ -75,6 +76,10 @@ if args.clear then
  destroyedTriggers = {}
 end
 
+if args.show then
+ printall_recurse(createdTriggers)
+end
+
 if not args.building then
  return
 end
@@ -94,7 +99,7 @@ if args.created then
  end
 
  if args.zLevels then createdTriggers[args.building].ZLevels = tonumber(args.zLevels) or -1 end
- if args.createdTriggers then 
+ if args.RequiredBuilding then 
   createdTriggers[args.building].RequiredBuilding = args.requiredBuilding 
  end
  if args.forbiddenBuilding then 
@@ -124,6 +129,7 @@ function checkBuildingCreated(buildingID)
 
  trigger = createdTriggers[buildingToken]
  destroy = false
+
  if trigger.Outside then -- Check to make sure the building is being built outside
   if not designation.outside then destroy = true end
  end
@@ -135,12 +141,14 @@ function checkBuildingCreated(buildingID)
  if trigger.ZLevels and trigger.ZLevels >= 2 and not destroy then -- Check that there are the required number of Z levels clear
   for x = building.x1,building.x2 do
    for y = building.y1,building.y2 do
-    for z = building.z,building.z+trigger.ZLevels-1 do
+    for z = building.z+1,building.z+trigger.ZLevels do
      if dfhack.maps.isValidTilePos(x,y,z) and not destroy then
       if df.tiletype.attrs[dfhack.maps.getTileType(x,y,z)].material ~= df.tiletype_material.AIR then
-       destroy = true
-       break
+       dfhack.script_environment('functions/map').setTileType('OpenSpace',x,y,z)
       end
+     else
+      destroy = true
+      break
      end
     end
    end
@@ -168,7 +176,7 @@ function checkBuildingCreated(buildingID)
    end
   end
  end
-   
+
  if trigger.ForbiddenBuilding and not destroy then -- Check that the forbidden building is not already built
   for _,req in pairs(trigger.ForbiddenBuilding) do
    reqBldg = split(req,':')[1]
@@ -194,9 +202,9 @@ function checkBuildingCreated(buildingID)
  if trigger.MaxNumber and not destroy then -- Check that there are less than max number of the building
   i = 0
   for _,bldg in pairs(df.global.world.buildings.all) do
-   if bldg:getCustomType() >= 0 and bldg:getCustomType().code == buildingToken then
+   if bldg:getCustomType() >= 0 and df.global.world.raws.buildings.all[bldg:getCustomType()].code == buildingToken then
     i = i+1
-    if i >= trigger.MaxNumber then
+    if i >= trigger.MaxNumber + 1 then
      destroy = true
      break
     end
@@ -238,7 +246,16 @@ function checkBuildingCreated(buildingID)
   destroyBuilding(building)
   return
  end
+end
 
+function buildingCreated(buildingID)
+ local building = df.building.find(buildingID)
+ local buildingCType = building:getCustomType()
+ if buildingCType < 0 then return end
+ buildingToken = df.global.world.raws.buildings.all[buildingCType].code
+ if not createdTriggers[buildingToken] then return end
+
+ trigger = createdTriggers[buildingToken]
  if trigger.command then
   processCommand(building,buildingToken,trigger.command)
  end
@@ -251,6 +268,7 @@ function destroyBuilding(building)
  end
  local b = dfhack.buildings.deconstruct(building)
  if b then
+  print('Building failed')
   --TODO: print an error message to the user so they know
   return
  end
@@ -259,14 +277,26 @@ end
 
 
 function checkBuildingDestroyed(buildingID)
- token = 'DESTROYED'
- if not destroyedTriggers[token] then return end
- building = {}
- building.id = buildingID
- building.centerx = -30000
- building.centery = 0
- building.z = 0
- processCommand(building,token,destroyedTriggers[token].command)
+ -- Nothing for initiating building destruction
+end
+
+function buildingDestroyed(buildingID)
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses then return end
+ if roses.BuildingTable[buildingID] then
+  token = roses.BuildingTable[buildingID].Token
+  building = {}
+  building.id = buildingID
+  building.centerx = roses.BuildingTable[buildingID].Position.x
+  building.centery = roses.BuildingTable[buildingID].Position.y
+  building.z       = roses.BuildingTable[buildingID].Position.z
+  if token and destroyedTriggers[token] then
+   trigger = destroyedTriggers[token]
+   if trigger.command then
+    processCommand(building,token,trigger.command)
+   end
+  end
+ end
 end
 
 function processCommand(building,token,command)
@@ -293,12 +323,34 @@ eventful.onUnload.buildingTrigger = function()
  timeoutId = nil
 end
 
-eventful.enableEvent(eventful.eventType.BUILDING, 10)
-eventful.onBuildingCreatedDestroyed.outsideOnly = function(buildingID)
- building = df.building.find(buildingID)
- if building then
+--eventful.enableEvent(eventful.eventType.BUILDING, 10)
+--eventful.onBuildingCreatedDestroyed.buildingTrigger = function(buildingID,a)
+-- building = df.building.find(buildingID)
+-- if building then
+--  checkBuildingCreated(buildingID)
+-- else
+--  checkBuildingDestroyed(buildingID)
+-- end
+--end
+
+eventful.enableEvent(eventful.eventType.JOB_INITIATED,5)
+eventful.onJobInitiated.buildingTrigger = function(job)
+ if job.job_type and df.job_type[job.job_type] == 'ConstructBuilding' then
+  buildingID = job.general_refs[0].building_id -- Can the building ID ref ever be not the first one?
   checkBuildingCreated(buildingID)
- else
-  checkBuildingDestroyed(buildingID)
+ elseif job.job_type and df.job_type[job.job_type] == 'DestroyBuilding' then
+  buildingID = job.general_refs[0].building_id -- Can the building ID ref ever be not the first one?
+  checkBuildingDestroyed(buildingID) 
+ end
+end
+
+eventful.enableEvent(eventful.eventType.JOB_COMPLETED,5)
+eventful.onJobCompleted.buildingTrigger = function(job)
+ if job.job_type and df.job_type[job.job_type] == 'ConstructBuilding' then
+  buildingID = job.general_refs[0].building_id -- Can the building ID ref ever be not the first one?
+  buildingCreated(buildingID) 
+ elseif job.job_type and df.job_type[job.job_type] == 'DestroyBuilding' then
+  buildingID = job.general_refs[0].building_id -- Can the building ID ref ever be not the first one?
+  buildingDestroyed(buildingID) 
  end
 end

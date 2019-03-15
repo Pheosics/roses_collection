@@ -79,6 +79,10 @@ function system_checks()
   output = dfhack.run_command_silent('base/roses-init -enhancedSystem -verbose -testRun')
   writeall(output)
 
+  dfhack.run_command('trigger/action -clear')
+  dfhack.run_command('trigger/building -clear')
+  dfhack.run_command('trigger/projectile -clear')
+  dfhack.run_command('trigger/reaction -clear')
   writeall('Setting up triggers')
   output = dfhack.run_command_silent('base/triggers -verbose')
   writeall(output)
@@ -169,7 +173,7 @@ function system_checks()
   script.sleep(50,'ticks')
   writeall('Resuming run_test.lua')
   unitTable = unitFunctions.getUnitTable(unit)
-  if unitTable.Skills.AXE.Item ~= '15' then
+  if unitTable.Skills.AXE.Item ~= 15 then
    EICheck[#EICheck+1] = 'Enhanced System - Item 1 equip skill change not correctly applied '..unitTable.Skills.AXE.Item
   end
 
@@ -180,7 +184,7 @@ function system_checks()
   script.sleep(50,'ticks')
   writeall('Resuming run_test.lua')
   unitTable = unitFunctions.getUnitTable(unit)
-  if unitTable.Skills.AXE.Item ~= '0' then
+  if unitTable.Skills.AXE.Item ~= 0 then
    EICheck[#EICheck+1] = 'Enhanced System - Item 1 unequip skill change not correctly applied '..unitTable.Skills.AXE.Item
   end
 
@@ -197,7 +201,14 @@ function system_checks()
   script.sleep(10,'ticks')
   writeall('Resuming run_test.lua')
   unitTable = unitFunctions.getUnitTable(unit)
-  if not unitTable.Spells.Active.TEST_SPELL_1 then
+  check = false
+  for _,spell in pairs(unitTable.Spells.Active) do
+   if spell == 'TEST_SPELL_1' then
+    check = true
+    break
+   end
+  end
+  if not check then
    EICheck[#EICheck+1] = 'Enhanced System - Item 2 equip spell change not correctly applied'
   end
 
@@ -208,7 +219,14 @@ function system_checks()
   script.sleep(10,'ticks')
   writeall('Resuming run_test.lua')
   unitTable = unitFunctions.getUnitTable(unit)
-  if unitTable.Spells.Active.TEST_SPELL_1 then
+  check = false
+  for _,spell in pairs(unitTable.Spells.Active) do
+   if spell == 'TEST_SPELL_1' then
+    check = true
+    break
+   end
+  end
+  if check then
    EICheck[#EICheck+1] = 'Enhanced System - Item 2 unequip spell change not correctly applied'
   end
 

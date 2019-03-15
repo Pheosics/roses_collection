@@ -79,7 +79,7 @@ if args.clear then
  firedTriggers = {}
  onFired = nil
  eventful.onProjItemCheckImpact.hit = function(a) return end
- eventful.onProjItemCheckMovement.move
+ eventful.onProjItemCheckMovement.move = function(a) return end
  require('repeat-util').cancel('onFired')
  return
 end
@@ -109,7 +109,7 @@ trigger.command = args.command
 if args.item then trigger.item = args.item end
 if args.material then trigger.material = args.material end
 if args.contaminant then trigger.contaminant = args.contaminant end
-if args.remove then trigger.remove = true
+if args.remove then trigger.remove = true end
 
 --==========================================================================================================================
 function checkForFired() -- This is a custom function based off of putnam-events function checkForActions

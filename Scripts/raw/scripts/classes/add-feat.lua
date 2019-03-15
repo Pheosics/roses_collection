@@ -28,14 +28,8 @@ end
 verbose = false
 if args.verbose then verbose = true end
 
-if args.override then
- yes = true
-else
- yes = dfhack.script_environment('functions/class').checkRequirementsFeat(unit,feat,verbose)
+success = dfhack.script_environment('functions/class').addFeat(unit,feat,verbose)
+if success then
+-- Erase items used for reaction
 end
-if yes then
- success = dfhack.script_environment('functions/class').addFeat(unit,feat,verbose)
- if success then
- -- Erase items used for reaction
- end
-end
+

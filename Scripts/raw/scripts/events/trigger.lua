@@ -23,7 +23,7 @@ if args.forceAll then
 end
 
 triggered = {}
-roses = dfhack.script_environment('base/roses-init').roses
+roses = dfhack.script_environment('base/roses-table').roses
 eventTable = roses.EventTable
 event = args.event
 if not eventTable[event] then

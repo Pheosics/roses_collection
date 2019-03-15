@@ -1,4 +1,50 @@
---entity/resource-change.lua v0.8 | DFHack 43.05
+--entity/resource-change.lua
+local usage = [====[
+
+entity/resource-change
+==================
+Purpose::
+    Adds and removes available resources for an entity
+
+Function Calls::
+    entity.changeResources
+    
+Arguments::
+    -civ     ENTITY ID
+    -type    RESROUCE_TYPE:RESOURCE_SUBTYPE
+        The type and subtype of resource to change
+        Valid TYPEs and SUBTYPEs:
+            CREATURE
+                PET | PACK | MINION | WAGON | EXOTIC | MOUNT | FISH | EGG
+            INORGANIC
+                METAL | STONE | GEM
+            ITEM
+                WEAPON | SHIELD | AMMO | HELM | ARMOR | PANTS | SHOES | GLOVES
+                TRAP | SIEGE | TOY | INSTRUMENT | TOOL
+            ORGANIC
+                LEATHER | FIBER | SILK | WOOL | WOOD | PLANT | SEED
+            MISC
+                GLASS | SAND | BOOZE | CHEESE | POWDER | EXTRACT | MEAT
+            REFUSE
+                BONE | SHELL | PEARL | TOOTH | HORN
+            PRODUCT
+                PICK | MELEE | RANGED | AMMO | AMMO2 | ARMOR | ANVIL | CRAFTS
+                BARRELS | FLASKS | QUIVERS | BACKPACKS | CAGES
+    -obj     CREATURE_RACE:CREATURE_CASTE or MATERIAL_TYPE:MATERIAL_SUBTYPE
+        The type and subtype of the creature or material to add
+        For Example
+            DWARF:MALE
+            ELF:BONE
+            CEDAR:WOOD
+    -add
+        Adds the resource to the entity
+    -remove
+        Removes the resource from the entity
+
+Examples::
+    entity/resource-change -civ 23 -add -type CREATURE:PET -obj DRAGON:FEMALE
+    entity/resource-change -civ 57 -add -type INORGANIC -obj INORGANIC:ADAMANTINE
+]====]
 
 local utils = require 'utils'
 local split = utils.split_string
@@ -13,6 +59,11 @@ validArgs = utils.invert({
  'verbose'
 })
 local args = utils.processArgs({...}, validArgs)
+
+if args.help then
+ print(usage)
+ return
+end
 
 mtype = split(args.type,':')[1]
 stype = split(args.type,':')[2]

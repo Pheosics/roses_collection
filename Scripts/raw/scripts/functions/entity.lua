@@ -1,18 +1,27 @@
 --entity based functions, version 42.06a
----------------------------------------------------------------------------------------
+usages = {}
+
+--=                     Entity Table Functions
+usages[#usages+1] = [===[
+
+Entity Table Functions 
+====================
+
+makeEntityTable(entity)
+  Purpose: Create a persistant table to track information of a given entity
+  Calls:   NONE
+  Inputs:
+           entity = The entity struct or entity ID to make the table for
+  Returns: NONE
+
+]===]
+
 function makeEntityTable(entity,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return end
+ roses = dfhack.script_environment('base/roses-table').roses
+ if tonumber(entity) then entity = df.global.world.entities.all[tonumber(entity)] end
+ if not roses or not entity then return end
 
- if tonumber(entity) then
-  civid = tonumber(entity)
- else
-  civid = entity.id
- end
- key = tostring(civid)
- entity = df.global.world.entities.all[civid]
-
- local key = tostring(entity.id)
+ local key = entity.id
  local entity = entity.entity_raw.code
  civilizations = roses.CivilizationTable
  entityTable = roses.EntityTable
@@ -23,18 +32,18 @@ function makeEntityTable(entity,verbose)
   entityTable = entityTable[key]
   entityTable.Kills = {}
   entityTable.Deaths = {}
-  entityTable.Trades = '0'
-  entityTable.Sieges = '0'
+  entityTable.Trades = 0
+  entityTable.Sieges = 0
   if civilizations then
    if civilizations[entity] then
     entityTable.Civilization = {}
     entityTable.Civilization.Name = entity
-    entityTable.Civilization.Level = '0'
+    entityTable.Civilization.Level = 0
     entityTable.Civilization.CurrentMethod = civilizations[entity].LevelMethod
     entityTable.Civilization.CurrentPercent = civilizations[entity].LevelPercent
     entityTable.Civilization.Classes = {}
-    if safe_index(civilizations,entity,'Level','0','Remove') then
-     for mtype,depth1 in pairs(civilizations[entity].Level['0'].Remove) do
+    if safe_index(civilizations,entity,'Level',0,'Remove') then
+     for mtype,depth1 in pairs(civilizations[entity].Level[0].Remove) do
       for stype,depth2 in pairs(depth1) do
        for mobj,sobj in pairs(depth2) do
         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,-1,verbose)
@@ -42,18 +51,18 @@ function makeEntityTable(entity,verbose)
       end
      end
     end
-    if safe_index(civilizations,entity,'Level','0','Add') then
-     for mtype,depth1 in pairs(civilizations[entity].Level['0'].Add) do
+    if safe_index(civilizations,entity,'Level',0,'Add') then
+     for mtype,depth1 in pairs(civilizations[entity].Level[0].Add) do
       for stype,depth2 in pairs(depth1) do
        for mobj,sobj in pairs(depth2) do
         dfhack.script_environment('functions/entity').changeResources(key,mtype,stype,mobj,sobj,1,verbose)
        end
       end
      end
-     if safe_index(civilizations,entity,'Level','0','Classes') then
-      for class,level in pairs(civilizations[entity].Level['0'].Classes) do
+     if safe_index(civilizations,entity,'Level',0,'Classes') then
+      for class,level in pairs(civilizations[entity].Level[0].Classes) do
        if level > 0 then
-        entityTable.Civilization.Classes[class] = tostring(level)
+        entityTable.Civilization.Classes[class] = level
        else
         entityTable.Civilization.Classes[class] = nil
        end
@@ -65,6 +74,26 @@ function makeEntityTable(entity,verbose)
  end
 end
 
+--=                     Entity Changing Functions
+usages[#usages+1] = [===[
+
+Entity Changing Functions 
+====================
+
+changeResources(entity,mtype,stype,mobj,sobj,direction)
+  Purpose: Add or remove a resource from the entity
+  Calls:   changeCreature, changeInorganic, changeItem, changeMisc, changeOrganic
+           changeRefuse, changeProduct, changeSkill, changeEthic, changeValue
+  Inputs:
+           entity    = The entity struct or entity ID to change the resource of
+           mtype     = The TYPE of resource to change (see the entity/resouce-change script for valid types)
+           stype     = The SUBTYPE of resource to change (see the entity/resouce-change script for valid types)
+           mobj      = The CREATURE_RACE, MATERIAL_TYPE, or ITEM_SUBTYPE of resource to change
+           sobj      = The CREATURE_CASTE or MATERIAL_SUBTYPE of resource to change
+           direction = 'Add' or 'Remove'
+  Returns: NONE
+
+]===]
 function changeResources(entity,mtype,stype,mobj,sobj,direction,verbose)
  if string.upper(mtype) == 'CREATURE' then
   changeCreature(entity,stype,mobj,sobj,direction,verbose)
@@ -94,6 +123,7 @@ end
 
 function changeCreature(civ,stype,mobj,sobj,direction,verbose)
  if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  resources = civ.resources
  creature = {}
  check = false
@@ -200,9 +230,10 @@ function changeCreature(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeInorganic(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  stype = string.upper(stype)
  mobj = string.upper(mobj)
- if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
  if stype == 'ALL' then
   if verbose then print('-type INORGANIC:ALL IS NOT CURRENTLY SUPPORTED') end
@@ -258,9 +289,10 @@ function changeInorganic(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeItem(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  stype = string.upper(stype)
  mobj = string.upper(mobj)
- if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
  if stype == 'ALL' then
   if verbose then print('-type ITEM:ALL IS NOT CURRENTLY SUPPORTED') end
@@ -353,10 +385,11 @@ function changeItem(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeMisc(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  stype = string.upper(stype)
  mobj = string.upper(mobj)
  sobj = string.upper(sobj)
- if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
  if stype == 'ALL' then
   if verbose then print('-type MISC:ALL IS NOT CURRENTLY SUPPORTED') end
@@ -435,10 +468,11 @@ function changeNoble(civ,position,direction,verbose)
 end
 
 function changeOrganic(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  stype = string.upper(stype)
  mobj = string.upper(mobj)
  sobj = string.upper(sobj)
- if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
  if stype == 'ALL' then
   if verbose then print('-type ORGANIC:ALL IS NOT CURRENTLY SUPPORTED') end
@@ -514,10 +548,11 @@ function changeOrganic(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeProduct(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  stype = string.upper(stype)
  mobj = string.upper(mobj)
  sobj = string.upper(sobj)
- if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
  if stype == 'ALL' then
   if verbose then print('-type PRODUCT:ALL IS NOT CURRENTLY SUPPORTED') end
@@ -592,10 +627,11 @@ function changeProduct(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeRefuse(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  stype = string.upper(stype)
  mobj = string.upper(mobj)
  sobj = string.upper(sobj)
- if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
  if stype == 'ALL' then
   if verbose then print('-type REFUSE:ALL IS NOT CURRENTLY SUPPORTED') end
@@ -665,8 +701,9 @@ function changeRefuse(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeSkill(civ,stype,mobj,sobj,direction,verbose)
- stype = string.upper(stype)
  if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
+ stype = string.upper(stype)
  resources = civ.resources
  if stype == 'ALL' then
   if direction == -1 or direction == 'Remove' then
@@ -693,9 +730,10 @@ function changeSkill(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeEthic(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  stype = string.upper(stype)
  mobj = tonumber(mobj)
- if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
  if stype == 'ALL' then
   for ethic,_ in pairs(resources.ethic) do
@@ -712,9 +750,10 @@ function changeEthic(civ,stype,mobj,sobj,direction,verbose)
 end
 
 function changeValue(civ,stype,mobj,sobj,direction,verbose)
+ if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
+ if not civ then return false end
  stype = string.upper(stype)
  mobj = tonumber(mobj)
- if tonumber(civ) then civ = df.global.world.entities.all[tonumber(civ)] end
  resources = civ.resources
  if stype == 'ALL' then
   for value,_ in pairs(resources.values) do

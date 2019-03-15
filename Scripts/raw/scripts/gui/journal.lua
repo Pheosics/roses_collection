@@ -32,6 +32,298 @@ JournalUi.ATTRS={
                   frame_title = "Journal and Compendium",
                  }
 
+function JournalUi:setViewDetails()
+ self.ViewDetails = {
+    ['main']          = {name='Main',
+        num_cols = 5, num_rows = 3, 
+        widths   = {{25,25,25,25,25},{25,25,25,25,25},{25,25,25,25,25}},
+        heights  = {{10,10,10,10,10},{20,20,20,20,20},{15,15,15,40,15}},
+        fill     = {'Arts',       'Buildings', 'Creatures', 'Entities',  nil,
+                    'Inorganics', 'Items',     'Organics',  'Plants',    nil,
+                    'Products',   'Reactions', 'Religions', 'Syndromes', nil},
+        functions = {['Buildings']   = {function () self:viewChange('buildingView')  end,'B'},
+                     ['Creatures']   = {function () self:viewChange('creatureView')  end,'C'},
+                     ['Entities']    = {function () self:viewChange('entityView')    end,'E'},
+                     ['Inorganics']  = {function () self:viewChange('inorganicView') end,'n'},
+                     ['Items']       = {function () self:viewChange('itemView')      end,'I'},
+                     ['Organics']    = {function () self:viewChange('organicView')   end,'O'},
+                     ['Reactions']   = {function () self:viewChange('reactionView')  end,'R'},
+                     ['Plants']      = {function () self:viewChange('plantView')     end,'P'},
+                     ['Products']    = {function () self:viewChange('productView')   end,'r'},
+                     ['Religions']   = {function () self:viewChange('religionView')  end,'g'},
+                     ['Syndromes']   = {function () self:viewChange('syndromeView')  end,'S'},
+                     ['Arts']        = {function () self:viewChange('artView')       end,'A'},
+                     ['ClassSystem'] = {function () self:viewChange('classView')     end,'l'}}},
+    ['helpView']       = {name='Help',
+        num_cols = 2, num_rows = 2,
+        widths   = {{60,60},{60,60}},
+        heights  = {{30,30},{30,30}},
+        fill     = {nil, nil, nil, nil}},
+    ['religionView']   = {name='Gods and Forces', -- world.belief_systems, world.history.figures
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{40,40,99, 0},{40,40,50,50},{40,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        fill      = {'ReligionTypeList', 'on_select:1', 'on_select:2', nil,
+                     nil,                nil,           'groupA',      'groupC',
+                     nil,                nil,           'groupB',      'groupD'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'ReligionList','ReligionDetails'},
+        on_groups = {['on_select:2']={'on_select:2','groupA','groupB','groupC','groupD'}},
+        startFilter = 'ALL', filterFlags = {'ALL'}},
+    ['syndromeView']   = {name='Syndromes and Interactions', -- raws.syndromes, raws.interactions
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{40,40,99, 0},{40,40,50,50},{40,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        fill      = {'SyndromeTypeList', 'on_select:1', 'on_select:2', nil,
+                     nil,                nil,           'groupA',      'groupC',
+                     nil,                nil,           'groupB',      'groupD'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'SyndromeList','SyndromeDetails'},
+        on_groups = {['on_select:2']={'on_select:2','groupA','groupB','groupC','groupD'}},
+        startFilter = 'ALL', filterFlags = {'ALL'}},
+    ['artView']        = {name='Art Forms', -- world.poetic_forms, world.musical_forms, world.dance_forms, world.scales, world.rythms, world.written_contents?
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{15,40,99, 0},{15,40,50,50},{15,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        fill      = {'ArtTypeList', 'on_select:1', 'on_select:2', nil,
+                     nil,           nil,           'groupA',      'groupC',
+                     nil,           nil,           'groupB',      'groupD'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'ArtList','ArtDetails'},
+        on_groups = {['on_select:2']={'on_select:2','groupA','groupB','groupC','groupD'}},
+        startFilter = 'ALL', filterFlags = {'ALL'}},
+    ['productView']   = {name='Products',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{15,40,99, 0},{15,40,50,50},{15,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        fill      = {'ProductTypeList', 'on_select:1', 'on_select:2',     nil,
+                     nil,               nil,           'environmentInfo', 'materialInfo1',
+                     nil,               nil,           'useInfo',         'materialInfo2'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'ProductList','ProductDetails'},
+        on_groups = {['on_select:2']={'on_select:2','environmentInfo','useInfo','materialInfo1','materialInfo2'}},
+        startFilter = 'ALL', filterFlags = {'ALL'}}, -- Filters based on material.flags
+    ['classView']     = {name='Classes',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{15,40,99, 0},{15,40,50,50},{15,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        fill      = {'ClassSystemTypes', 'on_select:1', 'on_select:2',   nil,
+                     nil,                nil,           'group_A',       'group_B',
+                     nil,                nil,           'group_C',       'group_D'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'ClassSystemList','ClassSystemDetails'},
+        on_groups = {['on_select:2']={'on_select:2','group_A','group_B','group_D','group_C'}},
+        startFilter = 'ALL', filterFlags = {'ALL'}},
+    ['creatureView']  = {name='Creatures',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{40,40,80, 0},{40,40,40,40},{40,40,40,40}},
+        heights   = {{40,40,10,10},{ 0, 0,20,20},{ 0, 0,20,20}},
+        functions = {['materialInfo']   = {function () self:viewSwitch('organicView')   end,'M'}},
+        fill      = {'CreatureList', 'on_select:1', 'on_select:2', nil,
+                     nil,            nil,           'popInfo',     'baseInfo',
+                     nil,            nil,           'flagInfo',    'materialInfo'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'CasteList','CreatureDetails'},
+        on_groups = {['on_select:2']={'on_select:2','popInfo','baseInfo','flagInfo','materialInfo'}},
+        startFilter = 'ALL', filterFlags = {'ALL','GOOD','EVIL','SAVAGE','CASTE_MEGABEAST'}, -- Filters based on creature_raw.flags
+        filterKeys = {'CUSTOM_SHIFT_A','CUSTOM_SHIFT_G','CUSTOM_SHIFT_E','CUSTOM_SHIFT_S','CUSTOM_SHIFT_M'}}, 
+    ['buildingView']  = {name='Buildings',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{15,40,99, 0},{15,40,50,50},{15,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        functions = {['bldgReactions']   = {function () self:viewSwitch('reactionView')   end,'R'}},
+        fill      = {'BuildingTypeList', 'on_select:1', 'on_select:2',   nil,
+                     nil,                nil,           'bldgInfo',      'buildItems',
+                     nil,                nil,           'bldgReactions', 'bldgDiagram'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'BuildingList','BuildingDetails'},
+        on_groups = {['on_select:2']={'on_select:2','bldgInfo','buildItems','bldgReactions','bldgDiagram'}},
+        startFilter = 'ALL', filterFlags = {'ALL'}}, -- No flags to filter on, need to decide if there should be a filter -ME
+    ['itemView']      = {name='Items',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{15,40,99, 0},{15,40,50,50},{15,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        fill      = {'ItemTypeList', 'on_select:1', 'on_select:2', nil,
+                     nil,            nil,           'baseInfo',    'typeInfo',
+                     nil,            nil,           'flagInfo',    'enhancedInfo'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'ItemList','ItemDetails'},
+        on_groups = {['on_select:2']={'on_select:2','baseInfo','typeInfo','flagInfo','enhancedInfo'}},
+        startFilter = 'ALL', filterFlags = {'ALL'}}, -- Flags for each different weapon type are different -ME
+    ['reactionView']  = {name='Reactions',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{20,30,80, 0},{20,30,40,60},{20,30,40,60}},
+        heights   = {{40,40,10,10},{ 0, 0,20,20},{ 0, 0,20,20}},
+        fill      = {'ReactionTypeList', 'on_select:1', 'on_select:2',   nil,
+                     nil,                nil,           'baseInfo',      'reagentInfo',
+                     nil,                nil,           'enhancedInfo',  'productInfo'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'ReactionList','ReactionDetails'},
+        on_groups = {['on_select:2']={'on_select:2','baseInfo','reagentInfo','productInfo','enhancedInfo'}},
+        startFilter = 'ALL', filterFlags = {'ALL','FUEL','AUTOMATIC','ADVENTURE_MODE_ENABLED'}}, -- Filters based on reaction.flags
+    ['inorganicView'] = {name='Inorganic Materials',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{15,40,99, 0},{15,40,50,50},{15,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        fill      = {'MaterialTypeList', 'on_select:1', 'on_select:2',     nil,
+                     nil,                nil,           'environmentInfo', 'materialInfo1',
+                     nil,                nil,           'useInfo',         'materialInfo2'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'MaterialList','MaterialDetails'},
+        on_groups = {['on_select:2']={'on_select:2','environmentInfo','useInfo','materialInfo1','materialInfo2'}},
+        startFilter = 'ALL', filterFlags = {'ALL','SEDIMENTARY','METAMORPHIC'}}, -- Filters based on inorganic.flags
+    ['organicView']   = {name='Organic Materials',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{15,40,99, 0},{15,40,50,50},{15,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        fill      = {'MaterialTypeList', 'on_select:1', 'on_select:2',     nil,
+                     nil,                nil,           'environmentInfo', 'materialInfo1',
+                     nil,                nil,           'useInfo',         'materialInfo2'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'MaterialList','MaterialDetails'},
+        on_groups = {['on_select:2']={'on_select:2','environmentInfo','useInfo','materialInfo1','materialInfo2'}},
+        startFilter = 'ALL', filterFlags = {'ALL','ITEMS_SOFT','ITEMS_HARD'}}, -- Filters based on material.flags
+    ['entityView']    = {name='Entities',
+        num_cols  = 6, num_rows = 2, levels = 2,
+        widths    = {{15,40,149, 0, 0, 0},{15,40,50,50,50,50}},
+        heights   = {{40,40, 5, 5, 5, 5},{ 0, 0,100,100,100,100}},
+        fill      = {'EntityTypeList', 'on_select:1', 'on_select:2',  nil,            nil,         nil,
+                     nil,              nil,           'resourceInfo', 'positionInfo', 'moralInfo', 'baseInfo'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'EntityList','EntityDetails'},
+        on_groups = {['on_select:2']={'on_select:2','baseInfo','resourceInfo','positionInfo','moralInfo'}},
+        startFilter = 'ALL', filterFlags = {'ALL'}},
+    ['plantView']     = {name='Plants',
+        num_cols  = 4, num_rows = 3, levels = 2,
+        widths    = {{15,40,99, 0},{15,40,50,50},{15,40,50,50}},
+        heights   = {{40,40, 5, 5},{ 0, 0,25,25},{ 0, 0,25,25}},
+        functions = {['materialInfo']   = {function () self:viewSwitch('organicView')   end,'M'}},
+        fill      = {'PlantTypeList', 'on_select:1', 'on_select:2',   nil,
+                     nil,             nil,           'baseInfo',      'materialInfo',
+                     nil,             nil,           'typeInfo',      'growthInfo'},
+        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
+                     'none',        'none',        'none', 'none',
+                     'none',        'none',        'none', 'none'},
+        on_select = {'PlantList','PlantDetails'},
+        on_groups = {['on_select:2']={'on_select:2','baseInfo','materialInfo','typeInfo','growthInfo'}},
+        startFilter = 'ALL', filterFlags = {'ALL','EVIL','GOOD'}, -- Filters based on plant_raw.flags
+        filterKeys = {'CUSTOM_SHIFT_A','CUSTOM_SHIFT_E','CUSTOM_SHIFT_G'}},
+}
+
+ -- Process the view details
+ self.ViewFilterValue = {}
+ self.ScreenName = {}
+ for view,vd in pairs(self.ViewDetails) do
+  self.ScreenName[view] = vd.name or view
+  
+  -- set the viewscreen as an actual argument
+  vd.viewScreen = view
+  
+  -- set the starting filter state
+  self.ViewFilterValue[view] = vd.startFilter or false
+  
+  -- count the number of on_submit and on_select calls
+  i_onsubmit = 0
+  n_onsubmit = 0
+  i_onselect = 0
+  n_onselect = 0
+  if vd.on_submit then n_onsubmit = #vd.on_submit end
+  if vd.on_select then n_onselect = #vd.on_select end
+  for i,x in pairs(vd.fill) do
+   y = split(x,':')[1]
+   if y == 'on_submit' then i_onsubmit = i_onsubmit + 1 end
+   if y == 'on_select' then i_onselect = i_onselect + 1 end
+  end
+  if i_onsubmit ~= n_onsubmit then error('Incorrect number of on_submit calls for viewscreen '..view) end
+  if i_onselect ~= n_onselect then error('Incorrect number of on_select calls for viewscreen '..view) end
+ end
+end
+
+function JournalUi:checkActiveSystems()
+ local systems = {'Class','Feat','Spell','Civilization','EnhancedItem',
+                  'EnhancedBuilding','EnhancedCreature','EnhancedMaterial',
+                  'EnhancedReaction'}
+ self.Systems = {}
+ for _,system in pairs(systems) do
+  self.Systems[system] = false
+ end
+ if dfhack.findScript('base/roses-table') then
+  roses = dfhack.script_environment('base/roses-table').roses
+  for _,system in pairs(systems) do
+   if roses and roses.Systems[system] and roses.Systems[system] > 0 then self.Systems[system] = true end
+  end
+ end
+end
+
+function JournalUi:onRenderBody(dc)
+ view_id = self:getCurrentView()
+ token = self.SelectedToken
+ if view_id == 'buildingView' then
+  cell = self.subviews[view_id..'_12'].frame
+  la = math.floor(cell.l + cell.w/2+ 2)
+  ta = math.floor(cell.t + 3)
+  for _,bldg in pairs(df.global.world.raws.buildings.all) do
+   if bldg.id == tonumber(token) then
+    token = bldg.code
+    t  = bldg.tile
+    nx = math.floor(bldg.dim_x/2) - 1
+    ny1 = bldg.dim_y - 1
+    s  = bldg.build_stages
+    for i = 0, bldg.dim_x-1 do
+     for j = 0, bldg.dim_y-1 do
+      dc:seek(i+la-(nx+2),j+ta):tile(t[s][i][j])
+     end
+    end
+    break
+   end
+  end
+  --if self.Systems.EnhancedBuilding and nx then
+  -- for z = 2, 10 do
+  --  la = la + nx + 2
+  --  for _,bldg in pairs(df.global.world.raws.buildings.all) do
+  --   if bldg.code == '!'..token..'_LEVEL_'..tostring(z) then
+  --    t  = bldg.tile
+  --    nx = bldg.dim_x - 1
+  --    ny = bldg.dim_y - 1
+  --    s  = bldg.build_stages
+  --    dy = math.floor((ny1-ny)/2)
+  --    for i = 0,nx do
+  --     for j = 0,ny do
+  --      dc:seek(i+la-(nx+1),j+ta+dy):tile(t[s][i][j])
+  --     end
+  --    end
+  --    break
+  --   end     
+  --  end
+  -- end
+  --end
+ end
+end
+
 function JournalUi:init()
  self:setViewDetails()
  self:checkActiveSystems()
@@ -48,6 +340,8 @@ function JournalUi:init()
   self.ColorsText   = 'Default'
  end
  self.AllInfo.ColorScheme = self.ColorsScheme
+ self.SelectedToken = 'NONE'
+ self.baseChoices = {}
  
  -- Top UI
  self:addviews{
@@ -118,163 +412,7 @@ function JournalUi:init()
  end
 end
 
-function JournalUi:setViewDetails()
- self.ViewDetails = {
-    ['main']         = {name='Main',
-        num_cols = 3, num_rows = 3, 
-        widths   = {{40,40,40},{40,40,40},{40,40,40}},
-        heights  = {{15,15,15},{15,15,15},{15,15,15}},
-        fill     = {'Buildings','Creatures','Entities',
-                    'Items','Materials','Reactions',
-                    'Plants','Gods',nil},
-        functions = {{function () self:viewChange('buildingView') end,'B'},
-                     {function () self:viewChange('creatureView') end,'C'},
-                     {function () self:viewChange('entityView')   end,'E'},
-                     {function () self:viewChange('itemView')     end,'I'},
-                     {function () self:viewChange('materialView') end,'M'},
-                     {function () self:viewChange('reactionView') end,'R'},
-                     {function () self:viewChange('plantView')    end,'P'},
-                     {function () self:viewChange('godView')      end,'G'},
-                     nil}},
-    ['godView']      = {name='Gods and Forces',
-        num_cols = 2, num_rows = 1,
-        widths   = {{60,60}},
-        heights  = {{40,40}},
-        fill     = {nil,nil}},
-    ['classView']    = {name='Classes',
-        num_cols = 2, num_rows = 1,
-        widths   = {{60,60}},
-        heights  = {{40,40}},
-        fill     = {nil,nil}},
-    ['featView']     = {name='Feats',
-        num_cols = 2, num_rows = 1,
-        widths   = {{60,60}},
-        heights  = {{40,40}},
-        fill     = {nil,nil}},
-    ['spellView']    = {name='Spells',
-        num_cols = 2, num_rows = 1,
-        widths   = {{60,60}},
-        heights  = {{40,40}},
-        fill     = {nil,nil}},
-    ['creatureView'] = {name='Creatures',
-        design = [===[ 
-                       |           |         |  Creature Header  |
-                       | Creatures | Castes  | Habitat |  Stats  |
-                       |           |         |  Facts  |  Body   |
-                 ]===],
-        num_cols  = 4, num_rows = 3, levels = 2,
-        widths    = {{30,20,80, 0},{30,20,40,40},{30,20,40,40}},
-        heights   = {{40,40,10,10},{ 0, 0,20,20},{ 0, 0,20,20}},
-        fill      = {'CreatureList', 'on_select:1', 'on_select:2',   nil,
-                     nil,            nil,           'group_Habitat', 'group_Stats',
-                     nil,            nil,           'group_Facts',   'group_BodyInfo'},
-        on_fills  = {'on_select:1', 'on_select:2', 'none', 'none',
-                     'none',        'none',        'none', 'none',
-                     'none',        'none',        'none', 'none'},
-        on_select = {'CasteList','CreatureDetails'},
-        on_groups = {['on_select:2']={'on_select:2','group_Habitat','group_Stats','group_BodyInfo','group_Facts'}},
-        startFilter = 'ALL', filterFlags = {'ALL','GOOD','EVIL','SAVAGE','CASTE_MEGABEAST'}, --These are flags found in creature_raw.flags
-        filterKeys = {'CUSTOM_SHIFT_A','CUSTOM_SHIFT_G','CUSTOM_SHIFT_E','CUSTOM_SHIFT_S','CUSTOM_SHIFT_M'}}, 
-    ['buildingView'] = {name='Buildings',
-        num_cols  = 3, num_rows = 1, levels = 2,
-        widths    = {{30,30,60}},
-        heights   = {{40,40,40}},
-        fill      = {'BuildingTypeList','on_submit:1','on_submit:2'},
-        on_fills  = {'on_submit:1','on_submit:2','none'},
-        on_submit = {'BuildingList','BuildingDetails'},
-        startFilter = 'ALL', filterFlags = {'ALL'}, -- Right now there are no filters for buildings
-        filterKeys = {'CUSTOM_SHIFT_A'}},
-    ['itemView']     = {name='Items',
-        num_cols  = 3, num_rows = 1, levels = 2,
-        widths    = {{30,30,60}},
-        heights   = {{40,40,40}},
-        fill      = {'ItemTypeList','on_submit:1','on_submit:2'},
-        on_fills  = {'on_submit:1','on_submit:2','none'},
-        on_submit = {'ItemList','ItemDetails'},
-        startFilter = 'ALL', filterFlags = {'ALL'}, -- Right now there are no filters for items
-        filterKeys = {'CUSTOM_SHIFT_A'}},
-    ['reactionView'] = {name='Reactions',
-        num_cols  = 3, num_rows = 1, levels = 2,
-        widths    = {{30,30,60}},
-        heights   = {{40,40,40}},
-        fill      = {'ReactionTypeList','on_submit:1','on_submit:2'},
-        on_fills  = {'on_submit:1','on_submit:2','none'},
-        on_submit = {'ReactionList','ReactionDetails'},
-        startFilter = 'ALL', filterFlags = {'ALL'},
-        filterKeys = {'CUSTOM_SHIFT_A'}},
-    ['materialView'] = {name='Materials',
-        num_cols  = 3, num_rows = 1, levels = 2,
-        widths    = {{30,30,60}},
-        heights   = {{40,40,40}},
-        fill      = {'MaterialTypeList','on_submit:1','on_submit:2'},
-        on_fills  = {'on_submit:1','on_submit:2','none'},
-        on_submit = {'MaterialList','MaterialDetails'},
-        startFilter = 'ALL', filterFlags = {'ALL'}},
-    ['entityView']   = {name='Entities',
-        num_cols  = 3, num_rows = 1, levels = 2,
-        widths    = {{30,30,60}},
-        heights   = {{40,40,40}},
-        fill      = {'EntityTypeList','on_submit:1','on_submit:2'},
-        on_fills  = {'on_submit:1','on_submit:2','none'},
-        on_submit = {'EntityList','EntityDetails'},
-        startFilter = 'ALL', filterFlags = {'ALL'},
-        filterKeys = {'CUSTOM_SHIFT_A'}},
-    ['plantView']    = {name='Plants',
-        num_cols  = 3, num_rows = 1, levels = 2,
-        widths    = {{30,30,60}},
-        heights   = {{40,40,40}},
-        fill      = {'PlantTypeList','on_submit:1','on_submit:2'},
-        on_fills  = {'on_submit:1','on_submit:2','none'},
-        on_submit = {'PlantList','PlantDetails'},
-        startFilter = 'ALL', filterFlags = {'ALL','EVIL','GOOD'}, --These are flags found in plant_raws.flags
-        filterKeys = {'CUSTOM_SHIFT_A','CUSTOM_SHIFT_E','CUSTOM_SHIFT_G'}},
-}
-
- -- Process the view details
- self.ViewFilterValue = {}
- self.ScreenName = {}
- for view,vd in pairs(self.ViewDetails) do
-  self.ScreenName[view] = vd.name or view
-  
-  -- set the viewscreen as an actual argument
-  vd.viewScreen = view
-  
-  -- set the starting filter state
-  self.ViewFilterValue[view] = vd.startFilter or false
-  
-  -- count the number of on_submit and on_select calls
-  i_onsubmit = 0
-  n_onsubmit = 0
-  i_onselect = 0
-  n_onselect = 0
-  if vd.on_submit then n_onsubmit = #vd.on_submit end
-  if vd.on_select then n_onselect = #vd.on_select end
-  for i,x in pairs(vd.fill) do
-   y = split(x,':')[1]
-   if y == 'on_submit' then i_onsubmit = i_onsubmit + 1 end
-   if y == 'on_select' then i_onselect = i_onselect + 1 end
-  end
-  if i_onsubmit ~= n_onsubmit then error('Incorrect number of on_submit calls for viewscreen '..view) end
-  if i_onselect ~= n_onselect then error('Incorrect number of on_select calls for viewscreen '..view) end
- end
-end
-
-function JournalUi:checkActiveSystems()
- local systems = {'Class','Feat','Spell','Civilization','EnhancedItem',
-                  'EnhancedBuilding','EnhancedCreature','EnhancedMaterial',
-                  'EnhancedReaction'}
- roses = dfhack.script_environment('base/roses-init').roses
- self.Systems = {}
- for _,system in pairs(systems) do
-  if roses.Systems and roses.Systems[system] and roses.Systems[system] > 0 then
-   self.Systems[system] = true
-  else
-   self.Systems[system] = false
-  end
- end
-end
-
---= Screen Functions (create the screens)
+--= Screen and Positioning Functions (get the width, height, and anchor points for each screen and create the screens)
 function JournalUi:addScreen(view_id)
  local grid = self:getPositioning(view_id)
  self:addviews{
@@ -287,8 +425,6 @@ function JournalUi:addScreen(view_id)
  }
  self.subviews[view_id].CurrentLevel = 1
 end
-
---= Positioning Functions (get the width, height, and anchor points for each screen)
 function JournalUi:getPositioning(view_id)
  local v = self.ViewDetails[view_id]
  local temp = {}
@@ -322,13 +458,26 @@ function JournalUi:getPositioning(view_id)
                       inactive_pen  = inactiveC,
                       on_submit_num = num}
     elseif text == 'on_select' then
+     a = widgets.Label{text={{text="Search",key='CHANGETAB',key_sep = '()',on_activate=function() self:enable_input(true) end},
+                             {text=": "}},
+                       frame={l=left,t=top}}
+     b = widgets.EditField{view_id = n..'_edit',
+                            frame   = {l = left+14, t = top, w = v.widths[i][j]-14, h = 1},
+                            text_pen = textC,
+                            active = false,
+                            on_change=self:callback('text_input'),
+                            on_submit=self:callback("enable_input",false)}
      x = widgets.List{view_id       = n,
-                      frame         = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
+                      frame         = {l = left, t = 1+top, w = v.widths[i][j], h = v.heights[i][j]},
                       on_select     = self:callback('fillOnSelect'),
+                      on_submit     = self:callback('gmEditor'),
                       text_pen      = textC,
                       cursor_pen    = cursorC,
                       inactive_pen  = inactiveC,
-                      on_select_num = num}
+                      on_select_num = num,
+                      active        = false}
+     table.insert(temp, a)
+     table.insert(temp, b)
     else
      x = widgets.List{view_id = n,
                       frame   = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
@@ -352,8 +501,9 @@ function JournalUi:getPositioning(view_id)
  return grid
 end
 
+
 --= Filling Functions (call functions/gui to get the information to put on the screen)
-function JournalUi:fillView(view_id)
+function JournalUi:fillView(view_id,token)
  local v = self.ViewDetails[view_id]
  if v.requires then
   if not self.Systems[v.requires] then return end
@@ -364,10 +514,11 @@ function JournalUi:fillView(view_id)
   if v.fill[cell] and not string.find(v.fill[cell],'on_submit')
                   and not string.find(v.fill[cell],'on_select')
                   and not string.find(v.fill[cell],'group') then
-   n = view_id .. '_' .. tostring(cell)
+   local n = view_id .. '_' .. tostring(cell)
    width = self.subviews[n].frame.w
-   output = outputFunction(self.AllInfo,self.ViewDetails[view_id],cell,check)
+   output = outputFunction(self.AllInfo,self.ViewDetails[view_id],cell,check,token)
    self.subviews[n]:setChoices(output)
+   self.baseChoices[n] = self.subviews[n]:getChoices()
   end
  end
 end
@@ -399,6 +550,7 @@ function JournalUi:fillOnSubmit(_,selection)
   self.subviews[n].active = true
   self.subviews[view_id].CurrentLevel = self.subviews[view_id].CurrentLevel + 1
  end
+ self.SelectedToken = selection.text[1].token
 end
 function JournalUi:fillOnSelect(_,selection)
  if not selection or not selection.text or not selection.text[1] then return end
@@ -409,6 +561,7 @@ function JournalUi:fillOnSelect(_,selection)
  if v.on_groups and v.on_groups[onstr] then
   self:fillGroup(view_id,v.on_groups[onstr],selection)
  else
+  local cell
   for i,x in pairs(v.fill) do
    if x == onstr then
     cell = i
@@ -417,9 +570,11 @@ function JournalUi:fillOnSelect(_,selection)
   end
   if not cell then return end
   local n = view_id..'_'..tostring(cell)
-  local output = outputFunction(self.AllInfo,v,cell,selection)
+  output,token = outputFunction(self.AllInfo,v,cell,selection)
   self.subviews[n]:setChoices(output)
+  self.baseChoices[n] = self.subviews[n]:getChoices()
  end
+ self.SelectedToken = selection.text[1].token
 end
 function JournalUi:fillGroup(view_id,group,selection)
  local v = self.ViewDetails[view_id]
@@ -430,8 +585,12 @@ function JournalUi:fillGroup(view_id,group,selection)
   self.subviews[n]:setChoices(output)
  end
 end
+function JournalUi:fillHelp()
+ -- Fill in the help section here!
+ self:viewSwitch('helpView')
+end
 
---= Filtering Functions (sets a special value to use in the filling functions)
+--= Filtering Functions (sets a special value to use in the filling functions and allows searching like a FilteredList)
 function JournalUi:changeFilterValue(view_id,value)
  if value then 
   self.ViewFilterValue[view_id] = value
@@ -444,6 +603,137 @@ function JournalUi:changeFilterValue(view_id,value)
  end
  self:fillView(view_id)
  self:updateTop(view_id)
+end
+function JournalUi:gmEditor()
+ local m
+ local n
+ view_id = self:getCurrentView()
+ token = tostring(self.SelectedToken)
+ local q = #token:split(':')
+ if not token then return end
+ if view_id == 'buildingView' then
+  if q == 2 then
+   dfhack.run_command("gui/gm-editor df.global.world.raws.buildings['"..token:split(':')[2].."']")
+  else
+   dfhack.run_command('gui/gm-editor df.global.world.raws.buildings.all['..token..']')
+  end
+ elseif view_id == 'creatureView' then
+  if q == 2 then
+   for i,x in pairs(df.global.world.raws.creatures.all) do
+    if x.creature_id == token:split(':')[1] then
+     m = i
+     for j,y in pairs(x.caste) do
+      if y.caste_id == token:split(':')[2] then
+       n = j
+       break
+      end
+     end
+     break
+    end
+   end
+   if m and n then dfhack.run_command('gui/gm-editor df.global.world.raws.creatures.all['..tostring(m)..'].caste['..tostring(n)..']') end
+  else
+   for i,x in pairs(df.global.world.raws.creatures.all) do
+    if x.creature_id == token then
+     m = i
+     break
+    end
+   end
+   if m then dfhack.run_command('gui/gm-editor df.global.world.raws.creatures.all['..tostring(m)..']') end
+  end
+ elseif view_id == 'entityView' then
+  if q == 2 then
+   return
+  else
+   dfhack.run_command('gui/gm-editor df.global.world.entities.all['..token..']')
+  end
+ elseif view_id == 'inorganicView' then
+   if dfhack.matinfo.find(token) then dfhack.run_command("gui/gm-editor dfhack.matinfo.find('"..token.."')") end
+ elseif view_id == 'itemView' then
+  if q == 2 then
+   dfhack.run_command("gui/gm-editor df.global.world.raws.itemdefs['"..token:split(':')[2].."']")
+  else
+   for i,x in pairs(df.global.world.raws.itemdefs.all) do
+    if x.id == token then
+     n = i
+     break
+    end
+   end
+   if n then dfhack.run_command('gui/gm-editor df.global.world.raws.itemdefs.all['..tostring(n)..']') end
+  end
+ elseif view_id == 'organicView' then
+  if dfhack.matinfo.find(token) then dfhack.run_command("gui/gm-editor dfhack.matinfo.find('"..token.."')") end
+ elseif view_id == 'plantView' then
+  if q == 2 then
+   dfhack.run_command("gui/gm-editor df.global.world.raws.plants['"..token:split(':')[2].."']")
+  else
+   for i,x in pairs(df.global.world.raws.plants.all) do
+    if x.id == token then
+     n = i
+     break
+    end
+   end
+   if n then dfhack.run_command('gui/gm-editor df.global.world.raws.plants.all['..tostring(n)..']') end
+  end
+ elseif view_id == 'productView' then
+  if dfhack.matinfo.find(token) then dfhack.run_command("gui/gm-editor dfhack.matinfo.find('"..token.."')") end
+ elseif view_id == 'reactionView' then
+  if q == 2 then
+   return
+  else
+   for i,x in pairs(df.global.world.raws.reactions.reactions) do
+    if x.code == token then
+     n = i
+     break
+    end
+   end
+   if n then dfhack.run_command('gui/gm-editor df.global.world.raws.reactions.reactions['..tostring(n)..']') end
+  end
+ end
+end
+function JournalUi:text_input(new_text)
+ local view_id = self:getCurrentView()
+ local v1 = view_id .. '_1'
+ local v2 = view_id .. '_2'
+ local vc
+ local list
+ if self.subviews[v1..'_edit'].active then
+  list = self.baseChoices[v1]
+  vc = v1
+ elseif self.subviews[v2..'_edit'].active then
+  list = self.baseChoices[v2]
+  vc = v2
+ end
+ local temp = {}
+ if list then 
+  for i,x in pairs(list) do
+   if x.search_key then
+    if string.match(x.search_key:lower(),new_text:lower()) then
+     table.insert(temp,x)
+    end
+   end
+  end
+  self.subviews[vc]:setChoices(temp)
+ end
+end
+function JournalUi:enable_input(enable)
+ local view_id = self:getCurrentView()
+ local v1 = view_id .. '_1'
+ local v2 = view_id .. '_2'
+ local disable = not enable
+ if self.subviews[v1].active then
+  self.subviews[v1..'_edit'].active = enable
+  self.subviews[v1].active = disable
+ elseif self.subviews[v2].active then
+  self.subviews[v2..'_edit'].active = enable
+  self.subviews[v2].active = disable
+ elseif self.subviews[v1..'_edit'].active then
+  self.subviews[v1..'_edit'].active = enable
+  self.subviews[v1].active = disable
+ elseif self.subviews[v2..'_edit'].active then
+  self.subviews[v2..'_edit'].active = enable
+  self.subviews[v2].active = disable  
+ end
 end
 
 --= Viewing Functions (change which screen is active and visible)
@@ -458,6 +748,7 @@ function JournalUi:updateTop(screen)
  table.insert(text, {text=cst..' '})
  table.insert(text, {text='Filter: ', pen=COLOR_LIGHTGREEN})
  table.insert(text, {text=ft..' '})
+ table.insert(text, {key='HELP', text=': Help', on_activate = self:callback('fillHelp')})
  self.subviews.top_ui:setText(text)
 end
 function JournalUi:updateBottom(screen)
@@ -494,19 +785,38 @@ function JournalUi:updateBottom(screen)
  end
  self.subviews.bottom_ui:setText(text)
 end
-function JournalUi:resetView()
- for view,_ in pairs(self.ViewDetails) do
-  self.subviews[view].visible = false
-  self.subviews[view].active  = false
+function JournalUi:resetView(view_id)
+ if view_id then
+  self.subviews[view_id].visible = false
+  self.subviews[view_id].active  = false
+  self.PreviousView = view_id
+ else
+  self.PreviousView = 'main'
+  for view,_ in pairs(self.ViewDetails) do
+   self.subviews[view].visible = false
+   self.subviews[view].active  = false
+  end
  end
 end
 function JournalUi:viewChange(view_id)
  self:updateTop(view_id)
  self:updateBottom(view_id)
  self:resetView()
+ self:fillView(view_id)
+ self.subviews[view_id].visible = true
+ self.subviews[view_id].active  = true
+ if self.subviews[view_id..'_1'] then self.subviews[view_id..'_1'].active  = true end
+end
+function JournalUi:viewSwitch(view_id)
+ current_view = self:getCurrentView()
+ self:updateTop(view_id)
+ self:updateBottom(view_id)
+ self:resetView(current_view)
+ self:fillView(view_id,self.SelectedToken)
  
  self.subviews[view_id].visible = true
  self.subviews[view_id].active  = true
+ if self.subviews[view_id..'_1'] then self.subviews[view_id..'_1'].active  = true end
 end
 function JournalUi:getCurrentView()
  local view_id = 'main'
@@ -550,7 +860,7 @@ function JournalUi:onInput(keys)
     if self.ExternalCall then
      self:dismiss()
     else
-     self:viewChange('main')
+     self:viewChange(self.PreviousView)
     end
    else
     cn = view_id..'_'..tostring(self.subviews[view_id].CurrentLevel)

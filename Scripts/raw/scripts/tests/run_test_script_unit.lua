@@ -26,7 +26,7 @@ file = io.open('rto_unit.txt','w')
 io.output(file)
 
 
--- Initialize base/roses-init
+-- Initialize base/roses-table
 printplus('Running base/roses-init with no systems loaded')
 printplus('base/roses-init -verbose -testRun')
 dfhack.run_command_silent('base/roses-init -verbose -testRun')
@@ -219,8 +219,9 @@ function script_checks()
   if unit.body.physical_attrs.ENDURANCE.value == 5000 or unit.body.physical_attrs.TOUGHNESS.value == 5000 then
    unitCheck[#unitCheck+1] = 'Failed to revert endurance and toughness from 5000'
   end
-  roses = dfhack.script_environment('base/roses-init').roses
-  if not safe_index(roses,'UnitTable',tostring(unit.id),'Attributes','ENDURANCE') then
+  roses = dfhack.script_environment('base/roses-table').roses
+  unitTable = roses.UnitTable[unit.id]
+  if not unitTable.Attributes.ENDURANCE then
    unitCheck[#unitCheck+1] = 'Failed to create tracking table'
   end
 
@@ -678,8 +679,9 @@ function script_checks()
   if math.floor(tonumber(base)) ~= 50 then
    unitCheck[#unitCheck+1] = 'Failed to increase units FIRE resistance to 50'
   end
-  roses = dfhack.script_environment('base/roses-init').roses
-  if not safe_index(roses,'UnitTable',tostring(unit.id),'Resistances','FIRE') then
+  roses = dfhack.script_environment('base/roses-table').roses
+  unitTable = roses.UnitTable[unit.id]
+  if not unitTable.Resistances.FIRE then
    unitCheck[#unitCheck+1] = 'Failed to create FIRE resistance persistant table'
   end
 
@@ -720,8 +722,9 @@ function script_checks()
   if dfhack.units.getNominalSkill(unit,df.job_skill['DODGING']) ~= skill*2 then
    unitCheck[#unitCheck+1] = 'Failed to increase units dodging skill by 200 percent'
   end
-  roses = dfhack.script_environment('base/roses-init').roses
-  if not safe_index(roses,'UnitTable',tostring(unit.id),'Skills','DODGING') then
+  roses = dfhack.script_environment('base/roses-table').roses
+  unitTable = roses.UnitTable[unit.id]
+  if not unitTable.Skills.DODGING then
    unitCheck[#unitCheck+1] = 'Failed to create DODGING skill persistant table'
   end
 
@@ -754,8 +757,9 @@ function script_checks()
   if math.floor(tonumber(base)) ~= 50 then
    unitCheck[#unitCheck+1] = 'Failed to increase units stat CRITICAL_CHANCE by 50'
   end
-  roses = dfhack.script_environment('base/roses-init').roses
-  if not safe_index(roses,'UnitTable',tostring(unit.id),'Stats','CRITICAL_CHANCE') then
+  roses = dfhack.script_environment('base/roses-table').roses
+  unitTable = roses.UnitTable[unit.id]
+  if not unitTable.Stats.CRITICAL_CHANCE then
    unitCheck[#unitCheck+1] = 'Failed to create CRITICAL_CHANCE stat persistant table'
   end
 
@@ -857,8 +861,9 @@ function script_checks()
   if s/unit.status.current_soul.personality.traits.BRAVERY > 5.0 or s/unit.status.current_soul.personality.traits.BRAVERY < 3.0 then
    unitCheck[#unitCheck+1] = 'Failed to quarter BRAVERY trait. Previous BRAVERY = '..tostring(s)..'. New BRAVERY = '..tostring(unit.status.current_soul.personality.traits.BRAVERY)
   end
-  roses = dfhack.script_environment('base/roses-init').roses
-  if not safe_index(roses,'UnitTable',tostring(unit.id),'Traits','BRAVERY') then
+  roses = dfhack.script_environment('base/roses-table').roses
+  unitTable = roses.UnitTable[unit.id]
+  if not unitTable.Traits.BRAVERY then
    unitCheck[#unitCheck+1] = 'Failed to create BRAVERY trait persistant table'
   end
 

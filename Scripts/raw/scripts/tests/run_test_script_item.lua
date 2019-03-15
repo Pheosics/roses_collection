@@ -28,10 +28,10 @@ file = io.open('rto_item.txt','w')
 io.output(file)
 
 
--- Initialize base/roses-init
-printplus('Running base/roses-init with no systems loaded')
-printplus('base/roses-init -verbose -testRun')
-dfhack.run_command_silent('base/roses-init -verbose -testRun')
+-- Initialize base/roses-table
+printplus('Running base/roses-table with no systems loaded')
+printplus('base/roses-table -verbose -testRun')
+dfhack.run_command_silent('base/roses-table -verbose -testRun')
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ITEM SCRIPT CHECKS -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -201,8 +201,8 @@ function script_checks()
   if mat.type ~= item.mat_type or mat.index ~= item.mat_index then
    itemCheck[#itemCheck+1] = 'Failed to change short sword material from CREATURE_MAT:DWARF:BRAIN to INORGANIC:STEEL'
   end
-  roses = dfhack.script_environment('base/roses-init').roses
-  if not roses.ItemTable[tostring(item.id)] then
+  roses = dfhack.script_environment('base/roses-table').roses
+  if not roses.ItemTable[item.id] then
    itemCheck[#itemCheck+1] = 'Failed to create an ItemTable entry for short sword'
   end
 
@@ -235,8 +235,8 @@ function script_checks()
   if item.quality ~= 5 then
    itemCheck[#itemCheck+1] = 'Failed to increase item quality to 5'
   end
-  roses = dfhack.script_environment('base/roses-init').roses
-  if not roses.ItemTable[tostring(item.id)] then
+  roses = dfhack.script_environment('base/roses-table').roses
+  if not roses.ItemTable[item.id] then
    itemCheck[#itemCheck+1] = 'Failed to create an ItemTable entry for short sword'
   end
 
@@ -291,8 +291,8 @@ function script_checks()
     itemCheck[#itemCheck+1] = 'Failed to change the short sword into a long sword'
    end
   end
-  roses = dfhack.script_environment('base/roses-init').roses
-  if not roses.ItemTable[tostring(item.id)] then
+  roses = dfhack.script_environment('base/roses-table').roses
+  if not roses.ItemTable[item.id] then
    itemCheck[#itemCheck+1] = 'Failed to create ItemTable for short sword'
   end
 

@@ -1,7 +1,7 @@
 -- This file contains a text translation for various flags and tokens in the 
 -- game that don't have a simple translation, or benefit from some additional
 -- information. As well as the text used to generate description strings
-local function fixString(str)
+function fixString(str)
  local outStr = ''
  if str == '' then return str end
  local array = str:split(',')
@@ -51,7 +51,7 @@ end
 -- Flags
 -- These are english translations for various flags
 -- e.g. NOPAIN = 'Does not feel pain'
-creatureFlags = {
+creatureFlags  = { -- For flags found in creature_raw.flags and caste_raw.flags
  ['ALL_FLAGS'] = {},
  
 -- Biomes
@@ -264,7 +264,7 @@ creatureFlags = {
   MEANDERER      = 'Meanders around',
   SWIMS_INNATE   = 'Can swim',
   CANNOT_JUMP    = 'Can not jump',
-  STANCE_CLIMBER = 'can climb with its feet',
+  STANCE_CLIMBER = 'Climbs with its feet',
   CANNOT_CLIMB   = 'Can not climb',
   SWIMS_LEARNED  = 'Can learn to swim',
   VERMIN_MICRO   = 'Moves in a swarm',
@@ -335,47 +335,241 @@ creatureFlags = {
   CASTE_NIGHT_CREATURE_ANY = 'Night Creature',
  }
 }
-for flagType,flags in pairs(creatureFlags) do
- for flag,str in pairs(flags) do
-  creatureFlags.ALL_FLAGS[flag] = str
- end
-end
-
-plantFlags = {
+plantFlags     = { -- For flags found in plant_raw.flags
  ['ALL_FLAGS'] = {},
+
+-- Biomes
+ ['BIOME_FLAGS'] = {
+  ANY_LAND                              = 'Any Land',
+  ALL_MAIN                              = 'All Main',
+  ANY_OCEAN                             = 'Any Ocean',
+  ANY_LAKE                              = 'Any Lake',
+  ANY_TEMPERATE_LAKE                    = 'Temperate Lakes',
+  ANY_TROPICAL_LAKE                     = 'Tropical Lakes',
+  ANY_RIVER                             = 'Lives in any rivers',
+  ANY_TEMPERATE_RIVER                   = 'Temperate Rivers',
+  ANY_TROPICAL_RIVER                    = 'Tropical Rivers',
+  ANY_POOL                              = 'Any Pool',
+  NOT_FREEZING                          = 'Not Freezing',
+  ANY_TEMPERATE                         = 'Any Temperate',
+  ANY_TROPICAL                          = 'Any Tropical',
+  ANY_FOREST                            = 'Any Forest',
+  ANY_SHRUBLAND                         = 'Any Shrubland',
+  ANY_GRASSLAND                         = 'Any Grassland',
+  ANY_SAVANNA                           = 'Any Savanna',
+  ANY_TEMPERATE_FOREST                  = 'Any Temperate Forest',
+  ANY_TROPICAL_FOREST                   = 'Any Tropical Forest',
+  ANY_TEMPERATE_BROADLEAF               = 'Any Temperate Vegetation',
+  ANY_TROPICAL_BROADLEAF                = 'Any Tropical Vegetation',
+  ANY_WETLAND                           = 'Any Wetland',
+  ANY_TEMPERATE_WETLAND                 = 'Any Temperate Wetland',
+  ANY_TROPICAL_WETLAND                  = 'Any Tropical Wetland',
+  ANY_TEMPERATE_MARSH                   = 'Any Temperate Marsh',
+  ANY_TROPICAL_MARSH                    = 'Any Tropical Marsh',
+  ANY_TEMPERATE_SWAMP                   = 'Any Temperate Swamp',
+  ANY_TROPICAL_SWAMP                    = 'Any Tropical Swamp',
+  ANY_DESERT                            = 'Any Desert',
+  MOUNTAIN                              = 'Mountains',
+  MOUNTAINS                             = 'Mountains',
+  GLACIER                               = 'Glaciers',
+  TUNDRA                                = 'Tundra',
+  SWAMP_TEMPERATE_FRESHWATER            = 'Temperate Freshwater Swamp',
+  SWAMP_TEMPERATE_SALTWATER             = 'Temperate Saltwater Swamp',
+  SWAMP_TROPICAL_FRESHWATER             = 'Tropical Freshwater Swamp',
+  SWAMP_TROPICAL_SALTWATER              = 'Tropical Saltwater Swamp',
+  SWAMP_MANGROVE                        = 'Mangrove Swamp',
+  MARSH_TEMPERATE_FRESHWATER            = 'Temperate Freshwater Marsh',
+  MARSH_TEMPERATE_SALTWATER             = 'Temperate Saltwater Marsh',
+  MARSH_TROPICAL_FRESHWATER             = 'Tropical Freshwater Marsh',
+  MARSH_TROPICAL_SALTWATER              = 'Tropical Saltwater Marsh',
+  FOREST_TAIGA                          = 'Taiga',
+  TAIGA                                 = 'Taiga',
+  FOREST_TEMPERATE_BROADLEAF            = 'Temperate Broadleaf Forest',
+  FOREST_TEMPERATE_CONIFER              = 'Temperate Conifer Forest',
+  FOREST_TROPICAL_DRY_BROADLEAF         = 'Tropical Dry Broadleaf Forest',
+  FOREST_TROPICAL_MOIST_BROADLEAF       = 'Tropical Moist Broadleaf Forest',
+  FOREST_TROPICAL_CONIFER               = 'Tropical Conifer Forest',
+  GRASSLAND_TEMPERATE                   = 'Temperate Grassland',
+  GRASSLAND_TROPICAL                    = 'Tropical Grassland',
+  SHRUBLAND_TEMPERATE                   = 'Temperate Shrubland',
+  SHRUBLAND_TROPICAL                    = 'Tropical Shrubland',
+  SAVANNA_TEMPERATE                     = 'Temperate Savanna',
+  SAVANNA_TROPICAL                      = 'Tropical Savanna',
+  OCEAN_ARCTIC                          = 'Arctic Ocean',
+  OCEAN_TEMPERATE                       = 'Temperate Ocean',
+  OCEAN_TROPICAL                        = 'Tropical Ocean',
+  DESERT_BADLAND                        = 'Badlands',
+  DESERT_ROCK                           = 'Rocky Wastes',
+  DESERT_SAND                           = 'Sandy Desert',
+  POOL_TEMPERATE_FRESHWATER             = 'Temperate Freshwater Pool',
+  POOL_TEMPERATE_BRACKISHWATER          = 'Temperate Brackishwater Pool',
+  POOL_TEMPERATE_SALTWATER              = 'Temperate Saltwater Pool',
+  POOL_TROPICAL_FRESHWATER              = 'Tropical Freshwater Pool',
+  POOL_TROPICAL_BRACKISHWATER           = 'Tropical Brackishwater Pool',
+  POOL_TROPICAL_SALTWATER               = 'Tropical Saltwater Pool',
+  LAKE_TEMPERATE_FRESHWATER             = 'Temperate Freshwater Lake',
+  LAKE_TEMPERATE_BRACKISHWATER          = 'Temperate Brackishwater Lake',
+  LAKE_TEMPERATE_SALTWATER              = 'Temperate Saltwater Lake',
+  LAKE_TROPICAL_FRESHWATER              = 'Tropical Freshwater Lake',
+  LAKE_TROPICAL_BRACKISHWATER           = 'Tropical Brackishwater Lake',
+  LAKE_TROPICAL_SALTWATER               = 'Tropical Saltwater Lake',
+  RIVER_TEMPERATE_FRESHWATER            = 'Temperate Freshwater River',
+  RIVER_TEMPERATE_BRACKISHWATER         = 'Temperate Brackishwater River',
+  RIVER_TEMPERATE_SALTWATER             = 'Temperate Saltwater River',
+  RIVER_TROPICAL_FRESHWATER             = 'Tropical Freshwater River',
+  RIVER_TROPICAL_BRACKISHWATER          = 'Tropical Brackishwater River',
+  RIVER_TROPICAL_SALTWATER              = 'Tropical Saltwater River',
+  SUBTERRANEAN_WATER                    = 'Subterranean Water',
+  SUBTERRANEAN_CHASM                    = 'Subterranean Chasm',
+  SUBTERRANEAN_LAVA                     = 'Subterranean Lava',
+  BIOME_MOUNTAIN                        = 'Mountain',
+  BIOME_GLACIER                         = 'Glacier',
+  BIOME_TUNDRA                          = 'Tundra',
+  BIOME_SWAMP_TEMPERATE_FRESHWATER      = 'Temperate Freshwater Swamp',
+  BIOME_SWAMP_TEMPERATE_SALTWATER       = 'Temperate Saltwater Swamp',
+  BIOME_MARSH_TEMPERATE_FRESHWATER      = 'Temperate Freshwater Marsh',
+  BIOME_MARSH_TEMPERATE_SALTWATER       = 'Temperate Saltwater Marsh',
+  BIOME_SWAMP_TROPICAL_FRESHWATER       = 'Tropical Freshwater Swamp',
+  BIOME_SWAMP_TROPICAL_SALTWATER        = 'Tropical Saltwater Swamp',
+  BIOME_SWAMP_MANGROVE                  = 'Mangrove Swamp',
+  BIOME_MARSH_TROPICAL_FRESHWATER       = 'Tropical Freshwater Marsh',
+  BIOME_MARSH_TROPICAL_SALTWATER        = 'Tropical Saltwater Marsh',
+  BIOME_FOREST_TAIGA                    = 'Taiga',
+  BIOME_FOREST_TEMPERATE_CONIFER        = 'Temperate Coniferous Forest',
+  BIOME_FOREST_TEMPERATE_BROADLEAF      = 'Temperate Broadlead Forest',
+  BIOME_FOREST_TROPICAL_CONIFER         = 'Tropical Coniferous Forest',
+  BIOME_FOREST_TROPICAL_DRY_BROADLEAF   = 'Tropical Dry Broadleaf Forest',
+  BIOME_FOREST_TROPICAL_MOIST_BROADLEAF = 'Tropical Moist Broadleaf Forest',
+  BIOME_GRASSLAND_TEMPERATE             = 'Temperate Grassland',
+  BIOME_SAVANNA_TEMPERATE               = 'Temperate Savanna',
+  BIOME_SHRUBLAND_TEMPERATE             = 'Temperate Shrubland',
+  BIOME_GRASSLAND_TROPICAL              = 'Tropical Grassland',
+  BIOME_SAVANNA_TROPICAL                = 'Tropical Savanna',
+  BIOME_SHRUBLAND_TROPICAL              = 'Tropical Shrubland',
+  BIOME_DESERT_BADLAND                  = 'Badland Desert',
+  BIOME_DESERT_ROCK                     = 'Rock Desert',
+  BIOME_DESERT_SAND                     = 'Sand Desert',
+  BIOME_OCEAN_TROPICAL                  = 'Tropical Ocean',
+  BIOME_OCEAN_TEMPERATE                 = 'Temperate Ocean',
+  BIOME_OCEAN_ARCTIC                    = 'Arctic Ocean',
+  BIOME_SUBTERRANEAN_WATER              = 'Underground Water',
+  BIOME_SUBTERRANEAN_CHASM              = 'Ungerground Chasm',
+  BIOME_SUBTERRANEAN_LAVA               = 'Underground Lava',
+  BIOME_POOL_TEMPERATE_FRESHWATER       = 'Temperate Freshwater Pool',
+  BIOME_POOL_TEMPERATE_BRACKISHWATER    = 'Temperate Brackishwater Pool',
+  BIOME_POOL_TEMPERATE_SALTWATER        = 'Temperate Saltwater Pool',
+  BIOME_POOL_TROPICAL_FRESHWATER        = 'Tropical Freshwater Pool',
+  BIOME_POOL_TROPICAL_BRACKISHWATER     = 'Tropical Brackishwater Pool',
+  BIOME_POOL_TROPICAL_SALTWATER         = 'Tropical Saltwater Pool',
+  BIOME_LAKE_TEMPERATE_FRESHWATER       = 'Temperate Freshwater Lake',
+  BIOME_LAKE_TEMPERATE_BRACKISHWATER    = 'Temperate Brackishwater Lake',
+  BIOME_LAKE_TEMPERATE_SALTWATER        = 'Temperate Saltwater Lake',
+  BIOME_LAKE_TROPICAL_FRESHWATER        = 'Tropical Freshwater Lake',
+  BIOME_LAKE_TROPICAL_BRACKISHWATER     = 'Tropical Brackishwater Lake',
+  BIOME_LAKE_TROPICAL_SALTWATER         = 'Tropical Saltwater Lake',
+  BIOME_RIVER_TEMPERATE_FRESHWATER      = 'Temperate Freshwater River',
+  BIOME_RIVER_TEMPERATE_BRACKISHWATER   = 'Temperate Brackishwater River',
+  BIOME_RIVER_TEMPERATE_SALTWATER       = 'Temperate Saltwater River',
+  BIOME_RIVER_TROPICAL_FRESHWATER       = 'Tropical Freshwater River',
+  BIOME_RIVER_TROPICAL_BRACKISHWATER    = 'Tropical Brackishwater River',
+  BIOME_RIVER_TROPICAL_SALTWATER        = 'Tropical Saltwater River',
+ },
+
+-- Habitats
+ ['HABITAT_FLAGS'] = {
+  WET    = 'Grows in wet environments',
+  DRY    = 'Grows in dry environments',
+  GOOD   = 'Grows in good biomes',
+  EVIL   = 'Grows in evil biomes',
+  SAVAGE = 'Grows in savage biomes',
+ },
  
 -- Seasonal
  ['SEASONAL_FLAGS'] = {
+  ALL_SEASON = 'Grows throught the year',
+  NO_WINTER = 'Does not grow in the winter',
+  NO_SPRING = 'Does not grow in the spring',
+  NO_SUMMER = 'Does not grow in the summer',
+  NO_AUTUMN = 'Does not grow in the fall',
   SPRING = 'Grows during the spring',
   SUMMER = 'Grows during the summer',
   AUTUMN = 'Grows during the fall',
   WINTER = 'Grows during the winter',
  },
  
--- Edible
- ['EDIBLE_FLAGS'] = {
-  EDIBLE_VERMIN = 'Vermin',
-  EDIBLE_RAW    = 'Raw',
-  EDIBLE_COOKED = 'Cooked',
- },
+ ['USE_FLAGS'] = {
+  DRINK = '',
+  THREAD = '',
+  EXTRACT_BARREL = '',
+  EXTRACT_VIAL = '',
+  EXTRACT_STILL_VIAL = '',
+  MILL = ''
+ }
+}
+itemFlags      = { -- For flags found in itemdef_XXX.flags 
+ ['ALL_FLAGS'] = {},
+ 
+-- Uses
+ ['USE_FLAGS'] = {
+  TRAINING                = 'Training',
+  FURNITURE               = 'Furniture',
+  LIQUID_COOKING          = 'Cooking',
+  LIQUID_SCOOP            = 'Liquid Scoop',
+  GRIND_POWDER_RECEPTACLE = 'Powder Receptacle',
+  GRIND_POWDER_GRINDER    = 'Powder Grinder',
+  MEAT_CARVING            = 'Meat Carving',
+  MEAT_BONING             = 'Meat Boning',
+  MEAT_SLICING            = 'Meat Slicing',
+  MEAT_CLEAVING           = 'Meat Cleaving',
+  HOLD_MEAT_FOR_CARVING   = 'Meat Holding',
+  MEAL_CONTAINER          = 'Meal Container',
+  LIQUID_CONTAINER        = 'Liquid Container',
+  FOOD_STORAGE            = 'Food Storage',
+  HIVE                    = 'Artificial Hive',
+  NEST_BOX                = 'Nest Box',
+  SMALL_OBJECT_STORAGE    = 'Small Object Storage',
+  TRACK_CART              = 'Track Cart',
+  HEAVY_OBJECT_HAULING    = 'Heavy Object Hauling',
+  STAND_AND_WORK_ABOVE    = 'Stand and Work Above',
+  ROLL_UP_SHEET           = 'Roll Up Sheet',
+  PROTECT_FOLDED_SHEETS   = 'Protect Paper',
+  CONTAIN_WRITING         = 'Hold Writings',
+  BOOKCASE                = 'Hold Books',
+ }
+}
+inorganicFlags = { -- For flags found in inorganic_raw.flags
+ ['ALL_FLAGS'] = {},
+ 
+-- Seasonal
+ ['ENVIRONMENT_FLAGS'] = {
+   SEDIMENTARY = 'Sedimentary',
+   IGNEOUS_INTRUSIVE = 'Igneous intrusive',
+   IGNEOUS_EXTRUSIVE = 'Igneous extrusive',
+   METAMORPHIC = 'Metamorphic',
+   SOIL = 'Soil',
+   SOIL_ANY = 'Soil'
+ }
+}
+materialFlags  = { -- For flags found in material.flags
+ ['ALL_FLAGS'] = {},
  
 -- Items
  ['ITEM_FLAGS'] = {
-  ITEMS_WEAPON        = 'Makes melee weapons',
-  ITEMS_WEAPON_RANGED = 'Makes ranges weapons',
-  ITEMS_ANVIL         = 'Makes anvils',
-  ITEMS_AMMO          = 'Makes ammo',
-  ITEMS_DIGGER        = 'Makes digging items',
-  ITEMS_ARMOR         = 'Makes armor',
-  ITEMS_DELICATE      = 'Makes delicate items',
-  ITEMS_SIEGE_ENGINE  = 'Makes siege engine ammo',
-  ITEMS_QUERN         = 'Makes querns',
-  ITEMS_METAL         = 'Makes metal items',
-  ITEMS_BARRED        = 'Makes barred items',
-  ITEMS_SCALED        = 'Makes scaled items',
-  ITEMS_LEATHER       = 'Makes leather items',
-  ITEMS_SOFT          = 'Makes soft items',
-  ITEMS_HARD          = 'Makes hard items',
+  ITEMS_WEAPON        = 'melee weapons',
+  ITEMS_WEAPON_RANGED = 'ranges weapons',
+  ITEMS_ANVIL         = 'anvils',
+  ITEMS_AMMO          = 'ammo',
+  ITEMS_DIGGER        = 'digging items',
+  ITEMS_ARMOR         = 'armor',
+  ITEMS_DELICATE      = 'delicate items',
+  ITEMS_SIEGE_ENGINE  = 'siege engine ammo',
+  ITEMS_QUERN         = 'querns',
+  ITEMS_METAL         = 'metal items',
+  ITEMS_BARRED        = 'barred items',
+  ITEMS_SCALED        = 'scaled items',
+  ITEMS_LEATHER       = 'leather items',
+  ITEMS_SOFT          = 'soft items',
+  ITEMS_HARD          = 'hard items',
  },
  
 -- Types
@@ -409,38 +603,43 @@ plantFlags = {
   CAN_STONE        = 'Stone',
  },
  
--- Uses
- ['USE_FLAGS'] = {
-  TRAINING                = 'Training',
-  FURNITURE               = 'Furniture',
-  LIQUID_COOKING          = 'Cooking',
-  LIQUID_SCOOP            = 'Liquid Scoop',
-  GRIND_POWDER_RECEPTACLE = 'Powder Receptacle',
-  GRIND_POWDER_GRINDER    = 'Powder Grinder',
-  MEAT_CARVING            = 'Meat Carving',
-  MEAT_BONING             = 'Meat Boning',
-  MEAT_SLICING            = 'Meat Slicing',
-  MEAT_CLEAVING           = 'Meat Cleaving',
-  HOLD_MEAT_FOR_CARVING   = 'Meat Holding',
-  MEAL_CONTAINER          = 'Meal Container',
-  LIQUID_CONTAINER        = 'Liquid Container',
-  FOOD_STORAGE            = 'Food Storage',
-  HIVE                    = 'Artificial Hive',
-  NEST_BOX                = 'Nest Box',
-  SMALL_OBJECT_STORAGE    = 'Small Object Storage',
-  TRACK_CART              = 'Track Cart',
-  HEAVY_OBJECT_HAULING    = 'Heavy Object Hauling',
-  STAND_AND_WORK_ABOVE    = 'Stand and Work Above',
-  ROLL_UP_SHEET           = 'Roll Up Sheet',
-  PROTECT_FOLDED_SHEETS   = 'Protect Paper',
-  CONTAIN_WRITING         = 'Hold Writings',
-  BOOKCASE                = 'Hold Books',
+-- Edible
+ ['EDIBLE_FLAGS'] = {
+  EDIBLE_VERMIN = 'Vermin',
+  EDIBLE_RAW    = 'Raw',
+  EDIBLE_COOKED = 'Cooked',
  }
 }
-for flagType,flags in pairs(plantFlags) do
+
+-- Populate the ALL_FLAGS category for each of the XXXFlags
+for flagType,flags in pairs(creatureFlags)  do
+ for flag,str in pairs(flags) do
+  creatureFlags.ALL_FLAGS[flag] = str
+ end
+end
+for flagType,flags in pairs(plantFlags)     do
  for flag,str in pairs(flags) do
   plantFlags.ALL_FLAGS[flag] = str
  end
+end
+for flagType,flags in pairs(inorganicFlags) do
+ for flag,str in pairs(flags) do
+  inorganicFlags.ALL_FLAGS[flag] = str
+ end
+end
+for flagType,flags in pairs(itemFlags)      do
+ for flag,str in pairs(flags) do
+  itemFlags.ALL_FLAGS[flag] = str
+ end
+end
+for flagType,flags in pairs(materialFlags)  do
+ for flag,str in pairs(flags) do
+  materialFlags.ALL_FLAGS[flag] = str
+ end
+end
+
+function inorganic_string(inorganic)
+
 end
 
 -- Health Strings (Wounds and Syndromes)

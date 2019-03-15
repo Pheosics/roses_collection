@@ -120,6 +120,7 @@ function makeCivilizationTable(runtest,verbose)
     array = split(data[j],':')
     for k = 1, #array, 1 do
      array[k] = split(array[k],'}')[1]
+     array[k] = tonumber(array[k]) or array[k]
     end
     if test == '{NAME' then
      civ.Name = array[2]
@@ -315,27 +316,23 @@ checkEntity(id,method)
 ]===]
 
 function changeLevel(entity,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- civPersist = roses.CivilizationTable
- entityPersist = roses.EntityTable
-
+ roses = dfhack.script_environment('base/roses-table').roses
  if tonumber(entity) then entity = df.global.world.entities.all[tonumber(entity)] end
- if not entityPersist[tostring(entity.id)] then return end
- entityTable = entityPersist[tostring(entity.id)]
- entityToken = df.global.world.entities.all[entity.id].entity_raw.code
- civilizationTable = civPersist[entityToken]
+ if not roses or not entity or not roses.EntityTable[entity.id] then return false end
 
+ entityTable = roses.EntityTable[entity.id]
+ entityToken = df.global.world.entities.all[entity.id].entity_raw.code
+ civilizationTable = roses.CivilizationTable[entityToken]
  if civilizationTable then
   if civilizationTable.Level then
-   currentLevel = tonumber(entityTable.Civilization.Level)
+   currentLevel = entityTable.Civilization.Level
    nextLevel = currentLevel + 1
-   if nextLevel > tonumber(civilizationTable.Levels) then return end
-   entityTable.Civilization.Level = tostring(nextLevel)
+   if nextLevel > civilizationTable.Levels then return end
+   entityTable.Civilization.Level = nextLevel
 
-   if civilizationTable.Level[tostring(nextLevel)] then
-    if civilizationTable.Level[tostring(nextLevel)].Remove then
-     for mtype,depth1 in pairs(civilizationTable.Level[tostring(nextLevel)].Remove) do
+   if civilizationTable.Level[nextLevel] then
+    if civilizationTable.Level[nextLevel].Remove then
+     for mtype,depth1 in pairs(civilizationTable.Level[nextLevel].Remove) do
       for stype,depth2 in pairs(depth1) do
        for mobj,sobj in pairs(depth2) do
         dfhack.script_environment('functions/entity').changeResources(entity,mtype,stype,mobj,sobj,-1,verbose)
@@ -343,8 +340,8 @@ function changeLevel(entity,verbose)
       end
      end
     end
-    if civilizationTable.Level[tostring(nextLevel)].Add then
-     for mtype,depth1 in pairs(civilizationTable.Level[tostring(nextLevel)].Add) do
+    if civilizationTable.Level[nextLevel].Add then
+     for mtype,depth1 in pairs(civilizationTable.Level[nextLevel].Add) do
       for stype,depth2 in pairs(depth1) do
        for mobj,sobj in pairs(depth2) do
         dfhack.script_environment('functions/entity').changeResources(entity,mtype,stype,mobj,sobj,1,verbose)
@@ -352,9 +349,9 @@ function changeLevel(entity,verbose)
       end
      end
     end
-    if civilizationTable.Level[tostring(nextLevel)].LevelMethod then
-     entityTable.Civilization.CurrentMethod = civilizationTable.Level[tostring(nextLevel)].LevelMethod
-     entityTable.Civilization.CurrentPercent = civilizationTable.Level[tostring(nextLevel)].LevelPercent
+    if civilizationTable.Level[nextLevel].LevelMethod then
+     entityTable.Civilization.CurrentMethod = civilizationTable.Level[nextLevel].LevelMethod
+     entityTable.Civilization.CurrentPercent = civilizationTable.Level[nextLevel].LevelPercent
 	 queueCheck(entity.id,entityTable.Civilization.CurrentMethod,verbose)
     end
    end
@@ -363,15 +360,15 @@ function changeLevel(entity,verbose)
 end
 
 function changeStanding(civ1,civ2,amount,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
+ roses = dfhack.script_environment('base/roses-table').roses
  if not roses then return false end
  diplomacyTable = roses.DiplomacyTable
  if diplomacyTable then
   if diplomacyTable[civ1] then
    if diplomacyTable[civ1][civ2] then
-    diplomacyTable[civ1][civ2] = tostring(tonumber(diplomacyTable[civ1][civ2]) + amount)
-    diplomacyTable[civ2][civ1] = tostring(tonumber(diplomacyTable[civ2][civ1]) + amount)
-    return tonumber(diplomacyTable[civ1][civ2]) + amount
+    diplomacyTable[civ1][civ2] = diplomacyTable[civ1][civ2] + amount
+    diplomacyTable[civ2][civ1] = diplomacyTable[civ2][civ1] + amount
+    return diplomacyTable[civ1][civ2]
    end
   end
  end
@@ -379,11 +376,14 @@ function changeStanding(civ1,civ2,amount,verbose)
 end
 
 function checkEntity(id,method,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
+ roses = dfhack.script_environment('base/roses-table').roses
  if not roses then return false end
- entityPersist = roses.EntityTable
-
- entityTable = entityPersist[tostring(id)].Civilization
+ if not roses.EntityTable[id] then 
+  dfhack.script_environment('functions/entity').makeEntityTable(id,verbose)
+ end
+ roses = dfhack.script_environment('base/roses-table').roses
+ 
+ entityTable = roses.EntityTable[id].Civilization
  if entityTable then
   percent = entityTable.CurrentPercent
   if method ~= entityTable.CurrentMethod then return end
@@ -402,23 +402,16 @@ function checkEntity(id,method,verbose)
 end
 
 function checkRequirements(entityID,verbose)
- roses = dfhack.script_environment('base/roses-init').roses
- if not roses then return false end
- civPersist = roses.CivilizationTable
- entityPersist = roses.EntityTable
+ roses = dfhack.script_environment('base/roses-table').roses
+ if not roses or not roses.EntityTable[entityID] or not roses.EntityTable[entityID].Civilization then return false end
 
- if not entityPersist[tostring(entityID)] then 
-  dfhack.script_environment('functions/entity').makeEntityTable(entityID,verbose)
- end
- entity = entityPersist[tostring(entityID)]
- if not entity.Civilization then return false end
-
- level = tostring(tonumber(entity.Civilization.Level)+1)
- name = df.global.world.entities.all[entityID].entity_raw.code
- if not civPersist[name] then
+ entity = roses.EntityTable[entityID]
+ level  = entity.Civilization.Level+1
+ name   = df.global.world.entities.all[entityID].entity_raw.code
+ if not roses.CivilizationTable[name] then
   return false
  else
-  civilization = civPersist[name]
+  civilization = roses.CivilizationTable[name]
  end
  if not civilization.Level[level] then return false end
  
@@ -623,9 +616,9 @@ function checkRequirements(entityID,verbose)
  if check.Class and roses.ClassTable then
   for className,level in pairs(check.Class) do
    for _,unit in pairs(df.global.world.units.active) do
-    if roses.UnitTable[tostring(unit.id)] then
-     if roses.UnitTable[tostring(unit.id)].Classes[classname] then
-      if tonumber(roses.UnitTable[tostring(unit.id)].Classes[classname]) < level then
+    if roses.UnitTable[unit.id] then
+     if roses.UnitTable[unit.id].Classes[classname] then
+      if tonumber(roses.UnitTable[unit.id].Classes[classname]) < level then
        return false
       end
      else

@@ -10,37 +10,52 @@ Building Table Functions
 ========================
 
 makeBuildingTable(building)
-  Purpose: 
-  Calls:   
+  Purpose: Create a persistent table to track information of a given building
+  Calls:   NONE
   Inputs:
-  Returns: 
-
-getBuildingTable(building)
-  Purpose:
-  Calls:
-  Inputs:
-  Returns:
+           building = The building struct or building ID to make the table for
+  Returns: NONE
+  
 ]===]
 
 function makeBuildingTable(building)
+ roses = dfhack.script_environment('base/roses-table').roses
+ if tonumber(building) then building = df.building.find(tonumber(building)) end
+ if not roses or not building then return end
 
-end
-
-function getBuidingTable(building)
-
+ roses.BuildingTable[building.id] = {}
+ 
+ roses.BuildingTable[building.id].ID = building.id
+ 
+ roses.BuildingTable[building.id].Enhanced = false
+ 
+ roses.BuildingTable[building.id].Position = {}
+ roses.BuildingTable[building.id].Position.x = building.centerx
+ roses.BuildingTable[building.id].Position.y = building.centery
+ roses.BuildingTable[building.id].Position.z = building.z
+ 
+ if building.custom_type >= 0 then
+  roses.BuildingTable[building.id].Token = df.global.world.raws.buildings.all[building.custom_type].code
+ end
 end
 
 --=                     Tracking Functions
 usages[#usages+1] = [===[
 
-Tracking Functions
+Building Tracking Functions
 ==================
 
 trackSubtype(building,subtype,dur,alter)
-  Purpose: 
-  Calls:   
+  Purpose: Tracks changes to a buildings subtypes
+  Calls:   changeSubtype
   Inputs:
-  Returns:
+           building = The building struct or building ID to track
+           subtype  = The subtype the building changed to
+           dur      = Length of change in in-game ticks
+           alter    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+           cb_id    = If dur > 0 then the cb_id is needed to properly track the change
+  Returns: NONE
+  
 ]===]
 
 function trackSubtype(building,subtype,dur,alter)
@@ -54,20 +69,27 @@ Building Item Functions
 =======================
 
 addItem(building,item,dur)
-  Purpose: 
-  Calls:   
+  Purpose: Adds an item to the buildings "build items" list
+  Calls:   NONE
   Inputs:
-  Returns: 
+           building = Building struct or Building ID
+           item     = Item struct or Item ID
+           dur      = Length in in-game ticks
+  Returns: NONE
  
 removeItem(building,item,dur)
-  Purpose:
-  Calls:
+  Purpose: Remove an item from the buildings "build items" list
+  Calls:   NONE
   Inputs:
-  Returns:
+           building = Building struct or Building ID
+           item     = Item struct or Item ID
+           dur      = Length in in-game ticks
+  Returns: NONE
+  
 ]===]
 
 function addItem(building,item,dur)
- dur = dur or '0'
+ dur = dur or -1
  dur = tonumber(dur)
  if tonumber(building) then building = df.building.find(tonumber(building)) end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
@@ -77,7 +99,7 @@ function addItem(building,item,dur)
 end
 
 function removeItem(building,item,dur)
- dur = dur or '0'
+ dur = dur or -1
  dur = tonumber(dur)
  if tonumber(building) then building = df.building.find(tonumber(building)) end
  if tonumber(item) then item = df.item.find(tonumber(item)) end
@@ -92,10 +114,15 @@ Building Changing Functions
 ===========================
 
 changeSubtype(building,subtype,dur,track)
-  Purpose: 
-  Calls:   
+  Purpose: Change the subtype of a building
+  Calls:   trackSubtype
   Inputs:
-  Returns: 
+           building = Building struct or Building ID
+           subtype  = BUILDING_TOKEN
+           dur      = Length of change in in-game ticks
+           track    = Type of tracking (Valid Values: track, end, terminate, terminateClass, terminated)
+  Returns: NONE
+  
 ]===]
 
 function changeSubtype(building,subtype,dur,track)
@@ -122,10 +149,12 @@ Miscellanious Functions
 =======================
 
 findBuilding(search)
-  Purpose: 
-  Calls:   
+  Purpose: Find a building on the map the satisfies the search criteria
+  Calls:   NONE
   Inputs:
-  Returns: 
+           search = Search table (e.g. { RANDOM, STOCKPILE })
+  Returns: Table of all buildings that meet search criteria
+
 ]===]
 
 function findBuilding(search)

@@ -12,7 +12,6 @@ validArgs = utils.invert({
 })
 local args = utils.processArgs({...}, validArgs)
 
-print(args.item)
 local itemId = tonumber(args.item)
 local item = df.item.find(itemId)
 if not item then

@@ -11,7 +11,7 @@ local colorTables    = guiFunctions.colorTables
 
 -- textC, cursorC, and inactiveC are used as the colors for setting up the widget lists
 local textC     = COLOR_WHITE
-local cursorC   = COLOR_LIGHTRED
+local cursorC   = COLOR_RED
 local inactiveC = COLOR_CYAN
 
 -- row_pad and col_pad are the number of points between each row and column respectively
@@ -121,25 +121,30 @@ function DetailedUnitView:setViewDetails()
  journalGods     = 'gui/journal -viewScreen godView'
  self.ViewDetails = {
     ['main'] = {name = 'Main',
-        num_cols = 3, num_rows = 4,
-        widths   = {{30,40,50},{30,40,50},{30,40,50},{30,40,50}},
-        heights  = {{10,10,10},{10,30,10},{10, 0,20},{10,10, 0}},
-        fill     = {'BaseInfo','Description','AppearanceBasic',
-                    'RelationshipsBasic','HealthBasic','AttributesBasic',
-                    'PersonalityBasic',nil,'SkillsBasic',
-                    'ClassBasic',nil,nil},
-        functions = {nil,
-                     {function () dfhack.run_command(journalCreature) end,'D'},
-                     {function () self:viewChange('appearanceView')   end,'p'},
-                     {function () self:viewChange('relationshipView') end,'R'},
-                     {function () self:viewChange('healthView')       end,'H'},
-                     {function () self:viewChange('detailedView')     end,'A'},
-                     {function () self:viewChange('personalityView')  end,'P'},
-                     nil,
-                     {function () self:viewChange('detailedView')     end,'S'}, 
-                     {function () self:viewChange('classView')        end,'C'}, 
-                     nil, 
-                     nil}},
+        num_cols = 4, num_rows = 3,
+        widths   = {{40,40,50,30},{40,40,50,30},{40,40,50,30}},
+        heights  = {{16, 7,10,10},{10,19,10,10},{20,10,10,10}},
+        fill     = {'BaseInfo',           'Description', 'AppearanceBasic',  'ClassBasic',
+                    'RelationshipsBasic', 'HealthBasic', 'AttributesBasic',  'FeatBasic',
+                    'InventoryBasic',     'SkillsBasic', 'PersonalityBasic', 'SpellBasic'},
+        functions = {['Description']        = {function () dfhack.run_command(journalCreature) end,'D'},
+                     ['AppearanceBasic']    = {function () self:viewChange('appearanceView')   end,'p'},
+                     ['ClassBasic']         = {function () self:viewChange('classView')        end,'C'},
+                     ['RelationshipsBasic'] = {function () self:viewChange('relationshipView') end,'R'},
+                     ['HealthBasic']        = {function () self:viewChange('healthView')       end,'H'},
+                     ['AttributesBasic']    = {function () self:viewChange('detailedView')     end,'A'},
+                     ['FeatBasic']          = {function () self:viewChange('featView')         end,'F'},
+                     ['PersonalityBasic']   = {function () self:viewChange('personalityView')  end,'P'},
+                     ['InventoryBasic']     = {function () self:viewChange('inventoryView')    end,'I'},
+                     ['SkillsBasic']        = {function () self:viewChange('detailedView')     end,'k'}, 
+                     ['SpellBasic']         = {function () self:viewChange('spellView')        end,'S'}}},
+    ['inventoryView'] = {name='Inventory and Owned Items',
+        num_cols  = 2, num_rows = 1,
+        widths    = {{60,60}},
+        heights   = {{60,60}},
+        fill      = {'InventoryDetailed','OwnedDetailed'},
+        startFilter = 'String', filterFlags = {'String','Numbers'},
+        filterKeys = {'CUSTOM_SHIFT_S','CUSTOM_SHIFT_N'}},
     ['appearanceView']   = {name='Appearance View',
         num_cols  = 2, num_rows = 1,
         widths    = {{60,60}},
@@ -177,9 +182,7 @@ function DetailedUnitView:setViewDetails()
         widths   = {{40,40,40},{40,40,40}},
         heights  = {{20,20,20},{20,20,20}},
         fill     = {'RelationshipsFamily','RelationshipsFriends','RelationshipsGrudges',
-                    'RelationshipsWorship','RelationshipsMaster',nil},
-        functions = {nil,nil,nil,
-                     {function () dfhack.run_command(journalGods) end, 'W'}, nil,nil}},
+                    'RelationshipsWorship','RelationshipsMaster',nil}},
     ['classView']        = {name='Classes View',
         requires  = 'Class',
         num_cols  = 2, num_rows = 1,
@@ -246,13 +249,14 @@ function DetailedUnitView:checkActiveSystems()
  local systems = {'Class','Feat','Spell','Civilization','EnhancedItem',
                   'EnhancedBuilding','EnhancedCreature','EnhancedMaterial',
                   'EnhancedReaction'}
- roses = dfhack.script_environment('base/roses-init').roses
  self.Systems = {}
  for _,system in pairs(systems) do
-  if roses.Systems and roses.Systems[system] and roses.Systems[system] > 0 then
-   self.Systems[system] = true
-  else
-   self.Systems[system] = false
+  self.Systems[system] = false
+ end
+ if dfhack.findScript('base/roses-table') then
+  roses = dfhack.script_environment('base/roses-table').roses
+  for _,system in pairs(systems) do
+   if roses and roses.Systems[system] and roses.Systems[system] > 0 then self.Systems[system] = true end
   end
  end
 end
@@ -297,30 +301,31 @@ function DetailedUnitView:getPositioning(view_id)
     text = split(v.on_fills[cell],':')[1]
     num  = split(v.on_fills[cell],':')[2]
     if text == 'on_submit' then
-     x = widgets.List{view_id       = n,
-                      frame         = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
-                      on_submit     = self:callback('fillOnSubmit'),
-                      text_pen      = textC,
-                      cursor_pen    = cursorC,
-                      inactive_pen  = inactiveC}
+     x = widgets.List{view_id      = n,
+                      frame        = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
+                      on_submit    = self:callback('fillOnSubmit'),
+                      on_select    = self:callback('fillOnSelect'),
+                      cursor_pen   = cursorC,
+                      inactive_pen = inactiveC}
     elseif text == 'on_select' then
-     x = widgets.List{view_id       = n,
-                      frame         = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
-                      on_select     = self:callback('fillOnSelect'),
-                      text_pen      = textC,
-                      cursor_pen    = cursorC,
-                      inactive_pen  = inactiveC}
+     x = widgets.List{view_id      = n,
+                      frame        = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
+                      on_select    = self:callback('fillOnSelect'),
+                      cursor_pen   = cursorC,
+                      inactive_pen = inactiveC}
     else
-     x = widgets.List{view_id = n,
-                      frame   = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
-                      text_pen     = textC,
-                      inactive_pen = textC} 
+     x = widgets.List{view_id      = n,
+                      frame        = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
+                      on_select    = self:callback('fillOnSelect'),
+                      cursor_pen   = cursorC,
+                      inactive_pen = inactiveC} 
     end
    else
-    x = widgets.List{view_id = n,
-                     frame   = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
-                     text_pen     = textC,
-                     inactive_pen = textC} 
+    x = widgets.List{view_id      = n,
+                     frame        = {l = left, t = top, w = v.widths[i][j], h = v.heights[i][j]},
+                     on_select    = self:callback('fillOnSelect'),
+                     cursor_pen   = cursorC,
+                     inactive_pen = inactiveC}
    end
    cell = cell + 1
    table.insert(temp, x)
@@ -383,8 +388,10 @@ function DetailedUnitView:fillOnSubmit(_,selection)
 end
 function DetailedUnitView:fillOnSelect(_,selection)
  if not selection or not selection.text or not selection.text[1] then return end
+ --printall_recurse(selection)
  local view_id = selection.text[1].viewScreen
  local v = self.ViewDetails[view_id]
+ if not v or not v.on_select then return end
  local oncell = selection.text[1].viewScreenCell
  local onstr = v.on_fills[oncell]
  if v.on_groups and v.on_groups[onstr] then
@@ -479,6 +486,11 @@ function DetailedUnitView:resetView()
  for view,_ in pairs(self.ViewDetails) do
   self.subviews[view].visible = false
   self.subviews[view].active  = false
+  --for subview,_ in pairs(self.subviews[view].subviews) do
+  -- if not tonumber(subview) then
+  --  self.subviews[subview].active = false
+  -- end
+  --end
  end
 end
 function DetailedUnitView:viewChange(view_id)

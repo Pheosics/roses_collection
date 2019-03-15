@@ -108,7 +108,6 @@
  [EXP_GAIN:1]
  [SCRIPT:item/projectile -unitSource SPELL_SOURCE -unitTarget SPELL_TARGET -item WEAPON:ITEM_WEAPON_DAGGER_LARGE -mat INORGANIC:IRON -maxrange 10 -minrange 0 -velocity 100 -hitchance 75 ]
 
-
 [SPELL:EVADE]
  [NAME:evade]
  [DESCRIPTION:Increase dodge skill and agility for a short time]

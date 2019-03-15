@@ -1,3 +1,7 @@
+function getTileMat(x,y,z)
+ return ''
+end
+
 -- Map Based Functions
 usages = {}
 
@@ -77,6 +81,27 @@ function changeTemperature(x,y,z,temperature,dur)
  if dur > 0 then dfhack.script_environment('persist-delay').environmentDelay(dur,'functions/map','changeTemperature',{pos.x,pos.y,pos.z,current_temperature,0}) end 
 end
 
+function setTileType(tiletype,x,y,z)
+ pos = {}
+ if y == nil and z == nil then
+  pos.x = x.x or x[1]
+  pos.y = x.y or x[2]
+  pos.z = x.z or x[3]
+ else
+  pos.x = x
+  pos.y = y
+  pos.z = z
+ end
+ 
+ x = pos.x%16
+ y = pos.y%16
+ block = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z) 
+ if not block then return false end
+ block.tiletype[x][y] = df.tiletype[tiletype]
+ 
+ return true
+end
+
 --=                     Position Functions
 usages[#usages+1] = [===[
 
@@ -84,34 +109,48 @@ Position Functions
 ==================
 
 checkBounds(x,y,z)
-  Purpose: 
-  Calls:   
+  Purpose: Check if the given position is within map bounds
+  Calls:   NONE
   Inputs:
-  Returns: 
+           x = pos.x or {x, y, z}
+           y = pos.y or nil
+           z = pos.z or nil
+  Returns: {x, y, z} of nearest valid position
 
 checkFree(x,y,z)
-  Purpose: 
-  Calls:   
+  Purpose: Checks a positions occupancy and tiletype to see if there is anything blocking the tile
+  Calls:   NONE
   Inputs:
-  Returns: 
+           x = pos.x or {x, y, z}
+           y = pos.y or nil
+           z = pos.z or nil
+  Returns: True/False depending on if the position is free
 
 checkSurface(x,y,z)
-  Purpose: 
-  Calls:   
+  Purpose: Checks if a position is on the surface (outside but above a not outside)
+  Calls:   NONE
   Inputs:
-  Returns: 
+           x = pos.x or {x, y, z}
+           y = pos.y or nil
+           z = pos.z or nil
+  Returns: True/False
 
 getPositions(posType,options)
-  Purpose: 
-  Calls:   
+  Purpose: Get a table of {x, y, z} positions that satisfy the requirements
+  Calls:   getEdgesPositions, getFillPositions, getPlanPositions
   Inputs:
-  Returns: 
+           posType = Type of positions (Valid values: Edges, Fill, Plan)
+           options = Table of options (target=unit.id, origin=unit.id, radius={x,y,z})
+  Returns: Table of positions, # of positions
 
 getPosition(posType,options)
-  Purpose: 
-  Calls:   
+  Purpose: Get an {x, y, z} position that satisfy the requirements
+  Calls:   getPositionCenter, getPositionEdge, getPositionCavern, getPositionSurface, getPositionUnderground
+           getPositionLocation, getPositionUnit, getPositionSurfaceFree, getPositionSky, getPositionRandom
   Inputs:
-  Returns: 
+           posType = Type of positions (Valid values: Center, Edge, Cavern, Surface, SurfaceFree, Sky, Underground, Location, Unit, Random)
+           options = Table of options (target=unit.id, unit=unit.id, location={x,y,z}, radius={x,y,z}, caveNumber=#)
+  Returns: {x,y,z} position
 
 ]===]
 
@@ -152,10 +191,16 @@ function checkFree(x,y,z)
  x = pos.x%16
  y = pos.y%16
  block = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z)
+ if not block then return false end
  d = block.designation[x][y]
  o = block.occupancy[x][y]
  tt = block.tiletype[x][y]
- if d.flow_size == 0  and o.building == 0 and string.match(df.tiletype[tt],'Floor') then
+ tt_bool = false
+ if string.match(df.tiletype[tt],'Floor') then tt_bool = true end
+ if string.match(df.tiletype[tt],'Pebbles') then tt_bool = true end
+ if string.match(df.tiletype[tt],'Shrub') then tt_bool = true end
+ if string.match(df.tiletype[tt],'Open') then tt_bool = true end
+ if d.flow_size == 0  and o.building == 0 and tt_bool then
   free = true
  end
 
@@ -637,46 +682,36 @@ Flow and Liquid Functions
 =========================
 
 spawnFlow(edges,offset,flowType,inorganic,density,static)
-  Purpose: 
-  Calls:   
+  Purpose: Spawn a type of flow in a given shape
+  Calls:   NONE
   Inputs:
-  Returns: 
+           edges     = {xmin=#,xmax=#,ymin=#,ymax=#,zmin=#,zmax=#} or {x=#,y=#,z=#} or {x,y,z}, position(s) where flow is spawned
+           offset    = {x,y,z} or {x=#,y=#,z=#}, added to the edges value to get tiles where to spawn flow
+           flowType  = Type of flow
+           inorganic = INORGANIC_TOKEN to use if the flowType supports
+           density   = # density of the flow to spawn
+           static    = If present will stop the flow from expanding keeping it in the tiles it is spawned in
+  Returns: The spawned flow
 
 spawnLiquid(edges,offset,depth,magma,circle,taper)
-  Purpose: 
-  Calls:   
+  Purpose: Spawn water or magma of a given depth in a given shape
+  Calls:   NONE
   Inputs:
-  Returns: 
-
-flowSource(n)
-  Purpose: 
-  Calls:   
-  Inputs:
-  Returns: 
-
-flowSink(n)
-  Purpose: 
-  Calls:   
-  Inputs:
-  Returns: 
-
-liquidSource(n)
-  Purpose: 
-  Calls:   
-  Inputs:
-  Returns: 
-
-liquidSink(n)
-  Purpose: 
-  Calls:   
-  Inputs:
-  Returns: 
+           edges  = {xmin=#,xmax=#,ymin=#,ymax=#,zmin=#,zmax=#} or {x=#,y=#,z=#} or {x,y,z}, position(s) where flow is spawned
+           offset = {x,y,z} or {x=#,y=#,z=#}, added to the edges value to get tiles where to spawn flow
+           depth  = # (0-7) of liquid depth to spawn
+           magma  = If present will spawn magma, if absent will spawn water
+           circle = If present will turn the box of positions into a circle
+           taper  = If present, center depth will be the provided depth, linearly decreasing to 0 at the edges
+  Returns: NONE
 
 getFlow(pos,flowType)
-  Purpose: 
-  Calls:   
+  Purpose: Get all the flows of the given type at the given position
+  Calls:   NONE
   Inputs:
-  Returns: 
+           pos      = {x=#,y=#,z=#} position to check
+           flowType = Type of flow (Special value: ALL)
+  Returns: Table of flows 
 
 ]===]
 
@@ -711,6 +746,7 @@ function spawnFlow(edges,offset,flowType,inorganic,density,static)
    end
   end
  end
+ return flow
 end
 
 function spawnLiquid(edges,offset,depth,magma,circle,taper)
@@ -921,34 +957,41 @@ Plant Functions
 ===============
 
 getTree(pos,array)
-  Purpose: 
-  Calls:   
+  Purpose: Get the tree ID and the tree struct of the tree type at the given position
+  Calls:   NONE
   Inputs:
-  Returns: 
+           pos   = {x=#,y=#,z=#}
+           array = df.global.world.plants.all or $.tree_dry or $.tree_wet
+  Returns: Tree ID, Tree Struct
 
 getTreePositions(tree)
-  Purpose: 
-  Calls:   
+  Purpose: Get the tile positions for every part of the tree
+  Calls:   NONE
   Inputs:
-  Returns: 
-
+           tree = Tree struct
+  Returns: Table of positions
+  
 getShrub(pos,array)
-  Purpose: 
-  Calls:   
+  Purpose: Get the plant ID and the plant struct of the plant type at the given position
+  Calls:   NONE
   Inputs:
-  Returns: 
+           pos   = {x=#,y=#,z=#}
+           array = df.global.world.plants.all or $.shrub_dry or $.shrub_wet
+  Returns: Plant ID, Plant Struct
 
 removeTree(pos)
-  Purpose: 
-  Calls:   
+  Purpose: Remove the tree and all connected parts at the given postion
+  Calls:   getTree, getTreePositions
   Inputs:
-  Returns: 
+           pos   = {x=#,y=#,z=#}
+  Returns: NONE
 
 removeShrub(pos)
-  Purpose: 
-  Calls:   
+  Purpose: Remove the plant at the given postion
+  Calls:   getShrub, getTree
   Inputs:
-  Returns: 
+           pos   = {x=#,y=#,z=#}
+  Returns: NONE
 
 ]===]
 
@@ -1012,11 +1055,11 @@ function removeTree(pos)
  --need to get 1st of 9 map block columns for plant information
  map_block_column = df.global.world.map.column_index[x_column-x_column%3][y_column-y_column%3]
  nBlock = getTree(pos,map_block_column.plants)
- print(nAll,nDry,nWet,nBlock)
- if nAll then df.global.world.plants.all:erase(nAll) end
- if nDry then df.global.world.plants.tree_dry:erase(nDry) end
- if nWet then df.global.world.plants.tree_wet:erase(nWet) end
- if nBlock then map_block_column.plants:erase(nBlock) end
+ 
+ if nAll   then df.global.world.plants.all:erase(nAll)      end
+ if nDry   then df.global.world.plants.tree_dry:erase(nDry) end
+ if nWet   then df.global.world.plants.tree_wet:erase(nWet) end
+ if nBlock then map_block_column.plants:erase(nBlock)       end
  
  --Now change tiletypes for tree positions
  for _,position in ipairs(positions) do
@@ -1098,22 +1141,6 @@ function getTreePositions(tree)
  return positions,positionsTrunk,positionsTBranches,positionsBranches,positionsTwigs
 end
 
-function getGrassMaterial(pos)
- events = dfhack.maps.ensureTileBlock(pos).block_events
- for _,event in ipairs(events) do
-  if df.block_square_event_grassst:is_instance(event) then
-   if event.amount[pos.x%16][pos.y%16] > 0 then
-    material = dfhack.matinfo.decode(419,event.plant_index)
-    break
-   end
-  end
- end
- if material then
-  return material
- else
-  return 'NONE'
- end
-end
 
 --=                     Miscellanious Functions
 usages[#usages+1] = [===[
@@ -1122,10 +1149,11 @@ Miscellanious Functions
 =======================
 
 findLocation(search)
-  Purpose: 
-  Calls:   
+  Purpose: Find a position on the map that satisfies the search criteria
+  Calls:   NONE
   Inputs:
-  Returns: 
+           search = Search table (e.g. { RANDOM, UNDERGROUND, CAVERN, 2 })
+  Returns: Table of all positions that meet search criteria
 
 ]===]
 
@@ -1181,343 +1209,4 @@ function findLocation(search)
  target = targetList[1]
  return {target}
 end
-
---=                     Milo's Tile Mat Functions
-usages[#usages+1] = [===[
-
-Milo's Tile Mat Functions
-=========================
-
-This is taken from Milo Christianson's Rubble Utility and translated to work without that framework
-This module contains functions for finding the material of a tile.
-
-There is a function that will find the material of the tile based on it's type (in other words
-it will return the material DF is using for that tile), and there are functions that will attempt
-to return only a certain class of materials.
-
-Most users will be most interested in the generic "GetTileMat" function, but the other functions
-should be useful in certain cases. For example "GetLayerMat" will always return the material of
-the stone (or soil) in the current layer, ignoring any veins or other inclusions.
-
-Some tile types/materials have special behavior with the "GetTileMat" function.
-
-* Open space and other "material-less" tiles (such as semi-molten rock or eerie glowing pits) will return nil.
-* Ice will return the hard-coded water material ("WATER:NONE").
-* Grass is ignored.
-
-The specialized functions will return nil if a material of their type is not possible for a tile.
-For example calling "GetVeinMat" for a tile that does not have (and has never had) a mineral vein
-will always return nil.
-
-There are two functions for dealing with constructions, one to get the material of the construction
-and one that gets the material of the tile the construction was built over.
-I am not sure how caved in tiles are handled, but after some quick testing it appears that the
-game creates mineral veins for them. I am not 100% sure if these functions will reliably work
-with all caved in tiles, but I can confirm that they do in at least some cases...
-
-getTileMat(x,y,z)
-  Purpose: 
-  Calls:   
-  Inputs:
-  Returns: 
-
-]===]
-
-function getLayerMat(x, y, z)
--- GetLayerMat returns the layer material for the given tile.
--- AFAIK this will never return nil.
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- local region_info = dfhack.maps.getRegionBiome(dfhack.maps.getTileBiomeRgn(pos))
- local map_block = dfhack.maps.ensureTileBlock(pos)
-
- local biome = df.world_geo_biome.find(region_info.geo_index)
-
- local layer_index = map_block.designation[pos.x%16][pos.y%16].geolayer_index
- local layer_mat_index = biome.layers[layer_index].mat_index
-
- return dfhack.matinfo.decode(0, layer_mat_index)
-end
-
-function getLavaStone(x, y, z)
--- GetLavaStone returns the biome lava stone material (generally obsidian).
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- local regions = df.global.world.world_data.region_details
-
- local rx, ry = dfhack.maps.getTileBiomeRgn(pos)
-
- for _, region in ipairs(regions) do
-  if region.pos.x == rx and region.pos.y == ry then
-   return dfhack.matinfo.decode(0, region.lava_stone)
-  end
- end
- return nil
-end
-
-function getVeinMat(x, y, z)
--- GetVeinMat returns the vein material of the given tile or nil if the tile has no veins.
--- Multiple veins in one tile should be handled properly (smallest vein type, last in the list wins,
--- which seems to be the rule DF uses).
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- local region_info = dfhack.maps.getRegionBiome(dfhack.maps.getTileBiomeRgn(pos))
- local map_block = dfhack.maps.ensureTileBlock(pos)
-
- local events = {}
- for _,event in ipairs(map_block.block_events) do
-  if getmetatable(event) == "block_square_event_mineralst" then
-   if dfhack.maps.getTileAssignment(event.tile_bitmask, pos.x, pos.y) then
-    table.insert(events, event)
-   end
-  end
- end
-
- if #events == 0 then
-  return nil
- end
-
- local event_priority = function(event)
-   if event.flags.cluster then
-    return 1
-   elseif event.flags.vein then
-    return 2
-   elseif event.flags.cluster_small then
-    return 3
-   elseif event.flags.cluster_one then
-    return 4
-   else
-    return 5
-   end
- end
-
- local priority = events[1]
- for _, event in ipairs(events) do
-  if event_priority(event) >= event_priority(priority) then
-   priority = event
-  end
- end
-
- return dfhack.matinfo.decode(0, priority.inorganic_mat)
-end
-
-function getConstructionMat(x, y, z)
--- GetConstructionMat returns the material of the construction at the given tile or nil if the tile
--- has no construction.
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- for _, construction in ipairs(df.global.world.constructions) do
-  if construction.pos.x == pos.x and construction.pos.y == pos.y and construction.pos.z == pos.z then
-   return dfhack.matinfo.decode(construction)
-  end
- end
- return nil
-end
-
-function getConstructOriginalTileMat(x, y, z)
--- GetConstructOriginalTileMat returns the material of the tile under the construction at the given
--- tile or nil if the tile has no construction.
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- for _, construction in ipairs(df.global.world.constructions) do
-  if construction.pos.x == pos.x and construction.pos.y == pos.y and construction.pos.z == pos.z then
-   return getTileTypeMat(construction.original_tile, pos)
-  end
- end
- return nil
-end
-
-function getTreeMat(x, y, z)
--- GetTreeMat returns the material of the tree at the given tile or nil if the tile does not have a
--- tree or giant mushroom.
--- Currently roots are ignored.
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- local function coordInTree(pos, tree)
-   local x1 = tree.pos.x - math.floor(tree.tree_info.dim_x / 2)
-   local x2 = tree.pos.x + math.floor(tree.tree_info.dim_x / 2)
-   local y1 = tree.pos.y - math.floor(tree.tree_info.dim_y / 2)
-   local y2 = tree.pos.y + math.floor(tree.tree_info.dim_y / 2)
-   local z1 = tree.pos.z
-   local z2 = tree.pos.z + tree.tree_info.body_height
-
-   if not ((pos.x >= x1 and pos.x <= x2) and (pos.y >= y1 and pos.y <= y2) and (pos.z >= z1 and pos.z <= z2)) then
-    return false
-   end
-
-   return not tree.tree_info.body[pos.z - tree.pos.z]:_displace((pos.y - y1) * tree.tree_info.dim_x + (pos.x - x1)).blocked
- end
-
- for _, tree in ipairs(df.global.world.plants.all) do
-  if tree.tree_info ~= nil then
-   if coordInTree(pos, tree) then
-    return dfhack.matinfo.decode(419, tree.material)
-   end
-  end
- end
- return nil
-end
-
-function getShrubMat(x, y, z)
--- GetShrubMat returns the material of the shrub at the given tile or nil if the tile does not
--- contain a shrub or sapling.
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- for _, shrub in ipairs(df.global.world.plants.all) do
-  if shrub.tree_info == nil then
-   if shrub.pos.x == pos.x and shrub.pos.y == pos.y and shrub.pos.z == pos.z then
-    return dfhack.matinfo.decode(419, shrub.material)
-   end
-  end
- end
- return nil
-end
-
-function getFeatureMat(x, y, z)
--- GetFeatureMat returns the material of the feature (adamantine tube, underworld surface, etc) at
--- the given tile or nil if the tile is not made of a feature stone.
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- local map_block = dfhack.maps.ensureTileBlock(pos)
-
- if df.tiletype.attrs[map_block.tiletype[pos.x%16][pos.y%16]].material ~= df.tiletype_material.FEATURE then
-  return nil
- end
-
- if map_block.designation[pos.x%16][pos.y%16].feature_local then
-  -- adamantine tube, etc
-  for id, idx in ipairs(df.global.world.features.feature_local_idx) do
-   if idx == map_block.local_feature then
-    return dfhack.matinfo.decode(df.global.world.features.map_features[id])
-   end
-  end
- elseif map_block.designation[pos.x%16][pos.y%16].feature_global then
-  -- cavern, magma sea, underworld, etc
-  for id, idx in ipairs(df.global.world.features.feature_global_idx) do
-   if idx == map_block.global_feature then
-    return dfhack.matinfo.decode(df.global.world.features.map_features[id])
-   end
-  end
- end
-
- return nil
- end
-
-local function fixedMat(id)
- local mat = dfhack.matinfo.find(id)
- return function(x, y, z)
-  return mat
- end
-end
-
-function getTileMat(x, y, z)
--- GetTileMat will return the material of the specified tile as determined by its tile type and the world geology data, etc.
--- The returned material should exactly match the material reported by DF except in cases where is is impossible to get a material.
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- local typ = dfhack.maps.getTileType(pos)
- if typ == nil then
-  return nil
- end
-
- temp = getTileTypeMat(typ, pos)
- if not temp then return 'NONE' end
- mtype = temp.type
- mindex = temp.index
- return dfhack.matinfo.getToken(mtype,mindex)
-end
-
-function getTileTypeMat(typ, x, y, z)
--- GetTileTypeMat is exactly like GetTileMat except it allows you to specify the notional type for
--- the tile. This allows you to see what the tile would be made of it it was a certain type.
--- Unless the tile could be the given type this function will probably return nil.
- local pos = nil
- if y == nil and z == nil then
-  pos = x
- else
-  pos = {x = x, y = y, z = z}
- end
-
- local type_mat = df.tiletype.attrs[typ].material
-
- local mat_actions = {
-  [df.tiletype_material.AIR] = nil, -- Empty
-  [df.tiletype_material.SOIL] = getLayerMat,
-  [df.tiletype_material.STONE] = getLayerMat,
-  [df.tiletype_material.FEATURE] = getFeatureMat,
-  [df.tiletype_material.LAVA_STONE] = getLavaStone,
-  [df.tiletype_material.MINERAL] = getVeinMat,
-  [df.tiletype_material.FROZEN_LIQUID] = fixedMat("WATER:NONE"),
-  [df.tiletype_material.CONSTRUCTION] = getConstructionMat,
-  [df.tiletype_material.GRASS_LIGHT] = getLayerMat,
-  [df.tiletype_material.GRASS_DARK] = getLayerMat,
-  [df.tiletype_material.GRASS_DRY] = getLayerMat,
-  [df.tiletype_material.GRASS_DEAD] = getLayerMat,
-  [df.tiletype_material.PLANT] = getShrubMat,
-  [df.tiletype_material.HFS] = nil, -- Eerie Glowing Pit
-  [df.tiletype_material.CAMPFIRE] = getLayerMat,
-  [df.tiletype_material.FIRE] = getLayerMat,
-  [df.tiletype_material.ASHES] = getLayerMat,
-  [df.tiletype_material.MAGMA] = nil, -- SMR
-  [df.tiletype_material.DRIFTWOOD] = getLayerMat,
-  [df.tiletype_material.POOL] = getLayerMat,
-  [df.tiletype_material.BROOK] = getLayerMat,
-  [df.tiletype_material.ROOT] = getLayerMat,
-  [df.tiletype_material.TREE] = getTreeMat,
-  [df.tiletype_material.MUSHROOM] = getTreeMat,
-  [df.tiletype_material.UNDERWORLD_GATE] = nil, -- I guess this is for the gates found in vaults?
-  }
-
- local mat_getter = mat_actions[type_mat]
- if mat_getter == nil then
-  return nil
- end
- return mat_getter(pos)
-end
-
 
