@@ -1,0 +1,513 @@
+{
+	"__comment": [""],
+
+	"raw_order":     ["BASE","ATTRIBUTES","BODY","GLOSS","MATS","TISSUES","BDP","LAYERS","ATTACKS","INTERACTIONS","APPEARANCE","CASTES"],
+	"baseObjects":   ["category","material","body","head","arm","leg","internal"],
+	"subObjects":    ["caste","a_head","a_body","digits"],
+	"sourceObjects": ["attack"],
+	"numberObjects": ["value"],
+	"binObjects":    ["size","speed","strength","agility","toughness"],
+
+	"body":       {"__comment": "Core part, UPPERBODY and LOWERBODY",
+		"TORSO_2_PART": {"__comment": "",
+			"TYPE":   	"BODY",
+			"WEIGHT": 	100,
+			"TOKENS": 	["2PARTBODY"],
+			"DESC":   	"The #NAME split in upper and lower segments",
+			"NAME":   	["body"],
+			"REQUIRED": ["SURFACE","INSULATION","MEAT"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:UB:upper body:upper bodies][CATEGORY:BODY_UPPER][UPPERBODY][DEFAULT_RELSIZE:1000]",
+					"[BP:LB:lower body:lower bodies][CATEGORY:BODY_LOWER][LOWERBODY][DEFAULT_RELSIZE:1000][CON:UB]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:BODY_UPPER:ARG3:50:ARG2:5:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:BODY_LOWER:ARG3:50:ARG2:5:ARG1:1]"]
+			},
+			"RAWS": {
+				"BODY":       ["{BODY:#KEY}"],
+				"MATS":       [""],
+				"TISSUES":    [""],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY:SURFACE:INSULATION:MEAT]"],
+				"APPEARANCE": [
+					"[BODY_APPEARANCE_MODIFIER:HEIGHT:75:95:98:100:102:105:125]",
+					"    [APP_MOD_IMPORTANCE:500]",
+					"[BODY_APPEARANCE_MODIFIER:BROADNESS:75:95:98:100:102:105:125]",
+					"    [APP_MOD_IMPORTANCE:500]"]
+			}
+		}
+	},
+	
+	"head":              {"__comment": "Head and face",
+		"HUMANOID_HEAD": {"__comment": "",
+			"TYPE":     "HEAD_DETAILED",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "The #NAME has two eyes, a nose, a mouth with a tongue and teeth, and two ears",
+			"NAME":     ["head"],
+			"REQUIRED": ["SURFACE","INSULATION","MEAT","STRUCTURE"],
+			"ATTACK":   ["BITE"],
+			"EXTERNAL": {
+				"BODY": [
+					"-- Head",
+					"[BP:NECK:neck:STP]     [CATEGORY:NECK]                                 [DEFAULT_RELSIZE:200][CONTYPE:UPPERBODY]",
+					"[BP:THROAT:throat:STP] [CATEGORY:THROAT][THROAT][EMBEDDED][SMALL]      [DEFAULT_RELSIZE:40] [CON_CAT:NECK]",
+					"[BP:HD:head:STP]       [CATEGORY:HEAD]  [HEAD]                         [DEFAULT_RELSIZE:300][CON_CAT:NECK]",
+					"[BP:BRAIN:brain:STP]   [CATEGORY:BRAIN] [INTERNAL][SMALL][THOUGHT]     [DEFAULT_RELSIZE:200][CONTYPE:HEAD]",
+					"[BP:SKULL:skull:STP]   [CATEGORY:SKULL] [INTERNAL][SMALL][TOTEMABLE]   [DEFAULT_RELSIZE:20] [CONTYPE:HEAD]",
+					"    [PREVENTS_PARENT_COLLAPSE]",
+					"-- Eyes",
+					"[BP:REYE:right eye:STP]   [CATEGORY:EYE]   [SIGHT][EMBEDDED][SMALL][RIGHT][DEFAULT_RELSIZE:5][CONTYPE:HEAD]",
+					"[BP:LEYE:left eye:STP]    [CATEGORY:EYE]   [SIGHT][EMBEDDED][SMALL][LEFT] [DEFAULT_RELSIZE:5][CONTYPE:HEAD]",
+					"[BP:RLID:right eyelid:STP][CATEGORY:EYELID][SMALL][EMBEDDED]              [DEFAULT_RELSIZE:2][CONTYPE:HEAD]",
+					"[BP:LLID:left eyelid:STP] [CATEGORY:EYELID][SMALL][EMBEDDED]              [DEFAULT_RELSIZE:2][CONTYPE:HEAD]",
+					"-- Ears",
+					"[BP:REAR:right ear:STP][CATEGORY:EAR][HEAR][RIGHT][SMALL][DEFAULT_RELSIZE:15][CONTYPE:HEAD]",
+					"[BP:LEAR:left ear:STP] [CATEGORY:EAR][HEAR][LEFT] [SMALL][DEFAULT_RELSIZE:15][CONTYPE:HEAD]",
+					"-- Nose",
+					"[BP:NOSE:nose:STP][CATEGORY:NOSE][SMELL][SMALL][DEFAULT_RELSIZE:10][CONTYPE:HEAD]",
+					"-- Mouth",
+					"[BP:MOUTH:mouth:STP]  [CATEGORY:MOUTH] [MOUTH][SMALL][APERTURE]  [DEFAULT_RELSIZE:20][CONTYPE:HEAD]",
+					"[BP:TONGUE:tongue:STP][CATEGORY:TONGUE][SMALL]                   [DEFAULT_RELSIZE:20][CONTYPE:HEAD]",
+					"[BP:TOOTH:tooth:teeth][CATEGORY:TOOTH] [SMALL][SOCKET][NUMBER:30][DEFAULT_RELSIZE:1] [CONTYPE:HEAD]",
+					"[BP:CHEEK:cheek:STP]  [CATEGORY:CHEEK] [SMALL][EMBEDDED]         [DEFAULT_RELSIZE:10][CONTYPE:HEAD]",
+					"[BP:LIP:lip:STP]      [CATEGORY:LIP]   [SMALL][EMBEDDED]         [DEFAULT_RELSIZE:6] [CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"-- Materials",
+					"[ADD_MATERIAL:BRAIN:^BRAIN_TEMPLATE]",
+					"[ADD_MATERIAL:EYE:^EYE_TEMPLATE]",
+					"[ADD_MATERIAL:TOOTH:^TOOTH_TEMPLATE]",
+					"-- Tissues",
+					"[ADD_TISSUE:BRAIN:^BRAIN_TEMPLATE]",
+					"[ADD_TISSUE:EYE:^EYE_TEMPLATE]",
+					"[ADD_TISSUE:TOOTH:^TOOTH_TEMPLATE]",
+					" -- Layers",
+					"[BP_LAYERS:BY_CATEGORY:NECK:ARG3:50:ARG2:5:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:HEAD:ARG3:50:ARG2:5:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:BRAIN:BRAIN:100]",
+					"[BP_LAYERS:BY_CATEGORY:THROAT:ARG1:100]",
+					"[BP_LAYERS:BY_CATEGORY:SKULL:ARG4:100]",
+					"[BP_LAYERS:BY_CATEGORY:EYE:EYE:100]",
+					"[BP_LAYERS:BY_CATEGORY:EYELID:ARG1:100]",
+					"[BP_LAYERS:BY_CATEGORY:EAR:ARG5:4:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:NOSE:ARG5:4:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:TOOTH:TOOTH:100]",
+					"[BP_LAYERS:BY_CATEGORY:MOUTH:ARG3:10:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:LIP:ARG3:10:ARG2:5:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:TONGUE:ARG3:10:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:CHEEK:ARG1:100]",
+					"-- Positions",
+					"[BP_RELATION:BY_CATEGORY:SKULL:AROUND:BY_CATEGORY:BRAIN:100]",
+					"[BP_RELATION:BY_TOKEN:RLID:AROUND:BY_TOKEN:REYE:50]",
+					"[BP_RELATION:BY_TOKEN:LLID:AROUND:BY_TOKEN:LEYE:50]",
+					"[BP_RELATION:BY_TOKEN:RLID:CLEANS:BY_TOKEN:REYE:100]",
+					"[BP_RELATION:BY_TOKEN:LLID:CLEANS:BY_TOKEN:LEYE:100]",
+					"[BP_POSITION:BY_TOKEN:REAR:RIGHT]",
+					"[BP_POSITION:BY_TOKEN:LEAR:LEFT]",
+					"[BP_POSITION:BY_CATEGORY:NOSE:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:LIP:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:TONGUE:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:MOUTH:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:CHEEK:FRONT]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:TEETH:100]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:MOUTH:100]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:TONGUE:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:MOUTH:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:TEETH:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:TONGUE:100]"]
+			},
+			"RAWS": {
+				"BODY":       ["{#KEY}"],
+				"MATS":       [""],
+				"TISSUES":    [""],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY:SURFACE:INSULATION:MEAT:STRUCTURE:CONNECTOR]"],
+				"APPEARANCE": [""]
+			}
+		}
+	},
+	
+	"arm":            {"__comment": "Arms and hands",
+		"2ARM_6PART": {"__comment": "shoulder, upper arm, elbow, lower arm, wrist, hand",
+			"TYPE":     "ARM_BASIC",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "There are two #NAME connected to the upper body with shoulder joints, and consisting of an #UPPER and #LOWER connected with an elbow joint and #GRASP attached by a wrist",
+			"NAME":     ["arms"],
+			"UPPER":    ["upper arm"],
+			"LOWER":    ["lower arm", "forearm"],
+			"GRASP":    ["hands"],
+			"REQUIRED": ["SURFACE","INSULATION","MEAT","STRUCTURE"],
+			"DIGITS":   {"MIN": 1, "REQUIRED": ["FINGERS"]},
+			"ATTACK":   ["PUNCH"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:LUA_J:left shoulder:STP] [CATEGORY:ARM_JOINT][LEFT] [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:100][CONTYPE:UPPERBODY]",
+					"[BP:LUA:left upper arm:STP]  [CATEGORY:ARM_UPPER][LEFT] [LIMB]                  [DEFAULT_RELSIZE:200][CON:LUA_J]",
+					"[BP:LLA_J:left elbow:STP]    [CATEGORY:ARM_JOINT][LEFT] [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:LUA]",
+					"[BP:LLA:left lower arm:STP]  [CATEGORY:ARM_LOWER][LEFT] [LIMB]                  [DEFAULT_RELSIZE:200][CON:LLA_J]",
+					"[BP:LH_J:left wrist:STP]     [CATEGORY:ARM_JOINT][LEFT] [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:LLA]",
+					"[BP:LHAND:left hand:STP]     [CATEGORY:HAND]     [LEFT] [GRASP]                 [DEFAULT_RELSIZE:80] [CON:LH_J]",
+					"[BP:RUA_J:right shoulder:STP][CATEGORY:ARM_JOINT][RIGHT][JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:100][CONTYPE:UPPERBODY]",
+					"[BP:RUA:right upper arm:STP] [CATEGORY:ARM_UPPER][RIGHT][LIMB]                  [DEFAULT_RELSIZE:200][CON:RUA_J]",
+					"[BP:RLA_J:right elbow:STP]   [CATEGORY:ARM_JOINT][RIGHT][JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:RUA]",
+					"[BP:RLA:right lower arm:STP] [CATEGORY:ARM_LOWER][RIGHT][LIMB]                  [DEFAULT_RELSIZE:200][CON:RLA_J]",
+					"[BP:RH_J:right wrist:STP]    [CATEGORY:ARM_JOINT][RIGHT][JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:RLA]",
+					"[BP:RHAND:right hand:STP]    [CATEGORY:HAND]     [RIGHT][GRASP]                 [DEFAULT_RELSIZE:80] [CON:RH_J]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:ARM_JOINT:ARG4:4:ARG3:1]",
+					"[BP_LAYERS:BY_CATEGORY:ARM_UPPER:ARG4:25:ARG3:25:ARG2:5:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:ARM_LOWER:ARG4:25:ARG3:25:ARG2:5:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:HAND:ARG4:25:ARG3:25:ARG2:5:ARG1:1]"]
+			},
+			"RAWS": {
+				"ATTACKS":    [""],
+				"BODY":       ["{#KEY}"],
+				"MATS":       [""],
+				"TISSUES":    [""],
+				"BDP":        ["[BODY_DETAIL_PLAN:#KEY:SURFACE:INSULATION:MEAT:STRUCTURE]"],
+				"APPEARANCE": [""]
+			}
+		}
+	},
+
+	"leg":            {"__comment": "Legs and feet",
+		"2LEG_6PART": {"__comment": "hip, upper leg, knee, lower leg, ankle, foot",
+			"TYPE":     "LEG_BASIC",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "There are two #NAME connected to the lower body with hip joints, and consisting of an #UPPER and #LOWER connected with an knee joint and #STANCE attached by an ankle",
+			"NAME":     ["legs"],
+			"UPPER":    ["upper leg"],
+			"LOWER":    ["lower leg", "foreleg"],
+			"STANCE":   ["feet"],
+			"REQUIRED": ["SURFACE","INSULATION","MEAT","STRUCTURE"],
+			"DIGITS":   {"MIN": 1, "REQUIRED": ["TOES"]},
+			"ATTACK":   ["KICK"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:LUL_J:left hip:STP]     [CATEGORY:LEG_JOINT][LEFT] [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:50] [CONTYPE:LOWERBODY]",
+					"[BP:LUL:left upper leg:STP] [CATEGORY:LEG_UPPER][LEFT] [LIMB]                  [DEFAULT_RELSIZE:500][CON:LUL_J]",
+					"[BP:LLL_J:left knee:STP]    [CATEGORY:LEG_JOINT][LEFT] [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:LUL]",
+					"[BP:LLL:left lower leg:STP] [CATEGORY:LEG_LOWER][LEFT] [LIMB]                  [DEFAULT_RELSIZE:400][CON:LLL_J]",
+					"[BP:LF_J:left ankle:STP]    [CATEGORY:LEG_JOINT][LEFT] [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:LLL]",
+					"[BP:LFOOT:left foot:left feet][CATEGORY:FOOT]   [LEFT] [STANCE]                [DEFAULT_RELSIZE:120][CON:LF_J]",
+					"[BP:RUL_J:right hip:STP]    [CATEGORY:LEG_JOINT][RIGHT][JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:50] [CONTYPE:LOWERBODY]",
+					"[BP:RUL:right upper leg:STP][CATEGORY:LEG_UPPER][RIGHT][LIMB]                  [DEFAULT_RELSIZE:500][CON:RUL_J]",
+					"[BP:RLL_J:right knee:STP]   [CATEGORY:LEG_JOINT][RIGHT][JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:RUL]",
+					"[BP:RLL:right lower leg:STP][CATEGORY:LEG_LOWER][RIGHT][LIMB]                  [DEFAULT_RELSIZE:400][CON:RLL_J]",
+					"[BP:RF_J:right ankle:STP]   [CATEGORY:LEG_JOINT][RIGHT][JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:RLL]",
+					"[BP:RFOOT:right foot:right feet][CATEGORY:FOOT] [RIGHT][STANCE]                [DEFAULT_RELSIZE:120][CON:RF_J]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:LEG_JOINT:ARG4:4:ARG3:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_UPPER:ARG4:25:ARG3:25:ARG2:5:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_LOWER:ARG4:25:ARG3:25:ARG2:5:ARG1:1]",
+					"[BP_LAYERS:BY_CATEGORY:FOOT:ARG4:25:ARG3:25:ARG2:5:ARG1:1]"]
+			},
+			"RAWS": {
+				"ATTACKS":    [""],
+				"BODY":       ["{#KEY}"],
+				"MATS":       [""],
+				"TISSUES":    [""],
+				"LAYERS":     [""],
+				"BDP":        ["[BODY_DETAIL_PLAN:#KEY:SURFACE:INSULATION:MEAT:STRUCTURE]"],
+				"APPEARANCE": [""]
+			}
+		}
+	},
+
+	"digits":       {"__comment": "",
+		"5FINGERS": {"__comment": "",
+			"TYPE":   "FINGERS",
+			"WEIGHT": 100,
+			"DESC":   "The @arm:GRASP@ have five fingers",
+			"ATTACK": ["SCRATCH"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:FINGER1:first finger:STP] [CONTYPE:GRASP][DIGIT][SMALL][CATEGORY:FINGER][DEFAULT_RELSIZE:5]",
+					"[BP:FINGER1:second finger:STP][CONTYPE:GRASP][DIGIT][SMALL][CATEGORY:FINGER][DEFAULT_RELSIZE:5]",
+					"[BP:FINGER1:third finger:STP] [CONTYPE:GRASP][DIGIT][SMALL][CATEGORY:FINGER][DEFAULT_RELSIZE:5]",
+					"[BP:FINGER1:fourth finger:STP][CONTYPE:GRASP][DIGIT][SMALL][CATEGORY:FINGER][DEFAULT_RELSIZE:5]",
+					"[BP:FINGER1:fifth finger:STP] [CONTYPE:GRASP][DIGIT][SMALL][CATEGORY:FINGER][DEFAULT_RELSIZE:4]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:FINGER:ARG4:25:ARG3:25:ARG2:5:ARG1:1]"]
+			},
+			"RAWS": {
+				"ATTACKS":    [""],
+				"BODY":       ["{#KEY}"],
+				"MATS":       ["[USE_MATERIAL_TEMPLATE:NAIL:^NAIL_TEMPLATE]"],
+				"TISSUES":    ["[USE_TISSUE_TEMPLATE:NAIL:^NAIL_TEMPLATE]"],
+				"LAYERS":     ["[TISSUE_LAYER:BY_CATEGORY:FINGER:NAIL:FRONT]"],
+				"BDP":        ["[BODY_DETAIL_PLAN:#KEY:SURFACE:INSULATION:MEAT:STRUCTURE]"],
+				"APPEARANCE": [""]
+			}
+		},
+		"5TOES":    {"__comment": "",
+			"TYPE":   "TOES",
+			"WEIGHT": 100,
+			"DESC":   "The @leg:STANCE@ have five toes",
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:TOE1:first toe:STP] [CONTYPE:STANCE][DIGIT][SMALL][CATEGORY:TOE][DEFAULT_RELSIZE:5]",
+					"[BP:TOE2:second toe:STP][CONTYPE:STANCE][DIGIT][SMALL][CATEGORY:TOE][DEFAULT_RELSIZE:3]",
+					"[BP:TOE3:third toe:STP] [CONTYPE:STANCE][DIGIT][SMALL][CATEGORY:TOE][DEFAULT_RELSIZE:3]",
+					"[BP:TOE4:fourth toe:STP][CONTYPE:STANCE][DIGIT][SMALL][CATEGORY:TOE][DEFAULT_RELSIZE:3]",
+					"[BP:TOE5:fifth toe:STP] [CONTYPE:STANCE][DIGIT][SMALL][CATEGORY:TOE][DEFAULT_RELSIZE:2]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TOE:ARG4:25:ARG3:25:ARG2:5:ARG1:1]"]
+			},
+			"RAWS": {
+				"ATTACKS":    [""],
+				"BODY":       ["{#KEY}"],
+				"MATS":       [""],
+				"TISSUES":    [""],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY:SURFACE:INSULATION:MEAT:STRUCTURE]"],
+				"APPEARANCE": [""]
+			}
+		}
+	},
+	
+	"internal":              {"__comment": "",
+		"INTERNAL_STANDARD": {"__comment": "",
+			"TYPE": "STANDARD_INTERNAL",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"REQUIRED": ["STRUCTURE"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:LIVER:liver:STP]         [CATEGORY:LIVER]   [INTERNAL][SMALL]                              [DEFAULT_RELSIZE:200][CONTYPE:UPPERBODY]",
+					"[BP:STOMACH:stomach:STP]     [CATEGORY:STOMACH] [INTERNAL][SMALL]                              [DEFAULT_RELSIZE:200][CONTYPE:LOWERBODY]",
+					"[BP:PANCREAS:pancreas:STP]   [CATEGORY:PANCREAS][INTERNAL][SMALL]                              [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:SPLEEN:spleen:STP]       [CATEGORY:SPLEEN]  [INTERNAL][SMALL]                              [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:RKIDNEY:right kidney:STP][CATEGORY:KIDNEY]  [INTERNAL][SMALL][RIGHT]                       [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:LKIDNEY:left kidney:STP] [CATEGORY:KIDNEY]  [INTERNAL][SMALL][LEFT]                        [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:HEART:heart:STP]         [CATEGORY:HEART]   [INTERNAL][SMALL][CIRCULATION]                 [DEFAULT_RELSIZE:100][CONTYPE:UPPERBODY]",
+					"[BP:RLUNG:right lung:STP]    [CATEGORY:LUNG]    [INTERNAL][SMALL][RIGHT][BREATHE]              [DEFAULT_RELSIZE:200][CONTYPE:UPPERBODY]",
+					"[BP:LLUNG:left lung:STP]     [CATEGORY:LUNG]    [INTERNAL][SMALL][LEFT][BREATHE]               [DEFAULT_RELSIZE:200][CONTYPE:UPPERBODY]",
+					"[BP:GUTS:guts:guts]          [CATEGORY:GUTS]    [INTERNAL][SMALL][GUTS][UNDER_PRESSURE]        [DEFAULT_RELSIZE:600][CONTYPE:LOWERBODY]",
+					"[BP:USPINE:upper spine:STP]  [CATEGORY:SPINE]   [INTERNAL][SMALL][SKELETON][NERVOUS][CONNECTOR][DEFAULT_RELSIZE:100][CONTYPE:HEAD]",
+					"[BP:MSPINE:middle spine:STP] [CATEGORY:SPINE]   [INTERNAL][SMALL][SKELETON][NERVOUS]           [DEFAULT_RELSIZE:150][CONTYPE:UPPERBODY]",
+					"[BP:LSPINE:lower spine:STP]  [CATEGORY:SPINE]   [INTERNAL][SMALL][SKELETON][NERVOUS]           [DEFAULT_RELSIZE:150][CONTYPE:LOWERBODY]",
+					"[BP:RRIB:right rib:STP]      [CATEGORY:RIB]     [INTERNAL][SMALL][NUMBER:12]                   [DEFAULT_RELSIZE:30] [CONTYPE:UPPERBODY]",
+					"[BP:LRIB:left rib:STP]       [CATEGORY:RIB]     [INTERNAL][SMALL][NUMBER:12]                   [DEFAULT_RELSIZE:30] [CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"-- Materials",
+					"[ADD_MATERIAL:LUNG:^LUNG_TEMPLATE]",
+					"[ADD_MATERIAL:HEART:^HEART_TEMPLATE]",
+					"[ADD_MATERIAL:LIVER:^LIVER_TEMPLATE]",
+					"[ADD_MATERIAL:GUT:^GUT_TEMPLATE]",
+					"[ADD_MATERIAL:STOMACH:^STOMACH_TEMPLATE]",
+					"[ADD_MATERIAL:PANCREAS:^PANCREAS_TEMPLATE]",
+					"[ADD_MATERIAL:SPLEEN:^SPLEEN_TEMPLATE]",
+					"[ADD_MATERIAL:KIDNEY:^KIDNEY_TEMPLATE]",
+					"[ADD_MATERIAL:SINEW:^SINEW_TEMPLATE]",
+					"[ADD_MATERIAL:BLOOD:^BLOOD_TEMPLATE]",
+					"[ADD_MATERIAL:PUS:^PUS_TEMPLATE]",
+					"[ADD_MATERIAL:NERVE:^NERVE_TEMPLATE]",
+					"-- Tissues",
+					"[ADD_TISSUE:LUNG:^LUNG_TEMPLATE]",
+					"[ADD_TISSUE:HEART:^HEART_TEMPLATE]",
+					"[ADD_TISSUE:LIVER:^LIVER_TEMPLATE]",
+					"[ADD_TISSUE:GUT:^GUT_TEMPLATE]",
+					"[ADD_TISSUE:STOMACH:^STOMACH_TEMPLATE]",
+					"[ADD_TISSUE:PANCREAS:^PANCREAS_TEMPLATE]",
+					"[ADD_TISSUE:SPLEEN:^SPLEEN_TEMPLATE]",
+					"[ADD_TISSUE:KIDNEY:^KIDNEY_TEMPLATE]",
+					"[ADD_TISSUE:SINEW:^SINEW_TEMPLATE]",
+					"[ADD_TISSUE:BLOOD:^BLOOD_TEMPLATE]",
+					"[ADD_TISSUE:PUS:^PUS_TEMPLATE]",
+					"[ADD_TISSUE:NERVE:^NERVE_TEMPLATE]",
+					"-- Layers",
+					"[BP_LAYERS:BY_CATEGORY:LUNG:LUNG:100]",
+					"[BP_LAYERS:BY_CATEGORY:HEART:HEART:100]",
+					"[BP_LAYERS:BY_CATEGORY:GUTS:GUT:100]",
+					"[BP_LAYERS:BY_CATEGORY:LIVER:LIVER:100]",
+					"[BP_LAYERS:BY_CATEGORY:STOMACH:STOMACH:100]",
+					"[BP_LAYERS:BY_CATEGORY:PANCREAS:PANCREAS:100]",
+					"[BP_LAYERS:BY_CATEGORY:SPLEEN:SPLEEN:100]",
+					"[BP_LAYERS:BY_CATEGORY:KIDNEY:KIDNEY:100]",
+					"[BP_LAYERS:BY_CATEGORY:SPINE:NERVE:2:ARG1:2]",
+					"-- Positions",
+					"[BP_RELATION:BY_CATEGORY:RIB:AROUND:BY_CATEGORY:HEART:10]",
+					"[BP_RELATION:BY_CATEGORY:RIB:AROUND:BY_CATEGORY:LUNG:10]",
+					"[BP_RELATION:BY_CATEGORY:RIB:AROUND:BY_CATEGORY:LIVER:10]"]
+			},
+			"RAWS": {
+				"BASE": ["[HAS_NERVES]"],
+				"BODY": ["{#KEY}"],
+				"MATS": [""],
+				"TISSUES": [""],
+				"LAYERS":[
+					"[BODY_DETAIL_PLAN:#KEY:STRUCTURE]",
+					"[BLOOD:LOCAL_CREATURE_MAT:BLOOD:LIQUID]",
+					"[TENDONS:LOCAL_CREATURE_MAT:SINEW:200]",
+					"[LIGAMENTS:LOCAL_CREATURE_MAT:SINEW:200]",
+					"[PUS:LOCAL_CREATURE_MAT:PUS:LIQUID]",
+					"[SELECT_TISSUE_LAYER:HEART:BY_CATEGORY:HEART]",
+					"    [TL_MAJOR_ARTERIES]"],
+				"APPEARANCE": [""]
+			}
+		}
+	},
+	
+	"a_head":      {"__comment": "Horns, tusks, antenna, etc...",
+		"2HORNS":  {"__comment": "",
+			"TYPE":   "HORNS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There are two #ADJ #COLORS_NAME #NAME attached to the top of the head",
+			"NAME":   ["horns"],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:HEAD_2HORN]"]
+			}
+		},
+		"4HORNS":  {"__comment": "",
+			"TYPE":   "HORNS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There are four #ADJ #COLORS_NAME #NAME attached to the top of the head",
+			"NAME":   ["horns"],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:HEAD_4HORN]"]
+			}
+		},
+		"2TUSKS":  {"__comment": "",
+			"TYPE":   "TUSKS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There are two #ADJ #COLORS_NAME #NAME protruding from the mouth",
+			"NAME":   ["tusks"],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:HEAD_2TUSK]"]
+			}
+		},
+		"4TUSKS":  {"__comment": "",
+			"TYPE":   "TUSKS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There are four #ADJ #COLORS_NAME #NAME protruding from the mouth",
+			"NAME":   ["tusks"],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:HEAD_4TUSK]"]
+			}
+		},
+		"ANTENNA": {"__comment": "",
+			"TYPE":   "ANTENNA",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There are two #ADJ #COLORS_NAME #NAME on top of the head",
+			"NAME":   ["antenna"],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:HEAD_ANTENNA]"]
+			}
+		}
+	},
+	
+	"a_body":           {"__comment": "Wings, stingers, fins, tails, etc...",
+		"2WINGS":       {"__comment": "",
+			"TYPE":   "WINGS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There are two wings attached to the back of the body",
+			"NAME":   [""],
+			"ADJ":    [""],
+			"FORBIDDEN": ["ARM_WING"],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:BODY_2WINGS]"]
+			}
+		},
+		"4WINGS":       {"__comment": "",
+			"TYPE":   "WINGS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There are four wings attached to the back of the body",
+			"NAME":   [""],
+			"ADJ":    [""],
+			"FORBIDDEN": ["ARM_WING"],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:BODY_4WINGS]"]
+			}
+		},
+		"TAIL_BASIC":   {"__comment": "",
+			"TYPE":   "TAIL",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There is a tail attached to the lower body",
+			"NAME":   [""],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:TAIL_BASIC]"]
+			}
+		},
+		"TAIL_STINGER": {"__comment": "",
+			"TYPE":   "TAIL",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There is a tail with a stinger attached to the lower body",
+			"NAME":   [""],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:TAIL_HAMMER]"]
+			}
+		},
+		"TAIL_CLAW":    {"__comment": "",
+			"TYPE":   "TAIL",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There is a tail with a claw attached to the lower body",
+			"NAME":   [""],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:TAIL_CLAW]"]
+			}
+		},
+		"TAIL_HAMMER":  {"__comment": "",
+			"TYPE":   "TAIL",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "There is a tail with a large club attached to the lower body",
+			"NAME":   [""],
+			"ADJ":    [""],
+			"COLORS": {
+				"NAME": ["ANY"]
+			},
+			"RAWS": {
+				"BODY": ["[BODY:TAIL_HAMMER]"]
+			}
+		}
+	}
+}

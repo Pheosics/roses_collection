@@ -1,0 +1,43 @@
+{
+
+ "category": {"__comment": "",
+     "BASIC": {"__comment": "",
+         "TYPE":   "BASE",
+         "WEIGHT": 100,
+         "TOKENS": [""],
+         "NAME":   [""],
+         "ADJ":    [""]
+     }
+ },
+
+ "type": {"__comment": "",
+     "BASIC": {"__comment": "",
+         "TYPE":   "BASE",
+         "WEIGHT": 100,
+         "TOKENS": [""],
+         "NAME":   [""],
+         "ADJ":    [""],
+         "REQUIRED_TOKENS":  ["NONE"],
+         "FORBIDDEN_TOKENS": ["NONE"]
+     }
+ },
+
+ "subtype": {"__comment": "",
+     "BASIC": {"__comment": "",
+         "TYPE": "BASE",
+         "WEIGHT": 100,
+         "TOKENS": [""],
+         "NAME":   [""],
+         "ADJ":    [""],
+         "SIZE":   [""],
+         "SHAPE":  [""],
+         "REQUIRED_TOKENS":  ["NONE"],
+         "FORBIDDEN_TOKENS": ["NONE"],
+         "RAWS": {
+             "BASE": [""] 
+         },
+         "COLORS": {"NAME": ["!ANY"],
+                    "needles": ["!ANY"]}
+     }
+ }
+}

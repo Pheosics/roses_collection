@@ -1,0 +1,439 @@
+{
+	"__comment": ["These templates generate environment biomes based loosly on real world biome classifications",
+	              "such as temperature, moisture, and ecology. Biome tokens are added as nearest matches for use",
+				  "in DF. Generated raws are placed in creatures and plants."],
+
+	"raw_order":     ["BASE"],
+	"baseObjects":   ["category","type","subtype"],
+	"subObjects":    ["biome"],
+	"sourceObjects": [],
+	
+	"category":            {"__comment": "Environment categories based on temperature",
+		"SCORCHING_BASIC": {"__comment": "",
+			"TYPE":   "SCORCHING",
+			"WEIGHT": 25,
+			"DESC":   "#NOUN",
+			"NOUN":   ["scorching"]
+		},
+		"TROPICAL_BASIC":  {"__comment": "",
+			"TYPE":   "TROPICAL",
+			"WEIGHT": 100,
+			"DESC":   "#NOUN",
+			"NOUN":   ["tropical"]
+		},
+		"TEMPERATE_BASIC": {"__comment": "",
+			"TYPE":   "TEMPERATE",
+			"WEIGHT": 100,
+			"DESC":   "#NOUN",
+			"NOUN":   ["temperate"]
+		},
+		"TUNDRA_BASIC":    {"__comment": "",
+			"TYPE":   "TUNDRA",
+			"WEIGHT": 50,
+			"DESC":   "#NOUN",
+			"NOUN":   ["tundra"]
+		},
+		"ARCTIC_BASIC":    {"__comment": "",
+			"TYPE":   "ARCTIC",
+			"WEIGHT": 25,
+			"DESC":   "#NOUN",
+			"NOUN":   ["arctic","freezing"]
+		}
+	},
+
+	"type":               {"__comment": "Environment types based on moisture",
+		"WET_BASIC":      {"__comment": "",
+			"TYPE": "WET",
+			"WEIGHT": 50
+		},
+		"HUMID_BASIC":    {"__comment": "",
+			"TYPE": "HUMID",
+			"DESC":   "#NOUN",
+			"NOUN":   ["humid"]
+		},
+		"SUBHUMID_BASIC": {"__comment": "",
+			"TYPE": "SUBHUMID",
+			"DESC":   "#NOUN",
+			"NOUN":   ["sub-humid"]
+		},
+		"SEMIARID_BASIC": {"__comment": "",
+			"TYPE": "SEMIARID",
+			"DESC":   "#NOUN",
+			"NOUN":   ["semi-arid"]
+		},
+		"ARID_BASIC":     {"__comment": "",
+			"TYPE": "ARID",
+			"WEIGHT": 50,
+			"DESC":   "#NOUN",
+			"NOUN":   ["arid"]
+		}
+	},
+
+	"subtype":                  {"__comment": "Environment subtype based on eco-regions",
+		"WOODLAND_BASIC":       {"__comment": "",
+			"TYPE": "WOODLAND",
+			"DESC":   "#NOUN",
+			"NOUN":   ["woodlands"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"FORBIDDEN": ["ARID"]
+		},
+		"GRASSLAND_BASIC":      {"__comment": "",
+			"TYPE": "GRASSLAND",
+			"DESC":   "#NOUN",
+			"NOUN":   ["grasslands"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"FORBIDDEN": ["ARID"]
+		},
+		"WETLAND_FRESHWATER":   {"__comment": "",
+			"TYPE": "WETLAND",
+			"TOKENS": ["FRESHWATER"],
+			"DESC":   "#ADJ #NOUN",
+			"NOUN":   ["wetlands"],
+			"ADJ":    ["freshwater"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"FORBIDDEN": ["ARID","SEMIARID"]
+		},
+		"WETLAND_SALTWATER":    {"__comment": "",
+			"TYPE": "WETLAND",
+			"TOKENS": ["SALTWATER"],
+			"DESC":   "#ADJ #NOUN",
+			"NOUN":   ["wetlands"],
+			"ADJ":    ["saltwater"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"FORBIDDEN": ["ARID","SEMIARID"]
+		},
+		"BARRENS_BASIC":        {"__comment": "",
+			"TYPE": "BARREN",
+			"DESC":   "#NOUN environments",
+			"NOUN":   ["barren"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"REQUIRED":  ["ARID"]
+		},
+		"SUBTERRANEAN_BASIC":   {"__comment": "",
+			"TYPE": "SUBTERRANEAN",
+			"WEIGHT": 10,
+			"DESC":   "#NOUN environments",
+			"NOUN":   ["subterranean"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"RAWS":   {
+				"BASE": ["[UNDERGROUND_DEPTH:1:4]"]
+			}
+		},
+		"SUBTERRANEAN_SHALLOW": {"__comment": "",
+			"TYPE": "SUBTERRANEAN",
+			"WEIGHT": 10,
+			"DESC":   "#ADJ #NOUN environments",
+			"NOUN":   ["subterranean"],
+			"ADJ":    ["shallow"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"RAWS":   {
+				"BASE": ["[UNDERGROUND_DEPTH:1:2]"]
+			}
+		},
+		"SUBTERRANEAN_DEEP":    {"__comment": "",
+			"TYPE": "SUBTERRANEAN",
+			"WEIGHT": 10,
+			"DESC":   "#ADJ #NOUN environments",
+			"NOUN":   ["subterranean"],
+			"ADJ":    ["deep"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"RAWS":   {
+				"BASE": ["[UNDERGROUND_DEPTH:3:4]"]
+			}
+		},
+		"ALPINE_BASIC":         {"__comment": "",
+			"TYPE": "ALPINE",
+			"DESC":   "#NOUN environments",
+			"NOUN":   ["alpine"],
+			"RAWS":   {
+				"BASE": ["[BIOME:MOUNTAIN]"]
+			}
+		},
+		"MARINE_FRESHWATER":    {"__comment": "",
+			"TYPE":   "MARINE",
+			"TOKENS": ["FRESHWATER"],
+			"DESC":   "#ADJ #NOUN environments",
+			"NOUN":   ["marine"],
+			"ADJ":    ["freshwater"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"REQUIRED":  ["WET"]
+		},
+		"MARINE_SALTWATER":     {"__comment": "",
+			"TYPE":   "MARINE",
+			"TOKENS": ["SALTWATER"],
+			"DESC":   "#ADJ #NOUN environments",
+			"NOUN":   ["marine"],
+			"ADJ":    ["saltwater"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"REQUIRED":  ["WET"]
+		},
+		"MARINE_BRACKISHWATER": {"__comment": "",
+			"TYPE":   "MARINE",
+			"TOKENS": ["BRACKISHWATER"],
+			"DESC":   "#ADJ #NOUN environments",
+			"NOUN":   ["marine"],
+			"ADJ":    ["brackishwater"],
+			"BIOME":  {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"REQUIRED":  ["WET"]
+		}
+	},
+
+	"biome":                             {"__comment": "",
+		"UNDERGROUND_WATER":             {"__comment": "",
+			"TYPE":   "UNDERGROUND",
+			"NOUN":   ["subterranean pool"],
+			"REQUIRED":  ["SUBTERRANEAN","WET"],
+			"FORBIDDEN": ["SCORCHING"],
+			"RAWS":   {
+				"BASE": ["[BIOME:SUBTERRANEAN_WATER]"]
+			}
+		},
+		"UNDERGROUND_BASIC":             {"__comment": "",
+			"TYPE":   "UNDERGROUND",
+			"NOUN":   ["subterranean chasm"],
+			"REQUIRED":  ["SUBTERRANEAN"],
+			"FORBIDDEN": ["SCORCHING"],
+			"RAWS":   {
+				"BASE": ["[BIOME:SUBTERRANEAN_CHASM]"]
+			}
+		},
+		"UNDERGROUND_LAVA":              {"__comment": "",
+			"TYPE":   "UNDERGROUND",
+			"NOUN":   ["subterranean lava flow"],
+			"REQUIRED":  ["SUBTERRANEAN","SCORCHING"],
+			"FORBIDDEN": ["WET"],
+			"RAWS":   {
+				"BASE": ["[BIOME:SUBTERRANEAN_MAGMA]"]
+			}
+		},
+		"FOREST_CONIFER":                {"__comment": "",
+			"TYPE":   "CONIFER",
+			"NOUN":   ["forest"],
+			"ADJ":    ["conifer"],
+			"REQUIRED":  ["WOODLAND"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:FOREST_@category:TYPE@_CONIFER]"]
+			}
+		},
+		"FOREST_BROADLEAF_TEMPERATE":    {"__comment": "",
+			"TYPE":   "BROADLEAF",
+			"NOUN":   ["forest"],
+			"ADJ":    ["broadleaf"],
+			"REQUIRED":  ["WOODLAND"],
+			"FORBIDDEN": ["TROPICAL","SCORCHING","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:FOREST_TEMPERATE_BROADLEAF]"]
+			}
+		},
+		"FOREST_BROADLEAF_TROPICAL_WET": {"__comment": "",
+			"TYPE":   "BROADLEAF",
+			"NOUN":   ["forest"],
+			"ADJ":    ["broadleaf"],
+			"REQUIRED":  ["WOODLAND"],
+			"FORBIDDEN": ["ARID","SEMIARID","TEMPERATE","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:FOREST_TROPICAL_WET_BROADLEAF]"]
+			}
+		},
+		"FOREST_BROADLEAF_TROPICAL_DRY": {"__comment": "",
+			"TYPE":   "BROADLEAF",
+			"NOUN":   ["forest"],
+			"ADJ":    ["broadleaf"],
+			"REQUIRED":  ["WOODLAND"],
+			"FORBIDDEN": ["WET","HUMID","SUBHUMID","TEMPERATE","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:FOREST_TROPICAL_DRY_BROADLEAF]"]
+			}
+		},
+		"FOREST_TAIGA":                  {"__comment": "",
+			"TYPE":   "TAIGA",
+			"NOUN":   ["forest"],
+			"ADJ":    ["taiga"],
+			"REQUIRED":  ["WOODLAND"],
+			"FORBIDDEN": ["SCORCHING","TROPICAL","TEMPERATE"],
+			"RAWS":   {
+				"BASE": ["[BIOME:FOREST_TAIGA]"]
+			}
+		},
+		"OCEAN_BASIC":                   {"__comment": "",
+			"TYPE": "OCEAN",
+			"NOUN":   ["ocean"],
+			"REQUIRED":  ["SALTWATER"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA"],
+			"RAWS":   {
+				"BASE": ["[BIOME:OCEAN_@category:TYPE@]"]
+			}
+		},
+		"POOL_BASIC":                    {"__comment": "",
+			"TYPE": "POOL",
+			"NOUN":   ["pool"],
+			"REQUIRED": ["MARINE"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:POOL_@category:TYPE@_@subtype:ADJ@]"]
+			}
+		},
+		"LAKE_BASIC":                    {"__comment": "",
+			"TYPE": "LAKE",
+			"NOUN":   ["lake"],
+			"REQUIRED": ["MARINE"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:LAKE_@category:TYPE@_@subtype:ADJ@]"]
+			}
+		},
+		"RIVER_BASIC":                   {"__comment": "",
+			"TYPE": "RIVER",
+			"NOUN":   ["river"],
+			"REQUIRED":  ["MARINE"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:RIVER_@category:TYPE@_@subtype:ADJ@]"]
+			}
+		},
+		"SWAMP_BASIC":                   {"__comment": "",
+			"TYPE": "SWAMP",
+			"NOUN":   ["swamp"],
+			"REQUIRED":  ["WETLAND"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC","BRACKISHWATER"],
+			"RAWS":   {
+				"BASE": ["[BIOME:SWAMP_@category:TYPE@_@subtype:ADJ@]"]
+			}
+		},
+		"SWAMP_MANGROVE":                {"__comment": "",
+			"TYPE": "SWAMP",
+			"NOUN":   ["swamp"],
+			"ADJ":    ["mangrove"],
+			"REQUIRED":  ["WETLAND","BRACKISHWATER"],
+			"RAWS":   {
+				"BASE": ["[BIOME:SWAMP_MANGROVE]"]
+			}
+		},
+		"MARSH_BASIC":                   {"__comment": "",
+			"TYPE": "MARSH",
+			"NOUN":   ["marsh"],
+			"REQUIRED":  ["WETLAND"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC","BRACKISHWATER"],
+			"RAWS":   {
+				"BASE": ["[BIOME:MARSH_@category:TYPE@_@subtype:ADJ@]"]
+			}
+		},
+		"WETLAND_SCORCHING":             {"__comment": "",
+			"TYPE": "SWAMP",
+			"NOUN":   ["swamp"],
+			"REQUIRED":  ["WETLAND"],
+			"FORBIDDEN": ["BRACKISHWATER"],
+			"RAWS":   {
+				"BASE": ["[BIOME:SWAMP_TROPICAL_@subtype:ADJ@]",
+						 "[BIOME:MARSH_TROPICAL_@subtype:ADJ@]"]
+			}
+		},
+		"GRASSLAND_BASIC":               {"__comment": "",
+			"TYPE": "GRASSLAND",
+			"NOUN":   ["grassland"],
+			"REQUIRED":  ["GRASSLAND"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:GRASSLAND_@category:TYPE@]"]
+			}
+		},
+		"SAVANNA_BASIC":                 {"__comment": "",
+			"TYPE": "SAVANNA",
+			"NOUN":   ["savanna"],
+			"REQUIRED":  ["GRASSLAND"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:SAVANNA_@category:TYPE@]"]
+			}
+		},
+		"SHRUBLAND_BASIC":               {"__comment": "",
+			"TYPE": "SHRUBLAND",
+			"NOUN":   ["shrubland"],
+			"REQUIRED":  ["GRASSLAND"],
+			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:SHRUBLAND_@category:TYPE@]"]
+			}
+		},
+		"DESERT_HOT":                    {"__comment": "",
+			"TYPE": "DESERT",
+			"NOUN":   ["desert"],
+			"REQUIRED":  ["ARID","BARREN"],
+			"FORBIDDEN": ["TEMPERATE","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:DESERT_BADLAND]","[BIOME:DESERT_ROCK]","[BIOME:DESERT_SAND]"]
+			}
+		},
+		"DESERT_ROCK":                   {"__comment": "",
+			"TYPE": "DESERT",
+			"NOUN":   ["desert"],
+			"REQUIRED":  ["ARID","BARREN"],
+			"FORBIDDEN": ["TEMPERATE","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:DESERT_ROCK]"]
+			}
+		},
+		"DESERT_SAND":                   {"__comment": "",
+			"TYPE": "DESERT",
+			"NOUN":   ["desert"],
+			"REQUIRED":  ["ARID","BARREN"],
+			"FORBIDDEN": ["TEMPERATE","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:DESERT_SAND]"]
+			}
+		},
+		"DESERT_BADLAND":                {"__comment": "",
+			"TYPE": "DESERT",
+			"NOUN":   ["desert"],
+			"REQUIRED":  ["ARID","BARREN"],
+			"FORBIDDEN": ["TEMPERATE","TUNDRA","ARCTIC"],
+			"RAWS":   {
+				"BASE": ["[BIOME:DESERT_BADLAND]"]
+			}
+		},
+		"DESERT_ARTIC":                  {"__comment": "",
+			"TYPE": "DESERT",
+			"NOUN":   ["desert"],
+			"ADJ":    ["arctic"],
+			"REQUIRED":  ["ARID","BARREN"],
+			"FORBIDDEN": ["TEMPERATE","TROPICAL","SCORCHING"],
+			"RAWS":   {
+				"BASE": ["[BIOME:GLACIER]"]
+			}
+		}
+	}
+}

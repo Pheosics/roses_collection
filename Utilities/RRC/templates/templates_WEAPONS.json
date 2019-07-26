@@ -1,0 +1,349 @@
+{
+	"__comment": [""],
+
+	"raw_order":     ["BASE","ATTACKS"],
+	"baseObjects":   ["category","type"],
+	"subObjects":    [],
+	"sourceObjects": ["weapon_components"],
+	"numberObjects": ["weapon_size"],
+	
+	"category":    {"__comment": "",
+		"MUNDANE": {"__comment": "",
+			"TYPE":   "MUNDANE",
+			"WEIGHT": 100
+		}
+	},
+
+	"type":             {"__comment": "",
+		"MELEE_BASIC":  {"__comment": "Melee weapons are combinations of a grip, a handle, and a head",
+			"TYPE": "MELEE",
+			"DESC": "A #ADJ #NOUN",
+			"NAME": "@weapon_components:GRIP_TYPE:NOUN@ @weapon_components:HANDLE_TYPE:NOUN@ @weapon_components:HEAD_TYPE:NOUN@",
+			"NOUN": ["weapon"],
+			"ADJ":  ["melee"],
+			"N":    {"WEAPON_SIZE": 1},
+			"WEAPON_COMPONENTS": ["GRIP","HANDLE","HEAD"],
+			"RAWS": {
+				"BASE":  [
+					"[NAME:!NAME_SINGULAR:!NAME_PLURAL]",
+						"[SIZE:$N:WEAPON_SIZE:1$]",
+						"[MINIMUM_SIZE:$N:WEAPON_SIZE:2$]",
+						"[TWO_HANDED:$N:WEAPON_SIZE:3$]",
+						"[MATERIAL_SIZE:$N:WEAPON_SIZE:4$]"]
+			}
+		},
+		"RANGED_BASIC": {"__comment": "Ranged weapons are combinations of frame, ...",
+			"TYPE":     "RANGED",
+			"WEIGHT":   0,
+			"N": {"WEAPON_SIZE": 1}
+		}
+	},
+	
+	"weapon_components": {"__comment": "",
+		"GRIP_SIMPLE":     {"__comment": "No additions            (+0 weapon size)",
+			"TYPE": "GRIP",
+			"DESC": "simple grip",
+			"NOUN": [""]
+		},
+		"GRIP_POMMEL":     {"__comment": "Adds a blunt attack     (+0 weapon size)",
+			"TYPE": "GRIP",
+			"DESC": "simple grip with a pommel",
+			"NOUN": [""],
+			"RAWS": {
+				"ATTACKS": [
+					"[ATTACK:BLUNT:100:1000:strike:strikes:pommel:1000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"GRIP_SPIKES":     {"__comment": "Adds a piercing attack  (+0 weapon size)",
+			"TYPE": "GRIP",
+			"DESC": "simple grip with a spiked pommel",
+			"NOUN": [""]
+		},
+		
+		"HANDLE_NONE":   {"__comment": "No additions        (+0 weapon size)",
+			"TYPE": "HANDLE",
+			"DESC": "no handle",
+			"NOUN": [""]
+		},
+		"HANDLE_SHORT":  {"__comment": "Adds a blunt attack (+1 weapon size)",
+			"TYPE": "HANDLE",
+			"DESC": "short handle",
+			"NOUN": ["short handle"],
+			"N": {"WEAPON_SIZE": 1}
+		},
+		"HANDLE_LONG":   {"__comment": "Adds a blunt attack (+2 weapon size)",
+			"TYPE": "HANDLE",
+			"DESC": "long handle",
+			"NOUN": ["long handle"],
+			"N": {"WEAPON_SIZE": 2}
+		},
+		"HANDLE_GIANT":  {"__comment": "Adds a blunt attack (+3 weapon size)",
+			"TYPE": "HANDLE",
+			"DESC": "giant handle",
+			"NOUN": ["giant handle"],
+			"N": {"WEAPON_SIZE": 3}
+		},
+		"HANDLE_CURVED": {"__comment": "Adds a blunt attack (+2 weapon size)",
+			"TYPE": "HANDLE",
+			"DESC": "long curved handle",
+			"NOUN": ["curved handle"],
+			"N": {"WEAPON_SIZE": 2}
+		},
+
+		"HEAD_SPEAR_SMALL":  {"__comment": "Adds piercing attacks           (+1 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["SPEAR"],
+			"DESC":   "small spear head",
+			"NOUN":   ["spear"],
+			"N": {"WEAPON_SIZE": 1},
+			"RAWS": {
+				"BASE": ["[SKILL:SPEAR]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:20:10000:stab:stabs:NO_SUB:1000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_SPEAR_LARGE":  {"__comment": "Adds piercing attacks           (+2 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["SPEAR"],
+			"DESC": "large spear head",
+			"NOUN": ["spear"],
+			"N": {"WEAPON_SIZE": 2},
+			"RAWS": {
+				"BASE": ["[SKILL:SPEAR]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:20:10000:stab:stabs:NO_SUB:1000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_SPEAR_GIANT":  {"__comment": "Adds piercing attacks           (+3 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["SPEAR"],
+			"DESC": "giant spear head",
+			"NOUN": ["spear"],
+			"N": {"WEAPON_SIZE": 3},
+			"RAWS": {
+				"BASE": ["[SKILL:SPEAR]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:20:10000:stab:stabs:NO_SUB:1000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_AXE_SMALL":    {"__comment": "Adds edge attacks               (+1 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["AXE"],
+			"DESC": "small axe head",
+			"NOUN": ["axe"],
+			"N": {"WEAPON_SIZE": 1},
+			"RAWS": {
+				"BASE": ["[SKILL:AXE]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:40000:6000:hack:hacks:NO_SUB:1250]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_AXE_LARGE":    {"__comment": "Adds edge attacks               (+2 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["AXE"],
+			"DESC": "large axe head",
+			"NOUN": ["axe"],
+			"N": {"WEAPON_SIZE": 2},
+			"RAWS": {
+				"BASE": ["[SKILL:AXE]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:40000:6000:hack:hacks:NO_SUB:1250]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_AXE_GIANT":    {"__comment": "Adds edge attacks               (+3 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["AXE"],
+			"DESC": "giant axe head",
+			"NOUN": ["axe"],
+			"N": {"WEAPON_SIZE": 3},
+			"RAWS": {
+				"BASE": ["[SKILL:AXE]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:40000:6000:hack:hacks:NO_SUB:1250]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_SWORD_SHORT":  {"__comment": "Adds edge and piercing attacks  (+1 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["SWORD"],
+			"DESC": "short sword head",
+			"NOUN": ["sword"],
+			"N": {"WEAPON_SIZE": 1},
+			"RAWS": {
+				"BASE": ["[SKILL:SWORD]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:20000:4000:slash:slashes:NO_SUB:1250]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]",
+					"[ATTACK:EDGE:50:2000:stab:stabs:NO_SUB:1000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_SWORD_LONG":   {"__comment": "Adds edge and piercing attacks  (+2 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["SWORD"],
+			"DESC": "long sword head",
+			"NOUN": ["sword"],
+			"N": {"WEAPON_SIZE": 2},
+			"RAWS": {
+				"BASE": ["[SKILL:SWORD]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:20000:4000:slash:slashes:NO_SUB:1250]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]",
+					"[ATTACK:EDGE:50:2000:stab:stabs:NO_SUB:1000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_SWORD_GIANT":  {"__comment": "Adds edge and piercing attacks  (+3 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["SWORD"],
+			"DESC": "giant sword head",
+			"NOUN": ["sword"],
+			"N": {"WEAPON_SIZE": 3},
+			"RAWS": {
+				"BASE": ["[SKILL:SWORD]"],
+				"ATTACKS": [
+					"[ATTACK:EDGE:20000:4000:slash:slashes:NO_SUB:1250]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]",
+					"[ATTACK:EDGE:50:2000:stab:stabs:NO_SUB:1000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_MACE_SMALL":   {"__comment": "Adds blunt and piercing attacks (+1 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["MACE"],
+			"DESC": "small mace head",
+			"NOUN": ["mace"],
+			"N": {"WEAPON_SIZE": 1},
+			"RAWS": {
+				"BASE": ["[SKILL:MACE]"],
+				"ATTACKS": [
+					"[ATTACK:BLUNT:20:200:bash:bashes:NO_SUB:2000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_MACE_LARGE":   {"__comment": "Adds blunt and piercing attacks (+2 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["MACE"],
+			"DESC": "large mace head",
+			"NOUN": ["mace"],
+			"N": {"WEAPON_SIZE": 2},
+			"RAWS": {
+				"BASE": ["[SKILL:MACE]"],
+				"ATTACKS": [
+					"[ATTACK:BLUNT:20:200:bash:bashes:NO_SUB:2000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_MACE_GIANT":   {"__comment": "Adds blunt and piercing attacks (+3 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["MACE"],
+			"DESC": "giant mace head",
+			"NOUN": ["mace"],
+			"N": {"WEAPON_SIZE": 3},
+			"RAWS": {
+				"BASE": ["[SKILL:MACE]"],
+				"ATTACKS": [
+					"[ATTACK:BLUNT:20:200:bash:bashes:NO_SUB:2000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_HAMMER_SMALL": {"__comment": "Adds blunt attacks              (+1 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["HAMMER"],
+			"DESC": "small hammer head",
+			"NOUN": ["hammer"],
+			"N": {"WEAPON_SIZE": 1},
+			"RAWS": {
+				"BASE": ["[SKILL:HAMMER]"],
+				"ATTACKS": [
+					"[ATTACK:BLUNT:10:200:bash:bashes:NO_SUB:2000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_HAMMER_LARGE": {"__comment": "Adds blunt attacks              (+2 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["HAMMER"],
+			"DESC": "large hammer head",
+			"NOUN": ["hammer"],
+			"N": {"WEAPON_SIZE": 2},
+			"RAWS": {
+				"BASE": ["[SKILL:HAMMER]"],
+				"ATTACKS": [
+					"[ATTACK:BLUNT:10:200:bash:bashes:NO_SUB:2000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_HAMMER_GIANT": {"__comment": "Adds blunt attacks              (+3 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["HAMMER"],
+			"DESC": "giant hammer head",
+			"NOUN": ["hammer"],
+			"N": {"WEAPON_SIZE": 3},
+			"RAWS": {
+				"BASE": ["[SKILL:HAMMER]"],
+				"ATTACKS": [
+					"[ATTACK:BLUNT:10:200:bash:bashes:NO_SUB:2000]",
+						"[ATTACK_PREPARE_AND_RECOVER:3:3]"]
+			}
+		},
+		"HEAD_WHIP_SHORT":   {"__comment": "Adds edge and blunt attacks     (+0 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["WHIP"],
+			"DESC": "short whip head",
+			"NOUN": ["whip"],
+			"N": {"WEAPON_SIZE": 0},
+			"RAWS": {
+				"BASE": ["[SKILL:WHIP]"],
+				"ATTACKS": [
+					"[ATTACK:BLUNT:1:10:lash:lashes:NO_SUB:5000]",
+						"[ATTACK_PREPARE_AND_RECOVER:4:4]",
+						"[ATTACK_FLAG_BAD_MULTIATTACK]"]
+			}
+		},
+		"HEAD_WHIP_LONG":    {"__comment": "Adds edge and blunt attacks     (+1 weapon size)",
+			"TYPE":   "HEAD",
+			"TOKENS": ["WHIP"],
+			"DESC": "long whip head",
+			"NOUN": ["whip"],
+			"N": {"WEAPON_SIZE": 1},
+			"RAWS": {
+				"BASE": ["[SKILL:WHIP]"],
+				"ATTACKS": [
+					"[ATTACK:BLUNT:1:10:lash:lashes:NO_SUB:5000]",
+						"[ATTACK_PREPARE_AND_RECOVER:4:4]",
+						"[ATTACK_FLAG_BAD_MULTIATTACK]"]
+			}
+		},
+		
+		"FRAME_SMALL": {"__comment": "(+1 weapon size)",
+			"TYPE": "FRAME",
+			"N": {"WEAPON_SIZE": 1}
+		},
+		"FRAME_LARGE": {"__comment": "(+2 weapon size)",
+			"TYPE": "FRAME",
+			"N": {"WEAPON_SIZE": 2}
+		},
+		"FRAME_GIANT": {"__comment": "(+3 weapon size)",
+			"TYPE": "FRAME",
+			"N": {"WEAPON_SIZE": 3}
+		}
+	},
+	
+	"weapon_size": {"__comment": "[SIZE, MINIMUM_SIZE, TWO_HANDED, MATERIAL_SIZE]",
+		"1": ["100", "$5000:15000$",   "$15000:27500$",  "1"],
+		"2": ["200", "$15000:22500$",  "$22500:27500$",  "2"],
+		"3": ["300", "$22500:27500$",  "$27500:32500$",  "2"],
+		"4": ["500", "$32500:37500$",  "$37500:42500$",  "3"],
+		"5": ["700", "$42500:47500$",  "$47500:52500$",  "4"],
+		"6": ["900", "$52500:57500$",  "$57500:62500$",  "4"],
+		"7": ["1200","$62500:77500$",  "$77500:82500$",  "5"],
+		"8": ["1500","$82500:97500$",  "$97500:102500$", "7"],
+		"9": ["1800","$102500:117500$","$117500:122500$","8"]
+	}
+}

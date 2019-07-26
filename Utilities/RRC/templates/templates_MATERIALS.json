@@ -1,0 +1,420 @@
+{
+	"__comment": ["These templates generate materials based on their physical properties",
+				  "such as STP state of matter, and response to different forces (e.g. bending and shearing)",
+				  "Generated raws are saved as material templates and used accordingly"],
+
+	"raw_order": ["BASE"],
+
+	"baseObjects":   ["category","type"],
+	"subObjects":    ["properties"],
+	"sourceObjects": ["density","impact","compress","tensile","torsion","shear","bending"],
+	"numberObjects": ["value"],
+	
+	"category":             {"__comment": "Material categories are based on ...",
+		"MUNDANE_BASIC":    {"__comment": "Base value = 1",
+			"TYPE": "MUNDANE",
+			"DESC":   "A #NOUN",
+			"NOUN":   ["mundane"],
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS":   {
+				"BASE": ["[MATERIAL_VALUE:$N:VALUE:1$]"]
+			}
+		}
+	},
+	
+	"type":             {"__comment": "Material types are based on states of matter",
+		"SOLID_BASIC":  {"__comment": "",
+			"TYPE":   "SOLID",
+			"DESC":   "#NOUN",
+			"NOUN":   ["solid"],
+			"PROPERTIES": {"MIN": 1},
+			"RAWS":   {
+				"BASE": ["[STATE_NOUN_ADJ:ALL_SOLID:#NOUN]",
+						 "[STATE_NOUN_ADJ:LIQUID:melted #NOUN]",
+						 "[STATE_NOUN_ADJ:GAS:boiling #NOUN]",
+						 "[MELTING_POINT:11500]",
+						 "[BOILING_POINT:14000]"]
+			}
+		},
+		"LIQUID_BASIC": {"__comment": "",
+			"TYPE":   "LIQUID",
+			"DESC":   "#NOUN",
+			"NOUN":   ["liquid"],
+			"PROPERTIES": {"MIN": 1},
+			"RAWS":   {
+				"BASE": ["[STATE_NOUN_ADJ:ALL_SOLID:frozen #NOUN]",
+						 "[STATE_NOUN_ADJ:LIQUID:#NOUN]",
+						 "[STATE_NOUN_ADJ:GAS:#NOUN vapor]",
+						 "[MELTING_POINT:10000]",
+						 "[BOILING_POINT:10180]"]
+			}
+		},
+		"GAS_BASIC":    {"__comment": "",
+			"TYPE":   "GAS",
+			"DESC":   "#NOUN",
+			"NOUN":   ["gas"],
+			"PROPERTIES": {"MIN": 1},
+			"RAWS":   {
+				"BASE": ["[STATE_NOUN_ADJ:ALL_SOLID:deposited #NOUN]",
+						 "[STATE_NOUN_ADJ:LIQUID:condensed #NOUN]",
+						 "[STATE_NOUN_ADJ:GAS:#NOUN]",
+						 "[MELTING_POINT:9600]",
+						 "[BOILING_POINT:9850]"]
+			}
+		}
+	},
+
+	"properties": {
+		"BASIC_PROPERTIES": {"__comment": "(Value +0)",
+			"DENSITY":  ["ANY"],
+			"IMPACT":   ["ANY"],
+			"COMPRESS": ["ANY"],
+			"TENSILE":  ["ANY"],
+			"TORSION":  ["ANY"],
+			"SHEAR":    ["ANY"],
+			"BENDING":  ["ANY"],
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE": [""]
+			}
+		}
+	},
+	
+	"density": {"__comment": "",
+		"LOW":     {"__comment": "(Value +0)",
+			"TYPE": "LOW_DENSITY",
+			"WEIGHT": 100,
+			"DESC": "low density",
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE": [
+					"[SOLID_DENSITY:2670]",
+					"[LIQUID_DENSITY:3300]",
+					"[MOLAR_MASS:36000]"]
+			}
+		},
+		"AVERAGE": {"__comment": "(Value +1)",
+			"TYPE": "AVERAGE_DENSITY",
+			"WEIGHT": 100,
+			"DESC": "average density",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"BASE": [
+					"[SOLID_DENSITY:2670]",
+					"[LIQUID_DENSITY:3300]",
+					"[MOLAR_MASS:36000]"]
+			}
+		},
+		"HIGH":    {"__comment": "(Value +2)",
+			"TYPE": "HIGH_DENSITY",
+			"WEIGHT": 100,
+			"DESC": "high density",
+			"N": {
+				"VALUE": 2
+			},
+			"RAWS": {
+				"BASE": [
+					"[SOLID_DENSITY:2670]",
+					"[LIQUID_DENSITY:3300]",
+					"[MOLAR_MASS:36000]"]
+			}
+		}
+	},
+	
+	"impact": {"__comment": "",
+		"WEAK":    {"__comment": "(Value +0)",
+			"TYPE": "WEAK_IMPACT",
+			"WEIGHT": 100,
+			"DESC": "weak against impacts",
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE": [
+					"[IMPACT_YIELD:10000]",
+					"[IMPACT_FRACTURE:10000]",
+					"[IMPACT_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"AVERAGE": {"__comment": "(Value +1)",
+			"TYPE": "AVERAGE_IMPACT",
+			"WEIGHT": 100,
+			"DESC": "average against impacts",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"BASE": [
+					"[IMPACT_YIELD:10000]",
+					"[IMPACT_FRACTURE:10000]",
+					"[IMPACT_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"STRONG":  {"__comment": "(Value +2)",
+			"TYPE": "STRONG_IMPACT",
+			"WEIGHT": 100,
+			"DESC": "strong against impacts",
+			"N": {
+				"VALUE": 2
+			},
+			"RAWS": {
+				"BASE": [
+					"[IMPACT_YIELD:10000]",
+					"[IMPACT_FRACTURE:10000]",
+					"[IMPACT_STRAIN_AT_YIELD:0]"]
+			}
+		}
+	},
+	
+	"compress": {"__comment": "",
+		"WEAK":    {"__comment": "(Value +0)",
+			"TYPE": "WEAK_COMPRESSIVE",
+			"WEIGHT": 100,
+			"DESC": "weak against compression",
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE": [
+					"[COMPRESSIVE_YIELD:10000]",
+					"[COMPRESSIVE_FRACTURE:10000]",
+					"[COMPRESSIVE_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"AVERAGE": {"__comment": "(Value +1)",
+			"TYPE": "AVERAGE_COMPRESSIVE",
+			"WEIGHT": 100,
+			"DESC": "average against compression",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"BASE": [
+					"[COMPRESSIVE_YIELD:10000]",
+					"[COMPRESSIVE_FRACTURE:10000]",
+					"[COMPRESSIVE_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"STRONG":  {"__comment": "(Value +2)",
+			"TYPE": "STRONG_COMPRESSIVE",
+			"WEIGHT": 100,
+			"DESC": "strong against compression",
+			"N": {
+				"VALUE": 2
+			},
+			"RAWS": {
+				"BASE": [
+					"[COMPRESSIVE_YIELD:10000]",
+					"[COMPRESSIVE_FRACTURE:10000]",
+					"[COMPRESSIVE_STRAIN_AT_YIELD:0]"]
+			}
+		}
+	},
+
+	"tensile": {"__comment": "",
+		"WEAK":    {"__comment": "(Value +0)",
+			"TYPE": "WEAK_TENSILE",
+			"WEIGHT": 100,
+			"DESC": "weak against stretching",
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE": [
+					"[TENSILE_YIELD:10000]",
+					"[TENSILE_FRACTURE:10000]",
+					"[TENSILE_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"AVERAGE": {"__comment": "(Value +1)",
+			"TYPE": "AVERAGE_TENSILE",
+			"WEIGHT": 100,
+			"DESC": "average against stretching",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"BASE": [
+					"[TENSILE_YIELD:10000]",
+					"[TENSILE_FRACTURE:10000]",
+					"[TENSILE_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"STRONG":  {"__comment": "(Value +2)",
+			"TYPE": "STRONG_TENSILE",
+			"WEIGHT": 100,
+			"DESC": "strong against stretching",
+			"N": {
+				"VALUE": 2
+			},
+			"RAWS": {
+				"BASE": [
+					"[TENSILE_YIELD:10000]",
+					"[TENSILE_FRACTURE:10000]",
+					"[TENSILE_STRAIN_AT_YIELD:0]"]
+			}
+		}
+	},
+
+	"torsion": {"__comment": "",
+		"WEAK":    {"__comment": "(Value +0)",
+			"TYPE": "WEAK_TORSION",
+			"WEIGHT": 100,
+			"DESC": "weak against twisting",
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE": [
+					"[TORSION_YIELD:10000]",
+					"[TORSION_FRACTURE:10000]",
+					"[TORSION_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"AVERAGE": {"__comment": "(Value +1)",
+			"TYPE": "AVERAGE_TORSION",
+			"WEIGHT": 100,
+			"DESC": "average against twisting",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"BASE": [
+					"[TORSION_YIELD:10000]",
+					"[TORSION_FRACTURE:10000]",
+					"[TORSION_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"STRONG":  {"__comment": "(Value +2)",
+			"TYPE": "STRONG_TORSION",
+			"WEIGHT": 100,
+			"DESC": "strong against twisting",
+			"N": {
+				"VALUE": 2
+			},
+			"RAWS": {
+				"BASE": [
+					"[TORSION_YIELD:10000]",
+					"[TORSION_FRACTURE:10000]",
+					"[TORSION_STRAIN_AT_YIELD:0]"]
+			}
+		}
+	},
+	
+	"shear": {"__comment": "",
+		"WEAK":    {"__comment": "(Value +0)",
+			"TYPE": "WEAK_SHEAR",
+			"WEIGHT": 100,
+			"DESC": "weak against shearing",
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE": [
+					"[SHEAR_YIELD:10000]",
+					"[SHEAR_FRACTURE:10000]",
+					"[SHEAR_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"AVERAGE": {"__comment": "(Value +1)",
+			"TYPE": "AVERAGE_SHEAR",
+			"WEIGHT": 100,
+			"DESC": "average against shearing",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"BASE": [
+					"[SHEAR_YIELD:10000]",
+					"[SHEAR_FRACTURE:10000]",
+					"[SHEAR_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"STRONG":  {"__comment": "(Value +2)",
+			"TYPE": "STRONG_SHEAR",
+			"WEIGHT": 100,
+			"DESC": "strong against shearing",
+			"N": {
+				"VALUE": 2
+			},
+			"RAWS": {
+				"BASE": [
+					"[SHEAR_YIELD:10000]",
+					"[SHEAR_FRACTURE:10000]",
+					"[SHEAR_STRAIN_AT_YIELD:0]"]
+			}
+		}
+	},
+	
+	"bending": {"__comment": "",
+		"WEAK":    {"__comment": "(Value +0)",
+			"TYPE": "WEAK_BENDING",
+			"WEIGHT": 100,
+			"DESC": "weak against bending",
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE": [
+					"[BENDING_YIELD:10000]",
+					"[BENDING_FRACTURE:10000]",
+					"[BENDING_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"AVERAGE": {"__comment": "(Value +1)",
+			"TYPE": "AVERAGE_BENDING",
+			"WEIGHT": 100,
+			"DESC": "average against bending",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"BASE": [
+					"[BENDING_YIELD:10000]",
+					"[BENDING_FRACTURE:10000]",
+					"[BENDING_STRAIN_AT_YIELD:0]"]
+			}
+		},
+		"STRONG":  {"__comment": "(Value +2)",
+			"TYPE": "STRONG_BENDING",
+			"WEIGHT": 100,
+			"DESC": "strong against bending",
+			"N": {
+				"VALUE": 2
+			},
+			"RAWS": {
+				"BASE": [
+					"[BENDING_YIELD:10000]",
+					"[BENDING_FRACTURE:10000]",
+					"[BENDING_STRAIN_AT_YIELD:0]"]
+			}
+		}
+	},
+
+	"value": {"__comment": "[MATERIAL_VALUE]",
+		"1": ["1"],
+		"2": ["1"],
+		"3": ["1"],
+		"4": ["1"],
+		"5": ["1"],
+		"6": ["1"],
+		"7": ["1"],
+		"8": ["1"],
+		"9": ["1"],
+		"10": ["1"],
+		"11": ["1"],
+		"12": ["1"],
+		"13": ["1"],
+		"14": ["1"],
+		"15": ["1"],
+		"16": ["1"]
+	}
+}

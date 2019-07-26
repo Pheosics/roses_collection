@@ -1,0 +1,420 @@
+{
+	"__comment": ["These templates are used for creating buffs, debuffs, curses, poisons, cures, etc...",
+				  "Multiple effects can appear on a single syndrome."],
+
+	"raw_order":     ["BASE","EFFECT"],
+	"baseObjects":   ["category","type","subtype"],
+	"subObjects":    ["effect"],
+	"sourceObjects": [],
+	"numberObjects": ["severity"],
+	
+	"category":          {"__comment": "",
+		"MUNDANE_BASIC": {"__comment": "(Base severity = 0)",
+			"TYPE":   "MUNDANE",
+			"N": {
+				"SEVERITY": 0
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:MUNDANE]"]
+			}
+		}
+	},
+
+	"type":                {"__comment": "",
+		"WEAK_BASIC":      {"__comment": "(+1 severity)",
+			"TYPE":   "WEAK",
+			"WEIGHT": 60,
+			"DESC":   "A #NOUN",
+			"NOUN":   ["weak"],
+			"EFFECT": {
+				"MIN": 1,
+				"MAX": 2
+			},
+			"N": {
+				"SEVERITY": 1
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:WEAK]"]
+			}
+		},
+		"MODERATE_BASIC":  {"__comment": "(+2 severity)",
+			"TYPE":   "MODERATE",
+			"DESC":   "A #NOUN",
+			"NOUN":   ["moderate"],
+			"EFFECT": {
+				"MIN": 2,
+				"MAX": 3
+			},
+			"N": {
+				"SEVERITY": 2
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:MODERATE]"]
+			}
+		},
+		"STRONG_BASIC":    {"__comment": "(+3 severity)",
+			"TYPE":   "STRONG",
+			"WEIGHT": 25,
+			"DESC":   "A #NOUN",
+			"NOUN":   ["strong"],
+			"EFFECT": {
+				"MIN": 3,
+				"MAX": 4
+			},
+			"N": {
+				"SEVERITY": 3
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:STRONG]"]
+			}
+		}
+	},
+
+	"subtype":              {"__comment": "",
+		"HARMFUL_BASIC": {"__comment": "(+0 severity)",
+			"TYPE":   "HARMFUL",
+			"DESC":   "#ADJ #NOUN",
+			"NOUN":   ["syndrome"],
+			"ADJ":    ["harmful","negative"],
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:HARMFUL]"]
+			}
+		},
+		"HELPFUL_BASIC": {"__comment": "(+0 severity)",
+			"TYPE":   "HELPFUL",
+			"DESC":   "#ADJ #NOUN",
+			"NOUN":   ["syndrome"],
+			"ADJ":    ["helpful","positive"],
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:HELPFUL]"]
+			}
+		}
+	},
+
+	"effect":                {"__comment": "",
+		"HELPFUL_STRENGTH":  {"__comment": "",
+			"TYPE":     "STRENGTH",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["strength"],
+			"ADJ":      ["increases"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:STRENGTH:100:100]"]
+			}
+		},
+		"HELPFUL_AGILITY":   {"__comment": "",
+			"TYPE":     "AGILITY",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["agility"],
+			"ADJ":      ["increases"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:AGILITY:100:100]"]
+			}
+		},
+		"HELPFUL_TOUGHNESS": {"__comment": "",
+			"TYPE":     "TOUGHNESS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["toughness"],
+			"ADJ":      ["increases"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:TOUGHNESS:100:100]"]
+			}
+		},
+		"HELPFUL_ENDURANCE": {"__comment": "",
+			"TYPE":     "ENDURANCE",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["endurance"],
+			"ADJ":      ["increases"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:ENDURANCE:100:100]"]
+			}
+		},
+		"HELPFUL_WILLPOWER": {"__comment": "",
+			"TYPE":     "WILLPOWER",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["willpower"],
+			"ADJ":      ["increases"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:WILLPOWER:100:100]"]
+			}
+		},
+		"HELPFUL_FOCUS":     {"__comment": "",
+			"TYPE":     "FOCUS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["focus"],
+			"ADJ":      ["increases"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:FOCUS:100:100]"]
+			}
+		},
+		"HELPFUL_SPEED":     {"__comment": "",
+			"TYPE":     "SPEED",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["movement speed"],
+			"ADJ":      ["increases"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_SPEED_CHANGE:SPEED_ADD:-100]"]
+			}
+		},
+		"HELPFUL_NECROSIS":  {"__comment": "",
+			"TYPE":     "NECROSIS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["necrosis"],
+			"ADJ":      ["cures"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": []
+			}
+		},
+		"HELPFUL_PARALYSIS": {"__comment": "",
+			"TYPE":     "PARALYSIS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["paralysis"],
+			"ADJ":      ["cures"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": []
+			}
+		},
+		"HELPFUL_NAUSEA":    {"__comment": "",
+			"TYPE":     "NAUSEA",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["nausea"],
+			"ADJ":      ["cures"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": []
+			}
+		},
+		"HELPFUL_DIZZY":     {"__comment": "",
+			"TYPE":     "DIZZINESS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["dizziness"],
+			"ADJ":      ["cures"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": []
+			}
+		},
+		"HELPFUL_BLEEDING":  {"__comment": "",
+			"TYPE":     "BLEEDING",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["bleeding"],
+			"ADJ":      ["cures"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": []
+			}
+		},
+		"HELPFUL_UNCONCIOUS":{"__comment": "",
+			"TYPE":     "UNCONSCIOUSNESS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["unconsciousness"],
+			"ADJ":      ["cures"],
+			"REQUIRED": ["HELPFUL"],
+			"RAWS": {
+				"EFFECT": []
+			}
+		},
+		"HARMFUL_STRENGTH":  {"__comment": "",
+			"TYPE":     "STRENGTH",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["strength"],
+			"ADJ":      ["lowers"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:STRENGTH:100:100]"]
+			}
+		},
+		"HARMFUL_AGILITY":   {"__comment": "",
+			"TYPE":     "AGILITY",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["agility"],
+			"ADJ":      ["lowers"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:AGILITY:100:-100]"]
+			}
+		},
+		"HARMFUL_TOUGHNESS": {"__comment": "",
+			"TYPE":     "TOUGHNESS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["toughness"],
+			"ADJ":      ["lowers"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:TOUGHNESS:100:-100]"]
+			}
+		},
+		"HARMFUL_ENDURANCE": {"__comment": "",
+			"TYPE":     "ENDURANCE",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["endurance"],
+			"ADJ":      ["lowers"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:ENDURANCE:100:-100]"]
+			}
+		},
+		"HARMFUL_WILLPOWER": {"__comment": "",
+			"TYPE":     "WILLPOWER",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["willpower"],
+			"ADJ":      ["lowers"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:WILLPOWER:100:-100]"]
+			}
+		},
+		"HARMFUL_FOCUS":     {"__comment": "",
+			"TYPE":     "FOCUS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["focus"],
+			"ADJ":      ["lowers"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:FOCUS:100:-100]"]
+			}
+		},
+		"HARMFUL_SPEED":     {"__comment": "",
+			"TYPE":     "SPEED",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["movement speed"],
+			"ADJ":      ["slows"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_SPEED_CHANGE:SPEED_ADD:-100]"]
+			}
+		},
+		"HARMFUL_NECROSIS":  {"__comment": "",
+			"TYPE":     "NECROSIS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["necrosis"],
+			"ADJ":      ["causes"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_NECROSIS:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+			}
+		},
+		"HARMFUL_PARALYSIS": {"__comment": "",
+			"TYPE":     "PARALYSIS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["paralysis"],
+			"ADJ":      ["causes"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_PARALYSIS:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+			}
+		},
+		"HARMFUL_NAUSEA":    {"__comment": "",
+			"TYPE":     "NAUSEA",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["nausea"],
+			"ADJ":      ["causes"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_NAUSEA:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+			}
+		},
+		"HARMFUL_DIZZY":     {"__comment": "",
+			"TYPE":     "DIZZINESS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["dizziness"],
+			"ADJ":      ["causes"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_DIZZINESS:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+			}
+		},
+		"HARMFUL_BLEEDING":  {"__comment": "",
+			"TYPE":     "BLEEDING",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["bleeding"],
+			"ADJ":      ["causes"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_BLEEDING:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+			}
+		},
+		"HARMFUL_UNCONCIOUS":{"__comment": "",
+			"TYPE":     "UNCONSCIOUSNESS",
+			"WEIGHT":   100,
+			"TOKENS":   [""],
+			"DESC":     "It #ADJ #NOUN",
+			"NOUN":     ["unconsciousness"],
+			"ADJ":      ["causes"],
+			"REQUIRED": ["HARMFUL"],
+			"RAWS": {
+				"EFFECT": ["[CE_UNCONSCIOUSNESS:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+			}
+		}
+	},
+	
+	"severity": {"__comment": "[ATTRIBUTE, SICKNESS, SPEED]",
+		"1": ["1","2","3"],
+		"2": ["1","2","3"],
+		"3": ["1","2","3"],
+		"4": ["1","2","3"],
+		"5": ["1","2","3"],
+		"6": ["1","2","3"],
+		"7": ["1","2","3"],
+		"8": ["1","2","3"],
+		"9": ["1","2","3"]
+	}
+}

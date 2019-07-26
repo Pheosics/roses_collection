@@ -1,81 +1,85 @@
 import os
+import json
+import glob
 
-class plantTemplates:
- def read_templates():
-  files = []
-  for fname in os.listdir('templates/'):
-   if fname.count('PLANT') > 0 and fname.count('.txt') > 0 :
-    files.append(os.getcwd()+'/templates/'+fname)
+reserved_keys = ['RAWS', 'TYPE','WEIGHT','TOKENS','COLORS','REQUIRED','FORBIDDEN',
+                 'SOURCE', 'DESC', 'LINK', 'N', 'EXTERNAL', 'KEY', 'SOURCE_KEY', 
+                 'SOURCE_TYPE', 'SOURCE_NAME', 'SOURCE_OBJECTS', 'LINK_OBJECTS', 
+                 'NAME', '__comment']
 
-  dicts = {'BASE': {}, 'GROWTH': {}, 'EXTRACTS': {}, 'FAIL': {}}
-  dicts['BASE']    = {'ROLL': 0, 'BINS': 0, 'KEYS': ['NAME','SIZE','SHAPE']}
-  dicts['GROWTH']  = {'ROLL': 0, 'BINS': 0, 'KEYS': ['NAME','FLAVOR','SMELL','SIZE','SHAPE','SHELL','SEED']}
-  dicts['PRODUCT'] = {'ROLL': 0, 'BINS': 0, 'KEYS': ['NAME','ADJ']}
-  dicts['FAIL'] = {'ROLL': 0, 'BINS': 0}
+class Templates:
+    def __init__(self,template):
+        self.reserved_keys = reserved_keys
+        self.join_templates(template)
+        self.read_templates()
 
-  for fname in files:
-   print(fname)
-   f = open(fname)
-   data = f.readlines()
-   f.close()
-   n = -1
-   d_type = 'FAIL'
-   r = 'Type'
-   p = 'FAIL'
-   for line in data:
-    sline = line.strip()
-    if sline.count('[TEMPLATE:') == 1:
-     d_type = sline.split(':')[1]
+    def join_templates(self,template):
+        files = glob.glob('templates/templates_'+template+'*')
+        jd = {}
+        for fname in files:
+            f = open(fname)
+            json_dict = json.load(f)
+            f.close()
+            self.rawObjects    = json_dict.get('raw_order',[])
+            self.baseObjects   = json_dict.get('baseObjects',[])
+            self.subObjects    = json_dict.get('subObjects',[])
+            self.sourceObjects = json_dict.get('sourceObjects',[])
+            self.numberObjects = json_dict.get('numberObjects',[])
+            self.binObjects    = json_dict.get('binObjects',[])
+            keys = self.baseObjects + self.subObjects + self.sourceObjects + self.numberObjects + self.binObjects
+            for key in keys:
+                self.reserved_keys.append(key.upper())
+                jd[key] = jd.get(key,{})
+                if json_dict.get(key,False): jd[key] = {**jd[key], **json_dict[key]}
+        self.json_dict = jd
 
-     n = dicts[d_type]['BINS']
-     dicts[d_type][n] = {}
-     dicts[d_type][n]['n'] = 0
+    def read_templates(self):
+        json_dict = self.json_dict
+        dicts = {}
+        for key in json_dict.keys():
+            if self.numberObjects.count(key) > 0: 
+                continue
+            elif self.binObjects.count(key) > 0:
+                dicts[key] = {'ROLL': 0, 'BINS': 0}
+                for t_key in json_dict[key].keys():
+                    if t_key == '__comment': continue
+                    n = dicts[key]['BINS']
+                    w = json_dict[key][t_key]['n']
+                    dicts[key][n] = {}
+                    dicts[key][n]['n'] = dicts[key]['ROLL'] + w
+                    dicts[key][n]['r'] = json_dict[key][t_key]['r']
+                    dicts[key][n]['d'] = json_dict[key][t_key]['d']
+                    dicts[key]['ROLL'] = dicts[key]['ROLL'] + w
+                    dicts[key]['BINS'] = n + 1
+                continue
+            dicts[key] = {'ROLL': 0, 'BINS': 0, 'KEYS': [], 'TYPES': []}
+            for t_key in json_dict[key].keys():
+                if t_key == "__comment": continue
+                json_dict[key][t_key]['TYPE'] = json_dict[key][t_key].get('TYPE',t_key)
+                json_dict[key][t_key]['WEIGHT'] = json_dict[key][t_key].get('WEIGHT',100)
+                n = dicts[key]['BINS']
+                w = json_dict[key][t_key]['WEIGHT']
+                dicts[key][n] = {}
+                dicts[key][n]['n'] = dicts[key]['ROLL'] + w
+                dicts[key][n]['object'] = json_dict[key][t_key]
+                dicts[key][n]['object']['KEY'] = t_key
+                for s_key in json_dict[key][t_key].keys():
+                    if reserved_keys.count(s_key) == 0:
+                        dicts[key]['KEYS'].append(s_key)
+                dicts[key]['ROLL'] = dicts[key]['ROLL'] + w
+                dicts[key]['BINS'] = n + 1
+                if dicts[key]['TYPES'].count(json_dict[key][t_key]['TYPE']) == 0:
+                    dicts[key]['TYPES'].append(json_dict[key][t_key]['TYPE'])
+                dicts[key]['KEYS'] = list(set(dicts[key]['KEYS']))
+            if dicts[key]['BINS'] == 0: 
+                dicts.pop(key)
+                if self.baseObjects.count(key) > 0: self.baseObjects.remove(key)
+                if self.subObjects.count(key) > 0: self.subObjects.remove(key)
+                if self.sourceObjects.count(key) > 0: self.sourceObjects.remove(key)
+        temp = {}
+        for key in self.numberObjects:
+            temp[key] = json_dict.get(key,{})
+        self.numberObjects = temp
 
-     if d_type == 'BASE': 
-      r = 'Type'
-      dicts[d_type][n][r] = {}
-      dicts[d_type][n][r]['GROWTHS'] = {'MIN': 0, 'MAX': 0, 'REQUIRED': [], 'FORBIDDEN': []}
-     if d_type == 'GROWTH': 
-      r = 'Growth'
-      dicts[d_type][n][r] = {}
-     if d_type == 'PRODUCT': 
-      r = 'Product'
-      dicts[d_type][n][r] = {}
-      dicts[d_type][n][r]['SOURCE'] = {'n': 0}
+        self.template = dicts 
 
-     dicts[d_type][n][r]['COLORS'] = {}
-     dicts[d_type][n][r]['EXCLUDE'] = []
-     dicts[d_type]['BINS'] += 1
-    else:
-     sline = sline.replace('[','').replace(']','')
-     a = sline.split(':')
-     if a[0] == 'TYPE':
-      dicts[d_type][n][r]['TYPE'] = a[1]
-     elif a[0] == 'NAME':
-      dicts[d_type][n][r]['NAME'] = a[1].split(',')
-     elif a[0] == 'FREQUENCY':
-      dicts[d_type][n][r]['WEIGHT'] = int(a[1])
-      dicts[d_type][n]['n'] = dicts[d_type]['ROLL'] + int(a[1])
-      dicts[d_type]['ROLL'] += int(a[1])
-     elif a[0] == 'GROWTHS':
-      dicts[d_type][n][r]['GROWTHS']['MIN'] = int(a[1])
-      dicts[d_type][n][r]['GROWTHS']['MAX'] = int(a[2])
-     elif a[0] == 'GROWTH_REQUIRED':
-      if a[1] != 'NONE':
-       dicts[d_type][n][r]['GROWTHS']['REQUIRED'] = a[1].split(',')
-     elif a[0] == 'GROWTH_FORBIDDEN':
-      if a[1] != 'NONE':
-       dicts[d_type][n][r]['GROWTHS']['FORBIDDEN'] = a[1].split(',')
-     elif a[0] == 'COLOR':
-      dicts[d_type][n][r]['COLORS'][a[1]] = a[2].split(',')
-     elif a[0] == 'SOURCE':
-      i = dicts[d_type][n][r]['SOURCE']['n']
-      dicts[d_type][n][r]['SOURCE'][i] = [a[1],a[2],a[3],a[4]]
-      dicts[d_type][n][r]['SOURCE']['n'] = i + 1
-     else:
-      try:
-       dicts[d_type][n][r][a[0]] = a[1].split(',')
-      except:
-       continue
-
-  return dicts

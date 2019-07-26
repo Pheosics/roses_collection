@@ -1,0 +1,1145 @@
+{
+	"__comment": ["These templates are used to make plants (e.g. trees, grass, shrubs) |",
+				  "Growths are picked per subtype and products are assigned to each |",
+				  "valid source (type, subtype, and growth)."],
+
+	"raw_order":     ["BASE","STRCT_MAT","SEED_MAT","GROWTH_MAT","PROD_MAT","STRUCTURE","SEED","GROWTH","PRODUCT"],
+	"baseObjects":   ["category","type","subtype"],
+	"subObjects":    ["growth"],
+	"sourceObjects": ["product"],
+	"numberObjects": ["value"],
+	"binObjects":    ["season"],
+	
+	"category":          {"__comment": "",
+		"MUNDANE_BASIC": {"__comment": "Non-magical plants (Base value = 1)",
+			"TYPE":   "MUNDANE",
+			"WEIGHT": 100,
+			"N": {
+				"VALUE": 1
+			}
+		}
+	},
+
+	"type":              {"__comment": "",
+		"TREE_MUNDANE":  {"__comment": "Trees              (+1 value)",
+			"TYPE":   "TREE",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"STRUCTURE": [
+					"[BASIC_MAT:LOCAL_PLANT_MAT:STRUCTURAL]"],
+				"STRCT_MAT": [
+					"[USE_MATERIAL_TEMPLATE:STRUCTURAL:PLANT_SOLID_TEMPLATE]",
+					"[STRUCTURAL_PLANT_MAT]",
+					"[MATERIAL_VALUE:$N:VALUE:1$]"],
+				"SEED":      [
+					"[SEED:!NAME_SINGULAR seed:!NAME_SINGULAR seeds:6:0:0:LOCAL_PLANT_MAT:SEED]"],
+				"SEED_MAT":  [
+					"[USE_MATERIAL_TEMPLATE:SEED:PLANT_SOLID_TEMPLATE]",
+					"[SEED_MAT]",
+					"[DO_NOT_CLEAN_GLOB]",
+					"[EDIBLE_VERMIN]",
+					"[MATERIAL_VALUE:1]"]
+			}
+		},
+		"PLANT_MUNDANE": {"__comment": "Non-tree plants    (+1 value)",
+			"TYPE":   "PLANT",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"STRUCTURE": [
+					"[BASIC_MAT:LOCAL_PLANT_MAT:STRUCTURAL]"],
+				"STRCT_MAT": [
+					"[USE_MATERIAL_TEMPLATE:STRUCTURAL:PLANT_SOLID_TEMPLATE]",
+					"[STRUCTURAL_PLANT_MAT]",
+					"[MATERIAL_VALUE:$N:VALUE:1$]"],
+				"SEED":      [
+					"[SEED:!NAME_SINGULAR seed:!NAME_SINGULAR seeds:6:0:0:LOCAL_PLANT_MAT:SEED]"],
+				"SEED_MAT":  [
+					"[USE_MATERIAL_TEMPLATE:SEED:PLANT_SOLID_TEMPLATE]",
+					"[SEED_MAT]",
+					"[DO_NOT_CLEAN_GLOB]",
+					"[EDIBLE_VERMIN]",
+					"[MATERIAL_VALUE:1]"]
+			}
+		},
+		"MOSS_MUNDANE":  {"__comment": "Mosses and Algea   (+1 value)",
+			"TYPE":   "MOSS",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"STRUCTURE": [
+					"[BASIC_MAT:LOCAL_PLANT_MAT:STRUCTURAL]"],
+				"STRCT_MAT": [
+					"[USE_MATERIAL_TEMPLATE:STRUCTURAL:PLANT_SOLID_TEMPLATE]",
+					"[STRUCTURAL_PLANT_MAT]",
+					"[MATERIAL_VALUE:$N:VALUE:1$]"],
+				"SEED":      [
+					"[SEED:!NAME_SINGULAR seed:!NAME_SINGULAR seeds:6:0:0:LOCAL_PLANT_MAT:SEED]"],
+				"SEED_MAT":  [
+					"[USE_MATERIAL_TEMPLATE:SEED:PLANT_SOLID_TEMPLATE]",
+					"[SEED_MAT]",
+					"[DO_NOT_CLEAN_GLOB]",
+					"[EDIBLE_VERMIN]",
+					"[MATERIAL_VALUE:1]"]
+			}
+		},
+		"FUNGI_MUNDANE": {"__comment": "Fungi              (+1 value)",
+			"TYPE":   "FUNGI",
+			"N": {
+				"VALUE": 1
+			},
+			"RAWS": {
+				"STRUCTURE": [
+					"[BASIC_MAT:LOCAL_PLANT_MAT:STRUCTURAL]"],
+				"STRCT_MAT": [
+					"[USE_MATERIAL_TEMPLATE:STRUCTURAL:PLANT_SOLID_TEMPLATE]",
+					"[STRUCTURAL_PLANT_MAT]",
+					"[MATERIAL_VALUE:$N:VALUE:1$]"],
+				"SEED":      [
+					"[SEED:!NAME_SINGULAR seed:!NAME_SINGULAR seeds:6:0:0:LOCAL_PLANT_MAT:SEED]"],
+				"SEED_MAT":  [
+					"[USE_MATERIAL_TEMPLATE:SEED:PLANT_SOLID_TEMPLATE]",
+					"[SEED_MAT]",
+					"[DO_NOT_CLEAN_GLOB]",
+					"[EDIBLE_VERMIN]",
+					"[MATERIAL_VALUE:1]"]
+			}
+		},
+		"GRASS_MUNDANE": {"__comment": "Decorative grasses (+0 value)",
+			"TYPE":   "GRASS",
+			"WEIGHT": 25,
+			"N": {
+				"VALUE": 0
+			},
+			"RAWS": {
+				"BASE":      [
+					"[ALL_NAMES:!NAME_SINGULAR]"],
+				"STRUCTURE": [
+					"[BASIC_MAT:LOCAL_PLANT_MAT:STRUCTURAL]"],
+				"STRCT_MAT": [
+					"[USE_MATERIAL_TEMPLATE:STRUCTURAL:PLANT_SOLID_TEMPLATE]",
+					"[STRUCTURAL_PLANT_MAT]",
+					"[MATERIAL_VALUE:$N:VALUE:1$]"]}
+		}
+	},
+
+	"subtype":           {"__comment": "",
+		"TREE_NEEDLE":   {"__comment": "Coniferous tree      (+1 value)",
+			"TYPE":     "TREE",
+			"WEIGHT":   100,
+			"TOKENS":   ["WOOD"],
+			"LINK":     ["environments:ANY","materials:SOLID"],
+			"DESC":     "A #SIZE #SHAPE #COLORS_BASE #ADJ #NOUN with #COLORS_NEEDLE needles that grows in &1:DESC& <season:d>",
+			"NAME":     "#COLORS_NEEDLE needled #NOUN",
+			"NOUN":     ["tree","fir","spruce","pine","cypress","yew","cedar"],
+			"ADJ":      ["coniferous"],
+			"SIZE":     ["short","tall","small","slender","lanky","great","giant","towering","gigantic","stunted"],
+			"SHAPE":    ["pointed","rounded","pear shaped","twisted"],
+			"REQUIRED": ["MUNDANE","TREE"],
+			"GROWTH": {
+				"MAX": 2,
+				"FORBIDDEN": ["UNDERGROUND","GRAIN","LEAF"]},
+			"COLORS": {
+				"BASE":   ["ANY"],
+				"NEEDLE": ["ANY"]},
+			"N": {
+				"VALUE": 1},
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR][NAME_PLURAL:!NAME_PLURAL][ADJ:!NAME_ADJ]",
+					"&1:RAWS&",
+					"<season:r>",
+					"[FREQUENCY:100]",
+					"[SAPLING]",
+					"[TREE_COLOR:!COLOR_RGB]",
+					"[SAPLING_COLOR:!COLOR_RGB]",
+					"[TREE_TILE:226]",
+					"[TRUNK_PERIOD:$8:10$]",
+					"[HEAVY_BRANCH_DENSITY:25]",
+					"[BRANCH_DENSITY:50]",
+					"[MAX_TRUNK_HEIGHT:$1:8$]",
+					"[HEAVY_BRANCH_RADIUS:1]",
+					"[BRANCH_RADIUS:2]",
+					"[TRUNK_BRANCHING:2]",
+					"[MAX_TRUNK_DIAMETER:$1:3$]",
+					"[TRUNK_WIDTH_PERIOD:200]",
+					"[ROOT_DENSITY:5]",
+					"[ROOT_RADIUS:3]",
+					"[STANDARD_TILE_NOUNS]"],
+				"PRODUCT":  [
+					"[TREE:LOCAL_PLANT_MAT:WOOD]"],
+				"PROD_MAT": [
+					"[USE_MATERIAL_TEMPLATE:WOOD:&2:TAG&]",
+					"[STATE_NOUN_ADJ:ALL_SOLID:!NAME_SINGULAR wood]",
+					"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[WOOD]"]
+			}
+		},
+		"TREE_LEAF":     {"__comment": "Broadleaf tree       (+1 value)",
+			"TYPE":   "TREE",
+			"WEIGHT": 100,
+			"TOKENS": ["WOOD"],
+			"LINK":   ["environments:ANY","materials:SOLID"],
+			"DESC":   "A #SIZE #SHAPE #COLORS_BASE #ADJ #NOUN that grows in &1:DESC& <season:d>",
+			"NAME":   "#COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["tree","oak","maple","birch"],
+			"ADJ":    ["broadleaf"],
+			"SIZE":   ["short","tall","small","slender","lanky","great","giant","towering","gigantic","stunted"],
+			"SHAPE":  ["pointed","rounded","pear shaped","twisted"],
+			"REQUIRED": ["MUNDANE","TREE"],
+			"GROWTH": {
+				"MIN": 1, 
+				"MAX": 3,
+				"REQUIRED":  ["LEAF"],
+				"FORBIDDEN": ["UNDERGROUND","GRAIN"]},
+			"COLORS": {
+				"BASE": ["ANY"]},
+			"N": {
+				"VALUE": 1},
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR][NAME_PLURAL:!NAME_PLURAL][ADJ:!NAME_ADJ]",
+					"&1:RAWS&",
+					"<season:r>",
+					"[FREQUENCY:100]",
+					"[SAPLING]",
+					"[TREE_COLOR:!COLOR_RGB]",
+					"[SAPLING_COLOR:!COLOR_RGB]",
+					"[TREE_TILE:226]",
+					"[TRUNK_PERIOD:$8:10$]",
+					"[HEAVY_BRANCH_DENSITY:25]",
+					"[BRANCH_DENSITY:50]",
+					"[MAX_TRUNK_HEIGHT:$1:8$]",
+					"[HEAVY_BRANCH_RADIUS:1]",
+					"[BRANCH_RADIUS:2]",
+					"[TRUNK_BRANCHING:2]",
+					"[MAX_TRUNK_DIAMETER:$1:3$]",
+					"[TRUNK_WIDTH_PERIOD:200]",
+					"[ROOT_DENSITY:5]",
+					"[ROOT_RADIUS:3]",
+					"[STANDARD_TILE_NOUNS]"],
+				"PRODUCT":  [
+					"[TREE:LOCAL_PLANT_MAT:WOOD]"],
+				"PROD_MAT": [
+					"[USE_MATERIAL_TEMPLATE:WOOD:&2:TAG&]",
+					"[STATE_NOUN_ADJ:ALL_SOLID:!NAME_SINGULAR wood]",
+					"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[WOOD]"]}
+		},
+		"PLANT_VINE":    {"__comment": "Basic vine plant     (+0 value)",
+			"TYPE":   "VINE",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"LINK":   ["environments:ANY"],
+			"DESC":   "A #SIZE #SHAPE #COLORS_BASE #ADJ #NOUN that grows in &1:DESC& <season:d>",
+			"NAME":   "#SIZE #SHAPE #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["vine","ivy","creeper","runner"],
+			"ADJ":    [""],
+			"SIZE":   ["long","thin","thick","stretched","broad","wide","massive","lean","skinny"],
+			"SHAPE":  ["winding","straight","curled","twining","helical","herbacious","woody","climbing"],
+			"GROWTH": {
+				"MIN": 1,
+				"MAX": 3
+			},
+			"COLORS": {
+				"BASE": ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE","PLANT"],
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR][NAME_PLURAL:!NAME_PLURAL][ADJ:!NAME_ADJ]",
+					"&1:RAWS&",
+					"<season:r>",
+					"[FREQUENCY:100]",
+					"[PICKED_TILE:58]",
+					"[PICKED_COLOR:!COLOR_RGB]",
+					"[SHRUB_COLOR:!COLOR_RGB]",
+					"[CLUSTERSIZE:5]"]
+			}
+		},
+		"PLANT_BUSH":    {"__comment": "Leafy plants         (+0 value)",
+			"TYPE":   "BUSH",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"LINK":   ["environments:ANY"],
+			"DESC":   "A #SIZE #SHAPE #COLORS_BASE #ADJ #NOUN that grows in &1:DESC& <season:d>",
+			"NAME":   "#SIZE #SHAPE #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["bush","shrub","bramble","briar","heath"],
+			"ADJ":    [""],
+			"SIZE":   ["small","baby","dwarf","miniature","mini","large","gigantic","huge","enormous","full","grand","massive","wide"],
+			"SHAPE":  ["square shaped","rounded","open","closed","boxed"],
+			"GROWTH": {
+				"MIN": 1,
+				"MAX": 3,
+				"REQUIRED":  ["LEAF"]
+			},
+			"COLORS": {
+				"BASE": ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE","PLANT"],
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR][NAME_PLURAL:!NAME_PLURAL][ADJ:!NAME_ADJ]",
+					"&1:RAWS&",
+					"<season:r>",
+					"[FREQUENCY:100]",
+					"[PICKED_TILE:58]",
+					"[PICKED_COLOR:!COLOR_RGB]",
+					"[SHRUB_COLOR:!COLOR_RGB]",
+					"[CLUSTERSIZE:5]"]
+			}
+		},
+		"PLANT_GRASS":   {"__comment": "Botanical grasses    (+0 value)",
+			"TYPE":   "GRASS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"LINK":   ["environments:ANY"],
+			"DESC":   "A #SIZE #SHAPE #COLORS_BASE #ADJ #NOUN that grows in &1:DESC& <season:d>",
+			"NAME":   "#SIZE #SHAPE #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["wild grass","rush","thatch","reed","sedge","straw"],
+			"ADJ":    [""],
+			"SIZE":   ["short","tall","small","slender","lanky","great","giant","towering","gigantic","stunted"],
+			"SHAPE":  ["bushy","straight"],
+			"GROWTH": {
+				"MIN": 1,
+				"MAX": 2,
+				"FORBIDDEN": ["FRUIT","UNDERGROUND","LEAF"]
+			},
+			"COLORS": {
+				"BASE": ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE","PLANT"],
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR][NAME_PLURAL:!NAME_PLURAL][ADJ:!NAME_ADJ]",
+					"&1:RAWS&",
+					"<season:r>",
+					"[FREQUENCY:100]",
+					"[PICKED_TILE:58]",
+					"[PICKED_COLOR:!COLOR_RGB]",
+					"[SHRUB_COLOR:!COLOR_RGB]",
+					"[CLUSTERSIZE:5]"]
+			}
+		},
+		"MOSS_BASIC":    {"__comment": "Moss/Lichen          (+0 value)",
+			"TYPE":   "MOSS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"LINK":   ["environments:ANY"],
+			"DESC":   "A #SIZE #SHAPE #COLORS_BASE #ADJ #NOUN that grows in &1:DESC& <season:d>",
+			"NAME":   "#SIZE #SHAPE #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["moss","lichen","liverwort","hornwort"],
+			"ADJ":    [""],
+			"SIZE":   ["spreading","large","crawling","extensive","permeating"],
+			"SHAPE":  ["bushy","shrubby","leafy","crust-like","scaly","stringy","whispy","powdery"],
+			"GROWTH": {
+				"MAX": 2,
+				"FORBIDDEN": ["GRAIN","FRUIT"]
+			},
+			"COLORS": {
+				"BASE": ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE","MOSS"],
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR][NAME_PLURAL:!NAME_PLURAL][ADJ:!NAME_ADJ]",
+					"&1:RAWS&",
+					"<season:r>",
+					"[FREQUENCY:100]",
+					"[PICKED_TILE:58]",
+					"[PICKED_COLOR:!COLOR_RGB]",
+					"[SHRUB_COLOR:!COLOR_RGB]",
+					"[CLUSTERSIZE:5]"]
+			}
+		},
+		"FUNGUS_SHROOM": {"__comment": "Fungi                (+0 value)",
+			"TYPE":   "MUSHROOM",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"LINK":   ["environments:ANY"],
+			"DESC":   "A #SIZE #SHAPE #COLORS_BASE #ADJ #NOUN with a #COLORS_CAP cap that grows in &1:DESC& <season:d>",
+			"NAME":   "#SIZE #SHAPE #COLORS_CAP capped #ADJ #NOUN",
+			"NOUN":   ["fungus","mushroom","toadstool","truffle","bolete"],
+			"ADJ":    [""],
+			"SIZE":   ["small","baby","dwarf","miniature","mini","large","gigantic","huge","enormous","full","grand","massive","wide"],
+			"SHAPE":  ["ovate","conical","convex","flat","pointed"],
+			"GROWTH": {
+				"MIN": 1,
+				"MAX": 2,
+				"FORBIDDEN": ["FRUIT","LEAF","GRAIN"]
+			},
+			"COLORS": {
+				"BASE": ["ANY"],
+				"CAP":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE","FUNGI"],
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR][NAME_PLURAL:!NAME_PLURAL][ADJ:!NAME_ADJ]",
+					"&1:RAWS&",
+					"<season:r>",
+					"[FREQUENCY:100]",
+					"[PICKED_TILE:58]",
+					"[PICKED_COLOR:!COLOR_RGB]",
+					"[SHRUB_COLOR:!COLOR_RGB]",
+					"[CLUSTERSIZE:5]"]
+			}
+		},
+		"GRASS_LAWN":    {"__comment": "Decorative grasses   (+0 value)",
+			"TYPE":   "GRASS",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"LINK":   ["environments:ANY"],
+			"DESC":   "A #SIZE #SHAPE #COLORS_BASE #ADJ #NOUN that grows in &1:DESC& <season:d>",
+			"NAME":   "#SIZE #SHAPE #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["grass"],
+			"ADJ":    [""],
+			"SIZE":   ["short","tall"],
+			"SHAPE":  ["bushy","straight"],
+			"COLORS": {
+				"BASE": ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE","GRASS"],
+			"RAWS": {
+				"BASE":  [
+					"&1:RAWS&",
+					"<season:r>",
+					"[FREQUENCY:100]",
+					"[GRASS]",
+					"[GRASS_TILES:'.':',':'--':''']",
+					"[GRASS_COLORS:!COLOR_RGB:!COLOR_RGB:!COLOR_RGB:!COLOR_RGB]"]
+			}
+		}
+	},
+	
+	"growth":                {"__comment": "",
+		"FRUIT_HARDSHELL":   {"__comment": "Hard shell fruit   (+0 value),  [BREW_FRUIT,          --       ]",
+			"TYPE":   "FRUIT",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["gourds","squashes","hard shell fruits"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["UNDERGROUND","POD","GRAIN"],
+			"PRODUCT":   ["BREW_WINE"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:FRUIT]",
+						"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+						"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:FRUIT]",
+						"[GROWTH_DROPS_OFF]",
+						"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:FRUIT:PLANT_SOLID_TEMPLATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:2$]",
+						"[STOCKPILE_PLANT_GROWTH]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_RAW]",
+						"[EDIBLE_COOKED]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_BREW_MAT:LOCAL_PLANT_MAT:BREW_WINE]"]
+			}
+		},
+		"FRUIT_SOFTSHELL":   {"__comment": "Soft shell fruit   (+0 value),  [BREW_FRUIT,     MILL_DYE      ]",
+			"TYPE":   "FRUIT",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["berries","soft shell fruits"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE": ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["UNDERGROUND","POD","GRAIN"],
+			"PRODUCT": ["BREW_WINE","MILL_DYE"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:FRUIT]",
+						"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+						"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:FRUIT]",
+						"[GROWTH_DROPS_OFF]",
+						"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:FRUIT:PLANT_SOLID_TEMPLATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:2$]",
+						"[STOCKPILE_PLANT_GROWTH]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_RAW]",
+						"[EDIBLE_COOKED]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_BREW_MAT:LOCAL_PLANT_MAT:BREW_WINE]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_DYE]"]
+			}
+		},
+		"POD_STARCH":        {"__comment": "Pod based growth   (+0 value),  [BREW_GRAIN,     MILL_STARCHES ]",
+			"TYPE":   "POD",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["beans","legumes","peas","pods"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["UNDERGROUND","GRAIN","FRUIT"],
+			"PRODUCT": ["BREW_BEER","MILL_FLOUR"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:POD]",
+						"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+						"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:POD]",
+						"[GROWTH_DROPS_OFF]",
+						"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:POD:PLANT_SOLID_TEMPLATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:2$]",
+						"[STOCKPILE_PLANT_GROWTH]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_RAW]",
+						"[EDIBLE_COOKED]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_BREW_MAT:LOCAL_PLANT_MAT:BREW_BEER]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_FLOUR]"]
+			}
+		},
+		"POD_SEASONING":     {"__comment": "Pod based growth   (+0 value),  [BREW_GRAIN,     MILL_SEASONING]",
+			"TYPE":   "POD",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["beans","legumes","peas","pods"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["UNDERGROUND","GRAIN","FRUIT"],
+			"PRODUCT": ["BREW_BEER","MILL_SEASONING"],
+			"RAWS": {
+				"GROWTH": [
+					"[GROWTH:POD]",
+						"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+						"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:POD]",
+						"[GROWTH_DROPS_OFF]",
+						"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:POD:PLANT_SOLID_TEMPLATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:2$]",
+						"[STOCKPILE_PLANT_GROWTH]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_RAW]",
+						"[EDIBLE_COOKED]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_BREW_MAT:LOCAL_PLANT_MAT:BREW_BEER]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_SEASONING]"]
+			}
+		},
+		"UNDERGROUND_BASIC": {"__comment": "Underground growth (+0 value),  [BREW_DISTILL,   MILL_SEASONING]",
+			"TYPE":   "UNDERGROUND",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["roots","tubers","bulbs","taproot"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE": ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["GRAIN","POD","FRUIT"],
+			"PRODUCT": ["BREW_SPIRIT","MILL_SEASONING"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:UNDERGROUND]",
+						"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+						"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:UNDERGROUND]",
+						"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:UNDERGROUND:PLANT_SOLID_TEMPLATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:2$]",
+						"[STOCKPILE_PLANT_GROWTH]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_COOKED]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_BREW_MAT:LOCAL_PLANT_MAT:BREW_SPIRIT]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_SEASONING]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:UNDERGROUND:LOCAL_PLANT_MAT:UNDERGROUND]"]
+			}
+		},
+		"UNDERGROUND_POISON":{"__comment": "Underground growth (+0 value),  [EXTRACT_POISON,      --       ]",
+			"TYPE":   "UNDERGROUND",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["roots","tubers","bulbs","taproot"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE": ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["GRAIN","POD","FRUIT"],
+			"PRODUCT": ["EXTRACT_POISON"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:UNDERGROUND]",
+						"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+						"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:UNDERGROUND]",
+						"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:UNDERGROUND:PLANT_SOLID_TEMPLATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:2$]",
+						"[STOCKPILE_PLANT_GROWTH]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_COOKED]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_EXTRACT_MAT:LOCAL_PLANT_MAT:EXTRACT_POISON]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:UNDERGROUND:LOCAL_PLANT_MAT:UNDERGROUND]"]
+			}
+		},
+		"GRAIN_BASIC":       {"__comment": "Grainy growth      (+0 value),  [BREW_GRAIN,     MILL_STARCHES ]",
+			"TYPE":   "GRAIN",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["grains","stalks","millet","pulses"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["UNDERGROUND","POD","FRUIT"],
+			"PRODUCT": ["BREW_BEER","MILL_FLOUR"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:GRAIN]",
+						"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+						"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:GRAIN]",
+						"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:GRAIN:PLANT_SOLID_TEMPLATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:2$]",
+						"[STOCKPILE_PLANT_GROWTH]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_COOKED]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_BREW_MAT:LOCAL_PLANT_MAT:BREW_BEER]",
+						"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_FLOUR]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:GRAIN:LOCAL_PLANT_MAT:GRAIN]"]
+			}
+		},
+		"GRAIN_PAPER":       {"__comment": "Grainy growth      (+0 value),  [MILL_STARCHES,  PULP_PAPER    ]",
+			"TYPE":   "GRAIN",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["grains","stalks","millet","pulses"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["UNDERGROUND","POD","FRUIT"],
+			"PRODUCT": ["MILL_FLOUR","PULP_PAPER"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:GRAIN]",
+					"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+					"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:GRAIN]",
+					"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:GRAIN:PLANT_SOLID_TEMPLATE]",
+					"[STATE_COLOR:ALL:!COLOR_STATE]",
+					"[DISPLAY_COLOR:!COLOR_RGB]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[STOCKPILE_PLANT_GROWTH]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_FLOUR]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_PULP_MAT:LOCAL_PLANT_MAT:PULP_PAPER]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:GRAIN:LOCAL_PLANT_MAT:GRAIN]"]
+			}
+		},
+		"GRAIN_THREAD":      {"__comment": "Grainy growth      (+0 value),  [THRESH_THREAD,       --       ]",
+			"TYPE":   "GRAIN",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["grains","stalks","millet","pulses"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["UNDERGROUND","POD","FRUIT"],
+			"PRODUCT": ["BREW_BEER","MILL_FLOUR","THRESH_THREAD"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:GRAIN]",
+					"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+					"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:GRAIN]",
+					"[GROWTH_HAS_SEED]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:GRAIN:PLANT_SOLID_TEMPLATE]",
+					"[STATE_COLOR:ALL:!COLOR_STATE]",
+					"[DISPLAY_COLOR:!COLOR_RGB]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[STOCKPILE_PLANT_GROWTH]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_BREW_MAT:LOCAL_PLANT_MAT:BREW_BEER]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_FLOUR]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_THRESH_MAT:LOCAL_PLANT_MAT:THRESH_THREAD]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:GRAIN:LOCAL_PLANT_MAT:GRAIN]"]
+			}
+		},
+		"FLOWER_BASIC":      {"__comment": "Flowering growth   (+0 value),  [     --,             --       ]",
+			"TYPE":   "FLOWER",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["roses","lilies","flowers","daises"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":   ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["NONE"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:FLOWER]",
+					"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+					"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:FLOWER]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:FLOWER:PLANT_SOLID_TEMPLATE]",
+					"[STATE_COLOR:ALL:!COLOR_STATE]",
+					"[DISPLAY_COLOR:!COLOR_RGB]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[STOCKPILE_PLANT_GROWTH]",
+					"[EDIBLE_VERMIN]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:FLOWER:LOCAL_PLANT_MAT:FLOWER]"]
+			}
+		},
+		"FLOWER_DYE":        {"__comment": "Flowering growth   (+0 value),  [MILL_DYE,            --       ]",
+			"TYPE":   "FLOWER",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["roses","lilies","flowers","daises"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":   ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["NONE"],
+			"PRODUCT": ["MILL_DYE"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:FLOWER]",
+					"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+					"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:FLOWER]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:FLOWER:PLANT_SOLID_TEMPLATE]",
+					"[STATE_COLOR:ALL:!COLOR_STATE]",
+					"[DISPLAY_COLOR:!COLOR_RGB]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[STOCKPILE_PLANT_GROWTH]",
+					"[EDIBLE_VERMIN]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_DYE]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:FLOWER:LOCAL_PLANT_MAT:FLOWER]"]
+			}
+		},
+		"LEAF_BASIC":        {"__comment": "Leafy growth       (+0 value),  [     --,             --       ]",
+			"TYPE":   "LEAF",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["leaves"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["NONE"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:LEAF]",
+					"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+					"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:LEAF]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:LEAF:PLANT_SOLID_TEMPLATE]",
+					"[STATE_COLOR:ALL:!COLOR_STATE]",
+					"[DISPLAY_COLOR:!COLOR_RGB]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[STOCKPILE_PLANT_GROWTH]",
+					"[EDIBLE_VERMIN]"]
+			}
+		},
+		"HERB_BASIC":        {"__comment": "Herbacious growth  (+0 value),  [MILL_SEASONING,      --       ]",
+			"TYPE":   "HERB",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["herbal leaves"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["TREE"],
+			"PRODUCT": ["MILL_SEASONING"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:HERB]",
+					"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+					"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:HERB]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:HERB:PLANT_SOLID_TEMPLATE]",
+					"[STATE_COLOR:ALL:!COLOR_STATE]",
+					"[DISPLAY_COLOR:!COLOR_RGB]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[STOCKPILE_PLANT_GROWTH]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_SEASONING]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:HERB_BASIC:LOCAL_PLANT_MAT:HERB]"]
+			}
+		},
+		"HERB_BREW":         {"__comment": "Herbacious growth  (+0 value),  [BREW_GRAIN,     MILL_SEASONING]",
+			"TYPE":   "HERB",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "It has #COLORS_BASE #ADJ #NOUN",
+			"NOUN":   ["herbal leaves"],
+			"ADJ":    [""],
+			"COLORS": {
+				"BASE":  ["ANY"]
+			},
+			"REQUIRED":  ["MUNDANE"],
+			"FORBIDDEN": ["TREE"],
+			"PRODUCT": ["BREW_BEER","MILL_SEASONING"],
+			"RAWS": {
+				"GROWTH":     [
+					"[GROWTH:HERB]",
+					"[GROWTH_NAME:!NAME_SINGULAR #NOUN]",
+					"[GROWTH_ITEM:PLANT_GROWTH:NONE:LOCAL_PLANT_MAT:HERB]"],
+				"GROWTH_MAT": [
+					"[USE_MATERIAL_TEMPLATE:HERB:PLANT_SOLID_TEMPLATE]",
+					"[STATE_COLOR:ALL:!COLOR_STATE]",
+					"[DISPLAY_COLOR:!COLOR_RGB]",
+					"[MATERIAL_VALUE:$N:VALUE:2$]",
+					"[STOCKPILE_PLANT_GROWTH]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_BREW_MAT:LOCAL_PLANT_MAT:BREW_BEER]",
+					"[MATERIAL_REACTION_PRODUCT:GROWTH_MILL_MAT:LOCAL_PLANT_MAT:MILL_SEASONING]"],
+				"STRCT_MAT":  [
+					"[ITEM_REACTION_PRODUCT:BAG_ITEM:PLANT_GROWTH:HERB:LOCAL_PLANT_MAT:HERB]"]
+			}
+		}
+	},
+
+	"product":            {"__comment": "",
+		"BREW_FRUIT":     {"__comment": "Brew an alcoholic drink using fermentation of fruits",
+			"TYPE":   "BREW_FRUIT",
+			"DESC":   "The #SOURCE_NAME can be used to make a #ADJ #NOUN",
+			"NOUN":   ["wine"],
+			"ADJ":    ["fine"],   
+			"RAWS": {
+				"PRODUCT":    ["--DRINK:LOCAL_PLANT_MAT:BREW_FRUIT--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:BREW_FRUIT:PLANT_LIQUID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:frozen !NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:LIQUID:!NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR #NOUN]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[EDIBLE_RAW]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_COOKED]",
+						"[ALCOHOL_PLANT]",
+						"[REACTION_CLASS:BREW]",
+						"[REACTION_CLASS:BREW_FRUIT]"]
+			}
+		},
+		"BREW_GRAIN":     {"__comment": "Brew an alcoholic drink using fermentation of grains",
+			"TYPE":   "BREW_GRAIN",
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["beer"],
+			"RAWS": {
+				"PRODUCT":    ["--DRINK:LOCAL_PLANT_MAT:BREW_GRAIN--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:BREW_GRAIN:PLANT_LIQUID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:frozen !NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:LIQUID:!NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR #NOUN]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[EDIBLE_RAW]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_COOKED]",
+						"[ALCOHOL_PLANT]",
+						"[REACTION_CLASS:BREW]",
+						"[REACTION_CLASS:BREW_GRAIN]"]
+			}
+		},
+		"BREW_DISTILL":   {"__comment": "Brew an alcoholic drink using distillation",
+			"TYPE":   "BREW_DISTILL",
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["spirit"],
+			"RAWS": {
+				"PRODUCT":    ["--DRINK:LOCAL_PLANT_MAT:BREW_DISTILL--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:BREW_DISTILL:PLANT_LIQUID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:frozen !NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:LIQUID:!NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR #NOUN]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[EDIBLE_RAW]",
+						"[EDIBLE_VERMIN]",
+						"[EDIBLE_COOKED]",
+						"[ALCOHOL_PLANT]",
+						"[REACTION_CLASS:BREW]",
+						"[REACTION_CLASS:BREW_DISTILL]"]
+			}
+		},
+		"MILL_DYE":       {"__comment": "Mill a powder to be used as a dye",
+			"TYPE":   "MILL_DYE",
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["dye"],
+			"RAWS": {
+				"PRODUCT":    ["--MILL:LOCAL_PLANT_MAT:MILL_DYE--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:MILL_DYE:PLANT_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:LIQUID:melted !NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:GAS:!NAME_SINGULAR #NOUN vapor]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[EDIBLE_VERMIN]",
+						"[POWDER_MISC_PLANT]",
+						"[POWDER_DYE:!COLOR_STATE]",
+						"[REACTION_CLASS:MILL]",
+						"[REACTION_CLASS:MILL_DYE]"]
+			}
+		},
+		"MILL_STARCHES":  {"__comment": "Mill a powder to be used as a flour",
+			"TYPE":   "MILL_FLOUR",
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["flour"],
+			"RAWS": {
+				"PRODUCT":    ["--MILL:LOCAL_PLANT_MAT:MILL_FLOUR--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:MILL_FLOUR:PLANT_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:LIQUID:melted !NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:GAS:!NAME_SINGULAR #NOUN vapor]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[EDIBLE_VERMIN]",
+						"[POWDER_MISC_PLANT]",
+						"[REACTION_CLASS:MILL]",
+						"[REACTION_CLASS:MILL_FLOUR]"]
+			}
+		},
+		"MILL_SEASONING": {"__comment": "Mill a powder to be used as seasoning",
+			"TYPE":   "MILL_SEASONING",
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["seasoning"],
+			"RAWS": {
+				"PRODUCT":    ["--MILL:LOCAL_PLANT_MAT:MILL_SEASONING--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:MILL_SEASONING:PLANT_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:LIQUID:melted !NAME_SINGULAR #NOUN]",
+						"[STATE_NAME_ADJ:GAS:!NAME_SINGULAR #NOUN vapor]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[EDIBLE_VERMIN]",
+						"[POWDER_MISC_PLANT]",
+						"[REACTION_CLASS:MILL]",
+						"[REACTION_CLASS:MILL_SEASONING]"]
+			}
+		},
+		"THRESH_THREAD":  {"__comment": "Thresh thread",
+			"TYPE":   "THRESH_THREAD",
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["thread"],
+			"RAWS": {
+				"PRODUCT":    ["--THREAD:LOCAL_PLANT_MAT:THRESH_THREAD--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:THRESH_THREAD:PLANT_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR #NOUN]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[THREAD_PLANT]",
+						"[ITEMS_SOFT]",
+						"[REACTION_CLASS:THRESH]",
+						"[REACTION_CLASS:THRESH_THREAD]"]
+			}
+		},
+		"THRESH_STRAW":   {"__comment": "Thresh a building material",
+			"TYPE":   "THRESH_STRAW",
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["straw"],
+			"RAWS": {
+				"PRODUCT":    ["--THREAD:LOCAL_PLANT_MAT:THRESH_STRAW--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:THRESH_STRAW:PLANT_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR #NOUN]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[REACTION_CLASS:THRESH]",
+						"[REACTION_CLASS:THRESH_STRAW]"]
+			}
+		},
+		"PULP_PAPER":     {"__comment": "Create paper",
+			"TYPE":   "PULP_PAPER",
+			"DESC":   "The #SOURCE_NAME can be used to make #PRESS",
+			"PRESS":  ["paper"],
+			"PASTE":  ["slurry"],
+			"RAWS": {
+				"PRODUCT":    ["--N/A--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:PULP_PAPER:PLANT_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:SOLID_PASTE:!NAME_SINGULAR #PASTE]",
+						"[STATE_NAME_ADJ:SOLID_PRESSED:!NAME_SINGULAR #PRESS]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[REACTION_CLASS:PULP]",
+						"[REACTION_CLASS:PULP_PAPER]",
+						"[STOCKPILE_GLOB_PASTE]"]
+			}
+		},
+		"PRESS_PASTE":    {"__comment": "Create paste",
+			"TYPE":   "PRESS_PASTE",
+			"DESC":   "The #SOURCE_NAME can be used to make #PASTE",
+			"PASTE":  ["paste"],
+			"PRESS":  ["press cake"],
+			"RAWS": {
+				"PRODUCT":    ["--N/A--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:PRESS_PASTE:PLANT_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:SOLID_PASTE:!NAME_SINGULAR #PASTE]",
+						"[STATE_NAME_ADJ:SOLID_PRESSED:!NAME_SINGULAR #PRESS]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[REACTION_CLASS:PRESS]",
+						"[REACTION_CLASS:PRESS_PASTE]",
+						"[STOCKPILE_GLOB_PASTE]",
+						"[STOCKPILE_GLOB_PRESSED]"]
+			}
+		},
+		"PRESS_OIL":      {"__comment": "Create oil",
+			"TYPE":   "PRESS_OIL",
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["oil"],
+			"ADJ":    [""],
+			"RAWS": {
+				"PRODUCT":    ["--N/A--"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:PRESS_OIL:PLANT_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:SOLID_PASTE:!NAME_SINGULAR #PASTE]",
+						"[STATE_NAME_ADJ:SOLID_PRESSED:!NAME_SINGULAR #PRESS]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[REACTION_CLASS:PRESS]",
+						"[REACTION_CLASS:PRESS_PASTE]",
+						"[STOCKPILE_GLOB_PASTE]",
+						"[STOCKPILE_GLOB_PRESSED]"]
+			}
+		},
+		"EXTRACT_POISON": {"__comment": "Extract a poison",
+			"TYPE":   "EXTRACT_POISON",
+			"LINK":   ["syndromes:HARMFUL"],
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["poison"],
+			"ADJ":    [""],
+			"RAWS": {
+				"PRODUCT":    ["-- EXTRACT_STILL --"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:EXTRACT_POISON:PLANT_LIQUID_TEMPLATE]",
+						"[REACTION_CLASS:EXTRACT]",
+						"[REACTION_CLASS:EXTRACT_POISON]",
+						"[SYNDROME]",
+						"[SYN_NAME:!NAME_SINGULAR &1:NAME&]",
+						"&1:RAWS&"]
+			}
+		},
+		"EXTRACT_POTION": {"__comment": "Extract a potion",
+			"TYPE":   "EXTRACT_POTION",
+			"LINK":   ["syndromes:HELPFUL"],
+			"DESC":   "The #SOURCE_NAME can be used to make #NOUN",
+			"NOUN":   ["potion"],
+			"ADJ":    [""],
+			"RAWS": {
+				"PRODUCT":    ["-- EXTRACT_STILL --"],
+				"PROD_MAT":   [
+					"[USE_MATERIAL_TEMPLATE:EXTRACT_POTION:PLANT_LIQUID_TEMPLATE]",
+						"[REACTION_CLASS:EXTRACT]",
+						"[REACTION_CLASS:EXTRACT_POTION]",
+						"[SYNDROME]",
+						"[SYN_NAME:!NAME_SINGULAR &1:NAME&]",
+						"&1:RAWS&"]
+			}
+		}
+	},
+	
+	"value": {"__comment": "[BASE VALUE, GROWTH VALUE, PRODUCT VALUE]",
+		"1": ["1","2","3"],
+		"2": ["1","2","3"],
+		"3": ["1","2","3"],
+		"4": ["1","2","3"],
+		"5": ["1","2","3"],
+		"6": ["1","2","3"],
+		"7": ["1","2","3"],
+		"8": ["1","2","3"],
+		"9": ["1","2","3"]
+	},
+	
+	"season":{"__comment": "Determines which season the plant grows in",
+		"1": {"n": 10, "r": "[SUMMER]",                         "d": "during the summer"},
+		"2": {"n": 10, "r": "[SPRING]",                         "d": "during the spring"},
+		"3": {"n": 10, "r": "[WINTER]",                         "d": "during the winter"},
+		"4": {"n": 10, "r": "[AUTUMN]",                         "d": "during the autumn"},
+		"5": {"n": 10, "r": "[SUMMER][SPRING]",                 "d": "during the spring and summer"},
+		"6": {"n": 10, "r": "[SUMMER][AUTUMN]",                 "d": "during the summer and autumn"},
+		"7": {"n": 10, "r": "[AUTUMN][WINTER]",                 "d": "during the autumn and winter"},
+		"8": {"n": 10, "r": "[WINTER][SPRING]",                 "d": "during the winter and apring"},
+		"9": {"n": 10, "r": "[SUMMER][SPRING][WINTER][AUTUMN]", "d": "all year long"}
+	}
+}

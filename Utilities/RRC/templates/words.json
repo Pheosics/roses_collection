@@ -1,0 +1,16 @@
+{ 
+ "number_words": {"__comment": "These are used as multiplication factors",
+     "tiny":     0.25,
+     "small":    0.5,
+     "large":    2,
+     "gigantic": 4,
+     "weak":     0.9,
+     "moderate": 1.0,
+     "strong":   1.1
+ },
+
+ "key_words": {"__comment": "",
+     "ATTRIBUTE": ["STRENGTH","AGILITY","TOUGHNESS","WILLPOWER","FOCUS"],
+     "SICKNESS":  ["NECROSIS","PARALYSIS","NAUSEA","PAIN"]
+ }
+}

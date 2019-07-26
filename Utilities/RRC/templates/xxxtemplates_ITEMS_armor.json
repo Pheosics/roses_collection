@@ -1,0 +1,176 @@
+{
+	"__comment": [""],
+
+	"raw_order":     ["BASE"],
+	"baseObjects":   ["category","type","subtype"],
+	"subObjects":    ["ammo","armor","food","instrument","tool","toy","trap","weapon"],
+	"sourceObjects": [],
+	
+	"category":    {"__comment": "",
+		"MUNDANE": {"__comment": "",
+			"TYPE":   "MUNDANE",
+			"WEIGHT": 100,
+			"TOKENS": [""]
+		}
+	},
+
+	"type":               {"__comment": "",
+		"ARMOR_BASIC":    {"__comment": "",
+			"TYPE":   "ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["NONE"],
+			"FORBIDDEN_TOKENS": ["NONE"]
+		}
+	},
+
+	"subtype":            {"__comment": "",
+		"ARMOR_LIGHT":    {"__comment": "Armor level 1",
+			"TYPE":   "LIGHT_ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["ARMOR"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"ARMOR": {
+				"MIN": 1,
+				"MAX": 1,
+				"REQUIRED":  ["NONE"],
+				"FORBIDDEN": ["NONE"]
+			},
+			"RAWS": {
+				"BASE": ["[ARMORLEVEL:1]"]
+			}
+		},
+		"ARMOR_MEDIUM":   {"__comment": "Armor level 2",
+			"TYPE":   "MEDIUM_ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["ARMOR"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"ARMOR": {
+				"MIN": 1,
+				"MAX": 1,
+				"REQUIRED":  ["NONE"],
+				"FORBIDDEN": ["NONE"]
+			},
+			"RAWS": {
+				"BASE": ["[ARMORLEVEL:2]"]
+			}
+		},
+		"ARMOR_HEAVY":    {"__comment": "Armor level 3",
+			"TYPE":   "HEAVY_ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["ARMOR"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"ARMOR": {
+				"MIN": 1,
+				"MAX": 1,
+				"REQUIRED":  ["NONE"],
+				"FORBIDDEN": ["NONE"]
+			},
+			"RAWS": {
+				"BASE": ["[ARMORLEVEL:3]"]
+			}
+		},
+		"ARMOR_CLOTHES":  {"__comment": "Armor level 0",
+			"TYPE":   "CLOTHES",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["ARMOR"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"ARMOR": {
+				"MIN": 1,
+				"MAX": 1,
+				"REQUIRED":  ["NONE"],
+				"FORBIDDEN": ["NONE"]
+			},
+			"RAWS": {
+				"BASE": ["--ARMORLEVEL:0--"]
+			}
+		},
+	}
+	
+	"armor": {"__comment": "",
+		"SHIELD_BASIC": {"__comment": "",
+			"TYPE":   "SHIELD",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["NONE"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"RAWS": {
+				"START": ["[ITEM_SHIELD:!TAG]"],
+				"BASE":  ["[NAME:!NAME_SINGULAR:!NAME_PLURAL]",
+						  "[BLOCKCHANCE:10]",
+						  "[UPSTEP:1]",
+						  "[MATERIAL_SIZE:2]"]
+			}
+		},
+		"HEAD_BASIC":   {"__comment": "",
+			"TYPE":   "HEAD_ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["NONE"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"RAWS": {
+				"START": ["[ITEM_HELM:!TAG]"],
+				"BASE":  ["[NAME:!NAME_SINGULAR:!NAME_PLURAL]",
+						  "[COVERAGE:100]",
+						  "[LAYER_SIZE:30]",
+						  "[LAYER_PERMIT:20]",
+						  "[MATERIAL_SIZE:2]"]
+			}
+		},
+		"BODY_BASIC":   {"__comment": "",
+			"TYPE":   "BODY_ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["NONE"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"RAWS": {
+				"START": ["[ITEM_ARMOR:!TAG]"]
+			}
+		},
+		"LEGS_BASIC":   {"__comment": "",
+			"TYPE":   "LEG_ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["NONE"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"RAWS": {
+				"START": ["[ITEM_PANTS:!TAG]"]
+			}
+		},
+		"HANDS_BASIC":  {"__comment": "",
+			"TYPE":   "HAND_ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["NONE"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"RAWS": {
+				"START": ["[ITEM_GLOVES:!TAG]"]
+			}
+		},
+		"FEET_BASIC":   {"__comment": "",
+			"TYPE":   "FEET_ARMOR",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"NAME":   [""],
+			"REQUIRED_TOKENS":  ["NONE"],
+			"FORBIDDEN_TOKENS": ["NONE"],
+			"RAWS": {
+				"START": ["[ITEM_SHOES:!TAG]"]
+			}
+		}
+	}
+}

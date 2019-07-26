@@ -1,0 +1,190 @@
+{
+	"__comment": [""],
+
+	"raw_order":     ["BASE","ATTRIBUTES","BODY","GLOSS","MATS","TISSUES","LAYERS","ATTACKS","INTERACTIONS","APPEARANCE","CASTES"],
+	"baseObjects":   ["category","material","body","connections","head","arm","hand","leg","foot","internal"],
+	"subObjects":    ["caste","a_head","a_body"],
+	"sourceObjects": ["attack"],
+	"numberObjects": ["value"],
+	"binObjects":    ["size","speed","strength","agility","toughness"],
+	
+	"category":      {"__comment": "Creature categories are based on ...",
+		"INTELLIGENT":  {"__comment": "",
+			"TYPE":   "INTELLIGENT",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "A <size:d> and <speed:d> creature",
+			"N": {
+				"VALUE": 1
+			},
+			"CASTE":  {
+				"MIN": 2,
+				"REQUIRED": ["MALE","FEMALE"]
+			},
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR:!NAME_PLURAL:!NAME_ADJ]",
+					"[DESCRIPTION:!DESCRIPTION]",
+					"[CREATURE_TILE:1][CREATURE_SOLDIER_TILE:2]",
+					"[COLOR:!COLOR_RGB]",
+					"[INTELLIGENT]",
+					"[MAXAGE:100:150]",
+					"[BABY:1][CHILD:9]",
+					"[GENERAL_BABY_NAME:!NAME_ADJ baby:!NAME_ADJ babies]",
+					"[GENERAL_CHILD_NAME:!NAME_ADJ child:!NAME_ADJ children]",
+					"[BODY_SIZE:0:0:<size:r>]",
+					"[BODY_SIZE:2:0:<size:r>]",
+					"[BODY_SIZE:9:0:<size:r>]"],
+				"ATTRIBUTES": [
+					"[PHYS_ATT_RANGE:STRENGTH:<strength:r>]",
+					"[PHYS_ATT_RANGE:AGILITY:<agility:r>]",
+					"[PHYS_ATT_RANGE:TOUGHNESS:<toughness:r>]"]
+			}
+		}
+	},
+	
+	"caste": {"__comment": "",
+		"MALE_BASIC":   {"__comment": "",
+			"TYPE":   "MALE",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "",
+			"RAWS": {
+				"CASTES": [
+					"[CASTE:MALE]",
+					"    [MALE]",
+					"    [SET_BP_GROUP:BY_TYPE:LOWERBODY][BP_ADD_TYPE:GELDABLE]"]
+			}
+		},
+		"FEMALE_BASIC": {"__comment": "",
+			"TYPE":   "FEMALE",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "",
+			"RAWS": {
+				"CASTES": [
+					"[CASTE:FEMALE]",
+					"    [FEMALE]",
+					"    [MULTIPLE_LITTER_RARE]"]
+			}
+		}
+	},
+	
+	"attack": {"__comment": "",
+		"BITE_BASIC": {
+			"TYPE": "BITE",
+			"WEIGHT": 100,
+			"RAWS": {
+				"ATTACKS": [
+					"[ATTACK:BITE:CHILD_BODYPART_GROUP:BY_CATEGORY:HEAD:BY_CATEGORY:TOOTH]",
+					"    [ATTACK_SKILL:BITE]",
+					"    [ATTACK_VERB:bite:bites]",
+					"    [ATTACK_CONTACT_PERC:100]",
+					"    [ATTACK_PENETRATION_PERC:100]",
+					"    [ATTACK_FLAG_EDGE]",
+					"    [ATTACK_PREPARE_AND_RECOVER:3:3]",
+					"    [ATTACK_PRIORITY:SECOND]",
+					"    [ATTACK_FLAG_CANLATCH]"]
+			}
+		},
+		"KICK_BASIC": {
+			"TYPE": "KICK",
+			"WEIGHT": 100,
+			"RAWS": {
+				"ATTACKS": [
+					"[ATTACK:KICK:BODYPART:BY_TYPE:STANCE]",
+					"    [ATTACK_SKILL:STANCE_STRIKE]",
+					"    [ATTACK_VERB:kick:kicks]",
+					"    [ATTACK_CONTACT_PERC:100]",
+					"    [ATTACK_PREPARE_AND_RECOVER:4:4]",
+					"    [ATTACK_FLAG_WITH]",
+					"    [ATTACK_PRIORITY:SECOND]",
+					"    [ATTACK_FLAG_BAD_MULTIATTACK]"]
+			}
+		},
+		"PUNCH_BASIC": {
+			"TYPE": "PUNCH",
+			"WEIGHT": 100,
+			"RAWS": {
+				"ATTACKS": [
+					"[ATTACK:PUNCH:BODYPART:BY_TYPE:GRASP]",
+					"    [ATTACK_SKILL:GRASP_STRIKE]",
+					"    [ATTACK_VERB:punch:punches]",
+					"    [ATTACK_CONTACT_PERC:100]",
+					"    [ATTACK_PREPARE_AND_RECOVER:3:3]",
+					"    [ATTACK_FLAG_WITH]",
+					"    [ATTACK_PRIORITY:MAIN]"]
+			}
+		},
+		"SCRATCH_BASIC": {
+			"TYPE": "SCRATCH",
+			"WEIGHT": 100,
+			"RAWS": {
+				"ATTACKS": [
+					"[ATTACK:SCRATCH:CHILD_TISSUE_LAYER_GROUP:BY_TYPE:GRASP:BY_CATEGORY:FINGER:NAIL]",
+					"    [ATTACK_SKILL:GRASP_STRIKE]",
+					"    [ATTACK_VERB:scratch:scratches]",
+					"    [ATTACK_CONTACT_PERC:100]",
+					"    [ATTACK_PENETRATION_PERC:100]",
+					"    [ATTACK_FLAG_EDGE]",
+					"    [ATTACK_PREPARE_AND_RECOVER:3:3]",
+					"    [ATTACK_PRIORITY:SECOND]"]
+			}
+		}
+	},
+	
+	"size": {"__comment": "Placeholder numbers",
+		"1": {"n": 10, "r": "$1:2$", "d": "tiny"},
+		"2": {"n": 10, "r": "$2:3$", "d": "very small"},
+		"3": {"n": 10, "r": "$3:4$", "d": "small"},
+		"4": {"n": 10, "r": "$4:5$", "d": "average size"},
+		"5": {"n": 10, "r": "$5:6$", "d": "large"},
+		"6": {"n": 10, "r": "$6:7$", "d": "very large"},
+		"7": {"n": 10, "r": "$7:8$", "d": "huge"},
+		"8": {"n": 10, "r": "$8:9$", "d": "gigantic"}
+	},
+	
+	"speed": {"__comment": "Placeholder numbers",
+		"1": {"n": 10, "r": "$1:2$", "d": "extremely slow"},
+		"2": {"n": 10, "r": "$2:3$", "d": "very slow"},
+		"3": {"n": 10, "r": "$3:4$", "d": "slow"},
+		"4": {"n": 10, "r": "$4:5$", "d": "average speed"},
+		"5": {"n": 10, "r": "$5:6$", "d": "fast"},
+		"6": {"n": 10, "r": "$6:7$", "d": "very fast"},
+		"7": {"n": 10, "r": "$7:8$", "d": "extremely fast"},
+		"8": {"n": 10, "r": "$8:9$", "d": "incredibly fast"}
+	},
+
+	"strength": {"__comment": "Placeholder numbers",
+		"1": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "extremely weak"},
+		"2": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "very weak"},
+		"3": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "weak"},
+		"4": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "average strength"},
+		"5": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "strong"},
+		"6": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "very strong"},
+		"7": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "extremely strong"},
+		"8": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "incredibly strong"}
+	},
+	
+	"agility": {"__comment": "Placeholder numbers",
+		"1": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "extremely sluggish"},
+		"2": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "very sluggish"},
+		"3": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "sluggish"},
+		"4": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "average agility"},
+		"5": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "agile"},
+		"6": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "very agile"},
+		"7": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "extremely agile"},
+		"8": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "incredibly agile"}
+	},
+	
+	"toughness": {"__comment": "Placeholder numbers",
+		"1": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "extremely fragile"},
+		"2": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "very fragile"},
+		"3": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "fragile"},
+		"4": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "average toughness"},
+		"5": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "tough"},
+		"6": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "very tough"},
+		"7": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "extremely tough"},
+		"8": {"n": 10, "r": "1:2:3:4:5:6:7", "d": "incredibly tough"}
+	}
+}
