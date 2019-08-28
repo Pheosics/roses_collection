@@ -1,17 +1,20 @@
 import os
 import json
 import glob
+import copy
 
 reserved_keys = ['RAWS', 'TYPE','WEIGHT','TOKENS','COLORS','REQUIRED','FORBIDDEN',
                  'SOURCE', 'DESC', 'LINK', 'N', 'EXTERNAL', 'KEY', 'SOURCE_KEY', 
                  'SOURCE_TYPE', 'SOURCE_NAME', 'SOURCE_OBJECTS', 'LINK_OBJECTS', 
-                 'NAME', '__comment']
+                 'NAME', 'BIN', 'PREF', 'UNIQUE', 'REPEAT', '__comment']
+joinStr = 'asdbaksjdj'
 
 class Templates:
     def __init__(self,template):
         self.reserved_keys = reserved_keys
         self.join_templates(template)
         self.read_templates()
+        #self.process_templates()
 
     def join_templates(self,template):
         files = glob.glob('templates/templates_'+template+'*')
@@ -47,8 +50,9 @@ class Templates:
                     w = json_dict[key][t_key]['n']
                     dicts[key][n] = {}
                     dicts[key][n]['n'] = dicts[key]['ROLL'] + w
-                    dicts[key][n]['r'] = json_dict[key][t_key]['r']
-                    dicts[key][n]['d'] = json_dict[key][t_key]['d']
+                    for b_key in json_dict[key][t_key].keys():
+                        if b_key == 'n': continue
+                        dicts[key][n][b_key] = json_dict[key][t_key][b_key]
                     dicts[key]['ROLL'] = dicts[key]['ROLL'] + w
                     dicts[key]['BINS'] = n + 1
                 continue
@@ -57,17 +61,54 @@ class Templates:
                 if t_key == "__comment": continue
                 json_dict[key][t_key]['TYPE'] = json_dict[key][t_key].get('TYPE',t_key)
                 json_dict[key][t_key]['WEIGHT'] = json_dict[key][t_key].get('WEIGHT',100)
-                n = dicts[key]['BINS']
-                w = json_dict[key][t_key]['WEIGHT']
-                dicts[key][n] = {}
-                dicts[key][n]['n'] = dicts[key]['ROLL'] + w
-                dicts[key][n]['object'] = json_dict[key][t_key]
-                dicts[key][n]['object']['KEY'] = t_key
+                if json_dict[key][t_key].get('REPEAT',False):
+                    for rk,rv in json_dict[key][t_key]['REPEAT'].items():
+                        n = dicts[key]['BINS']
+                        w = json_dict[key][t_key].get('WEIGHT',100)
+                        dicts[key][n] = {}
+                        dicts[key][n]['n'] = dicts[key]['ROLL'] + int(w*rv[0])
+                        dicts[key][n]['object'] = copy.deepcopy(json_dict[key][t_key])
+                        dicts[key][n]['object']['WEIGHT'] = int(w*rv[0])
+                        dicts[key][n]['object']['KEY'] = t_key + '_' + rk
+                        dicts[key][n]['object']['UNIQUE'] = json_dict[key][t_key].get('UNIQUE',True)
+                        for ek, ev in json_dict[key][t_key].get('EXTERNAL',{}).items():
+                            temp1 = []
+                            for i in range(1,len(rv)):
+                                temp2 = joinStr.join(ev)
+                                for j in range(len(rv[i])):
+                                    jStr = '^' + str(j+1)
+                                    temp2 = temp2.replace(jStr,rv[i][j])
+                                if temp2.split(joinStr) == temp1: continue
+                                temp1 += temp2.split(joinStr)
+                            dicts[key][n]['object']['EXTERNAL'][ek] = temp1
+                        for ek, ev in json_dict[key][t_key].get('RAWS',{}).items():
+                            temp1 = []
+                            for i in range(1,len(rv)):
+                                temp2 = joinStr.join(ev)
+                                for j in range(len(rv[i])):
+                                    jStr = '^' + str(j+1)
+                                    temp2 = temp2.replace(jStr,rv[i][j])
+                                if temp2.split(joinStr) == temp1: continue
+                                temp1 += temp2.split(joinStr)
+                            dicts[key][n]['object']['RAWS'][ek] = temp1
+                        dicts[key]['ROLL'] = dicts[key]['ROLL'] + int(w*rv[0])
+                        dicts[key]['BINS'] = n + 1
+                        dicts[key][n]['object'].pop('REPEAT')
+                else:
+                    json_dict[key][t_key]['TYPE'] = json_dict[key][t_key].get('TYPE',t_key)
+                    json_dict[key][t_key]['WEIGHT'] = json_dict[key][t_key].get('WEIGHT',100)
+                    n = dicts[key]['BINS']
+                    w = json_dict[key][t_key]['WEIGHT']
+                    dicts[key][n] = {}
+                    dicts[key][n]['n'] = dicts[key]['ROLL'] + w
+                    dicts[key][n]['object'] = json_dict[key][t_key]
+                    dicts[key][n]['object']['KEY'] = t_key
+                    dicts[key][n]['object']['UNIQUE'] = json_dict[key][t_key].get('UNIQUE',True)
+                    dicts[key]['ROLL'] = dicts[key]['ROLL'] + w
+                    dicts[key]['BINS'] = n + 1
                 for s_key in json_dict[key][t_key].keys():
                     if reserved_keys.count(s_key) == 0:
                         dicts[key]['KEYS'].append(s_key)
-                dicts[key]['ROLL'] = dicts[key]['ROLL'] + w
-                dicts[key]['BINS'] = n + 1
                 if dicts[key]['TYPES'].count(json_dict[key][t_key]['TYPE']) == 0:
                     dicts[key]['TYPES'].append(json_dict[key][t_key]['TYPE'])
                 dicts[key]['KEYS'] = list(set(dicts[key]['KEYS']))
@@ -82,4 +123,3 @@ class Templates:
         self.numberObjects = temp
 
         self.template = dicts 
-

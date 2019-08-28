@@ -10,17 +10,16 @@ import copy
 
 world = {}
 ordering = { 
-    0:  ['syndromes',   None,               None],
-    1:  ['materials',   "material_template","material_template"],
-    2:  ['environments',None,               None],
-    3:  ['inorganics',  "inorganic",       "inorganic"],
-    4:  ['spells',      None,              None],
-    5:  ['plants',      "plant",           "plant"],
-    6:  ['weapons',     "item",            "item_weapon"],
-    7:  ['creatures',   "creature",        "creature"],
-    8:  ['buildings',   "building",        "building"],
-    9:  ['reactions',   "reaction",        "reaction"],
-    10: ['entities',    "entity",          "entity"]
+    0: ['syndromes',    None,                None],           # Gets added to plants and creatures
+    1: ['environments', None,                None],           # Gets added to plants and creatures
+    2: ['materials',    "material_template", "material_template"],
+    3: ['inorganics',   "inorganic",         "inorganic"],
+    4: ['plants',       "plant",             "plant"],
+    5: ['weapons',      "item",              "item_weapon"],
+    6: ['creatures',    "creature",          "creature"],
+    7: ['buildings',    "building",          "building"],
+    8: ['reactions',    "reaction",          "reaction"],
+    9: ['entities',     "entity",            "entity"]
 }
 
 def get_counts(count,raws,obj):
@@ -43,7 +42,7 @@ def print_counts(count,start,con,Type):
     num = con['n_'+Type]
     print('Created ' + str(n) + ' '+ Type.ljust(13) + ' out of ' +str(num) + \
           ' in ' + str(round(time.time()-start,1)) + ' seconds')
-    if con['details'] == 'True' and n > 1:
+    if con['details'] and n > 1:
         for key in count.keys():
             if key == 'TOTAL': continue
             p = 18
@@ -59,16 +58,24 @@ def create(Type,con,world,extRaws):
     i = 0
     force = {}
     template = Templates(Type.upper())
-    while i < con['n_'+Type]:
+    while i < n:
         obj = rrcObjects.GenerateObject(extRaws,copy.deepcopy(template),Type,con,world,i,force=force).obj
-        #print(json.dumps(obj,indent=4))
+        #print(json.dumps(obj,indent=2))
         raw = rrcRaws.GenerateRaws(obj,con,world,extRaws)
         raw_string = raw.raw_string
-        if len(raw.out['raws']) == 0: continue
+        if len(raw.out['RAWS']) == 0: continue
         count = get_counts(count,raw,obj)
         world[Type].append(raw.out)
         i += 1
-    if con['n_'+Type] == 1 and con['details'] == 'True':
+        for comp in obj['COMPANION']:
+            comp_obj = rrcObjects.GenerateObject(extRaws,copy.deepcopy(template),Type,con,world,i,force=comp).obj
+            obj['COMP_OBJ'] = comp
+            comp_raw = rrcRaws.GenerateRaws(comp_obj,con,world,extRaws,companion=obj)
+            count = get_counts(count,comp_raw,comp_obj)
+            world[Type].append(comp_raw.out)
+            i += 1
+            n += 1
+    if con['n_'+Type] == 1 and con['details']:
         print(raw.obj['token'])
         print(raw.obj['description'])
         print(raw_string)
@@ -87,7 +94,7 @@ if __name__ == '__main__':
         world[Type] = []
         if con['n_'+Type] > 0:
             world[Type] = create(Type,con,world,raws)
-            if con['json_output'] == 'False': continue
+            if not con['json_output']: continue
             with open(Type+'.json','w') as outfile:
                 json.dump(world[Type], outfile, indent=4)
         else:

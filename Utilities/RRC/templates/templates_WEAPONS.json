@@ -4,8 +4,8 @@
 	"raw_order":     ["BASE","ATTACKS"],
 	"baseObjects":   ["category","type"],
 	"subObjects":    [],
-	"sourceObjects": ["weapon_components"],
-	"numberObjects": ["weapon_size"],
+	"sourceObjects": ["components"],
+	"numberObjects": ["size"],
 	
 	"category":    {"__comment": "",
 		"MUNDANE": {"__comment": "",
@@ -21,25 +21,25 @@
 			"NAME": "@weapon_components:GRIP_TYPE:NOUN@ @weapon_components:HANDLE_TYPE:NOUN@ @weapon_components:HEAD_TYPE:NOUN@",
 			"NOUN": ["weapon"],
 			"ADJ":  ["melee"],
-			"N":    {"WEAPON_SIZE": 1},
+			"N":    {"SIZE": 1},
 			"WEAPON_COMPONENTS": ["GRIP","HANDLE","HEAD"],
 			"RAWS": {
 				"BASE":  [
 					"[NAME:!NAME_SINGULAR:!NAME_PLURAL]",
-						"[SIZE:$N:WEAPON_SIZE:1$]",
-						"[MINIMUM_SIZE:$N:WEAPON_SIZE:2$]",
-						"[TWO_HANDED:$N:WEAPON_SIZE:3$]",
-						"[MATERIAL_SIZE:$N:WEAPON_SIZE:4$]"]
+						"[SIZE:$N:SIZE:1$]",
+						"[MINIMUM_SIZE:$N:SIZE:2$]",
+						"[TWO_HANDED:$N:SIZE:3$]",
+						"[MATERIAL_SIZE:$N:SIZE:4$]"]
 			}
 		},
 		"RANGED_BASIC": {"__comment": "Ranged weapons are combinations of frame, ...",
 			"TYPE":     "RANGED",
 			"WEIGHT":   0,
-			"N": {"WEAPON_SIZE": 1}
+			"N": {"SIZE": 1}
 		}
 	},
 	
-	"weapon_components": {"__comment": "",
+	"components": {"__comment": "",
 		"GRIP_SIMPLE":     {"__comment": "No additions            (+0 weapon size)",
 			"TYPE": "GRIP",
 			"DESC": "simple grip",
@@ -70,25 +70,25 @@
 			"TYPE": "HANDLE",
 			"DESC": "short handle",
 			"NOUN": ["short handle"],
-			"N": {"WEAPON_SIZE": 1}
+			"N": {"SIZE": 1}
 		},
 		"HANDLE_LONG":   {"__comment": "Adds a blunt attack (+2 weapon size)",
 			"TYPE": "HANDLE",
 			"DESC": "long handle",
 			"NOUN": ["long handle"],
-			"N": {"WEAPON_SIZE": 2}
+			"N": {"SIZE": 2}
 		},
 		"HANDLE_GIANT":  {"__comment": "Adds a blunt attack (+3 weapon size)",
 			"TYPE": "HANDLE",
 			"DESC": "giant handle",
 			"NOUN": ["giant handle"],
-			"N": {"WEAPON_SIZE": 3}
+			"N": {"SIZE": 3}
 		},
 		"HANDLE_CURVED": {"__comment": "Adds a blunt attack (+2 weapon size)",
 			"TYPE": "HANDLE",
 			"DESC": "long curved handle",
 			"NOUN": ["curved handle"],
-			"N": {"WEAPON_SIZE": 2}
+			"N": {"SIZE": 2}
 		},
 
 		"HEAD_SPEAR_SMALL":  {"__comment": "Adds piercing attacks           (+1 weapon size)",
@@ -96,7 +96,7 @@
 			"TOKENS": ["SPEAR"],
 			"DESC":   "small spear head",
 			"NOUN":   ["spear"],
-			"N": {"WEAPON_SIZE": 1},
+			"N": {"SIZE": 1},
 			"RAWS": {
 				"BASE": ["[SKILL:SPEAR]"],
 				"ATTACKS": [
@@ -109,7 +109,7 @@
 			"TOKENS": ["SPEAR"],
 			"DESC": "large spear head",
 			"NOUN": ["spear"],
-			"N": {"WEAPON_SIZE": 2},
+			"N": {"SIZE": 2},
 			"RAWS": {
 				"BASE": ["[SKILL:SPEAR]"],
 				"ATTACKS": [
@@ -122,7 +122,7 @@
 			"TOKENS": ["SPEAR"],
 			"DESC": "giant spear head",
 			"NOUN": ["spear"],
-			"N": {"WEAPON_SIZE": 3},
+			"N": {"SIZE": 3},
 			"RAWS": {
 				"BASE": ["[SKILL:SPEAR]"],
 				"ATTACKS": [
@@ -135,7 +135,7 @@
 			"TOKENS": ["AXE"],
 			"DESC": "small axe head",
 			"NOUN": ["axe"],
-			"N": {"WEAPON_SIZE": 1},
+			"N": {"SIZE": 1},
 			"RAWS": {
 				"BASE": ["[SKILL:AXE]"],
 				"ATTACKS": [
@@ -148,7 +148,7 @@
 			"TOKENS": ["AXE"],
 			"DESC": "large axe head",
 			"NOUN": ["axe"],
-			"N": {"WEAPON_SIZE": 2},
+			"N": {"SIZE": 2},
 			"RAWS": {
 				"BASE": ["[SKILL:AXE]"],
 				"ATTACKS": [
@@ -161,7 +161,7 @@
 			"TOKENS": ["AXE"],
 			"DESC": "giant axe head",
 			"NOUN": ["axe"],
-			"N": {"WEAPON_SIZE": 3},
+			"N": {"SIZE": 3},
 			"RAWS": {
 				"BASE": ["[SKILL:AXE]"],
 				"ATTACKS": [
@@ -174,7 +174,7 @@
 			"TOKENS": ["SWORD"],
 			"DESC": "short sword head",
 			"NOUN": ["sword"],
-			"N": {"WEAPON_SIZE": 1},
+			"N": {"SIZE": 1},
 			"RAWS": {
 				"BASE": ["[SKILL:SWORD]"],
 				"ATTACKS": [
@@ -189,7 +189,7 @@
 			"TOKENS": ["SWORD"],
 			"DESC": "long sword head",
 			"NOUN": ["sword"],
-			"N": {"WEAPON_SIZE": 2},
+			"N": {"SIZE": 2},
 			"RAWS": {
 				"BASE": ["[SKILL:SWORD]"],
 				"ATTACKS": [
@@ -204,7 +204,7 @@
 			"TOKENS": ["SWORD"],
 			"DESC": "giant sword head",
 			"NOUN": ["sword"],
-			"N": {"WEAPON_SIZE": 3},
+			"N": {"SIZE": 3},
 			"RAWS": {
 				"BASE": ["[SKILL:SWORD]"],
 				"ATTACKS": [
@@ -219,7 +219,7 @@
 			"TOKENS": ["MACE"],
 			"DESC": "small mace head",
 			"NOUN": ["mace"],
-			"N": {"WEAPON_SIZE": 1},
+			"N": {"SIZE": 1},
 			"RAWS": {
 				"BASE": ["[SKILL:MACE]"],
 				"ATTACKS": [
@@ -232,7 +232,7 @@
 			"TOKENS": ["MACE"],
 			"DESC": "large mace head",
 			"NOUN": ["mace"],
-			"N": {"WEAPON_SIZE": 2},
+			"N": {"SIZE": 2},
 			"RAWS": {
 				"BASE": ["[SKILL:MACE]"],
 				"ATTACKS": [
@@ -245,7 +245,7 @@
 			"TOKENS": ["MACE"],
 			"DESC": "giant mace head",
 			"NOUN": ["mace"],
-			"N": {"WEAPON_SIZE": 3},
+			"N": {"SIZE": 3},
 			"RAWS": {
 				"BASE": ["[SKILL:MACE]"],
 				"ATTACKS": [
@@ -258,7 +258,7 @@
 			"TOKENS": ["HAMMER"],
 			"DESC": "small hammer head",
 			"NOUN": ["hammer"],
-			"N": {"WEAPON_SIZE": 1},
+			"N": {"SIZE": 1},
 			"RAWS": {
 				"BASE": ["[SKILL:HAMMER]"],
 				"ATTACKS": [
@@ -271,7 +271,7 @@
 			"TOKENS": ["HAMMER"],
 			"DESC": "large hammer head",
 			"NOUN": ["hammer"],
-			"N": {"WEAPON_SIZE": 2},
+			"N": {"SIZE": 2},
 			"RAWS": {
 				"BASE": ["[SKILL:HAMMER]"],
 				"ATTACKS": [
@@ -284,7 +284,7 @@
 			"TOKENS": ["HAMMER"],
 			"DESC": "giant hammer head",
 			"NOUN": ["hammer"],
-			"N": {"WEAPON_SIZE": 3},
+			"N": {"SIZE": 3},
 			"RAWS": {
 				"BASE": ["[SKILL:HAMMER]"],
 				"ATTACKS": [
@@ -297,7 +297,7 @@
 			"TOKENS": ["WHIP"],
 			"DESC": "short whip head",
 			"NOUN": ["whip"],
-			"N": {"WEAPON_SIZE": 0},
+			"N": {"SIZE": 0},
 			"RAWS": {
 				"BASE": ["[SKILL:WHIP]"],
 				"ATTACKS": [
@@ -311,7 +311,7 @@
 			"TOKENS": ["WHIP"],
 			"DESC": "long whip head",
 			"NOUN": ["whip"],
-			"N": {"WEAPON_SIZE": 1},
+			"N": {"SIZE": 1},
 			"RAWS": {
 				"BASE": ["[SKILL:WHIP]"],
 				"ATTACKS": [
@@ -323,19 +323,19 @@
 		
 		"FRAME_SMALL": {"__comment": "(+1 weapon size)",
 			"TYPE": "FRAME",
-			"N": {"WEAPON_SIZE": 1}
+			"N": {"SIZE": 1}
 		},
 		"FRAME_LARGE": {"__comment": "(+2 weapon size)",
 			"TYPE": "FRAME",
-			"N": {"WEAPON_SIZE": 2}
+			"N": {"SIZE": 2}
 		},
 		"FRAME_GIANT": {"__comment": "(+3 weapon size)",
 			"TYPE": "FRAME",
-			"N": {"WEAPON_SIZE": 3}
+			"N": {"SIZE": 3}
 		}
 	},
 	
-	"weapon_size": {"__comment": "[SIZE, MINIMUM_SIZE, TWO_HANDED, MATERIAL_SIZE]",
+	"size": {"__comment": "[SIZE, MINIMUM_SIZE, TWO_HANDED, MATERIAL_SIZE], higher is larger",
 		"1": ["100", "$5000:15000$",   "$15000:27500$",  "1"],
 		"2": ["200", "$15000:22500$",  "$22500:27500$",  "2"],
 		"3": ["300", "$22500:27500$",  "$27500:32500$",  "2"],
@@ -345,5 +345,17 @@
 		"7": ["1200","$62500:77500$",  "$77500:82500$",  "5"],
 		"8": ["1500","$82500:97500$",  "$97500:102500$", "7"],
 		"9": ["1800","$102500:117500$","$117500:122500$","8"]
+	},
+	
+	"speed": {"__comment": "[PREPARE, RECOVER, VELOCITY_MODIFIER], higher is slower",
+		"1": ["3","3","2000"],
+		"2": ["3","3","2000"],
+		"3": ["3","3","2000"],
+		"4": ["3","3","2000"],
+		"5": ["3","3","2000"],
+		"6": ["3","3","2000"],
+		"7": ["3","3","2000"],
+		"8": ["3","3","2000"],
+		"9": ["3","3","2000"]
 	}
 }

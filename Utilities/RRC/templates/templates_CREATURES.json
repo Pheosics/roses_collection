@@ -1,0 +1,3487 @@
+{
+	"__comment": [""],
+
+	"raw_order":     ["BASE","ATTRIBUTES","BODY","GLOSS","MATS","TISSUES","BDP","LAYERS","PRODUCT","ATTACKS","INTERACTIONS","APPEARANCE","CASTES"],
+	
+	"baseObjects": ["base","category","core","head","arm","leg","internal","behavior"],
+	"base":     {"__comment": "{160} For the stuff that goes in every creature (For now all creatures have all five core materials)",
+		"BASIC":  {"__comment": "{100} Basic creatures  (all sizes)",
+			"LINK":   ["environments:ANY"],
+			"BIN":    ["age","size","activity"],
+			"MATERIAL": ["SURFACE","INSULATION","MEAT","STRUCTURE","SCAFOLDING"],
+			"SPECIAL": {"MAX": 3},
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR:!NAME_PLURAL:!NAME_ADJ]",
+					"[DESCRIPTION:!DESCRIPTION]",
+					"[CREATURE_TILE:1][CREATURE_SOLDIER_TILE:2]",
+					"[POPULATION_NUMBER:$10:20$:$20:40$]",
+					"[CLUSTER_NUMBER:$1:5$:$5:9$]",
+					"[LARGE_ROAMING][MEANDERER]",
+					"<3:r>",
+					"&1:RAWS&",
+					"[BABY:<1:BABY>]",
+					"[CHILD:<1:CHILD>]",
+					"[MAXAGE:<1:MAX>]",
+					"[GENERAL_BABY_NAME:!NAME_ADJ baby:!NAME_ADJ babies]",
+					"[GENERAL_CHILD_NAME:!NAME_ADJ child:!NAME_ADJ children]",
+					"[BODY_SIZE:0:0:<2:BABY>]",
+					"[BODY_SIZE:<1:BABY>:0:<2:CHILD>]",
+					"[BODY_SIZE:<1:CHILD>:0:<2:ADULT>]"]
+			}
+		},
+		"VERMIN": {"__comment": "{50}  Vermin creatures (200-500 size)",
+			"WEIGHT": 50,
+			"LINK":   ["environments:ANY"],
+			"BIN":    ["age","activity"],
+			"MATERIAL": ["SURFACE","INSULATION","MEAT","STRUCTURE","SCAFOLDING"],
+			"SPECIAL": {"MAX": 2},
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR:!NAME_PLURAL:!NAME_ADJ]",
+					"[DESCRIPTION:!DESCRIPTION]",
+					"[CREATURE_TILE:1][CREATURE_SOLDIER_TILE:2]",
+					"[POPULATION_NUMBER:250:500]",
+					"[CLUSTER_NUMBER:$1:5$:$5:9$]",
+					"[SMALL_REMAINS][NOT_BUTCHERABLE]",
+					"[VERMIN_HATEABLE][VERMIN_GROUNDER]",
+					"<2:r>",
+					"&1:RAWS&",
+					"[MAXAGE:<1:MAX>]",
+					"[BODY_SIZE:0:0:$200:500$]"]
+			}
+		},
+		"MICRO":  {"__comment": "{10}  Vermin creatures (10-100 size)",
+			"WEIGHT": 10,
+			"TOKENS": ["VERMIN"],
+			"LINK":   ["environments:ANY"],
+			"BIN":    ["age","activity"],
+			"MATERIAL": ["SURFACE","INSULATION","MEAT","STRUCTURE","SCAFOLDING"],
+			"SPECIAL": {"MAX": 2},
+			"RAWS": {
+				"BASE": [
+					"[NAME:!NAME_SINGULAR:!NAME_PLURAL:!NAME_ADJ]",
+					"[DESCRIPTION:!DESCRIPTION]",
+					"[CREATURE_TILE:1][CREATURE_SOLDIER_TILE:2]",
+					"[POPULATION_NUMBER:2500:5000]",
+					"[CLUSTER_NUMBER:$1:5$:$5:9$]",
+					"[SMALL_REMAINS][NOT_BUTCHERABLE]",
+					"[VERMIN_HATEABLE][VERMIN_MICRO][VERMIN_NOTRAP]",
+					"<2:r>",
+					"&1:RAWS&",
+					"[MAXAGE:<1:MAX>]",
+					"[BODY_SIZE:0:0:$10:100$]"]
+			}
+		}
+	},
+	"category": {"__comment": "{100} Creature categories are based on creature origin",
+		"NATURAL":  {"__comment": "{100}",
+			"WEIGHT": 100,
+			"CASTE":  {"MIN": 2, "REQUIRED": ["MALE","FEMALE"]},
+			"RAWS": {
+				"BASE": [
+					"[NATURAL]"]
+			}
+		},
+		"FANCIFUL": {"__comment": "!!! WEIGHT SET TO 0 FOR NOW !!!",
+			"WEIGHT": 0,
+			"CASTE":  {"MIN": 2, "REQUIRED": ["MALE","FEMALE"]},
+			"RAWS": {
+				"BASE": [
+					"[FANCIFUL]"]
+			}
+		},
+		"MAGICAL":  {"__comment": "!!! WEIGHT SET TO 0 FOR NOW !!!",
+			"WEIGHT": 0,
+			"CASTE":  {"MIN": 2, "REQUIRED": ["MALE","FEMALE"]},
+			"RAWS": {
+				"BASE": [
+					"[MAGICAL]"]
+			}
+		}
+	},
+	"core":     {"__comment": "{194} Core parts, UPPERBODY, LOWERBODY, and HEAD",
+		"CORE_3PART": {"__comment": "{20,2}     3 part body with (1,2)   head connected to the upper body with a neck and throat",
+			"TYPE":   "CORE",
+			"WEIGHT": 20,
+			"TOKENS": ["HEAD"],
+			"MATERIAL":   ["BRAIN"],
+			"APPEARANCE": ["HEAD","BODY"],
+			"FACE":        {"REQUIRED": ["EYES","EARS","NOSE","MOUTH"]},
+			"ATTACHMENTS": {"MAX": 2},
+			"REPEAT": {
+				"1": [1.0,["","",""]],
+				"2": [0.1,["L","left ","[LEFT]"],["R","right ","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:UB:upper body:upper bodies][CATEGORY:BODY_UPPER][UPPERBODY][DEFAULT_RELSIZE:1000]",
+					"[BP:MB:mid body:mid bodies]    [CATEGORY:BODY_MIDDLE]          [DEFAULT_RELSIZE:1000][CON:UB]",
+					"[BP:LB:lower body:lower bodies][CATEGORY:BODY_LOWER][LOWERBODY][DEFAULT_RELSIZE:1000][CON:MB]",
+					"[BP:^1NECK:^2neck:STP]         [CATEGORY:NECK]      ^3                            [DEFAULT_RELSIZE:200] [CONTYPE:UPPERBODY]",
+					"[BP:^1THROAT:^2throat:STP]     [CATEGORY:THROAT]    ^3[THROAT][EMBEDDED][SMALL]   [DEFAULT_RELSIZE:40]  [CON:^1NECK]",
+					"[BP:^1HEAD:^2head:STP]         [CATEGORY:HEAD]      ^3[HEAD]                      [DEFAULT_RELSIZE:300] [CON:^1NECK]",
+					"[BP:^1BRAIN:^2brain:STP]       [CATEGORY:BRAIN]     ^3[INTERNAL][SMALL][THOUGHT]  [DEFAULT_RELSIZE:200] [CON:^1HEAD]",
+					"[BP:^1SKULL:^2skull:STP]       [CATEGORY:SKULL]     ^3[INTERNAL][SMALL][TOTEMABLE][DEFAULT_RELSIZE:20]  [CON:^1HEAD]",
+						"[PREVENTS_PARENT_COLLAPSE]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:BODY_UPPER:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:BODY_MIDDLE:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:BODY_LOWER:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:NECK:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:HEAD:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:BRAIN:BRAIN:100]",
+					"[BP_LAYERS:BY_CATEGORY:THROAT:SURFACE:100]",
+					"[BP_LAYERS:BY_CATEGORY:SKULL:STRUCTURE:100]",
+					"[BP_RELATION:BY_TOKEN:^1SKULL:AROUND:BY_TOKEN:^1BRAIN:100]"]
+			},
+			"RAWS": {
+				"BODY":   ["{BODY:#KEY}"],
+				"LAYERS": [
+					"[BODY_DETAIL_PLAN:#KEY]",
+					"[SELECT_TISSUE_LAYER:SURFACE:BY_CATEGORY:THROAT]",
+						"[TL_MAJOR_ARTERIES]"]
+			}
+		},
+		"CORE_2PART": {"__comment": "{100,20,1} 2 part body with (1,2,3) head connected to the upper body with a neck and throat",
+			"TYPE":   "CORE",
+			"WEIGHT": 100,
+			"TOKENS": ["HEAD"],
+			"MATERIAL":   ["BRAIN"],
+			"APPEARANCE": ["HEAD","BODY"],
+			"FACE":        {"REQUIRED": ["EYES","EARS","NOSE","MOUTH"]},
+			"ATTACHMENTS": {"MAX": 2},
+			"REPEAT": {
+				"1": [1.0, ["","",""]],
+				"2": [0.2, ["L","left ","[LEFT]"],["R","right ","[RIGHT]"]],
+				"3": [0.01,["L","left ","[LEFT]"],["M","middle ",""],["R","right ","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:UB:upper body:upper bodies][CATEGORY:BODY_UPPER][UPPERBODY][DEFAULT_RELSIZE:1000]",
+					"[BP:LB:lower body:lower bodies][CATEGORY:BODY_LOWER][LOWERBODY][DEFAULT_RELSIZE:1000][CON:UB]",
+					"[BP:^1NECK:^2neck:STP]         [CATEGORY:NECK]      ^3                            [DEFAULT_RELSIZE:200] [CONTYPE:UPPERBODY]",
+					"[BP:^1THROAT:^2throat:STP]     [CATEGORY:THROAT]    ^3[THROAT][EMBEDDED][SMALL]   [DEFAULT_RELSIZE:40]  [CON:^1NECK]",
+					"[BP:^1HEAD:^2head:STP]         [CATEGORY:HEAD]      ^3[HEAD]                      [DEFAULT_RELSIZE:300] [CON:^1NECK]",
+					"[BP:^1BRAIN:^2brain:STP]       [CATEGORY:BRAIN]     ^3[INTERNAL][SMALL][THOUGHT]  [DEFAULT_RELSIZE:200] [CON:^1HEAD]",
+					"[BP:^1SKULL:^2skull:STP]       [CATEGORY:SKULL]     ^3[INTERNAL][SMALL][TOTEMABLE][DEFAULT_RELSIZE:20]  [CON:^1HEAD]",
+						"[PREVENTS_PARENT_COLLAPSE]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:BODY_UPPER:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:BODY_LOWER:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:NECK:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:HEAD:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:BRAIN:BRAIN:100]",
+					"[BP_LAYERS:BY_CATEGORY:THROAT:SURFACE:100]",
+					"[BP_LAYERS:BY_CATEGORY:SKULL:STRUCTURE:100]",
+					"[BP_RELATION:BY_TOKEN:^1SKULL:AROUND:BY_TOKEN:^1BRAIN:100]"]
+			},
+			"RAWS": {
+				"BODY":   ["{BODY:#KEY}"],
+				"LAYERS": [
+					"[BODY_DETAIL_PLAN:#KEY]",
+					"[SELECT_TISSUE_LAYER:SURFACE:BY_CATEGORY:THROAT]",
+						"[TL_MAJOR_ARTERIES]"]
+			}
+		},
+		"CORE_1PART": {"__comment": "{40}       1 part body with 1       head connected to the upper body with a neck and throat",
+			"TYPE":   "CORE",
+			"WEIGHT": 40,
+			"TOKENS": ["HEAD"],
+			"MATERIAL":   ["BRAIN"],
+			"APPEARANCE": ["HEAD","BODY"],
+			"FACE":        {"REQUIRED": ["EYES","EARS","NOSE","MOUTH"]},
+			"ATTACHMENTS": {"MAX": 2},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:UB:body:bodies]    [CATEGORY:BODY]  [UPPERBODY][LOWERBODY]      [DEFAULT_RELSIZE:2000]",
+					"[BP:NECK:neck:STP]     [CATEGORY:NECK]                              [DEFAULT_RELSIZE:200] [CONTYPE:UPPERBODY]",
+					"[BP:THROAT:throat:STP] [CATEGORY:THROAT][THROAT][EMBEDDED][SMALL]   [DEFAULT_RELSIZE:40]  [CON_CAT:NECK]",
+					"[BP:HD:head:STP]       [CATEGORY:HEAD]  [HEAD]                      [DEFAULT_RELSIZE:300] [CON_CAT:NECK]",
+					"[BP:BRAIN:brain:STP]   [CATEGORY:BRAIN] [INTERNAL][SMALL][THOUGHT]  [DEFAULT_RELSIZE:200] [CONTYPE:HEAD]",
+					"[BP:SKULL:skull:STP]   [CATEGORY:SKULL] [INTERNAL][SMALL][TOTEMABLE][DEFAULT_RELSIZE:20]  [CONTYPE:HEAD]",
+						"[PREVENTS_PARENT_COLLAPSE]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:BODY:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:NECK:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:HEAD:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:BRAIN:BRAIN:100]",
+					"[BP_LAYERS:BY_CATEGORY:THROAT:SURFACE:100]",
+					"[BP_LAYERS:BY_CATEGORY:SKULL:STRUCTURE:100]",
+					"[BP_RELATION:BY_CATEGORY:SKULL:AROUND:BY_CATEGORY:BRAIN:100]"]
+			},
+			"RAWS": {
+				"BODY":   ["{BODY:#KEY}"],
+				"LAYERS": [
+					"[BODY_DETAIL_PLAN:#KEY]",
+					"[SELECT_TISSUE_LAYER:SURFACE:BY_CATEGORY:THROAT]",
+						"[TL_MAJOR_ARTERIES]"]
+			}
+		},
+		"CORE_WORM":  {"__comment": "{10}       1 part body with 1       head in body",
+			"TYPE":   "CORE",
+			"WEIGHT": 10,
+			"MATERIAL":   ["BRAIN"],
+			"APPEARANCE": ["BODY"],
+			"FACE":       {"REQUIRED": ["EYES","EARS","NOSE","MOUTH"]},
+			"ATTACHMENTS": {"MAX": 2},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:UB:body:bodies] [CATEGORY:BODY] [UPPERBODY][LOWERBODY][HEAD][DEFAULT_RELSIZE:2000]",
+					"[BP:BRAIN:brain:STP][CATEGORY:BRAIN][INTERNAL][SMALL][THOUGHT]  [DEFAULT_RELSIZE:200] [CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:BODY:MEAT:50:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:BRAIN:BRAIN:100]"]
+			},
+			"RAWS": {
+				"BODY": ["{BODY:#KEY}"],
+				"LAYERS": ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"CORE_BLOB":  {"__comment": "{1}        1 part body with 0       head",
+			"TYPE":   "CORE",
+			"WEIGHT": 1,
+			"APPEARANCE": ["BODY"],
+			"ATTACHMENTS": {"MAX": 1},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:UB:body:bodies][CATEGORY:BODY][UPPERBODY][LOWERBODY][HEAD][DEFAULT_RELSIZE:2000]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:BODY:MEAT:50:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BASE": ["[NO_THOUGHT_CENTER_FOR_MOVEMENT]"],
+				"BODY": ["{BODY:#KEY}"],
+				"LAYERS": ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		}
+	},
+	"arm":      {"__comment": "{690} Arms and hands",
+		"NO_ARMS":      {"__comment": "{50}",
+			"TYPE": "ARM_NONE",
+			"WEIGHT": 50
+		},
+		"SCYTHE_ARM":   {"__comment": "{50,25}      (2,4)   shoulder, upper arm, elbow, scythe (e.g. praying mantis)",
+			"TYPE":   "ARM_SCYTHE",
+			"WEIGHT": 50,
+			"ATTACK": ["SCYTHE"],
+			"GAITS":  ["CRAWLING","SWIMMING"],  
+			"REPEAT": {
+				"2": [1.0,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]],
+				"4": [0.5,
+					["UL","upper left","[LEFT]"],["UR","upper right","[RIGHT]"],
+					["LL","lower left","[LEFT]"],["LR","lower right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UA_J:^2 shoulder:STP][CATEGORY:ARM_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:100][CONTYPE:UPPERBODY]",
+					"[BP:^1UA:^2 upper arm:STP] [CATEGORY:ARM_UPPER]^3 [LIMB]                  [DEFAULT_RELSIZE:200][CON:^1UA_J]",
+					"[BP:^1LA_J:^2 elbow:STP]   [CATEGORY:ARM_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1UA]",
+					"[BP:^1LA:^2 arm scythe:STP][CATEGORY:SCYTHE]^3    [LIMB]                  [DEFAULT_RELSIZE:400][CON:^1LA_J]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:ARM_JOINT:STRUCTURE:4:MEAT:1]",
+					"[BP_LAYERS:BY_CATEGORY:ARM_UPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:ARM_SCYTHE:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"PINCH_ARM":    {"__comment": "{50,25}      (2,4)   shoulder, upper arm, elbow, lower arm, pincer",
+			"TYPE":   "ARM_PINCER",
+			"WEIGHT": 50,
+			"ATTACK": ["PINCER"],
+			"GAITS":  ["CRAWLING","SWIMMING"],  
+			"REPEAT": {
+				"2": [1.0,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]],
+				"4": [0.5,
+					["UL","upper left","[LEFT]"],["UR","upper right","[RIGHT]"],
+					["LL","lower left","[LEFT]"],["LR","lower right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UA_J:^2 shoulder:STP][CATEGORY:ARM_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:100][CONTYPE:UPPERBODY]",
+					"[BP:^1UA:^2 upper arm:STP] [CATEGORY:ARM_UPPER]^3 [LIMB]                  [DEFAULT_RELSIZE:200][CON:^1UA_J]",
+					"[BP:^1LA_J:^2 elbow:STP]   [CATEGORY:ARM_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1UA]",
+					"[BP:^1LA:^2 lower arm:STP] [CATEGORY:ARM_LOWER]^3 [LIMB]                  [DEFAULT_RELSIZE:200][CON:^1LA_J]",
+					"[BP:^1PINCER:^2 pincer:STP][CATEGORY:PINCER]   ^3 [GRASP]                 [DEFAULT_RELSIZE:200][CON:^1LA]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:ARM_JOINT:STRUCTURE:4:MEAT:1]",
+					"[BP_LAYERS:BY_CATEGORY:ARM_UPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:ARM_LOWER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:HAND:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"6PART_ARM":    {"__comment": "{200,100,20} (2,4,6) shoulder, upper arm, elbow, lower arm, wrist, hand",
+			"TYPE":   "ARM_BASIC",
+			"WEIGHT": 200,
+			"DIGITS": {"MIN": 1, "REQUIRED": ["FINGERS"]},
+			"ATTACK": ["PUNCH"],
+			"GAITS":  ["CLIMBING","CRAWLING","SWIMMING"],  
+			"REPEAT": {
+				"2": [1.0,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]],
+				"4": [0.5,
+					["UL","upper left","[LEFT]"],["UR","upper right","[RIGHT]"],
+					["LL","lower left","[LEFT]"],["LR","lower right","[RIGHT]"]],
+				"6": [0.1,
+					["TL","top left","[LEFT]"],   ["TR","top right","[RIGHT]"],
+					["ML","mid left","[LEFT]"],   ["MR","mid right","[RIGHT]"],
+					["BL","bottom left","[LEFT]"],["BR","bottom right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UA_J:^2 shoulder:STP] [CATEGORY:ARM_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:100][CONTYPE:UPPERBODY]",
+					"[BP:^1UA:^2 upper arm:STP]  [CATEGORY:ARM_UPPER]^3 [LIMB]                  [DEFAULT_RELSIZE:200][CON:^1UA_J]",
+					"[BP:^1LA_J:^2 elbow:STP]    [CATEGORY:ARM_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1UA]",
+					"[BP:^1LA:^2 lower arm:STP]  [CATEGORY:ARM_LOWER]^3 [LIMB]                  [DEFAULT_RELSIZE:200][CON:^1LA_J]",
+					"[BP:^1H_J:^2 wrist:STP]     [CATEGORY:ARM_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1LA]",
+					"[BP:^1HAND:^2 hand:STP]     [CATEGORY:HAND]     ^3 [GRASP]                 [DEFAULT_RELSIZE:80] [CON:^1H_J]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:ARM_JOINT:STRUCTURE:4:MEAT:1]",
+					"[BP_LAYERS:BY_CATEGORY:ARM_UPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:ARM_LOWER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:HAND:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"WING_ARM":     {"__comment": "{50,25,5}    (2,4,6) single part wing     attached to the upper body",
+			"TYPE":   "ARM_WING",
+			"WEIGHT": 50,
+			"GAITS":  ["SWIMMING"],
+			"REPEAT": {
+				"2": [1.0,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]],
+				"4": [0.5,
+					["UL","upper left","[LEFT]"],["UR","upper right","[RIGHT]"],
+					["LL","lower left","[LEFT]"],["LR","lower right","[RIGHT]"]],
+				"6": [0.1,
+					["TL","top left","[LEFT]"],   ["TR","top right","[RIGHT]"],
+					["ML","mid left","[LEFT]"],   ["MR","mid right","[RIGHT]"],
+					["BL","bottom left","[LEFT]"],["BR","bottom right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UA_J:^2 wing:STP] [CATEGORY:WING]^3 [LIMB][FLIER][DEFAULT_RELSIZE:500][CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:WING:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TENTACLE_ARM": {"__comment": "{30,15}      (2,4)   single part tentacle attached to the upper body",
+			"TYPE":   "ARM_TENTACLE",
+			"WEIGHT": 30,
+			"GAITS":  ["CRAWLING","SWIMMING"],
+			"ATTACK": ["TENTACLE"],
+			"REPEAT": {
+				"2": [1.0,
+					["LA","left","[LEFT]"],["RA","right","[RIGHT]"]],
+				"4": [0.5,
+					["ULA","upper left","[LEFT]"],["URA","upper right","[RIGHT]"],
+					["LLA","lower left","[LEFT]"],["LRA","lower right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1TENTACLE:^2 tentacle:STP][CATEGORY:TENTACLE]^3[LIMB][DEFAULT_RELSIZE:400][CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_TOKEN:^1TENTACLE:MEAT:50:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"FLIPPER_ARM":  {"__comment": "{30,15}      (2,4)   single part flipper  attached to the upper body",
+			"TYPE":   "ARM_FLIPPER",
+			"WEIGHT": 30,
+			"GAITS":  ["CRAWLING","SWIMMING"],
+			"REPEAT": {
+				"2": [1.0,
+					["LA","left","[LEFT]"],["RA","right","[RIGHT]"]],
+				"4": [0.5,
+					["ULA","upper left","[LEFT]"],["URA","upper right","[RIGHT]"],
+					["LLA","lower left","[LEFT]"],["LRA","lower right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1FLIPPER:^2 flipper:STP][CATEGORY:FLIPPER]^3[LIMB][DEFAULT_RELSIZE:200][CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_TOKEN:^1FLIPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		}
+	},
+	"leg":      {"__comment": "{814} Legs and feet",
+		"NO_LEGS":      {"__comment": "{20}",
+			"TYPE": "LEG_NONE",
+			"WEIGHT": 20
+		},
+		"HOOF_LEG":     {"__comment": "{30,60,30}       (2,4,6)    hip, upper leg, knee, lower leg, hoof",
+			"TYPE":   "LEG_BASIC",
+			"WEIGHT": 60,
+			"ATTACK": ["HOOF"],
+			"MATERIAL": ["HOOF"],
+			"GAITS":  ["RUNNING"], 
+			"REPEAT": {
+				"2": [0.5,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]],
+				"4": [1.0,
+					["UL","front left","[LEFT]"],["UR","front right","[RIGHT]"],
+					["LL","back left","[LEFT]"],["LR","back right","[RIGHT]"]],
+				"6": [0.5,
+					["UL","front left","[LEFT]"], ["UR","front right","[RIGHT]"],
+					["ML","middle left","[LEFT]"],["MR","middle right","[RIGHT]"],
+					["LL","back left","[LEFT]"],  ["LR","back right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UL_J:^2 hip:STP]     [CATEGORY:LEG_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:50] [CONTYPE:LOWERBODY]",
+					"[BP:^1UL:^2 upper leg:STP] [CATEGORY:LEG_UPPER]^3 [LIMB]                  [DEFAULT_RELSIZE:500][CON:^1UL_J]",
+					"[BP:^1LL_J:^2 knee:STP]    [CATEGORY:LEG_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1UL]",
+					"[BP:^1LL:^2 lower leg:STP] [CATEGORY:LEG_LOWER]^3 [LIMB]                  [DEFAULT_RELSIZE:400][CON:^1LL_J]",
+					"[BP:^1HOOF:^2 hoof:^2 hooves][CATEGORY:HOOF]   ^3 [STANCE]                [DEFAULT_RELSIZE:120][CON:^1LL]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:LEG_JOINT:STRUCTURE:4:MEAT:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_UPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_LOWER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:HOOF:HOOF:100]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"SPIKE_LEG":    {"__comment": "{20,10,4}        (4,6,8)    hip, upper leg, knee, spike",
+			"TYPE":   "LEG_BASIC",
+			"WEIGHT": 20,
+			"ATTACK": ["SPIKE"],
+			"GAITS":  ["RUNNING"], 
+			"REPEAT": {
+				"4": [1.0,
+					["UL","front left","[LEFT]"],["UR","front right","[RIGHT]"],
+					["LL","back left","[LEFT]"],["LR","back right","[RIGHT]"]],
+				"6": [0.5,
+					["UL","front left","[LEFT]"], ["UR","front right","[RIGHT]"],
+					["ML","middle left","[LEFT]"],["MR","middle right","[RIGHT]"],
+					["LL","back left","[LEFT]"],  ["LR","back right","[RIGHT]"]],
+				"8": [0.2,
+					["1L","first left","[LEFT]"], ["1R","first right","[RIGHT]"],
+					["2L","second left","[LEFT]"],["2R","second right","[RIGHT]"],
+					["3L","third left","[LEFT]"], ["3R","third right","[RIGHT]"],
+					["4L","fourth left","[LEFT]"],["4R","fourth right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UL_J:^2 hip:STP]     [CATEGORY:LEG_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:50] [CONTYPE:LOWERBODY]",
+					"[BP:^1UL:^2 upper leg:STP] [CATEGORY:LEG_UPPER]^3 [LIMB]                  [DEFAULT_RELSIZE:500][CON:^1UL_J]",
+					"[BP:^1LL_J:^2 knee:STP]    [CATEGORY:LEG_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1UL]",
+					"[BP:^1LL:^2 leg spike:STP] [CATEGORY:SPIKE]^3     [LIMB]                  [DEFAULT_RELSIZE:400][CON:^1LL_J]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:LEG_JOINT:STRUCTURE:4:MEAT:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_UPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:SPIKE:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TALON_LEG":    {"__comment": "{20}             (2)        hip, upper leg, knee, lower leg, talon",
+			"TYPE":   "LEG_BASIC",
+			"WEIGHT": 20,
+			"ATTACK": ["TALON"],
+			"GAITS":  ["WALKING"], 
+			"REPEAT": {
+				"2": [0.5,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UL_J:^2 hip:STP]    [CATEGORY:LEG_JOINT]^3[JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:50] [CONTYPE:LOWERBODY]",
+					"[BP:^1UL:^2 upper leg:STP][CATEGORY:LEG_UPPER]^3[LIMB]                  [DEFAULT_RELSIZE:500][CON:^1UL_J]",
+					"[BP:^1LL_J:^2 knee:STP]   [CATEGORY:LEG_JOINT]^3[JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1UL]",
+					"[BP:^1LL:^2 lower leg:STP][CATEGORY:LEG_LOWER]^3[LIMB]                  [DEFAULT_RELSIZE:400][CON:^1LL_J]",
+					"[BP:^1TALON:^2 talon:STP] [CATEGORY:TALON]    ^3[STANCE][GRASP]         [DEFAULT_RELSIZE:120][CON:^1LL]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:LEG_JOINT:STRUCTURE:4:MEAT:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_UPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_LOWER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:TALON:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"6PART_LEG":    {"__comment": "{100,200,100,40} (2,4,6,8)  hip, upper leg, knee, lower leg, ankle, foot",
+			"TYPE":   "LEG_BASIC",
+			"WEIGHT": 200,
+			"DIGITS": {"MIN": 1, "REQUIRED": ["TOES"]},
+			"ATTACK": ["KICK"],
+			"GAITS":  ["RUNNING"], 
+			"REPEAT": {
+				"2": [0.5,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]],
+				"4": [1.0,
+					["UL","front left","[LEFT]"],["UR","front right","[RIGHT]"],
+					["LL","back left","[LEFT]"],["LR","back right","[RIGHT]"]],
+				"6": [0.5,
+					["UL","front left","[LEFT]"], ["UR","front right","[RIGHT]"],
+					["ML","middle left","[LEFT]"],["MR","middle right","[RIGHT]"],
+					["LL","back left","[LEFT]"],  ["LR","back right","[RIGHT]"]],
+				"8": [0.2,
+					["1L","first left","[LEFT]"], ["1R","first right","[RIGHT]"],
+					["2L","second left","[LEFT]"],["2R","second right","[RIGHT]"],
+					["3L","third left","[LEFT]"], ["3R","third right","[RIGHT]"],
+					["4L","fourth left","[LEFT]"],["4R","fourth right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UL_J:^2 hip:STP]     [CATEGORY:LEG_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:50] [CONTYPE:LOWERBODY]",
+					"[BP:^1UL:^2 upper leg:STP] [CATEGORY:LEG_UPPER]^3 [LIMB]                  [DEFAULT_RELSIZE:500][CON:^1UL_J]",
+					"[BP:^1LL_J:^2 knee:STP]    [CATEGORY:LEG_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1UL]",
+					"[BP:^1LL:^2 lower leg:STP] [CATEGORY:LEG_LOWER]^3 [LIMB]                  [DEFAULT_RELSIZE:400][CON:^1LL_J]",
+					"[BP:^1F_J:^2 ankle:STP]    [CATEGORY:LEG_JOINT]^3 [JOINT][SMALL][INTERNAL][DEFAULT_RELSIZE:20] [CON:^1LL]",
+					"[BP:^1FOOT:^2 foot:^2 feet][CATEGORY:FOOT]     ^3 [STANCE]                [DEFAULT_RELSIZE:120][CON:^1F_J]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:LEG_JOINT:STRUCTURE:4:MEAT:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_UPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:LEG_LOWER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:FOOT:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"MANY_LEG":     {"__comment": "{10,5}           (100,1000) single part leg      attached to the lower body",
+			"TYPE":   "LEG_BASIC",
+			"WEIGHT": 10,
+			"ATTACK": ["KICK"],
+			"GAITS":  ["RUNNING"], 
+			"REPEAT": {
+				"100": [1.0,
+					["L","left","[LEFT]","50"],["R","right","[RIGHT]","50"]],
+				"1000": [0.5,
+					["L","left","[LEFT]","500"],["R","right","[RIGHT]","500"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1UL:^2 leg:STP][CATEGORY:LEG]^3 [LIMB][STANCE][NUMBER:^4][DEFAULT_RELSIZE:15][CONTYPE:LOWERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:LEG:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TENTACLE_LEG": {"__comment": "{30,30,30,30}    (2,4,6,8)  single part tentacle attached to the lower body",
+			"TYPE":   "LEG_TENTACLE",
+			"WEIGHT": 30,
+			"GAITS":  ["SWIMMING","CRAWLING"],
+			"ATTACK": ["TENTACLE"],
+			"REPEAT": {
+				"2": [1.0,
+					["LL","left","[LEFT]"],["RL","right","[RIGHT]"]],
+				"4": [1.0,
+					["FLL","front left","[LEFT]"],["FRL","front right","[RIGHT]"],
+					["BLL","back left","[LEFT]"], ["BRL","back right","[RIGHT]"]],
+				"6": [1.0,
+					["ULL","front left","[LEFT]"], ["URL","front right","[RIGHT]"],
+					["MLL","middle left","[LEFT]"],["MRL","middle right","[RIGHT]"],
+					["LLL","back left","[LEFT]"],  ["LRL","back right","[RIGHT]"]],
+				"8": [1.0,
+					["1LL","first left","[LEFT]"], ["1RL","first right","[RIGHT]"],
+					["2LL","second left","[LEFT]"],["2RL","second right","[RIGHT]"],
+					["3LL","third left","[LEFT]"], ["3RL","third right","[RIGHT]"],
+					["4LL","fourth left","[LEFT]"],["4RL","fourth right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1TENTACLE:^2 tentacle:STP][CATEGORY:TENTACLE]^3[LIMB][STANCE][DEFAULT_RELSIZE:400][CONTYPE:LOWERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_TOKEN:^1TENTACLE:MEAT:50:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"FLIPPER_LEG":  {"__comment": "{15,30}          (2,4)      single part flipper  attached to the lower body",
+			"TYPE":   "LEG_FLIPPER",
+			"WEIGHT": 30,
+			"GAITS":  ["SWIMMING","CRAWLING"],
+			"ATTACK": ["FLIPPER"],
+			"REPEAT": {
+				"2": [0.5,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]],
+				"4": [1.0,
+					["FL","front left","[LEFT]"],["FR","front right","[RIGHT]"],
+					["BL","back left","[LEFT]"], ["BR","back right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1FLIPPER:^2 flipper:STP][CATEGORY:FLIPPER]^3[LIMB][STANCE][DEFAULT_RELSIZE:200][CONTYPE:LOWERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_TOKEN:^1FLIPPER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		}
+	},
+	"internal": {"__comment": "{100} Skeleton and organs",
+		"INTERNAL_STANDARD": {"__comment": "{100} Standard human organs and skeleton",
+			"TYPE": "STANDARD_INTERNAL",
+			"WEIGHT": 100,
+			"MATERIAL": ["LUNG","HEART","LIVER","GUT","STOMACH","PANCREAS","SPLEEN","KIDNEY","SINEW","BLOOD","PUS","NERVE"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:LIVER:liver:STP]         [CATEGORY:LIVER]   [INTERNAL][SMALL]                              [DEFAULT_RELSIZE:200][CONTYPE:UPPERBODY]",
+					"[BP:STOMACH:stomach:STP]     [CATEGORY:STOMACH] [INTERNAL][SMALL]                              [DEFAULT_RELSIZE:200][CONTYPE:LOWERBODY]",
+					"[BP:PANCREAS:pancreas:STP]   [CATEGORY:PANCREAS][INTERNAL][SMALL]                              [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:SPLEEN:spleen:STP]       [CATEGORY:SPLEEN]  [INTERNAL][SMALL]                              [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:RKIDNEY:right kidney:STP][CATEGORY:KIDNEY]  [INTERNAL][SMALL][RIGHT]                       [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:LKIDNEY:left kidney:STP] [CATEGORY:KIDNEY]  [INTERNAL][SMALL][LEFT]                        [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:HEART:heart:STP]         [CATEGORY:HEART]   [INTERNAL][SMALL][CIRCULATION]                 [DEFAULT_RELSIZE:100][CONTYPE:UPPERBODY]",
+					"[BP:RLUNG:right lung:STP]    [CATEGORY:LUNG]    [INTERNAL][SMALL][RIGHT][BREATHE]              [DEFAULT_RELSIZE:200][CONTYPE:UPPERBODY]",
+					"[BP:LLUNG:left lung:STP]     [CATEGORY:LUNG]    [INTERNAL][SMALL][LEFT][BREATHE]               [DEFAULT_RELSIZE:200][CONTYPE:UPPERBODY]",
+					"[BP:GUTS:guts:guts]          [CATEGORY:GUTS]    [INTERNAL][SMALL][GUTS][UNDER_PRESSURE]        [DEFAULT_RELSIZE:600][CONTYPE:LOWERBODY]",
+					"[BP:USPINE:upper spine:STP]  [CATEGORY:SPINE]   [INTERNAL][SMALL][SKELETON][NERVOUS][CONNECTOR][DEFAULT_RELSIZE:100][CONTYPE:HEAD]",
+					"[BP:MSPINE:middle spine:STP] [CATEGORY:SPINE]   [INTERNAL][SMALL][SKELETON][NERVOUS]           [DEFAULT_RELSIZE:150][CONTYPE:UPPERBODY]",
+					"[BP:LSPINE:lower spine:STP]  [CATEGORY:SPINE]   [INTERNAL][SMALL][SKELETON][NERVOUS]           [DEFAULT_RELSIZE:150][CONTYPE:LOWERBODY]",
+					"[BP:RRIB:right rib:STP]      [CATEGORY:RIB]     [INTERNAL][SMALL][NUMBER:12]                   [DEFAULT_RELSIZE:30] [CONTYPE:UPPERBODY]",
+					"[BP:LRIB:left rib:STP]       [CATEGORY:RIB]     [INTERNAL][SMALL][NUMBER:12]                   [DEFAULT_RELSIZE:30] [CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"-- Layers",
+					"[BP_LAYERS:BY_CATEGORY:LUNG:LUNG:100]",
+					"[BP_LAYERS:BY_CATEGORY:HEART:HEART:100]",
+					"[BP_LAYERS:BY_CATEGORY:GUTS:GUT:100]",
+					"[BP_LAYERS:BY_CATEGORY:LIVER:LIVER:100]",
+					"[BP_LAYERS:BY_CATEGORY:STOMACH:STOMACH:100]",
+					"[BP_LAYERS:BY_CATEGORY:PANCREAS:PANCREAS:100]",
+					"[BP_LAYERS:BY_CATEGORY:SPLEEN:SPLEEN:100]",
+					"[BP_LAYERS:BY_CATEGORY:KIDNEY:KIDNEY:100]",
+					"[BP_LAYERS:BY_CATEGORY:SPINE:NERVE:2:STRUCTURE:2]",
+					"-- Positions",
+					"[BP_RELATION:BY_CATEGORY:RIB:AROUND:BY_CATEGORY:HEART:10]",
+					"[BP_RELATION:BY_CATEGORY:RIB:AROUND:BY_CATEGORY:LUNG:10]",
+					"[BP_RELATION:BY_CATEGORY:RIB:AROUND:BY_CATEGORY:LIVER:10]"]
+			},
+			"RAWS": {
+				"BASE": ["[HAS_NERVES]"],
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"],
+				"LAYERS":[
+					"[BLOOD:LOCAL_CREATURE_MAT:BLOOD:LIQUID]",
+					"[TENDONS:LOCAL_CREATURE_MAT:SINEW:200]",
+					"[LIGAMENTS:LOCAL_CREATURE_MAT:SINEW:200]",
+					"[PUS:LOCAL_CREATURE_MAT:PUS:LIQUID]",
+					"[SELECT_TISSUE_LAYER:HEART:BY_CATEGORY:HEART]",
+						"[TL_MAJOR_ARTERIES]"]
+			}
+		}
+	},
+	"behavior": {"__comment": "Diet, attributes, manerisms, personalities, and other things",
+		"**PEACEFUL": {},
+		"HERBIVORE": {"__comment": "",
+			"RAWS": {
+				"BASE": ["[BENIGN][STANDARD_GRAZER]"]
+			}
+		},
+		"CARNIVORE": {"__comment": "",
+			"RAWS": {
+				"BASE": ["[CARNIVORE]"]
+			}
+		},
+		"BONECARN":  {"__comment": "",
+			"RAWS": {
+				"BASE": ["[CARNIVORE][BONECARN]"]
+			}
+		},
+		"**LITHOVORE": {}
+	},
+	
+	"subObjects": ["face","caste","attachments","digits","special"],
+	"special":     {"__comment": "These are chosen multiple times for each creature and assign special tokens",
+		"HUNTER":     {"__comment": "Large predator",
+			"TYPE": "HUNTER",
+			"REQUIRED": ["CARNIVORE"],
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": ["[LARGE_PREDATOR]"]
+			}
+		},
+		"AMBUSHER":   {"__comment": "Large predator, ambush predator",
+			"TYPE": "HUNTER",
+			"REQUIRED": ["CARNIVORE"],
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": ["[LARGE_PREDATOR][AMBUSH_PREDATOR]"]
+			}
+		},
+		"HIVEABLE":   {"__comment": "Hiveable for honey",
+			"REQUIRED": ["MICRO"],
+			"PRODUCTS": ["HONEY"],
+			"RAWS": {
+				"BASE": ["[ARTIFICIAL_HIVEABLE]"],
+				"PRODUCT" [
+					"[HIVE_PRODUCT:1:201600:TOOL:ITEM_TOOL_HONEYCOMB:LOCAL_CREATURE_MAT:WAX]",
+					"[HIVE_PRODUCT:1:201600:LIQUID_MISC:NONE:LOCAL_CREATURE_MAT:ROYAL_JELLY]"]
+			}
+		},
+		"SOIL_V":     {"__comment": "Vermin soil",
+			"TYPE": "SOIL",
+			"REQUIRED": ["VERMIN"],
+			"FORBIDDEN": ["MICRO"],
+			"RAWS": {
+				"BASE": ["[VERMIN_SOIL]"]
+			}
+		},
+		"SOIL_M":     {"__comment": "Vermin soil colony",
+			"TYPE": "SOIL",
+			"REQUIRED": ["MICRO"],
+			"RAWS": {
+				"BASE": ["[VERMIN_SOIL_COLONY]"]
+			}
+		},
+		"HAIRY":      {"__comment": "Has shearable hair (fur, wool)",
+			"TYPE": "COVERING",
+			"MATERIAL": ["WOOL"],
+			"RAWS": {
+				"BDP": ["[BODY_DETAIL_PLAN:COVERING]"]
+			}
+		},
+		"FEATHERY":   {"__comment": "Has feathers",
+			"TYPE": "COVERING",
+			"MATERIAL": ["FEATHERS"],
+			"RAWS": {
+				"BDP": ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"VENOMOUS":   {"__comment": "Extract POISON",
+			"TYPE": "VENOMOUS",
+			"FORBIDDEN": ["VERMIN"],
+			"PRODUCTS": ["POISON"],
+			"RAWS": {
+				"PRODUCT": ["[EXTRACT:LOCAL_CREATURE_MAT:POISON]"]
+			}
+		},
+		"VENOMOUS_V": {"__comment": "Extract POISON, Vermin bite",
+			"TYPE": "VENOMOUS",
+			"REQUIRED": ["VERMIN"],
+			"PRODUCTS": ["POISON"],
+			"RAWS": {
+				"ATTACKS": ["[VERMIN_BITE:10:bitten:LOCAL_CREATURE_MAT:POISON:LIQUID]"],
+				"PRODUCT": ["[EXTRACT:LOCAL_CREATURE_MAT:POISON]"]
+			}
+		},
+		"WEBBER":     {"__comment": "Shoots web, web immune",
+			"TYPE": "WEBBER",
+			"PRODUCTS": ["SILK"],
+			"RAWS": {
+				"BASE": ["[WEBIMMUNE]"],
+				"PRODUCT": ["[WEBBER:LOCAL_CREATURE_MAT:SILK]"]
+			}
+		},
+		"THICK_WEB":  {"__comment": "Shoots web, web immune, thick web",
+			"TYPE": "WEBBER",
+			"FORBIDDEN": ["VERMIN"],
+			"PRODUCTS": ["SILK"],
+			"RAWS": {
+				"BASE": [
+					"[WEBIMMUNE]",
+					"[THICKWEB]"],
+				"PRODUCT": ["[WEBBER:LOCAL_CREATURE_MAT:SILK]"]
+			}
+		},
+		"CURIOUS_E":  {"__comment": "Curious eater",
+			"TYPE": "CURIOUS",
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": ["[CURIOUSBEAST_EATER]"]
+			}
+		},
+		"CURIOUS_G":  {"__comment": "Curious guzzler",
+			"TYPE": "CURIOUS",
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": ["[CURIOUSBEAST_GUZZLER]"]
+			}
+		},
+		"CURIOUS_I":  {"__comment": "Curious item",
+			"TYPE": "CURIOUS",
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": ["[CURIOUSBEAST_ITEM]"]
+			}
+		},
+		"CURIOUS_A":  {"__comment": "All curious tags",
+			"TYPE": "CURIOUS",
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": [
+					"[CURIOUSBEAST_EATER]",
+					"[CURIOUSBEAST_GUZZLER]",
+					"[CURIOUSBEAST_ITEM]"]
+			}
+		},
+		"CURIOUS_V":  {"__comment": "Curious and vermin eater",
+			"TYPE": "CURIOUS",
+			"REQUIRED": ["VERMIN"],
+			"RAWS": {
+				"BASE": [
+					"[CURIOUSBEAST_EATER]",
+					"[VERMIN_EATER]"]
+			}
+		},
+		"AMPHIBIOUS": {"__comment": "Amphibious and innate swim",
+			"TYPE": "AMPHIBIOUS",
+			"FORBIDDEN": ["VERMIN"],
+			"GAITS": ["SWIMMING"],
+			"RAWS": {
+				"BASE": [
+					"[AMPHIBIOUS][SWIMS_INNATE]"]
+			}
+		},
+		"AQUATIC":    {"__comment": "Aquatic, immobile land, underswim, no drink, cant jump, innate swim",
+			"TYPE": "AQUATIC",
+			"FORBIDDEN": ["VERMIN"],
+			"GAITS": ["SWIMMING"],
+			"RAWS": {
+				"BASE": [
+					"[NO_DRINK]",
+					"[AQUATIC][IMMOBILE_LAND][UNDERSWIM]",
+					"[SWIMS_INNATE][CANNOT_JUMP]"]
+			}
+		},
+		"AQUATIC_V":  {"__comment": "Aquatic, immobile land, underswim, no drink, cant jump, innate swim, vermin fish, fish item, vermin notrap",
+			"TYPE": "AQUATIC",
+			"REQUIRED": ["VERMIN"],
+			"GAITS": ["SWIMMING"],
+			"RAWS": {
+				"BASE": [
+					"[VERMIN_FISH][FISHITEM][VERMIN_NOTRAP]",
+					"[NO_DRINK]",
+					"[AQUATIC][IMMOBILE_LAND][UNDERSWIM]",
+					"[SWIMS_INNATE][CANNOT_JUMP]"]
+			}
+		},
+		"FLIER":      {"__comment": "Flier",
+			"TYPE": "FLIER",
+			"REQUIRED":  ["ARM_WING"],
+			"FORBIDDEN": ["VERMIN"],
+			"GAITS": ["FLYING"],
+			"RAWS": {
+				"BASE": ["[FLIER]"]
+			}
+		},
+		"FLIER_V":    {"__comment": "Flier",
+			"TYPE": "FLIER",
+			"REQUIRED": ["VERMIN","ARM_WING"],
+			"GAITS": ["FLYING"],
+			"RAWS": {
+				"BASE": ["[FLIER]"]
+			}
+		},
+		"TRAIN_ALL":  {"__comment": "Trainable",
+			"TYPE": "TRAINABLE",
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": ["[TRAINABLE]"]
+			}
+		},
+		"TRAIN_WAR":  {"__comment": "Trainable war",
+			"TYPE": "TRAINABLE",
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": ["[TRAINABLE_WAR]"]
+			}
+		},
+		"TRAIN_HUNT": {"__comment": "Trainable hunt",
+			"TYPE": "TRAINABLE",
+			"FORBIDDEN": ["VERMIN"],
+			"RAWS": {
+				"BASE": ["[TRAINABLE_HUNT]"]
+			}
+		}
+	},
+	"caste":       {"__comment": "",
+		"MALE_BASIC":   {"__comment": "Male, geldable",
+			"TYPE":   "MALE",
+			"WEIGHT": 100,
+			"TOKENS": [""],
+			"DESC":   "",
+			"RAWS": {
+				"CASTES": [
+					"[CASTE:MALE]",
+						"[MALE]",
+						"[SET_BP_GROUP:BY_TYPE:LOWERBODY][BP_ADD_TYPE:GELDABLE]"]
+			}
+		},
+		"FEMALE_BASIC": {"__comment": "Female, multiple litter rare",
+			"TYPE":   "FEMALE",
+			"WEIGHT": 100,
+			"RAWS": {
+				"CASTES": [
+					"[CASTE:FEMALE]",
+						"[FEMALE]",
+						"[MULTIPLE_LITTER_RARE]"]
+			}
+		},
+		"FEMALE_EGG":   {"__comment": "Female, lays eggs",
+			"TYPE":   "FEMALE",
+			"WEIGHT": 100,
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:EGGSHELL:CREATURE_SOLID_TEMPLATE]",
+					"[USE_MATERIAL_TEMPLATE:EGG_WHITE:CREATURE_LIQUID_TEMPLATE]",
+					"[USE_MATERIAL_TEMPLATE:EGG_YOLK:CREATURE_LIQUID_TEMPLATE]"],
+				"CASTES": [
+					"[CASTE:FEMALE]",
+						"[FEMALE]",
+						"[LAYS_EGGS]",
+						"[EGG_MATERIAL:LOCAL_CREATURE_MAT:EGGSHELL:SOLID]",
+						"[EGG_MATERIAL:LOCAL_CREATURE_MAT:EGG_WHITE:LIQUID]",
+						"[EGG_MATERIAL:LOCAL_CREATURE_MAT:EGG_YOLK:LIQUID]",
+						"[EGG_SIZE:$10:2000$]",
+						"[CLUTCH_SIZE:$2:5$:$5:15$]"]
+			}
+		},
+		"FEMALE_MILK":  {"__comment": "Female, milkable",
+			"TYPE":   "FEMALE",
+			"WEIGHT": 100,
+			"PRODUCT": ["MILK"],
+			"RAWS": {
+				"CASTES": [
+					"[CASTE:FEMALE]",
+						"[FEMALE]",
+						"[MILKABLE:LOCAL_CREATURE_MAT:MILK:100]"]
+			}
+		}
+	},
+	"attachments": {"__comment": "Body parts attached to HEAD, UPPERBODY, and LOWERBODY types",
+		"MANDIBLE":    {"__comment": "Head mandible   (2,4)       NO_MATERIAL    YES_ATTACK   YES_COLOR",
+			"TYPE":   "MOUTH",
+			"WEIGHT": 100,
+			"ATTACK": ["MANDIBLE"],
+			"COLORS": {"BASE": ["ANY"]},
+			"REPEAT": {
+				"2": [1.0,
+					["L","left ","[LEFT]"],["R","right ","[RIGHT]"]],
+				"4": [1.0,
+					["TL","top left ","[LEFT]"],   ["TR","top right ","[RIGHT]"],
+					["BL","bottom left ","[LEFT]"],["BR","bottom right ","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1MAND:^2mandible:STP][CATEGORY:MANDIBLE]^3[DEFAULT_RELSIZE:200][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:MANDIBLE:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_POSITION:BY_CATEGORY:MANDIBLE:FRONT]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:MANDIBLE:SURFACE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]"]
+			}
+		},
+		"TUSKS":       {"__comment": "Head tusks      (1,2,4)     YES_MATERIAL   YES_ATTACK   YES_COLOR",
+			"TYPE":     "TUSK",
+			"WEIGHT":   100,
+			"MATERIAL": ["IVORY"],
+			"ATTACK":   ["TUSK"],
+			"REPEAT": {
+				"1": [1.0,
+					["1","",""]],
+				"2": [1.0,
+					["L","left ","[LEFT]"],["R","right ","[RIGHT]"]],
+				"4": [1.0,
+					["TL","top left ","[LEFT]"],   ["TR","top right ","[RIGHT]"],
+					["BL","bottom left ","[LEFT]"],["BR","bottom right ","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1TUSK:^2tusk:STP][CONTYPE:HEAD]^3[CATEGORY:TUSK][DEFAULT_RELSIZE:25]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TUSK:IVORY:100]",
+					"[BP_POSITION:BY_CATEGORY:TUSK:FRONT]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"HORNS":       {"__comment": "Head horns      (1,2,3,4,6) YES_MATERIAL   YES_ATTACK   YES_COLOR",
+			"TYPE":     "HORN",
+			"WEIGHT":   100,
+			"MATERIAL": ["HORN"],
+			"ATTACK":   ["HORN"],
+			"REPEAT": {
+				"1": [1.0,
+					["1","",""]],
+				"2": [1.0,
+					["L","left ","[LEFT]"],["R","right ","[RIGHT]"]],
+				"3": [1.0,
+					["L","left ","[LEFT]"],["R","right ","[RIGHT]"],["C","center ",""]],
+				"4": [1.0,
+					["TL","top left ","[LEFT]"],   ["TR","top right ","[RIGHT]"],
+					["BL","bottom left ","[LEFT]"],["BR","bottom right ","[RIGHT]"]],
+				"6": [1.0,
+					["TL","top left ","[LEFT]"],   ["TR","top right ","[RIGHT]"],
+					["ML","mid left ","[LEFT]"],   ["MR","mid right ","[RIGHT]"],
+					["BL","bottom left ","[LEFT]"],["BR","bottom right ","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1HORN:^2horn:STP][CONTYPE:HEAD]^3[SKELETON][CATEGORY:HORN][DEFAULT_RELSIZE:100]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:HORN:STRUCTURE:2:HORN:2]",
+					"[BP_POSITION:BY_CATEGORY:HORN:TOP]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"WINGS":       {"__comment": "Back wings      (2,4,6)     NO_MATERIAL    NO_ATTACK    NO_COLOR",
+			"TYPE":      "WING",
+			"WEIGHT":    100,
+			"FORBIDDEN": ["ARM_WING"],
+			"GAITS": ["FLYING"],
+			"REPEAT": {
+				"2": [1.0,
+					["L","left","[LEFT]"],["R","right","[RIGHT]"]],
+				"4": [0.5,
+					["TL","top left","[LEFT]"],   ["TR","top right","[RIGHT]"],
+					["BL","bottom left","[LEFT]"],["BR","bottom right","[RIGHT]"]],
+				"6": [0.25,
+					["TL","top left","[LEFT]"],   ["TR","top right","[RIGHT]"],
+					["ML","mid left","[LEFT]"],   ["MR","mid right","[RIGHT]"],
+					["BL","bottom left","[LEFT]"],["BR","bottom right","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1WING:^2 wing:STP][CONTYPE:UPPERBODY]^3[FLIER][CATEGORY:WING][DEFAULT_RELSIZE:500]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:WING:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_POSITION:BY_CATEGORY:WING:BACK]"]
+			},
+			"RAWS": {
+				"BASE": ["[FLIER]"],
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TAILS":       {"__comment": "Lowerbody tails (1,2,3,9)   NO_MATERIAL    YES_ATTACK   NO_COLOR",
+			"TYPE": "TAIL",
+			"WEIGHT": 100,
+			"ATTACK": ["TAIL_SLAP"],
+			"REPEAT": {
+				"1": [1.0,  ["",""]],
+				"2": [0.5,  ["1","first "],["2","second "]],
+				"3": [0.25, ["1","first "],["2","second "],["3","third "]],
+				"9": [0.01, ["1","first "],["2","second "],["3","third "],["4","fourth "],["5","fifth "],["6","sixth "],["7","seventh "],["8","eighth "],["9","ninth "]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1TAIL:^2tail:STP][CATEGORY:TAIL][DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TAIL:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TAIL_STING":  {"__comment": "Lowerbody tail with stinger NO_MATERIAL    YES_ATTACK   NO_COLOR",
+			"TYPE":   "TAIL",
+			"WEIGHT": 100,
+			"ATTACK": ["STINGER","TAIL_SLAP"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:TAIL:tail:STP]      [CATEGORY:TAIL]   [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:STINGER:stinger:STP][CATEGORY:STINGER][DEFAULT_RELSIZE:400][CON_CAT:TAIL]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TAIL:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:STINGER:STRUCTURE:100]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TAIL_CLUB":   {"__comment": "Lowerbody tail with club    NO_MATERIAL    YES_ATTACK   NO_COLOR",
+			"TYPE":   "TAIL",
+			"WEIGHT": 100,
+			"TOKENS": ["TAIL"],
+			"ATTACK": ["CLUB","TAIL_SLAP"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:TAIL:tail:STP][CATEGORY:TAIL][DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:CLUB:club:STP][CATEGORY:CLUB][DEFAULT_RELSIZE:500][CON_CAT:TAIL]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TAIL:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:CLUB:STRUCTURE:100]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TAIL_PINCH":  {"__comment": "Lowerbody tail with pincer  NO_MATERIAL    YES_ATTACK   NO_COLOR",
+			"TYPE":   "TAIL",
+			"WEIGHT": 100,
+			"ATTACK": ["PINCER","TAIL_SLAP"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:TAIL:tail:STP]    [CATEGORY:TAIL]  [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:PINCER:pincer:STP][CATEGORY:PINCER][DEFAULT_RELSIZE:400][CON_CAT:TAIL]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TAIL:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:PINCER:STRUCTURE:100]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TAIL_SPIKES": {"__comment": "Lowerbody tail with spikes  NO_MATERIAL    YES_ATTACK   NO_COLOR",
+			"TYPE":   "TAIL",
+			"WEIGHT": 100,
+			"TOKENS": ["SPIKES"],
+			"ATTACK": ["TAIL_SPIKE","TAIL_SLAP"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:TAIL:tail:STP]   [CATEGORY:TAIL]                    [DEFAULT_RELSIZE:100][CONTYPE:LOWERBODY]",
+					"[BP:SPIKE:spikes:STP][CATEGORY:SPIKES][SMALL][NUMBER:20][DEFAULT_RELSIZE:20] [CON_CAT:TAIL]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TAIL:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:SPIKES:STRUCTURE:100]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"BODY_SPIKES": {"__comment": "Upperbody spikes            NO_MATERIAL    YES_ATTACK   NO_COLOR",
+			"TYPE":   "SPIKES",
+			"WEIGHT": 100,
+			"ATTACK": ["BODY_SLAM_SPIKE"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:SPIKE:spikes:STP][CATEGORY:SPIKES][SMALL][NUMBER:40][DEFAULT_RELSIZE:20][CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:SPIKES:STRUCTURE:100]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"HEAD_SPIKES": {"__comment": "Head spikes                 NO_MATERIAL    YES_ATTACK   NO_COLOR",
+			"TYPE":   "SPIKES",
+			"WEIGHT": 100,
+			"ATTACK": ["HEADBUTT_SPIKE"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:SPIKE:spikes:STP][CATEGORY:SPIKES][SMALL][NUMBER:10][DEFAULT_RELSIZE:20][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:SPIKES:STRUCTURE:100]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"BODY_FINS":   {"__comment": "Upperbody fins   (1,2,3)    NO_MATERIAL    NO_ATTACK    NO_COLOR",
+			"TYPE":   "FINS",
+			"WEIGHT": 100,
+			"REPEAT": {
+				"1": [1.0, ["D","dorsal","","400"]],
+				"2": [1.0, ["L","left","[LEFT]","200"],["R","right","[RIGHT]","200"]],
+				"3": [1.0, ["D","dorsal","","400"],["L","left","[LEFT]","200"],["R","right","[RIGHT]","200"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1FIN:^2fin:STP][CATEGORY:FIN]^3[DEFAULT_RELSIZE:^4][CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:FIN:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"HEAD_FINS":   {"__comment": "Head fin                    NO_MATERIAL    NO_ATTACK    NO_COLOR",
+			"TYPE":   "FINS",
+			"WEIGHT": 100,
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:HD_FIN:head fin:STP][CATEGORY:FIN][DEFAULT_RELSIZE:400][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:FIN:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_POSITION:BY_CATEGORY:FIN:TOP]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"BODY_SHELL":  {"__comment": "Upperbody shell             YES_MATERIAL   NO_ATTACK    YES_COLOR",
+			"TYPE":     "SHELL",
+			"WEIGHT":   100,
+			"MATERIAL": ["SHELL"],
+			"COLORS":   {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:SHELL:shell:STP][CATEGORY:SHELL][DEFAULT_RELSIZE:1000][VERMIN_BUTCHER_ITEM][CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:SHELL:SHELL:100]",
+					"[BP_POSITION:BY_CATEGORY:SHELL:TOP]",
+					"[BP_RELATION:BY_CATEGORY:SHELL:AROUND:BY_CATEGORY:UPPERBODY:50]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"],
+				"INTERACTIONS": [
+					"[RETRACT_INTO_BP:BY_CATEGORY:SHELL:retract into shell:retracts into shell:come out of shell:comes out of shell]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:SHELL:SHELL]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]"]
+			}
+		},
+		"HEAD_SHELL":  {"__comment": "Head shell                  YES_MATERIAL   YES_ATTACK   YES_COLOR",
+			"TYPE":     "SHELL",
+			"WEIGHT":   100,
+			"MATERIAL": ["SHELL"],
+			"ATTACK":   ["HEADBUTT_SHELL"],
+			"COLORS":   {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:SHELL:shell:STP][CATEGORY:SHELL][DEFAULT_RELSIZE:100][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:SHELL:SHELL:100]",
+					"[BP_POSITION:BY_CATEGORY:SHELL:TOP]",
+					"[BP_RELATION:BY_CATEGORY:SHELL:AROUND:BY_CATEGORY:HEAD:10]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:SHELL:SHELL]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]"]
+			}
+		},
+		"BODY_CRESTS": {"__comment": "Back crest                  NO_MATERIAL    NO_ATTACK    YES_COLOR",
+			"TYPE":   "CREST",
+			"WEIGHT": 100,
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:BK_CREST:back crest:STP][CATEGORY:CREST][DEFAULT_RELSIZE:400][CONTYPE:UPPERBODY]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:CREST:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_POSITION:BY_CATEGORY:CREST:BACK]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:CREST:SURFACE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]"]
+			}
+		},
+		"HEAD_CRESTS": {"__comment": "Head crest                  NO_MATERIAL    NO_ATTACK    YES_COLOR",
+			"TYPE":   "CREST",
+			"WEIGHT": 100,
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:HD_CREST:head crest:STP][CATEGORY:CREST][DEFAULT_RELSIZE:400][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:CREST:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]",
+					"[BP_POSITION:BY_CATEGORY:CREST:TOP]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:CREST:SURFACE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]"]
+			}
+		}
+	},
+	"digits":      {"__comment": "Body parts attached to GRASP and STANCE types",
+		"CLAWS_HAND": {"__comment": "(3,4,5) clawed fingers (100% NAIL)",
+			"TYPE":   "FINGERS",
+			"WEIGHT": 100,
+			"MATERIAL": ["NAIL"],
+			"ATTACK":   ["CLAW"],
+			"REPEAT": {
+				"3": [1.0, ["1","first","5"],["2","second","5"],["3","third","5"]],
+				"4": [1.0, ["1","first","5"],["2","second","5"],["3","third","5"],["4","fourth","4"]],
+				"5": [1.0, ["1","first","4"],["2","second","5"],["3","third","5"],["4","fourth","5"],["5","fifth","4"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1CLAW:^2 claw:STP][CATEGORY:CLAW][DIGIT][SMALL][DEFAULT_RELSIZE:^3][CONTYPE:GRASP]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:CLAW:NAIL:1]"]
+			},
+			"RAWS": {
+				"BODY":   ["{#KEY}"],
+				"BDP":    ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"CLAWS_FOOT": {"__comment": "(3,4,5) clawed toes (100% NAIL)",
+			"TYPE":   "TOES",
+			"WEIGHT": 100,
+			"MATERIAL": ["NAIL"],
+			"ATTACK":   ["CLAW"],
+			"REPEAT": {
+				"3": [1.0, ["1","first","5"],["2","second","5"],["3","third","5"]],
+				"4": [1.0, ["1","first","5"],["2","second","5"],["3","third","5"],["4","fourth","4"]],
+				"5": [1.0, ["1","first","4"],["2","second","5"],["3","third","5"],["4","fourth","5"],["5","fifth","4"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1CLAW:^2 claw:STP][CATEGORY:CLAW][DIGIT][SMALL][DEFAULT_RELSIZE:^3][CONTYPE:STANCE]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:CLAW:NAIL:1]"]
+			},
+			"RAWS": {
+				"BODY":   ["{#KEY}"],
+				"BDP":    ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"FINGERS":    {"__comment": "(3,4,5) normal fingers",
+			"TYPE":   "FINGERS",
+			"WEIGHT": 100,
+			"MATERIAL": ["NAIL"],
+			"ATTACK":   ["SCRATCH"],
+			"REPEAT": {
+				"3": [1.0, ["1","first","5"],["2","second","5"],["3","third","5"]],
+				"4": [1.0, ["1","first","5"],["2","second","5"],["3","third","5"],["4","fourth","4"]],
+				"5": [1.0, ["1","first","4"],["2","second","5"],["3","third","5"],["4","fourth","5"],["5","fifth","4"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1FINGER:^2 finger:STP][CATEGORY:FINGER][DIGIT][SMALL][DEFAULT_RELSIZE:^3][CONTYPE:GRASP]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:FINGER:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY":   ["{#KEY}"],
+				"LAYERS": ["[TISSUE_LAYER:BY_CATEGORY:FINGER:NAIL:FRONT]"],
+				"BDP":    ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"TOES":       {"__comment": "(3,4,5) normal toes",
+			"TYPE":   "TOES",
+			"WEIGHT": 100,
+			"MATERIAL": ["NAIL"],
+			"REPEAT": {
+				"3": [1.0, ["1","first","4"],["2","second","4"],["3","third","4"]],
+				"4": [1.0, ["1","first","4"],["2","second","3"],["3","third","3"],["4","fourth","2"]],
+				"5": [1.0, ["1","first","5"],["2","second","3"],["3","third","3"],["4","fourth","3"],["5","fifth","2"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1TOE:^2 toe:STP][CATEGORY:TOE][DIGIT][SMALL][DEFAULT_RELSIZE:^3][CONTYPE:STANCE]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TOE:STRUCTURE:25:MEAT:25:INSULATION:5:SURFACE:1]"]
+			},
+			"RAWS": {
+				"BODY":   ["{#KEY}"],
+				"LAYERS": ["[TISSUE_LAYER:BY_CATEGORY:TOE:NAIL:FRONT]"],
+				"BDP":    ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		}
+	},
+	"face":        {"__comment": "Head and face components",
+		"NO_EYES":     {"__comment": "No eyes",
+			"TYPE": "EYES",
+			"WEIGHT": 100
+		},
+		"NO_NOSE":     {"__comment": "No nose",
+			"TYPE": "NOSE",
+			"WEIGHT": 100
+		},
+		"NO_MOUTH":    {"__comment": "No mouth",
+			"TYPE": "MOUTH",
+			"WEIGHT": 100
+		},
+		"NO_EARS":     {"__comment": "No ears",
+			"TYPE": "EARS",
+			"WEIGHT": 100
+		},
+		"EYE_NOLID":   {"__comment": "(2,4,6)       embedded eyes without lids",
+			"TYPE": "EYES",
+			"WEIGHT": 100,
+			"APPEARANCE": ["EYE"],
+			"MATERIAL": ["EYE"],
+			"REPEAT": {
+				"2": [1.0, ["L","left ","[LEFT]"],["R","right ","[RIGHT]"]],
+				"4": [1.0,
+					["1L","first ","[LEFT]"], ["1R","second ","[RIGHT]"],
+					["2L","third ","[LEFT]"], ["2R","fourth ","[RIGHT]"]],
+				"6": [1.0,
+					["1L","first ","[LEFT]"], ["1R","second ","[RIGHT]"],
+					["2L","third ","[LEFT]"], ["2R","fourth ","[RIGHT]"],
+					["1M","fifth ",""],       ["2M","sixth ",""]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1EYE:^2eye:STP][CATEGORY:EYE]^3[SIGHT][EMBEDDED][SMALL][DEFAULT_RELSIZE:5][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:EYE:EYE:100]"]
+			},
+			"RAWS": {
+				"BODY":   ["{#KEY}"],
+				"LAYERS": ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"EYES_BASIC":  {"__comment": "(1,2,3,4,6,8) embedded eyes with eyelids",
+			"TYPE": "EYES",
+			"WEIGHT": 100,
+			"APPEARANCE": ["EYE"],
+			"MATERIAL": ["EYE"],
+			"REPEAT": {
+				"1": [1.0, ["1","",""]],
+				"2": [1.0, ["L","left ","[LEFT]"],["R","right ","[RIGHT]"]],
+				"3": [1.0, ["L","left ","[LEFT]"],["R","right ","[RIGHT]"],["M","center",""]],
+				"4": [1.0,
+					["1L","first ","[LEFT]"], ["1R","second ","[RIGHT]"],
+					["2L","third ","[LEFT]"], ["2R","fourth ","[RIGHT]"]],
+				"6": [1.0,
+					["1L","first ","[LEFT]"], ["1R","second ","[RIGHT]"],
+					["2L","third ","[LEFT]"], ["2R","fourth ","[RIGHT]"],
+					["1M","fifth ",""],       ["2M","sixth ",""]],
+				"8": [1.0,
+					["1L","first ","[LEFT]"], ["1R","second ","[RIGHT]"],
+					["2L","third ","[LEFT]"], ["2R","fourth ","[RIGHT]"],
+					["1M","fifth ",""],       ["2M","sixth ",""],
+					["3M","seventh ",""],     ["4M","eigth ",""]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1EYE:^2eye:STP]   [CATEGORY:EYE]   ^3[SIGHT][EMBEDDED][SMALL][DEFAULT_RELSIZE:5][CONTYPE:HEAD]",
+					"[BP:^1LID:^2eyelid:STP][CATEGORY:EYELID]^3[SMALL][EMBEDDED]       [DEFAULT_RELSIZE:2][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:EYE:EYE:100]",
+					"[BP_LAYERS:BY_CATEGORY:EYELID:SURFACE:100]",
+					"[BP_RELATION:BY_TOKEN:RLID:AROUND:BY_TOKEN:REYE:50]",
+					"[BP_RELATION:BY_TOKEN:LLID:AROUND:BY_TOKEN:LEYE:50]",
+					"[BP_RELATION:BY_TOKEN:RLID:CLEANS:BY_TOKEN:REYE:100]",
+					"[BP_RELATION:BY_TOKEN:LLID:CLEANS:BY_TOKEN:LEYE:100]"]
+			},
+			"RAWS": {
+				"BODY":   ["{#KEY}"],
+				"LAYERS": ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"EYES_STALKS": {"__comment": "(1,2,3,4,6,8) eye stalks",
+			"TYPE": "EYES",
+			"WEIGHT": 30,
+			"APPEARANCE": ["EYE"],
+			"MATERIAL": ["EYE"],
+			"REPEAT": {
+				"1": [1.0, ["1","",""]],
+				"2": [1.0, ["L","left ","[LEFT]"],["R","right ","[RIGHT]"]],
+				"3": [1.0, ["L","left ","[LEFT]"],["R","right ","[RIGHT]"],["M","center",""]],
+				"4": [1.0,
+					["1L","first ","[LEFT]"], ["1R","second ","[RIGHT]"],
+					["2L","third ","[LEFT]"], ["2R","fourth ","[RIGHT]"]],
+				"6": [1.0,
+					["1L","first ","[LEFT]"], ["1R","second ","[RIGHT]"],
+					["2L","third ","[LEFT]"], ["2R","fourth ","[RIGHT]"],
+					["1M","fifth ",""],       ["2M","sixth ",""]],
+				"8": [1.0,
+					["1L","first ","[LEFT]"], ["1R","second ","[RIGHT]"],
+					["2L","third ","[LEFT]"], ["2R","fourth ","[RIGHT]"],
+					["1M","fifth ",""],       ["2M","sixth ",""],
+					["3M","seventh ",""],     ["4M","eigth ",""]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1EYE:^2eyestalk:STP][CATEGORY:EYE]^3[SIGHT][DEFAULT_RELSIZE:10][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:EYE:EYE:100]"]
+			},
+			"RAWS": {
+				"BODY":       ["{#KEY}"],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"EARS_BASIC":  {"__comment": "(2)           ears",
+			"TYPE":   "EARS",
+			"WEIGHT": 100,
+			"APPEARANCE": ["EAR"],
+			"REPEAT": {
+				"2": [1.0, ["L","left ","[LEFT]"],["R","right ","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1EAR:^2ear:STP][CATEGORY:EAR]^3[HEAR][SMALL][DEFAULT_RELSIZE:15][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:EAR:SCAFOLDING:4:SURFACE:1]",
+					"[BP_POSITION:BY_TOKEN:REAR:RIGHT]",
+					"[BP_POSITION:BY_TOKEN:LEAR:LEFT]"]
+			},
+			"RAWS": {
+				"BODY":       ["{#KEY}"],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"EAR_ANTENNA": {"__comment": "(1,2,4)       antenna",
+			"TYPE":     "EARS",
+			"WEIGHT":   100,
+			"REPEAT": {
+				"1": [1.0,
+					["1","",""]],
+				"2": [1.0,
+					["L","left ","[LEFT]"],["R","right ","[RIGHT]"]],
+				"4": [1.0,
+					["TL","top left ","[LEFT]"],   ["TR","top right ","[RIGHT]"],
+					["BL","bottom left ","[LEFT]"],["BR","bottom right ","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1ANTENNA:^2antenna:STP][CATEGORY:ANTENNA]^3[HEAR][DEFAULT_RELSIZE:100][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:ANTENNA:SCAFOLDING:4:SURFACE:2]",
+					"[BP_POSITION:BY_CATEGORY:ANTENNA:TOP]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"BDP":  ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"EARS_HOLES":  {"__comment": "(2)           embedded ear holes",
+			"TYPE":   "EARS",
+			"WEIGHT": 100,
+			"REPEAT": {
+				"2": [1.0, ["L","left ","[LEFT]"],["R","right ","[RIGHT]"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:^1EAR:^2ear:STP][CATEGORY:EAR]^3[HEAR][SMALL][EMBEDDED][DEFAULT_RELSIZE:15][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:EAR:SCAFOLDING:4:SURFACE:1]",
+					"[BP_POSITION:BY_TOKEN:REAR:RIGHT]",
+					"[BP_POSITION:BY_TOKEN:LEAR:LEFT]"]
+			},
+			"RAWS": {
+				"BODY":       ["{#KEY}"],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"NOSE":        {"__comment": "(nose,snout,trunk)",
+			"TYPE":   "NOSE",
+			"WEIGHT": 100,
+			"APPEARANCE": ["NOSE"],
+			"REPEAT": {
+				"base":  [1.0,["nose", "[SMALL]","10"]],
+				"snout": [1.0,["snout","[SMALL]","20"]],
+				"trunk": [1.0,["trunk","",       "200"]]
+			},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:NOSE:^1:STP][CATEGORY:NOSE][SMELL]^2[DEFAULT_RELSIZE:^3][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:NOSE:SCAFOLDING:4:SURFACE:1]",
+					"[BP_POSITION:BY_CATEGORY:NOSE:FRONT]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"LAYERS": ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"NOSE_HOLES":  {"__comment": "(2)            embedded nose holes",
+			"TYPE":   "NOSE",
+			"WEIGHT": 100,
+			"TOKENS": ["EMBEDDED_NOSE"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:NOSE:nose:STP][CATEGORY:NOSE][SMELL][SMALL][EMBEDDED][DEFAULT_RELSIZE:5][CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:NOSE:SCAFOLDING:4:SURFACE:1]",
+					"[BP_POSITION:BY_CATEGORY:NOSE:FRONT]"]
+			},
+			"RAWS": {
+				"BODY": ["{#KEY}"],
+				"LAYERS": ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"MOUTH_BASIC": {"__comment": "Mouth with tongue, lips, cheek, and teeth",
+			"TYPE":       "MOUTH",
+			"WEIGHT":     100,
+			"APPEARANCE": ["MOUTH"],
+			"MATERIAL":   ["TOOTH"],
+			"ATTACK":     ["BITE"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:MOUTH:mouth:STP]  [CATEGORY:MOUTH] [MOUTH][SMALL][APERTURE]  [DEFAULT_RELSIZE:20][CONTYPE:HEAD]",
+					"[BP:TONGUE:tongue:STP][CATEGORY:TONGUE][SMALL]                   [DEFAULT_RELSIZE:20][CONTYPE:HEAD]",
+					"[BP:TOOTH:tooth:teeth][CATEGORY:TOOTH] [SMALL][SOCKET][NUMBER:30][DEFAULT_RELSIZE:1] [CONTYPE:HEAD]",
+					"[BP:CHEEK:cheek:STP]  [CATEGORY:CHEEK] [SMALL][EMBEDDED]         [DEFAULT_RELSIZE:10][CONTYPE:HEAD]",
+					"[BP:LIP:lip:STP]      [CATEGORY:LIP]   [SMALL][EMBEDDED]         [DEFAULT_RELSIZE:6] [CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					" -- Layers",
+					"[BP_LAYERS:BY_CATEGORY:TOOTH:TOOTH:100]",
+					"[BP_LAYERS:BY_CATEGORY:MOUTH:MEAT:10:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:LIP:MEAT:10:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:TONGUE:MEAT:10:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:CHEEK:SURFACE:100]",
+					"-- Positions",
+					"[BP_POSITION:BY_CATEGORY:LIP:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:TONGUE:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:MOUTH:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:CHEEK:FRONT]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:TEETH:100]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:MOUTH:100]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:TONGUE:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:MOUTH:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:TEETH:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:TONGUE:100]"]
+			},
+			"RAWS": {
+				"BODY":       ["{#KEY}"],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		},
+		"MOUTH_BEAK":  {"__comment": "Mouth with tongue, and teeth",
+			"TYPE":       "MOUTH",
+			"WEIGHT":     100,
+			"APPEARANCE": ["MOUTH"],
+			"MATERIAL":   ["TOOTH"],
+			"ATTACK":     ["BEAK","BITE"],
+			"REQUIRED":   ["EMBEDDED_NOSE"],
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:BEAK:beak:STP]    [CATEGORY:BEAK] [MOUTH][SMALL][APERTURE]  [DEFAULT_RELSIZE:30][CONTYPE:HEAD]",
+					"[BP:TONGUE:tongue:STP][CATEGORY:TONGUE][SMALL]                   [DEFAULT_RELSIZE:20][CONTYPE:HEAD]",
+					"[BP:TOOTH:tooth:teeth][CATEGORY:TOOTH] [SMALL][SOCKET][NUMBER:30][DEFAULT_RELSIZE:1] [CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					"[BP_LAYERS:BY_CATEGORY:TOOTH:TOOTH:100]",
+					"[BP_LAYERS:BY_CATEGORY:BEAK:STRUCTURE:100]",
+					"[BP_LAYERS:BY_CATEGORY:TONGUE:MEAT:10:SURFACE:1]",
+					"[BP_POSITION:BY_CATEGORY:TONGUE:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:MOUTH:FRONT]"]
+			},
+			"RAWS": {
+				"BODY":       ["{#KEY}"],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:BEAK:STRUCTURE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]"]
+			}
+		},
+		"MOUTH_FANGS": {"__comment": "Mouth with tongue, lips, cheek, and teeth with fangs",
+			"TYPE":       "MOUTH",
+			"WEIGHT":     100,
+			"APPEARANCE": ["MOUTH"],
+			"MATERIAL":   ["TOOTH"],
+			"ATTACK":     ["BITE"],
+			"EXTERNAL": {
+				"BODY": [
+					"[BP:MOUTH:mouth:STP]     [CATEGORY:MOUTH] [MOUTH][SMALL][APERTURE]  [DEFAULT_RELSIZE:20][CONTYPE:HEAD]",
+					"[BP:TONGUE:tongue:STP]   [CATEGORY:TONGUE][SMALL]                   [DEFAULT_RELSIZE:20][CONTYPE:HEAD]",
+					"[BP:TOOTH:tooth:teeth]   [CATEGORY:TOOTH] [SMALL][SOCKET][NUMBER:28][DEFAULT_RELSIZE:1] [CONTYPE:HEAD]",
+					"[BP:RFANG:right fang:STP][CATEGORY:TOOTH] [SMALL][SOCKET]           [DEFAULT_RELSIZE:10][CONTYPE:HEAD]",
+					"[BP:LFANG:left fang:STP] [CATEGORY:TOOTH] [SMALL][SOCKET]           [DEFAULT_RELSIZE:10][CONTYPE:HEAD]",
+					"[BP:CHEEK:cheek:STP]     [CATEGORY:CHEEK] [SMALL][EMBEDDED]         [DEFAULT_RELSIZE:10][CONTYPE:HEAD]",
+					"[BP:LIP:lip:STP]         [CATEGORY:LIP]   [SMALL][EMBEDDED]         [DEFAULT_RELSIZE:6] [CONTYPE:HEAD]"],
+				"BODY_DETAIL_PLAN": [
+					" -- Layers",
+					"[BP_LAYERS:BY_CATEGORY:TOOTH:TOOTH:100]",
+					"[BP_LAYERS:BY_CATEGORY:MOUTH:MEAT:10:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:LIP:MEAT:10:INSULATION:5:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:TONGUE:MEAT:10:SURFACE:1]",
+					"[BP_LAYERS:BY_CATEGORY:CHEEK:SURFACE:100]",
+					"-- Positions",
+					"[BP_POSITION:BY_CATEGORY:LIP:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:TONGUE:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:MOUTH:FRONT]",
+					"[BP_POSITION:BY_CATEGORY:CHEEK:FRONT]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:TEETH:100]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:MOUTH:100]",
+					"[BP_RELATION:BY_CATEGORY:CHEEK:AROUND:BY_CATEGORY:TONGUE:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:MOUTH:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:TEETH:100]",
+					"[BP_RELATION:BY_CATEGORY:LIP:AROUND:BY_CATEGORY:TONGUE:100]"]
+			},
+			"RAWS": {
+				"BODY":       ["{#KEY}"],
+				"LAYERS":     ["[BODY_DETAIL_PLAN:#KEY]"]
+			}
+		}
+	},
+	
+	"sourceObjects": ["attack","material","appearance","gaits","products"],	
+	"attack":     {"__comment": "",
+		"BLANK": {"__comment": "A blank attack for copy and paste purposes",
+			"WEIGHT": 0,
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"TAIL_SLAP":  {"__comment": "(main, second) attack with body part category tail",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"TAIL_SPIKE": {"__comment": "(main, second) attack with spikes as child of body part category tail",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"BODY_SLAM":  {"__comment": "(main, second) attack with body part type upperbody",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"BS_SPIKE":   {"__comment": "(main, second) attack with spikes as child of body part type upperbody",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"HEADBUTT":   {"__comment": "(main, second) attack with body part type head",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"HB_SHELL":   {"__comment": "(main, second) attack with shell as child of body part type head",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"HB_SPIKE":   {"__comment": "(main, second) attack with spikes as child of body part type head",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"PINCER":     {"__comment": "(main, second) attack with body part category pincer",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"STINGER":    {"__comment": "(main, second) attack with body part category stinger",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"CLUB":       {"__comment": "(main, second) attack with body part category club",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"SCYTHE":     {"__comment": "(main, second) attack with body part category scythe",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"HOOF":       {"__comment": "(main, second) attack with body part category hoof",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"TENTACLE":   {"__comment": "(main, second) attack with body part category tentacle",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"FLIPPER":    {"__comment": "(main, second) attack with body part category flipper",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"TALON":      {"__comment": "(main, second) attack with body part category talon",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"BEAK":       {"__comment": "(main, second) attack with body part category beak",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"CLAW":       {"__comment": "(main, second) attack with body part category claw",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": []
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"BITE":       {"__comment": "(main, second) attack with teeth as child of body part head",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:ATTACK:BITE:CHILD_BODYPART_GROUP:BY_CATEGORY:HEAD:BY_CATEGORY:TOOTH]",
+						"[CV_NEW_TAG:ATTACK_SKILL:BITE]",
+						"[CV_NEW_TAG:ATTACK_VERB:bite:bites]",
+						"[CV_NEW_TAG:ATTACK_CONTACT_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_PENETRATION_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_FLAG_EDGE]",
+						"[CV_NEW_TAG:ATTACK_PREPARE_AND_RECOVER:3:3]",
+						"[CV_NEW_TAG:ATTACK_PRIORITY:^1]",
+						"[CV_NEW_TAG:ATTACK_FLAG_CANLATCH]"]
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"KICK":       {"__comment": "(main, second) attack with body part type stance",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:ATTACK:KICK:BODYPART:BY_TYPE:STANCE]",
+						"[CV_NEW_TAG:ATTACK_VERB:kick:kicks]",
+						"[CV_NEW_TAG:ATTACK_SKILL:STANCE_STRIKE]",
+						"[CV_NEW_TAG:ATTACK_CONTACT_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_PREPARE_AND_RECOVER:4:4]",
+						"[CV_NEW_TAG:ATTACK_FLAG_WITH]",
+						"[CV_NEW_TAG:ATTACK_PRIORITY:^1]",
+						"[CV_NEW_TAG:ATTACK_FLAG_BAD_MULTIATTACK]"]
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"PUNCH":      {"__comment": "(main, second) attack with body part type grasp",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:ATTACK:PUNCH:BODYPART:BY_TYPE:GRASP]",
+						"[CV_NEW_TAG:ATTACK_SKILL:GRASP_STRIKE]",
+						"[CV_NEW_TAG:ATTACK_VERB:punch:punches]",
+						"[CV_NEW_TAG:ATTACK_CONTACT_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_PREPARE_AND_RECOVER:3:3]",
+						"[CV_NEW_TAG:ATTACK_FLAG_WITH]",
+						"[CV_NEW_TAG:ATTACK_PRIORITY:^1]"]
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"SCRATCH":    {"__comment": "(main, second) attack with tissue layer nail by category finger",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:ATTACK:SCRATCH:CHILD_TISSUE_LAYER_GROUP:BY_TYPE:GRASP:BY_CATEGORY:FINGER:NAIL]",
+						"[CV_NEW_TAG:ATTACK_SKILL:GRASP_STRIKE]",
+						"[CV_NEW_TAG:ATTACK_VERB:scratch:scratches]",
+						"[CV_NEW_TAG:ATTACK_CONTACT_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_PENETRATION_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_FLAG_EDGE]",
+						"[CV_NEW_TAG:ATTACK_PREPARE_AND_RECOVER:3:3]",
+						"[CV_NEW_TAG:ATTACK_PRIORITY:^1]"]
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"HORN":       {"__comment": "(main, second) attack with body part category horn",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:ATTACK:STAB:BODYPART:BY_CATEGORY:HORN]",
+						"[CV_NEW_TAG:ATTACK_SKILL:BITE]",
+						"[CV_NEW_TAG:ATTACK_VERB:stab:stabs]",
+						"[CV_NEW_TAG:ATTACK_CONTACT_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_PRIORITY:^1]",
+						"[CV_NEW_TAG:ATTACK_FLAG_EDGE]",
+						"[CV_NEW_TAG:ATTACK_PREPARE_AND_RECOVER:3:3]",
+						"[CV_NEW_TAG:ATTACK_FLAG_WITH]"]
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"TUSK":       {"__comment": "(main, second) attack with body part category tusk",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:ATTACK:STAB:BODYPART:BY_CATEGORY:TUSK]",
+					"[CV_NEW_TAG:ATTACK_SKILL:BITE]",
+					"[CV_NEW_TAG:ATTACK_VERB:stab:stabs]",
+					"[CV_NEW_TAG:ATTACK_CONTACT_PERC:100]",
+					"[CV_NEW_TAG:ATTACK_PRIORITY:^1]",
+					"[CV_NEW_TAG:ATTACK_FLAG_EDGE]",
+					"[CV_NEW_TAG:ATTACK_PREPARE_AND_RECOVER:3:3]",
+					"[CV_NEW_TAG:ATTACK_FLAG_WITH]"]
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		},
+		"MANDIBLE":   {"__comment": "(main, second) attack with body part category mandible",
+			"UNIQUE": false,
+			"REPEAT": {
+				"MAIN":   [1.0,["MAIN"]],
+				"SECOND": [1.0,["SECOND"]]
+			},
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:ATTACK:BITE:CHILD_BODYPART_GROUP:BY_CATEGORY:HEAD:BY_CATEGORY:MANDIBLE]",
+						"[CV_NEW_TAG:ATTACK_SKILL:BITE]",
+						"[CV_NEW_TAG:ATTACK_VERB:bite:bites]",
+						"[CV_NEW_TAG:ATTACK_CONTACT_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_PENETRATION_PERC:100]",
+						"[CV_NEW_TAG:ATTACK_FLAG_EDGE]",
+						"[CV_NEW_TAG:ATTACK_PREPARE_AND_RECOVER:3:3]",
+						"[CV_NEW_TAG:ATTACK_PRIORITY:^1]",
+						"[CV_NEW_TAG:ATTACK_FLAG_CANLATCH]"]
+			},
+			"RAWS": {
+				"ATTACKS": ["[APPLY_CREATURE_VARIATION:#KEY]"]
+			}
+		}
+	},
+	"material":   {"__comment": "",
+		"SHELL_BASIC":       {"__comment": "Materails = [Shell],                        Tissues = [BASE]",
+			"TYPE": "SHELL",
+			"LINK":   ["materials:SOLID"],
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:shell:NP]",
+					"[STRUCTURAL]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:SHELL]",
+					"[RELATIVE_THICKNESS:2]",
+					"[HEALING_RATE:1000]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]",
+					"[SETTABLE]",
+					"[SPLINTABLE]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_NAME_ADJ:ALL_SOLID:shell]",
+						"[MAX_EDGE:1000]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[SHELL]",
+						"[REACTION_CLASS:SHELL]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"TOOTH_BASIC":       {"__comment": "Materails = [Tooth],                        Tissues = [BASE]",
+			"TYPE":   "TOOTH",
+			"LINK":   ["materials:SOLID"],
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:tooth:NP]",
+					"[STRUCTURAL]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:TOOTH]",
+					"[RELATIVE_THICKNESS:2]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    [
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_NAME_ADJ:ALL_SOLID:tooth]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[TOOTH]",
+						"[MAX_EDGE:1000]",
+						"[REACTION_CLASS:TOOTH]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"NAIL_BASIC":        {"__comment": "Materails = [Nail],                         Tissues = [BASE]",
+			"TYPE":   "NAIL",
+			"LINK":   ["materials:SOLID"],
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:nail:NP]",
+					"[STRUCTURAL]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:NAIL]",
+					"[RELATIVE_THICKNESS:2]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_NAME_ADJ:ALL_SOLID:nail]",
+						"[MAX_EDGE:1000]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[ROTS]",
+						"[REACTION_CLASS:NAIL]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"HORN_BASIC":        {"__comment": "Materails = [Horn],                         Tissues = [BASE]",
+			"TYPE": "HORN",
+			"LINK":   ["materials:SOLID"],
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:horn:NP]",
+					"[STRUCTURAL]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:HORN]",
+					"[RELATIVE_THICKNESS:2]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_NAME_ADJ:ALL_SOLID:horn]",
+						"[MAX_EDGE:1000]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[HORN]",
+						"[REACTION_CLASS:HORN]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"IVORY_BASIC":       {"__comment": "Materails = [Ivory],                        Tissues = [BASE]",
+			"TYPE": "IVORY",
+			"LINK":   ["materials:SOLID"],
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:ivory:NP]",
+					"[STRUCTURAL]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:IVORY]",
+					"[RELATIVE_THICKNESS:2]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_NAME_ADJ:ALL_SOLID:ivory]",
+						"[MAX_EDGE:1000]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[TOOTH]",
+						"[REACTION_CLASS:IVORY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+
+		"COVERING_HAIR":     {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "HAIR",
+			"NOUN": ["fur","wool"],
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_NAME_ADJ:ALL_SOLID:hair]",
+					"[SPEC_HEAT:420]",
+					"[IGNITE_POINT:10508]",
+					"[HEATDAM_POINT:10250]",
+					"[COLDDAM_POINT:9900]",
+					"[SOLID_DENSITY:500]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[YARN]",
+					"[REACTION_CLASS:HAIR]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:hair:NP]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:COVERING]",
+					"[RELATIVE_THICKNESS:1]",
+					"[SUBORDINATE_TO_TISSUE:SURFACE]",
+					"[COSMETIC]",
+					"[STYLEABLE]",
+					"[INSULATION:100]",
+					"[TISSUE_SHAPE:STRANDS]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:COVERING:#KEY]",
+						"[STATE_NAME_ADJ:ALL_SOLID:#NOUN]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:COVERING:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:ALL:COVERING]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]",
+							"[TLCM_NOUN:#NOUN:SINGULAR]",
+						"[TISSUE_LAYER_APPEARANCE_MODIFIER:LENGTH:0:0:0:0:0:0:0]",
+							"[APP_MOD_NOUN:#NOUN:SINGULAR]",
+							"[APP_MOD_RATE:1:DAILY:0:300:0:0:NO_END]",
+							"[APP_MOD_DESC_RANGE:10:50:100:150:200:300]",
+						"[SHEARABLE_TISSUE_LAYER:LENGTH:300]"]
+			}
+		},
+		"COVERING_FEATHERS": {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "FEATHERS",
+			"NOUN": ["feather"],
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_NAME_ADJ:ALL_SOLID:feather]",
+					"[SPEC_HEAT:420]",
+					"[IGNITE_POINT:10508]",
+					"[HEATDAM_POINT:10250]",
+					"[COLDDAM_POINT:9900]",
+					"[SOLID_DENSITY:500]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[REACTION_CLASS:FEATHER]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:feather:STP]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:COVERING]",
+					"[RELATIVE_THICKNESS:2]",
+					"[SUBORDINATE_TO_TISSUE:SURFACE]",
+					"[COSMETIC]",
+					"[STYLEABLE]",
+					"[INSULATION:100]",
+					"[TISSUE_SHAPE:FEATHERS]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:COVERING:#KEY]",
+						"[STATE_NAME_ADJ:ALL_SOLID:#NOUN]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:COVERING:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:ALL:COVERING]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]",
+							"[TLCM_NOUN:#NOUN:SINGULAR]"]
+			}
+		},
+
+		"SURFACE_SKIN":      {"__comment": "Materials = [Skin and leather],             Tissues = [thin, average, thick]",
+			"TYPE":   "SURFACE",
+			"LINK":   ["materials:SOLID"],
+			"COLORS": {"BASE": ["ANY"]},
+			"REPEAT": {
+				"THIN":  [0.2, ["thin ", "1"]],
+				"AVG":   [1.0, ["",      "2"]],
+				"THICK": [0.2, ["thick ","5"]]
+			},
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:^1skin:NP]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:SURFACE]",
+					"[RELATIVE_THICKNESS:^2]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:1]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:TANNED_#TYPE:&1:TAG&]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[STATE_NAME:ALL_SOLID:leather]",
+						"[STATE_ADJ:ALL_SOLID:leather]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[REACTION_CLASS:TANNED_SKIN]",
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[STATE_NAME:ALL_SOLID:skin]",
+						"[STATE_ADJ:ALL_SOLID:skin]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[IMPACT_STRAIN_AT_YIELD:50000]",
+						"[COMPRESSIVE_STRAIN_AT_YIELD:50000]",
+						"[TENSILE_STRAIN_AT_YIELD:50000]",
+						"[TORSION_STRAIN_AT_YIELD:50000]",
+						"[SHEAR_STRAIN_AT_YIELD:50000]",
+						"[BENDING_STRAIN_AT_YIELD:50000]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[ROTS]",
+						"[MATERIAL_REACTION_PRODUCT:TAN_SKIN:LOCAL_CREATURE_MAT:TANNED_#TYPE]",
+						"[REACTION_CLASS:SKIN]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:ALL:SURFACE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]",
+						"[TLCM_NOUN:skin:SINGULAR]"]
+			}
+		},
+		"SURFACE_SCALES":    {"__comment": "Materials = [Scale and tanned scale],       Tissues = [thin, average, thick]",
+			"TYPE":   "SURFACE",
+			"LINK":   ["materials:SOLID"],
+			"COLORS": {"BASE": ["ANY"]},
+			"REPEAT": {
+				"THIN":  [0.2, ["thin ", "1"]],
+				"AVG":   [1.0, ["",      "2"]],
+				"THICK": [0.2, ["thick ","5"]]
+			},
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:^1scale:STP]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:SURFACE]",
+					"[RELATIVE_THICKNESS:^2]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:1]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:SCALES]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:TANNED_#TYPE:&1:TAG&]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:tanned scales]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[REACTION_CLASS:TANNED_SCALE]",
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:scale]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[IMPACT_STRAIN_AT_YIELD:50000]",
+						"[COMPRESSIVE_STRAIN_AT_YIELD:50000]",
+						"[TENSILE_STRAIN_AT_YIELD:50000]",
+						"[TORSION_STRAIN_AT_YIELD:50000]",
+						"[SHEAR_STRAIN_AT_YIELD:50000]",
+						"[BENDING_STRAIN_AT_YIELD:50000]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[ROTS]",
+						"[MATERIAL_REACTION_PRODUCT:TAN_SCALE:LOCAL_CREATURE_MAT:TANNED_#TYPE]",
+						"[REACTION_CLASS:SCALE]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:ALL:SURFACE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]",
+						"[TLCM_NOUN:scales:PLURAL]"]
+			}
+		},
+		"SURFACE_CHITIN":    {"__comment": "Materials = [Chitin and tanned chitin],     Tissues = [thin, average, thick]",
+			"TYPE":   "SURFACE",
+			"LINK":   ["materials:SOLID"],
+			"COLORS": {"BASE": ["ANY"]},
+			"REPEAT": {
+				"THIN":  [0.2, ["thin ", "1"]],
+				"AVG":   [1.0, ["",      "2"]],
+				"THICK": [0.2, ["thick ","5"]]
+			},
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:^1chitin:NP]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:SURFACE]",
+					"[RELATIVE_THICKNESS:^2]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:1]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[CONNECTIVE_TISSUE_ANCHOR]",
+					"[STRUCTURAL]",
+					"[SETTABLE]",
+					"[SPLINTABLE]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:TANNED_#TYPE:&1:TAG&]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:tanned chitin]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[REACTION_CLASS:TANNED_CHITIN]",
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:chitin]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[IMPACT_STRAIN_AT_YIELD:50000]",
+						"[COMPRESSIVE_STRAIN_AT_YIELD:50000]",
+						"[TENSILE_STRAIN_AT_YIELD:50000]",
+						"[TORSION_STRAIN_AT_YIELD:50000]",
+						"[SHEAR_STRAIN_AT_YIELD:50000]",
+						"[BENDING_STRAIN_AT_YIELD:50000]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[ROTS]",
+						"[MATERIAL_REACTION_PRODUCT:TAN_CHITIN:LOCAL_CREATURE_MAT:TANNED_#TYPE]",
+						"[REACTION_CLASS:CHITIN]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"],
+				"APPEARANCE": [
+					"[SET_TL_GROUP:BY_CATEGORY:ALL:SURFACE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE:1]",
+						"[TLCM_NOUN:chitin:SINGULAR]"]
+			}
+		},
+
+		"INSULATION_FAT":    {"__comment": "Materials = [BASE] (should it pick?),       Tissues = [thin, average, thick]",
+			"TYPE":   "INSULATION",
+			"REPEAT": {
+				"THIN":  [0.2, ["thin ", "1","50"]],
+				"AVG":   [1.0, ["",      "2","100"]],
+				"THICK": [0.2, ["thick ","5","200"]]
+			},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:YELLOW]",
+					"[STATE_NAME:ALL_SOLID:fat]",
+					"[STATE_ADJ:ALL_SOLID:fatty]",
+					"[STATE_COLOR:LIQUID:YELLOW]",
+					"[STATE_NAME:LIQUID:grease]",
+					"[STATE_ADJ:LIQUID:greasy]",
+					"[DISPLAY_COLOR:6:0:1]",
+					"[SPEC_HEAT:4181]",
+					"[IGNITE_POINT:10338]",
+					"[MELTING_POINT:10078]",
+					"[HEATDAM_POINT:10250]",
+					"[COLDDAM_POINT:9900]",
+					"[SOLID_DENSITY:900]",
+					"[LIQUID_DENSITY:800]",
+					"[REACTION_CLASS:FAT]",
+					"[DO_NOT_CLEAN_GLOB]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[STOCKPILE_GLOB]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[BUTCHER_SPECIAL:GLOB:NONE]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:^1fat:NP]",
+					"[THICKENS_ON_ENERGY_STORAGE]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:INSULATION]",
+					"[RELATIVE_THICKNESS:^2]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:3]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[INSULATION:^3]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+
+		"MEAT_MUSCLE":       {"__comment": "Materials = [BASE] (should it pick?),       Tissues = [thin, average, thick]",
+			"TYPE":   "MEAT",
+			"REPEAT": {
+				"THIN":  [0.2, ["thin ", "2"]],
+				"AVG":   [1.0, ["",      "3"]],
+				"THICK": [0.2, ["thick ","6"]]
+			},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:MAUVE]",
+					"[STATE_NAME:ALL_SOLID:muscle]",
+					"[STATE_ADJ:ALL_SOLID:muscle]",
+					"[DISPLAY_COLOR:4:0:0]",
+					"[MATERIAL_VALUE:1]",
+					"[SPEC_HEAT:4181]",
+					"[IGNITE_POINT:10508]",
+					"[HEATDAM_POINT:10250]",
+					"[COLDDAM_POINT:9900]",
+					"[SOLID_DENSITY:1060]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[REACTION_CLASS:MUSCLE]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[MEAT_NAME:NONE:meat:meat]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:^1muscle:^1muscles]",
+					"[THICKENS_ON_STRENGTH]",
+					"[ARTERIES]",
+					"[SCARS]",
+					"[MUSCULAR]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:MEAT]",
+					"[RELATIVE_THICKNESS:^2]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:5]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+
+		"STRUCTURE_BONE":    {"__comment": "Materails = [Bone],                         Tissues = [thin, average, thick]",
+			"TYPE":   "STRUCTURE",
+			"LINK":   ["materials:SOLID"],
+			"REPEAT": {
+				"THIN":  [0.2, ["thin ", "1"]],
+				"AVG":   [1.0, ["",      "2"]],
+				"THICK": [0.2, ["thick ","5"]]
+			},
+			"EXTERNAL": {
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:^1bone:NP]",
+					"[STRUCTURAL]",
+					"[CONNECTIVE_TISSUE_ANCHOR]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:STRUCTURE]",
+					"[RELATIVE_THICKNESS:^2]",
+					"[HEALING_RATE:1000]",
+					"[VASCULAR:3]",
+					"[PAIN_RECEPTORS:50]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]",
+					"[SETTABLE]",
+					"[SPLINTABLE]"]
+			},
+			"RAWS": {
+				"MATS":    [
+					"[USE_MATERIAL_TEMPLATE:#TYPE:&1:TAG&]",
+						"[STATE_COLOR:ALL_SOLID:WHITE]",
+						"[STATE_NAME:SOLID:bone]",
+						"[STATE_ADJ:SOLID:bone]",
+						"[STATE_NAME:POWDER:bone meal]",
+						"[STATE_ADJ:POWDER:bone meal]",
+						"[BONE]",
+						"[IMPLIES_ANIMAL_KILL]",
+						"[MAX_EDGE:1000]",
+						"[REACTION_CLASS:BONE]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+
+		"SCAFOLD_CARTILAGE": {"__comment": "Materials = [BASE] (should it pick?),       Tissues = [BASE]",
+			"TYPE":   "SCAFOLDING",
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:WHITE]",
+					"[STATE_NAME:ALL_SOLID:cartilage]",
+					"[STATE_ADJ:ALL_SOLID:cartilaginous]",
+					"[DISPLAY_COLOR:7:0:1]",
+					"[MATERIAL_VALUE:1]",
+					"[SPEC_HEAT:420]",
+					"[IGNITE_POINT:10508]",
+					"[MELTING_POINT:11000]",
+					"[BOILING_POINT:12000]",
+					"[HEATDAM_POINT:10250]",
+					"[COLDDAM_POINT:9900]",
+					"[SOLID_DENSITY:500]",
+					"[ROTS]",
+					"[REACTION_CLASS:CARTILAGE]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:cartilage:NP]",
+					"[STRUCTURAL]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:SCAFOLDING]",
+					"[RELATIVE_THICKNESS:2]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+
+		"EYE_STANDARD":      {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "EYE",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:WHITE]",
+					"[STATE_NAME_ADJ:ALL_SOLID:eye tissue]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:EYE]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:eye tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:EYE]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:3]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"BRAIN_STANDARD":    {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "BRAIN",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:brain]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:BRAIN]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:brain tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:BRAIN]",
+					"[RELATIVE_THICKNESS:1]",
+					"[VASCULAR:3]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"HEART_STANDARD":    {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "HEART",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:heart]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:HEART]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:heart tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:HEART]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:10]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"LUNG_STANDARD":     {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "LUNG",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:lung]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:LUNG]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:lung tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:LUNG]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:8]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"LIVER_STANDARD":    {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "LIVER",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:liver]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:LIVER]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:liver tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:LIVER]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:8]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"GUT_STANDARD":      {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "GUT",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:guts]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:GUT]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:gut:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:GUT]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:3]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"STOMACH_STANDARD":  {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "STOMACH",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:stomach]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:STOMACH]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:stomach tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:STOMACH]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:3]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"PANCREAS_STANDARD": {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "PANCREAS",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:pancreas]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:PANCREAS]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:pancreatic tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:PANCREAS]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:3]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"SPLEEN_STANDARD":   {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "SPLEEN",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:spleen]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:SPLEEN]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:spleen tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:SPLEEN]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:5]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"KIDNEY_STANDARD":   {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "KIDNEY",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:kidney]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[MEAT]",
+					"[BUTCHER_SPECIAL:MEAT:NONE]",
+					"[EDIBLE_VERMIN]",
+					"[EDIBLE_COOKED]",
+					"[REACTION_CLASS:KIDNEY]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:kidney tissue:NP]",
+					"[FUNCTIONAL]",
+					"[STRUCTURAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:KIDNEY]",
+					"[RELATIVE_THICKNESS:1]",
+					"[HEALING_RATE:100]",
+					"[VASCULAR:8]",
+					"[PAIN_RECEPTORS:5]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"NERVE_STANDARD":    {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
+			"TYPE": "NERVE",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:nerves]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[REACTION_CLASS:NERVE]"],
+				"TISSUE_TEMPLATE": [
+					"[TISSUE_NAME:nervous tissue:NP]",
+					"[FUNCTIONAL]",
+					"[SCARS]",
+					"[TISSUE_MATERIAL:LOCAL_CREATURE_MAT:NERVE]",
+					"[RELATIVE_THICKNESS:1]",
+					"[VASCULAR:3]",
+					"[CONNECTS]",
+					"[TISSUE_SHAPE:LAYER]"]
+			},
+			"RAWS": {
+				"MATS":    ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"],
+				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"SINEW_STANDARD":    {"__comment": "Materials = [BASE],                         Tissues = [NONE]",
+			"TYPE": "SINEW",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_COLOR:ALL_SOLID:GRAY]",
+					"[STATE_NAME_ADJ:ALL_SOLID:nerves]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[GENERATES_MIASMA]",
+					"[REACTION_CLASS:SINEW]"]
+			},
+			"RAWS": {
+				"MATS": ["[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]"]
+			}
+		},
+		"BLOOD_STANDARD":    {"__comment": "Materials = [BASE],                         Tissues = [NONE]",
+			"TYPE": "BLOOD",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_NAME_ADJ:ALL_SOLID:frozen blood]",
+					"[STATE_NAME_ADJ:LIQUID:blood]",
+					"[STATE_NAME_ADJ:GAS:boiling blood]",
+					"[SPEC_HEAT:4181]",
+					"[IGNITE_POINT:10508]",
+					"[MELTING_POINT:10000]",
+					"[BOILING_POINT:10180]",
+					"[HEATDAM_POINT:10250]",
+					"[COLDDAM_POINT:9900]",
+					"[SOLID_DENSITY:500]",
+					"[ROTS]",
+					"[BLOOD_MAP_DESCRIPTOR]",
+					"[REACTION_CLASS:BLOOD]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]",
+						"[STATE_COLOR_ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]"]
+			}
+		},
+		"PUS_STANDARD":      {"__comment": "Materials = [BASE],                         Tissues = [NONE]",
+			"TYPE": "PUS",
+			"COLORS": {"BASE": ["ANY"]},
+			"EXTERNAL": {
+				"MATERIAL_TEMPLATE": [
+					"[STATE_NAME_ADJ:ALL_SOLID:frozen pus]",
+					"[STATE_NAME_ADJ:LIQUID:pus]",
+					"[STATE_NAME_ADJ:GAS:boiling pus]",
+					"[SPEC_HEAT:4181]",
+					"[IGNITE_POINT:10508]",
+					"[MELTING_POINT:10000]",
+					"[BOILING_POINT:10180]",
+					"[HEATDAM_POINT:10250]",
+					"[COLDDAM_POINT:9900]",
+					"[SOLID_DENSITY:500]",
+					"[IMPLIES_ANIMAL_KILL]",
+					"[ROTS]",
+					"[PUS_MAP_DESCRIPTOR]",
+					"[REACTION_CLASS:PUS]"]
+			},
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]",
+						"[STATE_COLOR_ALL:!COLOR_STATE]",
+						"[DISPLAY_COLOR:!COLOR_RGB]"]
+			}
+		}
+	},
+	"appearance": {"__comment": "",
+		"BODY_BASIC":      {"__comment": "Slight variations in height, length, and broadness",
+			"TYPE": "BODY",
+			"RAWS": {
+				"APPEARANCE": [
+					"[BODY_APPEARANCE_MODIFIER:LENGTH:90:95:98:100:102:105:110]",
+					"[BODY_APPEARANCE_MODIFIER:HEIGHT:90:95:98:100:102:105:110]",
+					"[BODY_APPEARANCE_MODIFIER:BROADNESS:90:95:98:100:102:105:110]"]
+			}
+		},
+		"BODY_VARIATION":  {"__comment": "Large variations in height, length, and broadness",
+			"TYPE": "BODY",
+			"RAWS": {
+				"APPEARANCE": [
+					"[BODY_APPEARANCE_MODIFIER:LENGTH:75:95:98:100:102:105:125]",
+					"[BODY_APPEARANCE_MODIFIER:HEIGHT:75:95:98:100:102:105:125]",
+					"[BODY_APPEARANCE_MODIFIER:BROADNESS:75:95:98:100:102:105:125]"]
+			}
+		},
+		"EYES_BASIC":      {"__comment": "Sets eye color and eye position and shape",
+			"TYPE": "EYE",
+			"BIN": ["app_ranges","app_ranges","app_ranges","app_ranges"],
+			"COLORS": {"BASE": ["ANY"]},
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:EYE]",
+						"[BP_APPEARANCE_MODIFIER:CLOSE_SET:<1:r>]",
+							"[APP_MOD_NOUN:eyes:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:DEEP_SET:<2:r>]",
+							"[APP_MOD_NOUN:eyes:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:ROUND_VS_NARROW:<3:r>]",
+							"[APP_MOD_NOUN:eyes:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:LARGE_IRIS:<4:r>]",
+							"[APP_MOD_NOUN:eyes:PLURAL]",
+					"[SET_TL_GROUP:BY_CATEGORY:EYE:EYE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE_EYE:1]",
+						"[TLCM_NOUN:eyes:PLURAL]"]
+			}
+		},
+		"EYES_VARIATION":  {"__comment": "Large variations in eye color and eye position and shape",
+			"TYPE": "EYE",
+			"COLORS": {"BASE": ["ANY"]},
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:EYE]",
+						"[BP_APPEARANCE_MODIFIER:CLOSE_SET:0:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:eyes:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:DEEP_SET:0:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:eyes:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:ROUND_VS_NARROW:0:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:eyes:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:LARGE_IRIS:25:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:eyes:PLURAL]",
+							"[APP_MOD_DESC_RANGE:30:60:90:110:150:190]",
+					"[SET_TL_GROUP:BY_CATEGORY:EYE:EYE]",
+						"[TL_COLOR_MODIFIER:!COLOR_STATE_EYE:1]",
+						"[TLCM_NOUN:eyes:PLURAL]"]
+			}
+		},
+		"MOUTH_BASIC":     {"__comment": "Sets lips and tooth position and shape",
+			"TYPE": "MOUTH",
+			"BIN": ["app_ranges","app_ranges","app_ranges"],
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:LIP]",
+						"[BP_APPEARANCE_MODIFIER:THICKNESS:<1:r>]",
+							"[APP_MOD_NOUN:lips:PLURAL]",
+					"[SET_BP_GROUP:BY_CATEGORY:TOOTH]",
+						"[BP_APPEARANCE_MODIFIER:GAPS:<2:r>]",
+							"[APP_MOD_NOUN:teeth:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:LENGTH:<3:r>]",
+							"[APP_MOD_NOUN:teeth:PLURAL]"]
+			}
+		},
+		"MOUTH_VARIATION": {"__comment": "Large variations in lips and tooth position and shape",
+			"TYPE": "MOUTH",
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:LIP]",
+						"[BP_APPEARANCE_MODIFIER:THICKNESS:50:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:lips:PLURAL]",
+							"[APP_MOD_DESC_RANGE:55:70:90:110:150:190]",
+					"[SET_BP_GROUP:BY_CATEGORY:TOOTH]",
+						"[BP_APPEARANCE_MODIFIER:GAPS:0:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:teeth:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:LENGTH:100:100:100:100:100:100:100]",
+							"[APP_MOD_NOUN:teeth:PLURAL]",
+							"[APP_MOD_DESC_RANGE:30:60:90:110:150:190]"]
+			}
+		},
+		"EARS_BASIC":      {"__comment": "Sets ear shape and size",
+			"TYPE": "EARS",
+			"BIN": ["app_ranges","app_ranges","app_ranges","app_ranges"],
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:EAR]",
+						"[BP_APPEARANCE_MODIFIER:SPLAYED_OUT:<1:r>]",
+							"[APP_MOD_NOUN:ears:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:HANGING_LOBES:<2:r>",
+							"[APP_MOD_NOUN:ears:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:BROADNESS:<3:r>]",
+							"[APP_MOD_NOUN:ears:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:HEIGHT:<4:r>]",
+							"[APP_MOD_NOUN:ears:PLURAL]"]
+			}
+		},
+		"EARS_VARIATION":  {"__comment": "Large variations in ear shape and size",
+			"TYPE": "EARS",
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:EAR]",
+						"[BP_APPEARANCE_MODIFIER:SPLAYED_OUT:0:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:ears:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:HANGING_LOBES:0:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:ears:PLURAL]",
+						"[BP_APPEARANCE_MODIFIER:BROADNESS:90:95:98:100:102:105:110]",
+							"[APP_MOD_NOUN:ears:PLURAL]",
+							"[APP_MOD_DESC_RANGE:91:94:98:102:106:109]",
+						"[BP_APPEARANCE_MODIFIER:HEIGHT:90:95:98:100:102:105:110]",
+							"[APP_MOD_NOUN:ears:PLURAL]",
+							"[APP_MOD_DESC_RANGE:91:94:98:102:106:109]"]
+			}
+		},
+		"HEAD_BASIC":      {"__comment": "Sets skull shape and head size",
+			"TYPE": "HEAD",
+			"BIN": ["app_ranges","app_ranges","app_ranges","app_ranges","app_ranges","app_ranges"],
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:SKULL]",
+						"[BP_APPEARANCE_MODIFIER:HIGH_CHEEKBONES:<1:r>]",
+						"[BP_APPEARANCE_MODIFIER:BROAD_CHIN:<2:r>]",
+						"[BP_APPEARANCE_MODIFIER:JUTTING_CHIN:<3:r>]",
+						"[BP_APPEARANCE_MODIFIER:SQUARE_CHIN:<4:r>]",
+					"[SET_BP_GROUP:BY_CATEGORY:HEAD]",
+						"[BP_APPEARANCE_MODIFIER:BROADNESS:<5:r>]",
+						"[BP_APPEARANCE_MODIFIER:HEIGHT:<6:r>]"]
+			}
+		},
+		"HEAD_VARIATION":  {"__comment": "Large variations in skull shape and head size",
+			"TYPE": "HEAD",
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:SKULL]",
+						"[BP_APPEARANCE_MODIFIER:HIGH_CHEEKBONES:0:70:90:100:110:130:200]",
+						"[BP_APPEARANCE_MODIFIER:BROAD_CHIN:0:70:90:100:110:130:200]",
+						"[BP_APPEARANCE_MODIFIER:JUTTING_CHIN:0:70:90:100:110:130:200]",
+						"[BP_APPEARANCE_MODIFIER:SQUARE_CHIN:0:70:90:100:110:130:200]",
+					"[SET_BP_GROUP:BY_CATEGORY:HEAD]",
+						"[BP_APPEARANCE_MODIFIER:BROADNESS:90:95:98:100:102:105:110]",
+							"[APP_MOD_DESC_RANGE:91:94:98:102:106:109]",
+						"[BP_APPEARANCE_MODIFIER:HEIGHT:90:95:98:100:102:105:110]",
+							"[APP_MOD_DESC_RANGE:91:94:98:102:106:109]"]
+			}
+		},
+		"NOSE_BASIC":      {"__comment": "Sets nose shape and size",
+			"TYPE": "NOSE",
+			"BIN": ["app_ranges","app_ranges","app_ranges","app_ranges"],
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:NOSE]",
+						"[BP_APPEARANCE_MODIFIER:BROADNESS:<1:r>]",
+						"[BP_APPEARANCE_MODIFIER:LENGTH:<2:r>]",
+						"[BP_APPEARANCE_MODIFIER:UPTURNED:<3:r>]",
+						"[BP_APPEARANCE_MODIFIER:CONVEX:<4:r>]",
+							"[APP_MOD_NOUN:nose bridge:SINGULAR]"]
+			}
+		},
+		"NOSE_VARIATION":  {"__comment": "Large variations in nose shape and size",
+			"TYPE": "NOSE",
+			"RAWS": {
+				"APPEARANCE": [
+					"[SET_BP_GROUP:BY_CATEGORY:NOSE]",
+						"[BP_APPEARANCE_MODIFIER:BROADNESS:25:70:90:100:110:130:200]",
+							"[APP_MOD_DESC_RANGE:30:60:90:110:150:190]",
+						"[BP_APPEARANCE_MODIFIER:LENGTH:25:70:90:100:110:130:200]",
+							"[APP_MOD_DESC_RANGE:30:60:90:110:150:190]",
+						"[BP_APPEARANCE_MODIFIER:UPTURNED:0:70:90:100:110:130:200]",
+						"[BP_APPEARANCE_MODIFIER:CONVEX:0:70:90:100:110:130:200]",
+							"[APP_MOD_NOUN:nose bridge:SINGULAR]"]
+			}
+		}
+	},
+	"gaits":      {"__comment": "",
+		"FLYING":   {"__comment": "FLY gait",
+			"BIN": ["speed"],
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:GAIT:FLY:Maximum Flight Speed:!ARG4:10:3:!ARG2:50:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:50]",
+					"[CV_NEW_TAG:GAIT:FLY:Faster Flight:!ARG3:5:3:!ARG2:10:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:20]",
+					"[CV_NEW_TAG:GAIT:FLY:Fast Flight:!ARG2:NO_BUILD_UP:5:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:10]",
+					"[CV_NEW_TAG:GAIT:FLY:Fly:!ARG1:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:FLY:Slow Flight:!ARG5:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:FLY:Hover:!ARG6:NO_BUILD_UP:0]"]
+			},
+			"RAWS": {
+				"BASE": ["[APPLY_CREATURE_VARIATION:#KEY:<1:r>]"]
+			}
+		},
+		"WALKING":  {"__comment": "WALK gait",
+			"BIN": ["speed"],
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:GAIT:WALK:Fastest Walk:!ARG4:10:3:!ARG2:50:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:50]",
+					"[CV_NEW_TAG:GAIT:WALK:Faster Walk:!ARG3:5:3:!ARG2:10:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:20]",
+					"[CV_NEW_TAG:GAIT:WALK:Fast Walk:!ARG2:NO_BUILD_UP:5:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:10]",
+					"[CV_NEW_TAG:GAIT:WALK:Walk:!ARG1:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:WALK:Slow Walk:!ARG5:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:WALK:Slowest Walk:!ARG6:NO_BUILD_UP:0]"]
+			},
+			"RAWS": {
+				"BASE": ["[APPLY_CREATURE_VARIATION:#KEY:<1:r>]"]
+			}
+		},
+		"RUNNING":  {"__comment": "WALK gait",
+			"BIN": ["speed"],
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:GAIT:WALK:Sprint:!ARG4:10:3:!ARG2:50:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:50]",
+					"[CV_NEW_TAG:GAIT:WALK:Run:!ARG3:5:3:!ARG2:10:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:20]",
+					"[CV_NEW_TAG:GAIT:WALK:Jog:!ARG2:NO_BUILD_UP:5:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:10]",
+					"[CV_NEW_TAG:GAIT:WALK:Walk:!ARG1:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:WALK:Stroll:!ARG5:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:WALK:Creep:!ARG6:NO_BUILD_UP:0]"]
+			},
+			"RAWS": {
+				"BASE": ["[APPLY_CREATURE_VARIATION:#KEY:<1:r>]"]
+			}
+		},
+		"CRAWLING": {"__comment": "CRAWL gait",
+			"BIN": ["speed"],
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:GAIT:CRAWL:Scramble:!ARG4:10:3:!ARG2:50:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:50]",
+					"[CV_NEW_TAG:GAIT:CRAWL:Faster Crawl:!ARG3:5:3:!ARG2:10:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:20]",
+					"[CV_NEW_TAG:GAIT:CRAWL:Fast Crawl:!ARG2:NO_BUILD_UP:5:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:10]",
+					"[CV_NEW_TAG:GAIT:CRAWL:Crawl:!ARG1:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:CRAWL:Slow Crawl:!ARG5:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:CRAWL:Creep:!ARG6:NO_BUILD_UP:0]"]
+			},
+			"RAWS": {
+				"BASE": ["[APPLY_CREATURE_VARIATION:#KEY:<1:r>]"]
+			}
+		},
+		"CLIMBING": {"__comment": "CLIMB gait",
+			"BIN": ["speed"],
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:GAIT:CLIMB:Scramble:!ARG4:10:3:!ARG2:50:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:50]",
+					"[CV_NEW_TAG:GAIT:CLIMB:Faster Climb:!ARG3:5:3:!ARG2:10:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:20]",
+					"[CV_NEW_TAG:GAIT:CLIMB:Fast Climb:!ARG2:NO_BUILD_UP:5:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:10]",
+					"[CV_NEW_TAG:GAIT:CLIMB:Climb:!ARG1:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:CLIMB:Slow Climb:!ARG5:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:CLIMB:Creep:!ARG6:NO_BUILD_UP:0]"]
+			},
+			"RAWS": {
+				"BASE": ["[APPLY_CREATURE_VARIATION:#KEY:<1:r>]"]
+			}
+		},
+		"SWIMMING": {"__comment": "SWIM gait",
+			"BIN": ["speed"],
+			"EXTERNAL": {
+				"CREATURE_VARIATION": [
+					"[CV_NEW_TAG:GAIT:SWIM:Maximum Swim Speed:!ARG4:10:3:!ARG2:50:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:50]",
+					"[CV_NEW_TAG:GAIT:SWIM:Faster Swim:!ARG3:5:3:!ARG2:10:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:20]",
+					"[CV_NEW_TAG:GAIT:SWIM:Fast Swim:!ARG2:NO_BUILD_UP:5:LAYERS_SLOW:STRENGTH:AGILITY:STEALTH_SLOWS:10]",
+					"[CV_NEW_TAG:GAIT:SWIM:Swim:!ARG1:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:SWIM:Slow Swim:!ARG5:NO_BUILD_UP:0]",
+					"[CV_NEW_TAG:GAIT:SWIM:Creeping Swim:!ARG6:NO_BUILD_UP:0]"]
+			},
+			"RAWS": {
+				"BASE": ["[APPLY_CREATURE_VARIATION:#KEY:<1:r>]"]
+			}
+		}
+	},
+	"products":   {"__comment": "",
+		"HONEY":  {"__comment": "Materials = Honey, Mead, Wax, Jelly",
+			"TYPE": "HONEY",
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:WAX:CREATURE_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR wax]",
+						"[REACTION_CLASS:WAX]",
+					"[USE_MATERIAL_TEMPLATE:JELLY:CREATURE_LIQUID_TEMPLATE]",
+						"[STATE_NAME_ADJ:LIQUID:!NAME_SINGULAR jelly]",
+						"[REACTION_CLASS:JELLY]",
+						"[EDIBLE_VERMIN][EDIBLE_RAW][EDIBLE_COOKED]",
+					"[USE_MATERIAL_TEMPLATE:MEAD:CREATURE_LIQUID_TEMPLATE]",
+						"[STATE_NAME_ADJ:LIQUID:!NAME_SINGULAR mead]",
+						"[REACTION_CLASS:MEAD]",
+						"[EDIBLE_VERMIN][EDIBLE_RAW][EDIBLE_COOKED]",
+					"[USE_MATERIAL_TEMPLATE:HONEY:CREATURE_LIQUID_TEMPLATE]",
+						"[STATE_NAME_ADJ:LIQUID:!NAME_SINGULAR honey]",
+						"[REACTION_CLASS:HONEY]",
+						"[EDIBLE_VERMIN][EDIBLE_RAW][EDIBLE_COOKED]"]
+			}
+		},
+		"MILK":   {"__comment": "Materials = Milk, Cheese",
+			"TYPE": "MILK",
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:CHEESE:CREATURE_SOLID_TEMPLATE]",
+						"[STATE_NAME:ALL_SOLID:!NAME_SINGULAR cheese]",
+						"[REACTION_CLASS:CHEESE]",
+						"[EDIBLE_VERMIN][EDIBLE_RAW][EDIBLE_COOKED]",
+						"[ROTS][GENERATES_MIASMA]",
+						"[CHEESE_CREATURE]",
+					"[USE_MATERIAL_TEMPLATE:MILK:CREATURE_LIQUID_TEMPLATE]",
+						"[STATE_NAME:LIQUID:!NAME_SINGULAR milk]",
+						"[REACTION_CLASS:MILK]",
+						"[EDIBLE_VERMIN][EDIBLE_RAW][EDIBLE_COOKED]",
+						"[ROTS][GENERATES_MIASMA]",
+						"[LIQUID_MISC_CREATURE]",
+						"[MATERIAL_REACTION_PRODUCT:FERMENT_CHEESE:LOCAL_CREATURE_MAT:CHEESE]"]
+			}
+		},
+		"POISON": {"__comment": "Materials = Poison",
+			"TYPE": "POISON",
+			"LINK": ["syndromes:HARMFUL"],
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:POISON:CREATURE_LIQUID_TEMPLATE]",
+						"[REACTION_CLASS:EXTRACT_POISON]",
+						"[STATE_NAME:LIQUID:!NAME_SINGULAR venom]",
+						"[LIQUID_MISC_CREATURE]",
+						"[SYNDROME]",
+						"[SYN_NAME:!NAME_SINGULAR &1:NAME&]",
+						"&1:RAWS&"]
+			}
+		},
+		"POTION": {"__comment": "Materials = Potion",
+			"TYPE": "POTION",
+			"LINK": ["syndromes:HELPFUL"],
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:POTION:CREATURE_LIQUID_TEMPLATE]",
+						"[REACTION_CLASS:EXTRACT_POTION]",
+						"[STATE_NAME:LIQUID:!NAME_SINGULAR venom]",
+						"[LIQUID_MISC_CREATURE]",
+						"[SYNDROME]",
+						"[SYN_NAME:!NAME_SINGULAR &1:NAME&]",
+						"&1:RAWS&"]
+			}
+		},
+		"SILK":   {"__comment": "Materials = Silk",
+			"TYPE": "SILK",
+			"LINK": ["materials:SOLID"],
+			"RAWS": {
+				"MATS": [
+					"[USE_MATERIAL_TEMPLATE:SILK:&1:TAG&]",
+						"[REACTION_CLASS:SILK]",
+						"[STATE_NAME:ALL_SOLID:!NAME_SINGULAR silk]",
+						"[SILK]"]
+			}
+		}
+	},
+	
+	"binObjects": ["app_ranges","activity","age","size","speed","attribute"],
+	"app_ranges": {"__comment": "",
+		"1": {"n": 100, "r": "23:28:31:33:35:38:43",        "d": ""},
+		"2": {"n": 100, "r": "56:61:64:66:68:71:76",        "d": ""},
+		"3": {"n": 100, "r": "90:95:98:100:102:105:110",    "d": ""},
+		"4": {"n": 100, "r": "123:128:131:133:135:138:143", "d": ""},
+		"5": {"n": 100, "r": "156:161:164:166:168:171:176", "d": ""}
+	},
+	"activity":  {"__comment": "Activity tokens",
+		"1": {"n": 100, "r": "[ALL_ACTIVE]", "d": "active at all times"},
+		"2": {"n": 100, "r": "[DIURNAL]",    "d": "active during dawn and dusk"},
+		"3": {"n": 100, "r": "[MATUTINAL]",  "d": "active at dawn"},
+		"4": {"n": 100, "r": "[NOCTURNAL]",  "d": "active at night"},
+		"5": {"n": 100, "r": "[VESPERTINE]", "d": "active at dusk"}
+	},
+	"age":       {"__comment": "Baby age, child age, max age (years)",
+		"1": {"n": 5,   "BABY": "0",     "CHILD": "0",      "MAX": "1:1",                 "d": "unbelievably short lived"},
+		"2": {"n": 10,  "BABY": "$0:1$", "CHILD": "2",      "MAX": "3:3",                 "d": "extremely short lived"},
+		"3": {"n": 25,  "BABY": "$1:2$", "CHILD": "$3:4$",  "MAX": "5:6",                 "d": "very short lived"},
+		"4": {"n": 50,  "BABY": "$1:3$", "CHILD": "$4:6$",  "MAX": "$7:9$:$9:11$",        "d": "short lived"},
+		"5": {"n": 100, "BABY": "$2:5$", "CHILD": "$6:9$",  "MAX": "$10:13$:$13:16$",     "d": "average lifespan"},
+		"6": {"n": 50,  "BABY": "$3:5$", "CHILD": "$8:12$", "MAX": "$13:17$:$17:21$",     "d": "long lived"},
+		"7": {"n": 25,  "BABY": "$3:5$", "CHILD": "$8:12$", "MAX": "$20:30$:$30:50$",     "d": "very long lived"},
+		"8": {"n": 10,  "BABY": "$3:5$", "CHILD": "$8:12$", "MAX": "$50:80$:$80:150$",    "d": "extremely long lived"},
+		"9": {"n": 5,   "BABY": "$3:5$", "CHILD": "$8:12$", "MAX": "$150:300$:$300:450$", "d": "unbelievably long lived"}
+	},
+	"size":      {"__comment": "new born size, child size, adult size, trade capacity",
+		"1": {"n": 100, "BABY": "$100:300$",     "CHILD": "$300:500$",       "ADULT": "$500:800$",         "TRADE": "$X:X$", "d": "tiny"},
+		"2": {"n": 100, "BABY": "$300:600$",     "CHILD": "$900:1500$",      "ADULT": "$1500:3000$",       "TRADE": "$X:X$", "d": "very small"},
+		"3": {"n": 100, "BABY": "$1000:2000$",   "CHILD": "$3000:10000$",    "ADULT": "$10000:20000$",     "TRADE": "$X:X$", "d": "small"},
+		"4": {"n": 100, "BABY": "$4000:8000$",   "CHILD": "$20000:40000$",   "ADULT": "$40000:80000$",     "TRADE": "$X:X$", "d": "average size"},
+		"5": {"n": 100, "BABY": "$8000:16000$",  "CHILD": "$40000:80000$",   "ADULT": "$100000:200000$",   "TRADE": "$X:X$", "d": "large"},
+		"6": {"n": 100, "BABY": "$16000:32000$", "CHILD": "$80000:160000$",  "ADULT": "$250000:500000$",   "TRADE": "$X:X$", "d": "very large"},
+		"7": {"n": 100, "BABY": "$32000:48000$", "CHILD": "$160000:320000$", "ADULT": "$800000:1600000$",  "TRADE": "$X:X$", "d": "huge"},
+		"8": {"n": 100, "BABY": "$48000:64000$", "CHILD": "$320000:640000$", "ADULT": "$2000000:5000000$", "TRADE": "$X:X$", "d": "gigantic"}
+	},
+	"speed":     {"__comment": "!!!!!! NEED TO FIGURE THIS OUT !!!!! Just picked 8 speeds semi-randomly",
+		"1": {"n": 10,  "r": "9000:8900:8825:8775:9500:9900", "d": "extremely slow"},
+		"2": {"n": 50,  "r": "4122:3330:2541:975:5411:7233",  "d": "very slow"},
+		"3": {"n": 250, "r": "1683:1315:947:516:2800:4100",   "d": "slow"},
+		"4": {"n": 500, "r": "900:750:600:439:1900:2900",     "d": "average speed"},
+		"5": {"n": 250, "r": "900:730:561:351:1900:2900",     "d": "fast"},
+		"6": {"n": 50,  "r": "900:642:428:214:1900:2900",     "d": "very fast"},
+		"7": {"n": 10,  "r": "900:447:298:149:1900:2900",     "d": "extremely fast"},
+		"8": {"n": 2,   "r": "900:300:200:100:1900:2900",     "d": "incredibly fast"}
+	},
+	"attribute":  {"__comment": "Placeholder numbers",
+		"1": {"n": 10,   "r": "$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$", "d": "extremely X"},
+		"2": {"n": 50,   "r": "$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$", "d": "very X"},
+		"3": {"n": 250,  "r": "$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$", "d": "X"},
+		"4": {"n": 1250, "r": "$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$", "d": ""},
+		"5": {"n": 250,  "r": "$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$", "d": "Y"},
+		"6": {"n": 50,   "r": "$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$", "d": "very Y"},
+		"7": {"n": 10,   "r": "$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$", "d": "extremely Y"},
+		"8": {"n": 2,    "r": "$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$:$X:X$", "d": "incredibly Y"}
+	}
+}

@@ -1,741 +1,490 @@
 {
-	"__comment": ["These templates generate inorganic materials (e.g. metals, stone, gems, glass, soil, etc...)",
-	              "For those appearing naturally they are given a specific environment or layer to appear in.",
+	"__comment": ["These templates generate inorganic materials (e.g. metals, stone, gems, glass, soil, etc...) |",
+	              "For those appearing naturally they are given a specific environment or layer to appear in. |",
 				  "Each inorganic is also assigned a 'use' which determines various type specific usage and sources."],
 
-	"raw_order":     ["BASE"],
-	"baseObjects":   ["category","type","subtype","use"],
-	"subObjects":    ["environment"],
-	"sourceObjects": [],
+	"raw_order": ["BASE"],
 	
-	"category":          {"__comment": "Inorganic categories are based on ...",
-		"MUNDANE_BASIC": {"__comment": "",
-			"TYPE": "MUNDANE",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "A #ADJ #NAME",
-			"NAME":   ["mundane"],
-			"ADJ":    [""],
-			"RAWS":   {
-				"BASE": ["[USE_MATERIAL_TEMPLATE:INORGANIC_SOLID_TEMPLATE]"]
-			}
-		}
-	},
-
-	"type":             {"__comment": "Inorganic types are based on ...",
-		"STONE_BASIC":  {"__comment": "",
+	"baseObjects":   ["base","type","subtype"],	
+	"base":      {"__comment": "(e.g. Stone, Metal, Gems, Glass, etc...)",
+		"STONE": {"__comment": "[IS_STONE]   (Base Value = 1)",
 			"TYPE":   "STONE",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "#COLORS_BASE #ADJ #NAME",
-			"NAME":   ["stone"],
-			"ADJ":    [""],
-			"COLORS": {
-				"BASE": ["ANY"]
-			},
+			"LINK":   ["materials:SOLID"],
+			"DESC":   "A #COLORS_BASE #NOUN",
+			"NAME":   "#COLORS_BASE #NOUN",
+			"NOUN":   ["stone"],
+			"COLORS": {"BASE": ["ANY"]},
+			"N":      {"VALUE": 1},
 			"RAWS": {
-				"BASE": ["    [STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
-						 "    [STATE_NAME_ADJ:LIQUID:molten !NAME_SINGULAR]",
-						 "    [STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR]",
-						 "    [TILE:15]",
-						 "    [DISPLAY_COLOR:!COLOR_RGB]",
-						 "    [BUILD_COLOR:!COLOR_RGB]",
-						 "    [STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
-						 "    [MATERIAL_VALUE:1]",
-						 "    [ITEMS_WEAPON][ITEMS_WEAPON_RANGED][ITEMS_AMMO][ITEMS_DIGGER][ITEMS_ARMOR][ITEMS_ANVIL][ITEMS_HARD]",
-						 "    [IS_STONE]"]
+				"BASE": [
+					"[USE_MATERIAL_TEMPLATE:&1:TAG&]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
+						"[STATE_NAME_ADJ:LIQUID:molten !NAME_SINGULAR]",
+						"[STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR]",
+						"[MATERIAL_VALUE:$N:VALUE:1$]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[BUILD_COLOR:!COLOR_RGB]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[IS_STONE]",
+						"[REACTION_CLASS:STONE]"]
 			}
 		},
-		"GEM_BASIC":    {"__comment": "",
+		"GEM":   {"__comment": "[IS_GEM]     (Base Value = 1)",
 			"TYPE":   "GEM",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "#COLORS_BASE #ADJ #NAME",
-			"NAME":   ["gem"],
-			"ADJ":    [""],
-			"COLORS": {
-				"BASE": ["ANY"]
-			},
+			"LINK":   ["materials:SOLID"],
+			"DESC":   "A #COLORS_BASE #NOUN",
+			"NAME":   "#COLORS_BASE #NOUN",
+			"NOUN":   ["gem"],
+			"COLORS": {"BASE": ["ANY"]},
+			"N":      {"VALUE": 1},
 			"RAWS": {
-				"BASE": ["    [IS_GEM:!NAME_SINGULAR:!NAME_PLURAL:OVERWRITE_SOLID]",
-						 "    [TILE:15]",
-						 "    [DISPLAY_COLOR:!COLOR_RGB]",
-						 "    [BUILD_COLOR:!COLOR_RGB]",
-						 "    [STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
-						 "    [MATERIAL_VALUE:1]",
-						 "    [ITEMS_WEAPON][ITEMS_WEAPON_RANGED][ITEMS_AMMO][ITEMS_DIGGER][ITEMS_ARMOR][ITEMS_ANVIL][ITEMS_HARD]"]
+				"BASE": [
+					"[USE_MATERIAL_TEMPLATE:&1:TAG&]",
+						"[IS_GEM:!NAME_SINGULAR:!NAME_PLURAL:OVERWRITE_SOLID]",
+						"[MATERIAL_VALUE:$N:VALUE:2$]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[BUILD_COLOR:!COLOR_RGB]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[REACTION_CLASS:GEM]"]
 			}
 		},
-		"METAL_BASIC":  {"__comment": "",
+		"METAL": {"__comment": "[IS_METAL]   (Base Value = 1)",
 			"TYPE":   "METAL",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "#COLORS_BASE #ADJ #NAME",
-			"NAME":   ["metal"],
-			"ADJ":    [""],
-			"COLORS": {
-				"BASE": ["ANY"]
-			},
+			"LINK":   ["materials:SOLID"],
+			"DESC":   "A #COLORS_BASE #NOUN",
+			"NAME":   "#COLORS_BASE #NOUN",
+			"NOUN":   ["metal"],
+			"COLORS": {"BASE": ["ANY"]},
+			"N":      {"VALUE": 1},
 			"RAWS": {
-				"BASE": ["    [STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
-						 "    [STATE_NAME_ADJ:LIQUID:molten !NAME_SINGULAR]",
-						 "    [STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR]",
-						 "    [DISPLAY_COLOR:!COLOR_RGB]",
-						 "    [BUILD_COLOR:!COLOR_RGB]",
-						 "    [STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
-						 "    [MATERIAL_VALUE:1]",
-						 "    [ITEMS_WEAPON][ITEMS_WEAPON_RANGED][ITEMS_AMMO][ITEMS_DIGGER][ITEMS_ARMOR][ITEMS_ANVIL][ITEMS_HARD]",
-						 "    [ITEMS_METAL]",
-						 "    [IS_METAL]"]
+				"BASE": [
+					"[USE_MATERIAL_TEMPLATE:&1:TAG&]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
+						"[STATE_NAME_ADJ:LIQUID:molten !NAME_SINGULAR]",
+						"[STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR]",
+						"[MATERIAL_VALUE:$N:VALUE:3$]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[BUILD_COLOR:!COLOR_RGB]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[IS_METAL]",
+						"[REACTION_CLASS:METAL]"]
 			}
 		},
-		"GLASS_BASIC":  {"__comment": "",
+		"GLASS": {"__comment": "[IS_GLASS]   (Base Value = 1)",
 			"TYPE":   "GLASS",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "#COLORS_BASE #ADJ #NAME",
-			"NAME":   ["glass"],
-			"ADJ":    [""],
-			"COLORS": {
-				"BASE": ["ANY"]
-			},
+			"LINK":   ["materials:SOLID"],
+			"DESC":   "A #COLORS_BASE #NOUN",
+			"NAME":   "#COLORS_BASE #NOUN",
+			"NOUN":   ["glass"],
+			"COLORS": {"BASE": ["ANY"]},
+			"N":      {"VALUE": 1},
 			"RAWS": {
-				"BASE": ["    [STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
-						 "    [STATE_NAME_ADJ:LIQUID:molten !NAME_SINGULAR]",
-						 "    [STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR]",
-						 "    [DISPLAY_COLOR:!COLOR_RGB]",
-						 "    [BUILD_COLOR:!COLOR_RGB]",
-						 "    [STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
-						 "    [MATERIAL_VALUE:1]",
-						 "    [ITEMS_WEAPON][ITEMS_WEAPON_RANGED][ITEMS_AMMO][ITEMS_DIGGER][ITEMS_ARMOR][ITEMS_ANVIL][ITEMS_HARD]",
-						 "    [IS_GLASS]"]
+				"BASE": [
+					"[USE_MATERIAL_TEMPLATE:&1:TAG&]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
+						"[STATE_NAME_ADJ:LIQUID:molten !NAME_SINGULAR]",
+						"[STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR]",
+						"[MATERIAL_VALUE:$N:VALUE:4$]",
+						"[DISPLAY_COLOR:!COLOR_RGB]",
+						"[BUILD_COLOR:!COLOR_RGB]",
+						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
+						"[IS_GLASS]",
+						"[REACTION_CLASS:GLASS]"]
 			}
 		},
-		"CERAMIC":      {"__comment": "",
-			"TYPE":   "CERAMIC",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "#COLORS_BASE #ADJ #NAME",
-			"NAME":   ["stone"],
-			"ADJ":    [""],
-			"COLORS": {
-				"BASE": ["ANY"]
-			},
-			"RAWS": {
-				"BASE": ["    [STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
-						 "    [STATE_NAME_ADJ:LIQUID:molten !NAME_SINGULAR]",
-						 "    [STATE_NAME_ADJ:GAS:boiling !NAME_SINGULAR]",
-						 "    [TILE:15]",
-						 "    [DISPLAY_COLOR:!COLOR_RGB]",
-						 "    [BUILD_COLOR:!COLOR_RGB]",
-						 "    [STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
-						 "    [MATERIAL_VALUE:1]",
-						 "    [IS_STONE]",
-						 "    [IS_CERAMIC]",
-						 "    [DISPLAY_UNGLAZED]",
-						 "    [NO_STONE_STOCKPILE]"]
-			}
-		},
-		"SOIL_BASIC":   {"__comment": "",
-			"TYPE": "SOIL",
+		"SOIL":  {"__comment": "[SOIL]       (Base Value = 0)",
+			"TYPE":   "SOIL",
 			"WEIGHT": 33,
-			"TOKENS": [""],
-			"DESC":   "#COLORS_BASE #ADJ #NAME",
-			"NAME":   ["soil","dirt"],
-			"ADJ":    [""],
-			"COLORS": {
-				"BASE": ["ANY"]
-			},
+			"DESC":   "A #COLORS_BASE #NOUN",
+			"BIN":    ["soil_env"],
+			"NAME":   "#COLORS_BASE <1:d> #NOUN",
+			"NOUN":   ["soil","loam","silt","dirt","peat"],
+			"COLORS": {"BASE": ["ANY"]},
 			"RAWS": {
-				"BASE": ["    [STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
-						 "    [TILE:178]",
-						 "    [SOIL]"]
-			}
-		},
-		"SOIL_OCEAN":   {"__comment": "",
-			"TYPE": "SOIL",
-			"WEIGHT": 33,
-			"TOKENS": [""],
-			"DESC":   "#COLORS_BASE #ADJ #NAME",
-			"NAME":   ["soil"],
-			"ADJ":    ["oceanic"],
-			"COLORS": {
-				"BASE": ["ANY"]
-			},
-			"RAWS": {
-				"BASE": ["    [STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
-						 "    [TILE:178]",
-						 "    [SOIL_OCEAN]"]
-			}
-		},
-		"SOIL_SAND":    {"__comment": "",
-			"TYPE": "SOIL",
-			"WEIGHT": 33,
-			"DESC":   "#COLORS_BASE #ADJ #NAME",
-			"TOKENS": ["SAND"],
-			"NAME":   ["sand"],
-			"ADJ":    [""],
-			"COLORS": {
-				"BASE": ["ANY"]
-			},
-			"RAWS": {
-				"BASE": ["    [STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
-						 "    [TILE:178]",
-						 "    [SOIL][SOIL_SAND]"]
+				"BASE": [
+					"[USE_MATERIAL_TEMPLATE:INORGANIC_SOLID_TEMPLATE]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR]",
+						"[TILE:178]","<1:r>",
+						"[REACTION_CLASS:SOIL]"]
 			}
 		}
 	},
-
-	"subtype":                     {"__comment": "Inorganic subtypes are based on where they are found",
-		"STONE_LAYER":   {"__comment": "Pick a layer environment",
-			"TYPE": "LAYER",
-			"WEIGHT": 50,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"ENVIRONMENT": {
-				"MIN": 1,
-				"MAX": 1
-			},
-			"REQUIRED":  ["STONE"],
-			"RAWS": {
-				"BASE": [""]
-			}
-		},
-		"STONE_VEIN":    {"__comment": "Pick a vein environment",
-			"TYPE": "VEIN",
+	"type":    {"__comment": "(e.g. Magical, natural, man-made, etc...)",
+		"ARTIFICIAL_BASIC": {"__comment": "For metals and glass",
+			"TYPE":   "ARTIFICIAL",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"ENVIRONMENT": {
-				"MIN": 1,
-				"MAX": 1
-			},
-			"REQUIRED":  ["STONE"]
+			"FORBIDDEN": ["SOIL","STONE","GEM"],
+			"SOURCE": {"MIN": 1}
 		},
-		"STONE_CLUSTER": {"__comment": "Pick a cluster environment",
-			"TYPE": "CLUSTER",
-			"WEIGHT": 10,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"ENVIRONMENT": {
-				"MIN": 1,
-				"MAX": 1
-			},
-			"REQUIRED":  ["STONE"]
-		},
-		"GEM_LAYER":     {"__comment": "Pick a layer environment",
-			"TYPE": "LAYER",
-			"WEIGHT": 10,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"ENVIRONMENT": {
-				"MIN": 1,
-				"MAX": 1
-			},
-			"REQUIRED":  ["GEM"]
-		},
-		"GEM_VEIN":      {"__comment": "Pick a vein environment",
-			"TYPE": "VEIN",
+		"NATURAL_BASIC":    {"__comment": "For stones, gems, and soils",
+			"TYPE":   "NATURAL",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"ENVIRONMENT": {
-				"MIN": 1,
-				"MAX": 1
-			},
-			"REQUIRED":  ["GEM"]
+			"FORBIDDEN": ["METAL","GLASS"],
+			"ENVIRONMENT": {"MIN": 1}
 		},
-		"GEM_CLUSTER":   {"__comment": "Pick a cluster environment",
-			"TYPE": "CLUSTER",
-			"WEIGHT": 50,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"ENVIRONMENT": {
-				"MIN": 1,
-				"MAX": 1
-			},
-			"REQUIRED":  ["GEM"]
-		},
-		"MAN_MADE":      {"__comment": "Made through some means, not found naturally (metal, glass, and ceramics)",
-			"TYPE": "MADE",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["NONE"],
-			"FORBIDDEN": ["GEM","STONE","SOIL"]
-		},
-		"SOIL_ALL":      {"__comment": "",
-			"TYPE": "ENVIRONMENT",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["SOIL"]
+		"NATURAL_RARE":     {"__comment": "For the occasional natural metal and glass",
+			"TYPE":   "NATURAL",
+			"WEIGHT": 1,
+			"ENVIRONMENT": {"MIN": 1}
 		}
 	},
-
-	"use":                      {"__comment": "",
-		"STONE_ECONOMIC":       {"__comment": "",
-			"TYPE":   "ECONOMIC",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is a basic economical stone",
-			"NAME":   ["stone"],
-			"ADJ":    ["economic"],
-			"REQUIRED":  ["STONE"],
-			"RAWS":   {
-				"BASE": [""]
+	"subtype": {"__comment": "",
+		"STONE_ORE1":  {"__comment": "An ore of a metal        (+1 value)",
+			"TYPE":   "ORE",
+			"WEIGHT": 25,
+			"LINK":   ["inorganics:METAL:ORE"],
+			"DESC":   "It is an ore of &1:NAME&",
+			"REQUIRED": ["STONE"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N": {"VALUE": 1},
+			"RAWS": {
+				"BASE": [
+					"[METAL_ORE:&1:TAG&:100]"]
 			}
 		},
-		"STONE_LAVA":           {"__comment": "",
-			"TYPE":   "LAVA",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is used as a flux component",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["STONE"],
-			"RAWS":   {
-				"BASE": ["    [LAVA]"]
+		"STONE_ORE2":  {"__comment": "An ore of two metals     (+2 value)",
+			"TYPE":   "ORE",
+			"WEIGHT": 10,
+			"LINK":   ["inorganics:METAL:ORE","inorganics:METAL:ORE:ANY"],
+			"DESC":   "It is an ore of &1:NAME& and &2:NAME&",
+			"REQUIRED": ["STONE"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N":      {"VALUE": 2},
+			"RAWS": {
+				"BASE": [
+					"[METAL_ORE:&1:TAG&:100]",
+					"[METAL_ORE:&2:TAG&:100]"]
 			}
 		},
-		"STONE_FLUX":           {"__comment": "",
-			"TYPE":   "FLUX",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is used as a flux component",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["STONE"],
-			"RAWS":   {
-				"BASE": ["    [REACTION_CLASS:FLUX]"]
-			}
-		},
-		"METAL_WAFERS":         {"__comment": "",
-			"TYPE":   "WAFERS",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It comes in small wafers",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["METAL"],
-			"RAWS":   {
-				"BASE": ["    [WAFERS]"]
-			}
-		},
-		"METAL_ECONOMIC":       {"__comment": "",
-			"TYPE":   "ECONOMIC",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is a basic economical metal",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["METAL"],
-			"RAWS":   {
-				"BASE": [""]
-			}
-		},
-		"SOIL_CLAY":            {"__comment": "",
+		"STONE_CLAY":  {"__comment": "CLAY_MAT                 (+1 value)",
 			"TYPE":   "CLAY",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "The soil contains large amounts of clay",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["SOIL"],
-			"RAWS":   {
-				"BASE": ["    [MATERIAL_REACTION_PRODUCT:CLAY_MAT:INORGANIC:!!!CERAMIC]"]
+			"WEIGHT": 25,
+			"DESC":   "It contains a large amount of clay",
+			"REQUIRED": ["STONE"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N":      {"VALUE": 1},
+			"EXTERNAL": {
+				"INORGANIC": [
+					"[USE_MATERIAL_TEMPLATE:STONE_TEMPLATE]",
+					"[STATE_NAME_ADJ:ALL:stoneware]",
+					"[DISPLAY_COLOR:7:0:0][TILE:'#']",
+					"[SOLID_DENSITY:2000]",
+					"[IS_STONE]",
+					"[IS_CERAMIC]",
+					"[MATERIAL_VALUE:4]",
+					"[BLOCK_NAME:brick:bricks]",
+					"[NO_STONE_STOCKPILE]"]
+			},
+			"RAWS": {
+				"BASE": [
+					"[MATERIAL_REACTION_PRODUCT:CLAY_MAT:INORGANIC:#KEY]"]
 			}
 		},
-		"SOIL_AQUIFER":         {"__comment": "",
+		"STONE_FLUX":  {"__comment": "REACTION_CLASS:FLUX      (+2 value)",
+			"TYPE": "FLUX",
+			"WEIGHT": 10,
+			"DESC": "It is a flux component",
+			"REQUIRED": ["STONE"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N":      {"VALUE": 2},
+			"RAWS": {
+				"BASE": ["[REACTION_CLASS:FLUX]"]
+			}
+		},
+		"STONE_RICH":  {"__comment": "High material value      (+3 value)",
+			"TYPE": "PRECIOUS",
+			"WEIGHT": 1,
+			"DESC": "It is very valuable",
+			"REQUIRED": ["STONE"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N":      {"VALUE": 3}
+		},
+		"STONE_NONE":  {"__comment": "Low material value       (+0 value)",
+			"TYPE": "BUILD_MAT",
+			"WEIGHT": 100,
+			"REQUIRED": ["STONE"],
+			"FORBIDDEN": ["ARTIFICIAL"]
+		},
+		"GEM_ORE":     {"__comment": "An ore of a metal        (+1 value)",
+			"TYPE":   "ORE",
+			"WEIGHT": 1,
+			"LINK":   ["inorganics:METAL:ORE"],
+			"DESC":   "It is an ore of &1:NAME&",
+			"REQUIRED": ["GEM"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N": {"VALUE": 1},
+			"RAWS": {
+				"BASE": ["[METAL_ORE:&1:TAG&:100]"]
+			}
+		},
+		"GEM_GLASS":   {"__comment": "CRYSTAL_GLASSABLE        (+2 value)",
+			"TYPE": "CRYSTAL",
+			"WEIGHT": 25,
+			"DESC": "It can be processed into glass",
+			"REQUIRED": ["GEM"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N":      {"VALUE": 2}
+		},
+		"GEM_FLUX":    {"__comment": "REACTION_CLASS:FLUX      (+2 value)",
+			"TYPE": "FLUX",
+			"WEIGHT": 10,
+			"REQUIRED": ["GEM"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N":      {"VALUE": 2},
+			"RAWS": {
+				"BASE": ["[REACTION_CLASS:FLUX]"]
+			}
+		},
+		"GEM_RICH":    {"__comment": "High material value      (+3 value)",
+			"TYPE": "PRECIOUS",
+			"WEIGHT": 10,
+			"DESC": "It is very valuable",
+			"REQUIRED": ["GEM"],
+			"FORBIDDEN": ["ARTIFICIAL"],
+			"N":      {"VALUE": 3}
+		},
+		"GEM_BUILD":   {"__comment": "Low material value       (+0 value)",
+			"TYPE": "BUILD_MAT",
+			"WEIGHT": 100,
+			"REQUIRED": ["GEM"],
+			"FORBIDDEN": ["ARTIFICIAL"]
+		},
+		"METAL_SHARP": {"__comment": "High max edge            (+1 value)",
+			"TYPE":   "SHARP",
+			"WEIGHT": 50,
+			"REQUIRED": ["METAL"],
+			"N":      {"VALUE": 1}
+		},
+		"METAL_DULL":  {"__comment": "Low max edge             (+0 value)",
+			"TYPE":   "DULL",
+			"WEIGHT": 10,
+			"REQUIRED": ["METAL"]
+		},
+		"METAL_RICH":  {"__comment": "High material value      (+3 value)",
+			"TYPE": "PRECIOUS",
+			"WEIGHT": 10,
+			"DESC": "It is very valuable",
+			"REQUIRED": ["METAL"],
+			"N":      {"VALUE": 3}
+		},
+		"METAL_BUILD": {"__comment": "Low material value       (+0 value)",
+			"TYPE": "BUILD_MAT",
+			"WEIGHT": 100,
+			"REQUIRED": ["METAL"]
+		},
+		"GLASS_SHARP": {"__comment": "High max edge            (+1 value)",
+			"TYPE": "SHARP",
+			"WEIGHT": 10,
+			"REQUIRED": ["GLASS"],
+			"N":      {"VALUE": 1}
+		},
+		"GLASS_DULL":  {"__comment": "Low max edge             (+0 value)",
+			"TYPE": "XXX",
+			"WEIGHT": 10,
+			"REQUIRED": ["GLASS"]
+		},
+		"GLASS_RICH":  {"__comment": "High material value      (+3 value)",
+			"TYPE": "PRECIOUS",
+			"WEIGHT": 10,
+			"DESC": "It is very valuable",
+			"REQUIRED": ["GLASS"],
+			"N":      {"VALUE": 3}
+		},
+		"GLASS_BUILD": {"__comment": "Low material value       (+0 value)",
+			"TYPE": "BUILD_MAT",
+			"WEIGHT": 100,
+			"REQUIRED": ["GLASS"]
+		},
+		
+		"SOIL_AQUIFER": {"__comment": "Contains an aquifer     (+0 value)",
 			"TYPE":   "AQUIFER",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "The soil can contain an aquifer",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["SOIL"],
-			"RAWS":   {
-				"BASE": ["    [AQUIFER]"]
+			"REQUIRED": ["SOIL"]
+		},		
+		"SOIL_CLAY":    {"__comment": "CLAY_MAT                (+0 value)",
+			"TYPE":   "CLAY",
+			"WEIGHT": 100,
+			"REQUIRED": ["SOIL"],
+			"EXTERNAL": {
+				"INORGANIC": [
+					"[USE_MATERIAL_TEMPLATE:STONE_TEMPLATE]",
+					"[STATE_NAME_ADJ:ALL:earthenware]",
+					"[DISPLAY_COLOR:7:0:0][TILE:'#']",
+					"[SOLID_DENSITY:2000]",
+					"[IS_STONE]",
+					"[IS_CERAMIC]",
+					"[MATERIAL_VALUE:2]",
+					"[BLOCK_NAME:brick:bricks]",
+					"[NO_STONE_STOCKPILE]"]
+			},
+			"RAWS": {
+				"BASE": [
+					"[MATERIAL_REACTION_PRODUCT:CLAY_MAT:INORGANIC:#KEY]"]
 			}
 		},
-		"GEM_CRYSTAL":          {"__comment": "",
-			"TYPE":   "CRYSTAL",
+		"SOIL_NONE":    {"__comment": "Nothing special         (+0 value)",
+			"TYPE":   "USELESS",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is a component of crystal glass",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["GEM"],
-			"RAWS":   {
-				"BASE": ["    [CRYSTAL_GLASSABLE]"]
+			"REQUIRED": ["SOIL"]
+		}
+	},
+
+	"subObjects": ["environment","source"],	
+	"source": {"__comment": "For man-made/artificial materials",
+		"ALLOY":      {"__comment": "Combination of two or more materials of the same type   (e.g. METAL A + METAL B = METAL C)",
+			"TYPE": "ALLOY",
+			"WEIGHT": 50,
+			"DESC": "An alloy of two or more @base:NOUN@"
+		},
+		"COMBO":      {"__comment": "Combination of two or more materials of different types (e.g. METAL A + GEM B = GLASS C)",
+			"TYPE": "COMBO",
+			"WEIGHT": 10,
+			"DESC": "A combination of two ore more inorganics"
+		},
+		"ORE_BASIC":  {"__comment": "Comes from a single unrefined version of the material   (e.g. STONE A = METAL B)",
+			"TYPE":   "ORE",
+			"WEIGHT": 100,
+			"DESC":   "Smelted from !NAME_SINGULAR #NOUN",
+			"NOUN":   ["ore","nugget"],
+			"REQUIRED": ["METAL"],
+			"COMPANION": [{
+				"base":    "STONE", 
+				"type":    "NATURAL", 
+				"subtype": "BUILD_MAT",
+				"NAME": "!NAME_SINGULAR #NOUN", 
+				"RAWS": "[METAL_ORE:!TAG:100]"}]
+		}
+	},
+	"environment": {"__comment": "For naturally occuring materials",
+		"LAYER_SOIL":    {"__comment": "Soil only forms layers",
+			"TYPE": "LAYER",
+			"REQUIRED": ["SOIL"]
+		},
+		"LAYER_BASIC":   {"__comment": "Forms layers                 (+0 value)",
+			"TYPE":   "LAYER",
+			"WEIGHT": 10,
+			"BIN":    ["layer_env"],
+			"DESC":   "Forms layers of <1:d>",
+			"REQUIRED":  ["BUILD_MAT"],
+			"FORBIDDEN": ["SOIL","ORE"],
+			"RAWS": {
+				"BASE": ["[<1:r>]"]
 			}
 		},
-		"GEM_LAVA":             {"__comment": "",
-			"TYPE":   "LAVA",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is a product of water and magma",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["GEM"],
-			"RAWS":   {
-				"BASE": ["    [LAVA]"]
+		"VEIN_BASIC":    {"__comment": "Forms in veins               (+1 value)",
+			"TYPE":   "VEIN_BASIC",
+			"WEIGHT": 50,
+			"BIN":    ["vein_env"],
+			"DESC":   "It can be found as veins in <1:d>",
+			"FORBIDDEN": ["SOIL","PRECIOUS"],
+			"N":      {"VALUE": 1},
+			"RAWS": {
+				"BASE": ["[ENVIRONMENT:<1:r>:VEIN:100]"]
 			}
 		},
-		"GEM_FLUX":             {"__comment": "",
-			"TYPE":   "FLUX",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is used as a flux component",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["GEM"],
-			"RAWS":   {
-				"BASE": ["    [REACTION_CLASS:FLUX]"]
+		"VEIN_SPEC":     {"__comment": "Forms in specific places     (+2 value)",
+			"TYPE":   "VEIN_SPEC",
+			"WEIGHT": 10,
+			"LINK":   ["inorganics:LAYER"],
+			"DESC":   "It can be found as veins in &1:NAME&",
+			"FORBIDDEN": ["SOIL"],
+			"N":      {"VALUE": 2},
+			"RAWS": {
+				"BASE": ["[ENVIRONMENT_SPEC:&1:TAG&:VEIN:100]"]
 			}
 		},
-		"GEM_ECONOMIC":         {"__comment": "",
-			"TYPE":   "ECONOMIC",
+		"CLUSTER_BASIC": {"__comment": "Forms in clusters            (+1 value)",
+			"TYPE":   "CLUSTER_BASIC",
 			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is a basic economical gem",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["GEM"],
-			"RAWS":   {
-				"BASE": [""]
+			"BIN":    ["cluster_env"],
+			"DESC":   "It forms in clusters in <1:d>",
+			"FORBIDDEN": ["SOIL","PRECIOUS"],
+			"N":      {"VALUE": 1},
+			"RAWS": {
+				"BASE": ["[ENVIRONMENT:<1:r>:CLUSTER:100]"]
 			}
 		},
-		"GLASS_ECONOMIC":       {"__comment": "",
-			"TYPE":   "ECONOMIC",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It is a basic economical glass",
-			"NAME":   ["glass"],
-			"ADJ":    ["economic"],
-			"REQUIRED":  ["GLASS"],
-			"RAWS":   {
-				"BASE": [""]
+		"CLUSTER_SMALL": {"__comment": "Forms in small clusters      (+2 value)",
+			"TYPE":   "CLUSTER_SMALL",
+			"WEIGHT": 10,
+			"BIN":    ["cluster_env"],
+			"DESC":   "It forms in small clusters in <1:d>",
+			"FORBIDDEN": ["SOIL"],
+			"N":      {"VALUE": 2},
+			"RAWS": {
+				"BASE": ["[ENVIRONMENT:<1:r>:CLUSTER_SMALL:100]"]
 			}
 		},
-		"CERAMIC_ECONOMIC":     {"__comment": "",
-			"TYPE":   "ECONOMIC",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   ["ceramic"],
-			"ADJ":    [""],
-			"REQUIRED":  ["CERAMIC"],
-			"RAWS":   {
-				"BASE": [""]
+		"CLUSTER_ONE":   {"__comment": "Forms in individual clusters (+3 value)",
+			"TYPE":   "CLUSTER_ONE",
+			"WEIGHT": 1,
+			"BIN":    ["cluster_env"],
+			"DESC":   "It forms individually in <1:d>",
+			"FORBIDDEN": ["SOIL"],
+			"N":      {"VALUE": 3},
+			"RAWS": {
+				"BASE": ["[ENVIRONMENT:<1:r>:CLUSTER_ONE:100]"]
+			}
+		},
+		"CLUSTER_SPEC":  {"__comment": "Forms in specific places     (+2 value)",
+			"TYPE":   "CLUSTER_SPEC",
+			"WEIGHT": 10,
+			"LINK":   ["inorganics:LAYER"],
+			"DESC":   "It forms in clusters in &1:NAME&",
+			"FORBIDDEN": ["SOIL"],
+			"N":      {"VALUE": 2},
+			"RAWS": {
+				"BASE": ["[ENVIRONMENT_SPEC:&1:TAG&:CLUSTER:100]"]
 			}
 		}
 	},
-	
-	"environment":           {"__comment": "",
-		"LAYER_METAMOPRHIC": {"__comment": "",
-			"TYPE": "METAMORPHIC",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "",
-			"NAME":   ["metamorphic"],
-			"ADJ":    [""],
-			"REQUIRED":  ["LAYER"],
-			"RAWS": {
-				"BASE": ["    [METAMORPHIC]"]
-			}
-		},
-		"LAYER_SEDIMENTARY": {"__comment": "",
-			"TYPE": "SEDIMENTARY",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "which forms layers of #NAME #ADJ rock",
-			"NAME":   ["sedimentary"],
-			"ADJ":    [""],
-			"REQUIRED":  ["LAYER"],
-			"RAWS": {
-				"BASE": ["    [SEDIMENTARY]"]
-			}
-		},
-		"LAYER_INTRUSIVE":   {"__comment": "",
-			"TYPE": "IGNEOUS_INTRUSIVE",
-			"WEIGHT": 100,
-			"TOKENS": ["IGNEOUS"],
-			"DESC":   "which forms layers of #NAME #ADJ rock",
-			"NAME":   ["igneous"],
-			"ADJ":    ["intrusive"],
-			"REQUIRED":  ["LAYER"],
-			"RAWS": {
-				"BASE": ["    [IGNEOUS_INTRUSIVE]"]
-			}
-		},
-		"LAYER_EXTRUSIVE":   {"__comment": "",
-			"TYPE": "IGNEOUS_EXTRUSIVE",
-			"WEIGHT": 100,
-			"TOKENS": ["IGNEOUS"],
-			"DESC":   "which forms layers of #NAME #ADJ rock",
-			"NAME":   ["igneous"],
-			"ADJ":    ["extrusive"],
-			"REQUIRED":  ["LAYER"],
-			"RAWS": {
-				"BASE": ["    [IGNEOUS_EXTRUSIVE]"]
-			}
-		},
-		"VEIN_BASIC":        {"__comment": "",
-			"TYPE":   "ALL_STONE",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It can be found as veins in nearly any stone",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["VEIN"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:ALL_STONE:VEIN:100]"]
-			}
-		},
-		"VEIN_IGNEOUS":      {"__comment": "",
-			"TYPE":   "IGNEOUS_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It can be found as veins in igneous rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["VEIN"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:IGNEOUS_ALL:VEIN:100]"]
-			}
-		},
-		"VEIN_SOIL":         {"__comment": "",
-			"TYPE":   "SOIL_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It can be found as veins in top soil",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["VEIN"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:SOIL:VEIN:100]"]
-			}
-		},
-		"VEIN_METAMORPHIC":  {"__comment": "",
-			"TYPE":   "METAMORPHIC_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It can be found as veins in metamorphic rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["VEIN"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:METAMORPHIC:VEIN:100]"]
-			}
-		},
-		"VEIN_SEDIMENTARY":  {"__comment": "",
-			"TYPE":   "SEDIMENTARY_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It can be found as veins in sedimentary rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["VEIN"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:SEDIMENTARY:VEIN:100]"]
-			}
-		},
-		"VEIN_ALLUVIAL":     {"__comment": "",
-			"TYPE":   "ALLUVIAL_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It can be found as veins in alluvial rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["VEIN"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:ALLUVIAL:VEIN:100]"]
-			}
-		},
-		"VEIN_SPECIFIC":     {"__comment": "",
-			"TYPE":   "ENVIRONMENT_SPEC",
-			"WEIGHT": 0,
-			"TOKENS": [""],
-			"DESC":   "It can be found as veins in !!!inorganic rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["VEIN"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT_SPEC:!!!INORGANIC:VEIN:100]"]
-			}
-		},
-		"CLUSTER_BASIC_I":   {"__comment": "",
-			"TYPE":   "IGNEOUS_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms in clusters in igneous rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:IGNEOUS_ALL:CLUSTER:100]"]
-			}
-		},
-		"CLUSTER_SMALL_I":   {"__comment": "",
-			"TYPE":   "IGNEOUS_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms in small clusters in igneous rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:IGNEOUS_ALL:CLUSTER_SMALL:100]"]
-			}
-		},
-		"CLUSTER_ONE_I":     {"__comment": "",
-			"TYPE":   "IGNEOUS_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms individually in igneous rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:IGNEOUS_ALL:CLUSTER_ONE:100]"]
-			}
-		},
-		"CLUSTER_BASIC_M":   {"__comment": "",
-			"TYPE":   "METAMORPHIC_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms in clusters in metamorphic rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:METAMORPHIC:CLUSTER:100]"]
-			}
-		},
-		"CLUSTER_SMALL_M":   {"__comment": "",
-			"TYPE":   "METAMORPHIC_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms in small clusters in metamorphic rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:METAMORPHIC:CLUSTER_SMALL:100]"]
-			}
-		},
-		"CLUSTER_ONE_M":     {"__comment": "",
-			"TYPE":   "METAMORPHIC_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms individually in metamorphic rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:METAMORPHIC:CLUSTER_ONE:100]"]
-			}
-		},
-		"CLUSTER_BASIC_S":   {"__comment": "",
-			"TYPE":   "SEDIMENTARY_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms in clusters in sedimentary rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:SEDIMENTARY:CLUSTER:100]"]
-			}
-		},
-		"CLUSTER_SMALL_S":   {"__comment": "",
-			"TYPE":   "SEDIMENTARY_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms in small clusters in sedimentary rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:SEDIMENTARY:CLUSTER_SMALL:100]"]
-			}
-		},
-		"CLUSTER_ONE_S":     {"__comment": "",
-			"TYPE":   "SEDIMENTARY_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms individually in sedimentary rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:SEDIMENTARY:CLUSTER_ONE:100]"]
-			}
-		},
-		"CLUSTER_BASIC_A":   {"__comment": "",
-			"TYPE":   "ALLUVIAL_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms in clusters in alluvial rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:ALLUVIAL:CLUSTER:100]"]
-			}
-		},
-		"CLUSTER_SMALL_A":   {"__comment": "",
-			"TYPE":   "ALLUVIAL_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms in small clusters in alluvial rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:ALLUVIAL:CLUSTER_SMALL:100]"]
-			}
-		},
-		"CLUSTER_ONE_A":     {"__comment": "",
-			"TYPE":   "ALLUVIAL_ALL",
-			"WEIGHT": 100,
-			"TOKENS": [""],
-			"DESC":   "It forms individually in alluvial rock",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT:ALLUVIAL:CLUSTER_ONE:100]"]
-			}
-		},
-		"CLUSTER_SPECIFIC":  {"__comment": "",
-			"TYPE":   "ENVIRONMENT_SPEC",
-			"WEIGHT": 0,
-			"TOKENS": [""],
-			"DESC":   "It forms in clusters in !!!inorganic",
-			"NAME":   [""],
-			"ADJ":    [""],
-			"REQUIRED":  ["CLUSTER"],
-			"RAWS": {
-				"BASE": ["    [ENVIRONMENT_SPEC:!!!INORGANIC:CLUSTER:100]"]
-			}
-		}
+
+	"numberObjects": ["value"],
+	"value": {"__comment": "STONE value, GEM value, METAL value, GLASS value",
+	    "0": ["1",  "1",   "1",  "1"],
+		"1": ["1",  "2",   "2",  "1"],
+		"2": ["2",  "4",   "5",  "2"],
+		"3": ["3",  "8",   "10", "4"],
+		"4": ["5",  "16",  "20", "8"],
+		"5": ["8",  "32",  "30", "16"],
+		"6": ["13", "48",  "40", "24"],
+		"7": ["20", "64",  "50", "32"],
+		"8": ["20", "80",  "50", "40"],
+		"9": ["20", "100", "50", "50"]
+	},
+
+	"binObjects": ["layer_env","cluster_env","vein_env","soil_env"],	
+	"layer_env":   {
+		"1": { "n": 10, "r": "IGNEOUS_ALL",       "d": "igneous rock"},
+		"2": { "n": 10, "r": "METAMORPHIC",       "d": "metamorphic rock"},
+		"3": { "n": 10, "r": "SEDIMENTARY",       "d": "sedimentary rock"},
+		"4": { "n": 10, "r": "IGNEOUS_EXTRUSIVE", "d": "igneous extrusive rock"},
+		"5": { "n": 10, "r": "IGNEOUS_INTRUSIVE", "d": "igneous intrusive stone"},
+		"6": { "n": 10, "r": "ALLUVIAL",          "d": "alluvial rock"}
+	},		
+	"vein_env":    {
+		"1": { "n": 10, "r": "IGNEOUS_ALL", "d": "igneous rock"},
+		"2": { "n": 10, "r": "METAMORPHIC", "d": "metamorphic rock"},
+		"3": { "n": 10, "r": "SEDIMENTARY", "d": "sedimentary rock"},
+		"4": { "n": 10, "r": "ALLUVIAL",    "d": "alluvial rock"},
+		"5": { "n": 10, "r": "ALL_STONE",   "d": "nearly any stone"},
+		"6": { "n": 10, "r": "SOIL",        "d": "top soil"}		
+	},	
+	"cluster_env": {
+		"1": { "n": 10, "r": "IGNEOUS_ALL", "d": "igneous rock"},
+		"2": { "n": 10, "r": "METAMORPHIC", "d": "metamorphic rock"},
+		"3": { "n": 10, "r": "SEDIMENTARY", "d": "sedimentary rock"},
+		"4": { "n": 10, "r": "ALLUVIAL",    "d": "alluvial rock"},
+		"5": { "n": 10, "r": "ALL_STONE",   "d": "nearly any stone"},
+		"6": { "n": 10, "r": "SOIL",        "d": "top soil"}		
+	},
+	"soil_env":    {
+		"1": { "n": 10, "r": "[SOIL]",            "d": ""},
+		"2": { "n": 10, "r": "[SOIL_OCEAN]",      "d": "ocean"},
+		"3": { "n": 10, "r": "[SOIL][SOIL_SAND]", "d": "sandy"}
 	}
 }

@@ -33,8 +33,8 @@ class FinalizeRaws:
         f.write(fname[:-4]+'\n')
         f.write('\n[OBJECT:'+obj.upper()+']\n')
         for d in raws:
-            f.write('\n['+key.upper()+':'+d['tag']+']\n\t')
-            f.write('\n\t'.join(d['desc'])+'\n\t')
-            f.write('\n\t'.join(d['raws']))
+            f.write('\n['+key.upper()+':'+d['TAG']+']\n\t')
+            #f.write('\n\t'.join(d['DESC'])+'\n\t')
+            f.write('\n\t'.join(d['RAWS']))
             f.write('\n')
         f.close()

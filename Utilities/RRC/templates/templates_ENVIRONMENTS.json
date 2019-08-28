@@ -1,14 +1,12 @@
 {
-	"__comment": ["These templates generate environment biomes based loosly on real world biome classifications",
-	              "such as temperature, moisture, and ecology. Biome tokens are added as nearest matches for use",
+	"__comment": ["These templates generate environment biomes based loosly on real world biome classifications |",
+	              "such as temperature, moisture, and ecology. Biome tokens are added as nearest matches for use |",
 				  "in DF. Generated raws are placed in creatures and plants."],
 
-	"raw_order":     ["BASE"],
-	"baseObjects":   ["category","type","subtype"],
-	"subObjects":    ["biome"],
-	"sourceObjects": [],
+	"raw_order": ["BASE"],
 	
-	"category":            {"__comment": "Environment categories based on temperature",
+	"baseObjects": ["temperature","moisture","ecology"],
+	"temperature": {"__comment": "Environment categories based on temperature",
 		"SCORCHING_BASIC": {"__comment": "",
 			"TYPE":   "SCORCHING",
 			"WEIGHT": 25,
@@ -40,8 +38,7 @@
 			"NOUN":   ["arctic","freezing"]
 		}
 	},
-
-	"type":               {"__comment": "Environment types based on moisture",
+	"moisture":    {"__comment": "Environment types based on moisture",
 		"WET_BASIC":      {"__comment": "",
 			"TYPE": "WET",
 			"WEIGHT": 50
@@ -68,8 +65,7 @@
 			"NOUN":   ["arid"]
 		}
 	},
-
-	"subtype":                  {"__comment": "Environment subtype based on eco-regions",
+	"ecology":     {"__comment": "Environment subtype based on eco-regions",
 		"WOODLAND_BASIC":       {"__comment": "",
 			"TYPE": "WOODLAND",
 			"DESC":   "#NOUN",
@@ -211,7 +207,8 @@
 		}
 	},
 
-	"biome":                             {"__comment": "",
+	"subObjects": ["biome"],
+	"biome":      {"__comment": "DF Biomes which closest match the above T-M-E",
 		"UNDERGROUND_WATER":             {"__comment": "",
 			"TYPE":   "UNDERGROUND",
 			"NOUN":   ["subterranean pool"],
@@ -246,7 +243,7 @@
 			"REQUIRED":  ["WOODLAND"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
 			"RAWS":   {
-				"BASE": ["[BIOME:FOREST_@category:TYPE@_CONIFER]"]
+				"BASE": ["[BIOME:FOREST_@temperature:TYPE@_CONIFER]"]
 			}
 		},
 		"FOREST_BROADLEAF_TEMPERATE":    {"__comment": "",
@@ -295,7 +292,7 @@
 			"REQUIRED":  ["SALTWATER"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA"],
 			"RAWS":   {
-				"BASE": ["[BIOME:OCEAN_@category:TYPE@]"]
+				"BASE": ["[BIOME:OCEAN_@temperature:TYPE@]"]
 			}
 		},
 		"POOL_BASIC":                    {"__comment": "",
@@ -304,7 +301,7 @@
 			"REQUIRED": ["MARINE"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
 			"RAWS":   {
-				"BASE": ["[BIOME:POOL_@category:TYPE@_@subtype:ADJ@]"]
+				"BASE": ["[BIOME:POOL_@temperature:TYPE@_@ecology:ADJ@]"]
 			}
 		},
 		"LAKE_BASIC":                    {"__comment": "",
@@ -313,7 +310,7 @@
 			"REQUIRED": ["MARINE"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
 			"RAWS":   {
-				"BASE": ["[BIOME:LAKE_@category:TYPE@_@subtype:ADJ@]"]
+				"BASE": ["[BIOME:LAKE_@temperature:TYPE@_@ecology:ADJ@]"]
 			}
 		},
 		"RIVER_BASIC":                   {"__comment": "",
@@ -322,7 +319,7 @@
 			"REQUIRED":  ["MARINE"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
 			"RAWS":   {
-				"BASE": ["[BIOME:RIVER_@category:TYPE@_@subtype:ADJ@]"]
+				"BASE": ["[BIOME:RIVER_@temperature:TYPE@_@ecology:ADJ@]"]
 			}
 		},
 		"SWAMP_BASIC":                   {"__comment": "",
@@ -331,7 +328,7 @@
 			"REQUIRED":  ["WETLAND"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC","BRACKISHWATER"],
 			"RAWS":   {
-				"BASE": ["[BIOME:SWAMP_@category:TYPE@_@subtype:ADJ@]"]
+				"BASE": ["[BIOME:SWAMP_@temperature:TYPE@_@ecology:ADJ@]"]
 			}
 		},
 		"SWAMP_MANGROVE":                {"__comment": "",
@@ -349,7 +346,7 @@
 			"REQUIRED":  ["WETLAND"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC","BRACKISHWATER"],
 			"RAWS":   {
-				"BASE": ["[BIOME:MARSH_@category:TYPE@_@subtype:ADJ@]"]
+				"BASE": ["[BIOME:MARSH_@temperature:TYPE@_@ecology:ADJ@]"]
 			}
 		},
 		"WETLAND_SCORCHING":             {"__comment": "",
@@ -358,8 +355,8 @@
 			"REQUIRED":  ["WETLAND"],
 			"FORBIDDEN": ["BRACKISHWATER"],
 			"RAWS":   {
-				"BASE": ["[BIOME:SWAMP_TROPICAL_@subtype:ADJ@]",
-						 "[BIOME:MARSH_TROPICAL_@subtype:ADJ@]"]
+				"BASE": ["[BIOME:SWAMP_TROPICAL_@ecology:ADJ@]",
+						 "[BIOME:MARSH_TROPICAL_@ecology:ADJ@]"]
 			}
 		},
 		"GRASSLAND_BASIC":               {"__comment": "",
@@ -368,7 +365,7 @@
 			"REQUIRED":  ["GRASSLAND"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
 			"RAWS":   {
-				"BASE": ["[BIOME:GRASSLAND_@category:TYPE@]"]
+				"BASE": ["[BIOME:GRASSLAND_@temperature:TYPE@]"]
 			}
 		},
 		"SAVANNA_BASIC":                 {"__comment": "",
@@ -377,7 +374,7 @@
 			"REQUIRED":  ["GRASSLAND"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
 			"RAWS":   {
-				"BASE": ["[BIOME:SAVANNA_@category:TYPE@]"]
+				"BASE": ["[BIOME:SAVANNA_@temperature:TYPE@]"]
 			}
 		},
 		"SHRUBLAND_BASIC":               {"__comment": "",
@@ -386,7 +383,7 @@
 			"REQUIRED":  ["GRASSLAND"],
 			"FORBIDDEN": ["SCORCHING","TUNDRA","ARCTIC"],
 			"RAWS":   {
-				"BASE": ["[BIOME:SHRUBLAND_@category:TYPE@]"]
+				"BASE": ["[BIOME:SHRUBLAND_@temperature:TYPE@]"]
 			}
 		},
 		"DESERT_HOT":                    {"__comment": "",

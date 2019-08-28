@@ -13,18 +13,10 @@ class GenerateObject:
         self.obj['binObjects']    = template.binObjects
         self.obj['rawObjects']    = template.rawObjects
         self.obj['reservedKeys']  = template.reserved_keys
+        self.types = types
         self.extRaws = extRaws
         self.get_object(types,configuration,world,force)
         extRaws = self.extRaws
-   
-   #==================================================================================================
-    def parse_bins(self,bIN):
-        roll = random.randint(1,bIN['ROLL'])
-        for i in range(bIN['BINS']):
-            if roll <= bIN[i]['n']:
-               b = bIN[i]
-               break
-        return b
    
    #==================================================================================================
     def parse_types(self,types,dOUT,single,force='ANY'):
@@ -52,7 +44,23 @@ class GenerateObject:
         for key in self.obj['reservedKeys']:
             if key == 'COLORS': continue
             if key == '__comment': continue
-            if t.get(key,False): dOUT[t['TYPE']][key]   = t[key]
+            if t.get(key,False): dOUT[t['TYPE']][key] = t[key]
+
+        # Get BIN objects
+        if t.get("BIN",False):
+            temp = []
+            for i in range(len(t["BIN"])):
+                bin_type = t["BIN"][i]
+                bIN = self.types[bin_type]
+                roll = random.randint(1,bIN['ROLL'])
+                for j in range(bIN['BINS']):
+                    if roll <= bIN[j]['n']:
+                        bOUT = bIN[j]
+                        break
+                temp.append(bOUT)
+                self.obj['NUMBERS']['VALUE'] += bOUT.get('v',0)
+            dOUT[t['TYPE']]["BIN"] = temp
+
         self.parse_object(t)
         return dOUT, t
    
@@ -103,7 +111,7 @@ class GenerateObject:
         for key,raws in obj.get('EXTERNAL',{}).items():
             self.extRaws[key] = self.extRaws.get(key,{})
             self.extRaws[key][obj['KEY']] = raws
-   
+
    #==================================================================================================
     def get_links(self,world):
         link = True
@@ -118,6 +126,8 @@ class GenerateObject:
                      llist = []
                      for wobjs in world.get(ltype,[]):
                          check = True
+                         l = self.obj[key][skey]['LINK_OBJECTS'].values()
+                         if [dc.get('TAG','') for dc in l].count(wobjs['TAG']) > 0: continue
                          for token in ltokens:
                              if token == 'ANY':
                                  break
@@ -129,6 +139,8 @@ class GenerateObject:
                      if len(llist) > 0:
                          n = random.randint(0,len(llist)-1)
                          self.obj[key][skey]['LINK_OBJECTS'][link] = llist[n]
+                         for n_k, n_v in llist[n]['N'].items():
+                             self.obj['NUMBERS'][n_k] = self.obj['NUMBERS'].get(n_k,0) + n_v
                      else:
                          link = False
    
@@ -145,11 +157,8 @@ class GenerateObject:
             self.obj['TOKENS'] = []
             self.obj['COMPANION'] = []
             self.obj['NUMBERS'] = {}
+            self.obj['NUMBERS']['VALUE'] = 0
             objects = {}
-   
-            # Evaluate Bin Objects
-            for bkey in self.obj['binObjects']:
-                self.obj[bkey] = self.parse_bins(types[bkey])
    
             # Get Base Objects
             for bkey in self.obj['baseObjects']:
@@ -174,11 +183,11 @@ class GenerateObject:
                 self.obj['n_'+ukey] = len(list(self.obj[ukey].keys()))
    
             self.obj['TOKENS'] = list(set(' '.join(self.obj['TOKENS']).split()))
-   
+ 
             # Get Links
             self.linked = True
             self.get_links(world)
-   
+
    #==================================================================================================
     def get_subobject(self,base,types,subtype):
         dOUT = self.obj[subtype]
@@ -248,7 +257,10 @@ class GenerateObject:
                 if temp['BINS'] > 0:
                     y, x = self.parse_types(temp, {}, False)
                     if v == 'ANY': v = x['TYPE']
-                    v = v + '_' + otype.upper()
+                    if x['UNIQUE']:
+                         if self.obj[stype].get(v,False): continue
+                    else:
+                         v = v + '_' + otype.upper()
                     self.obj[stype][v] = y[x['TYPE']]
                     # Add information to source object
                     self.obj[otype][okey]["SOURCE_OBJECTS"][skey] = self.obj[otype][okey]['SOURCE_OBJECTS'].get(skey,[])

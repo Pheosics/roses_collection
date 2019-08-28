@@ -3,418 +3,755 @@
 				  "Multiple effects can appear on a single syndrome."],
 
 	"raw_order":     ["BASE","EFFECT"],
-	"baseObjects":   ["category","type","subtype"],
-	"subObjects":    ["effect"],
-	"sourceObjects": [],
-	"numberObjects": ["severity"],
 	
-	"category":          {"__comment": "",
-		"MUNDANE_BASIC": {"__comment": "(Base severity = 0)",
-			"TYPE":   "MUNDANE",
-			"N": {
-				"SEVERITY": 0
-			},
-			"RAWS": {
-				"BASE": ["[SYN_CLASS:MUNDANE]"]
-			}
-		}
-	},
-
-	"type":                {"__comment": "",
-		"WEAK_BASIC":      {"__comment": "(+1 severity)",
-			"TYPE":   "WEAK",
-			"WEIGHT": 60,
-			"DESC":   "A #NOUN",
-			"NOUN":   ["weak"],
-			"EFFECT": {
-				"MIN": 1,
-				"MAX": 2
-			},
-			"N": {
-				"SEVERITY": 1
-			},
-			"RAWS": {
-				"BASE": ["[SYN_CLASS:WEAK]"]
-			}
-		},
-		"MODERATE_BASIC":  {"__comment": "(+2 severity)",
-			"TYPE":   "MODERATE",
-			"DESC":   "A #NOUN",
-			"NOUN":   ["moderate"],
-			"EFFECT": {
-				"MIN": 2,
-				"MAX": 3
-			},
-			"N": {
-				"SEVERITY": 2
-			},
-			"RAWS": {
-				"BASE": ["[SYN_CLASS:MODERATE]"]
-			}
-		},
-		"STRONG_BASIC":    {"__comment": "(+3 severity)",
-			"TYPE":   "STRONG",
-			"WEIGHT": 25,
-			"DESC":   "A #NOUN",
-			"NOUN":   ["strong"],
-			"EFFECT": {
-				"MIN": 3,
-				"MAX": 4
-			},
-			"N": {
-				"SEVERITY": 3
-			},
-			"RAWS": {
-				"BASE": ["[SYN_CLASS:STRONG]"]
-			}
-		}
-	},
-
-	"subtype":              {"__comment": "",
-		"HARMFUL_BASIC": {"__comment": "(+0 severity)",
-			"TYPE":   "HARMFUL",
-			"DESC":   "#ADJ #NOUN",
-			"NOUN":   ["syndrome"],
-			"ADJ":    ["harmful","negative"],
+	"baseObjects": ["type","subtype"],
+	"type":    {"__comment": "Helpful or harmful syndrome",
+		"HARMFUL_BASIC": {"__comment": "Has harmful effects",
+			"TYPE": "HARMFUL",
+			"DESC": "#ADJ #NOUN",
+			"NOUN": ["syndrome"],
+			"ADJ":  ["harmful","negative"],
 			"RAWS": {
 				"BASE": ["[SYN_CLASS:HARMFUL]"]
 			}
 		},
-		"HELPFUL_BASIC": {"__comment": "(+0 severity)",
-			"TYPE":   "HELPFUL",
-			"DESC":   "#ADJ #NOUN",
-			"NOUN":   ["syndrome"],
-			"ADJ":    ["helpful","positive"],
+		"HELPFUL_BASIC": {"__comment": "Has helpful effects",
+			"TYPE": "HELPFUL",
+			"DESC": "#ADJ #NOUN",
+			"NOUN": ["syndrome"],
+			"ADJ":  ["helpful","positive"],
 			"RAWS": {
 				"BASE": ["[SYN_CLASS:HELPFUL]"]
+			}
+		},
+		"COMBO_BASIC":   {"__comment": "Has both helpful and harmful effects",
+			"TYPE":   "COMBO",
+			"WEIGHT": 50,
+			"DESC":   "#ADJ #NOUN",
+			"NOUN":   ["syndrome"],
+			"ADJ":    ["chaotic"],
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:HELPFUL][SYN_CLASS:HARMFUL]"]
+			}
+		}		
+	},
+	"subtype": {"__comment": "How many effects the syndrome has",
+		"COMBO_SIMPLE":     {"__comment": "1 helpful effect and 1 harmful effect",
+			"TYPE":   "SIMPLE",
+			"WEIGHT": 30,
+			"REQUIRED": ["COMBO"],
+			"HELPFUL_EFFECT": {
+				"MIN": 1
+			},
+			"HARMFUL_EFFECT": {
+				"MIN": 1
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:SIMPLE]"]
+			}
+		},
+		"COMBO_STANDARD":   {"__comment": "2 helpful effect and 2 harmful effect",
+			"TYPE":   "STANDARD",
+			"WEIGHT": 15,
+			"REQUIRED": ["COMBO"],
+			"HELPFUL_EFFECT": {
+				"MIN": 2
+			},
+			"HARMFUL_EFFECT": {
+				"MIN": 2
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:STANDARD]"]
+			}
+		},
+		"COMBO_COMPLEX":    {"__comment": "3 helpful effect and 3 harmful effect",
+			"TYPE":   "COMPLEX",
+			"WEIGHT": 5,
+			"REQUIRED": ["COMBO"],
+			"HELPFUL_EFFECT": {
+				"MIN": 3
+			},
+			"HARMFUL_EFFECT": {
+				"MIN": 3
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:COMPLEX]"]
+			}
+		},
+		"HELPFUL_SIMPLE":   {"__comment": "1-2 helpful effects",
+			"TYPE":   "SIMPLE",
+			"WEIGHT": 60,
+			"REQUIRED": ["HELPFUL"],
+			"HELPFUL_EFFECT": {
+				"MIN": 1,
+				"MAX": 2
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:SIMPLE]"]
+			}
+		},
+		"HELPFUL_STANDARD": {"__comment": "3-4 helpful effects",
+			"TYPE":   "STANDARD",
+			"WEIGHT": 30,
+			"REQUIRED": ["HELPFUL"],
+			"HELPFUL_EFFECT": {
+				"MIN": 3,
+				"MAX": 4
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:STANDARD]"]
+			}
+		},
+		"HELPFUL_COMPLEX":  {"__comment": "5-6 helpful effects",
+			"TYPE":   "COMPLEX",
+			"WEIGHT": 10,
+			"REQUIRED": ["HELPFUL"],
+			"HELPFUL_EFFECT": {
+				"MIN": 5,
+				"MAX": 6
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:COMPLEX]"]
+			}
+		},
+		"HARMFUL_SIMPLE":   {"__comment": "1-2 harmful effects",
+			"TYPE":   "SIMPLE",
+			"WEIGHT": 60,
+			"REQUIRED": ["HARMFUL"],
+			"HARMFUL_EFFECT": {
+				"MIN": 1,
+				"MAX": 2
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:SIMPLE]"]
+			}
+		},
+		"HARMFUL_STANDARD": {"__comment": "3-4 harmful effects",
+			"TYPE":   "STANDARD",
+			"WEIGHT": 30,
+			"REQUIRED": ["HARMFUL"],
+			"HARMFUL_EFFECT": {
+				"MIN": 3,
+				"MAX": 4
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:STANDARD]"]
+			}
+		},
+		"HARMFUL_COMPLEX":  {"__comment": "5-6 harmful effects",
+			"TYPE":   "COMPLEX",
+			"WEIGHT": 10,
+			"REQUIRED": ["HARMFUL"],
+			"HARMFUL_EFFECT": {
+				"MIN": 5,
+				"MAX": 6
+			},
+			"RAWS": {
+				"BASE": ["[SYN_CLASS:COMPLEX]"]
 			}
 		}
 	},
 
-	"effect":                {"__comment": "",
-		"HELPFUL_STRENGTH":  {"__comment": "",
-			"TYPE":     "STRENGTH",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["strength"],
-			"ADJ":      ["increases"],
-			"REQUIRED": ["HELPFUL"],
+	"subObjects": ["helpful_effect","harmful_effect","misc_effect"],
+	"misc_effects":   {"__comment": "Miscellanious effects, like emotion changes"
+	},
+	"helpful_effect": {"__comment": "Helpful Effects",
+		"STRENGTH_TIMED":  {"__comment": "Raise strength by X for Y ticks",
+			"TYPE":   "STRENGTH",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> increases strength for a <2:d> time",
+			"FORBIDDEN": ["STRENGTH"],
 			"RAWS": {
-				"EFFECT": ["[CE_PHYS_ATT_CHANGE:STRENGTH:100:100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:STRENGTH:100:<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HELPFUL_AGILITY":   {"__comment": "",
-			"TYPE":     "AGILITY",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["agility"],
-			"ADJ":      ["increases"],
-			"REQUIRED": ["HELPFUL"],
+		"STRENGTH_PERM":   {"__comment": "Raise strength by X permanently",
+			"TYPE":   "STRENGTH",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly increases strength permanently",
+			"FORBIDDEN": ["STRENGTH"],
 			"RAWS": {
-				"EFFECT": ["[CE_PHYS_ATT_CHANGE:AGILITY:100:100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:STRENGTH:100:$5:10$:START:0]"]
 			}
 		},
-		"HELPFUL_TOUGHNESS": {"__comment": "",
-			"TYPE":     "TOUGHNESS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["toughness"],
-			"ADJ":      ["increases"],
-			"REQUIRED": ["HELPFUL"],
+		"AGILITY_TIMED":   {"__comment": "Raise agility by X for Y ticks",
+			"TYPE":   "AGILITY",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> increases agility for a <2:d> time",
+			"FORBIDDEN": ["AGILITY"],
 			"RAWS": {
-				"EFFECT": ["[CE_PHYS_ATT_CHANGE:TOUGHNESS:100:100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:AGILITY:100:<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HELPFUL_ENDURANCE": {"__comment": "",
-			"TYPE":     "ENDURANCE",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["endurance"],
-			"ADJ":      ["increases"],
-			"REQUIRED": ["HELPFUL"],
+		"AGILITY_PERM":    {"__comment": "Raise agility by X permanently",
+			"TYPE":   "AGILITY",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly increases agility permanently",
+			"FORBIDDEN": ["AGILITY"],
 			"RAWS": {
-				"EFFECT": ["[CE_PHYS_ATT_CHANGE:ENDURANCE:100:100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:AGILITY:100:$5:10$:START:0]"]
 			}
 		},
-		"HELPFUL_WILLPOWER": {"__comment": "",
-			"TYPE":     "WILLPOWER",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["willpower"],
-			"ADJ":      ["increases"],
-			"REQUIRED": ["HELPFUL"],
+		"TOUGHNESS_TIMED": {"__comment": "Raise toughness by X for Y ticks",
+			"TYPE":   "TOUGHNESS",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> increases toughness for a <2:d> time",
+			"FORBIDDEN": ["TOUGHNESS"],
 			"RAWS": {
-				"EFFECT": ["[CE_MENT_ATT_CHANGE:WILLPOWER:100:100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:TOUGHNESS:100:<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HELPFUL_FOCUS":     {"__comment": "",
-			"TYPE":     "FOCUS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["focus"],
-			"ADJ":      ["increases"],
-			"REQUIRED": ["HELPFUL"],
+		"TOUGHNESS_PERM":  {"__comment": "Raise toughness by X permanently",
+			"TYPE":   "TOUGHNESS",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly increases toughness permanently",
+			"FORBIDDEN": ["TOUGHNESS"],
 			"RAWS": {
-				"EFFECT": ["[CE_MENT_ATT_CHANGE:FOCUS:100:100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:TOUGHNESS:100:$5:10$:START:0]"]
 			}
 		},
-		"HELPFUL_SPEED":     {"__comment": "",
-			"TYPE":     "SPEED",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["movement speed"],
-			"ADJ":      ["increases"],
-			"REQUIRED": ["HELPFUL"],
+		"ENDURANCE_TIMED": {"__comment": "Raise endurance by X for Y ticks",
+			"TYPE":   "ENDURANCE",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> increases endurance for a <2:d> time",
+			"FORBIDDEN": ["ENDURANCE"],
 			"RAWS": {
-				"EFFECT": ["[CE_SPEED_CHANGE:SPEED_ADD:-100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:ENDURANCE:100:<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HELPFUL_NECROSIS":  {"__comment": "",
-			"TYPE":     "NECROSIS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["necrosis"],
-			"ADJ":      ["cures"],
-			"REQUIRED": ["HELPFUL"],
+		"ENDURANCE_PERM":  {"__comment": "Raise endurance by X permanently",
+			"TYPE":   "ENDURANCE",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly increases endurance permanently",
+			"FORBIDDEN": ["ENDURANCE"],
 			"RAWS": {
-				"EFFECT": []
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:ENDURANCE:100:$5:10$:START:0]"]
 			}
 		},
-		"HELPFUL_PARALYSIS": {"__comment": "",
-			"TYPE":     "PARALYSIS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["paralysis"],
-			"ADJ":      ["cures"],
-			"REQUIRED": ["HELPFUL"],
+		"WILLPOWER_TIMED": {"__comment": "Raise willpower by X for Y ticks",
+			"TYPE":   "WILLPOWER",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> increases willpower for a <2:d> time",
+			"FORBIDDEN": ["WILLPOWER"],
 			"RAWS": {
-				"EFFECT": []
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:WILLPOWER:100:<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HELPFUL_NAUSEA":    {"__comment": "",
-			"TYPE":     "NAUSEA",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["nausea"],
-			"ADJ":      ["cures"],
-			"REQUIRED": ["HELPFUL"],
+		"WILLPOWER_PERM":  {"__comment": "Raise willpower by X permanently",
+			"TYPE":   "WILLPOWER",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly increases willpower permanently",
+			"FORBIDDEN": ["WILLPOWER"],
 			"RAWS": {
-				"EFFECT": []
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:WILLPOWER:100:$5:10$:START:0]"]
 			}
 		},
-		"HELPFUL_DIZZY":     {"__comment": "",
-			"TYPE":     "DIZZINESS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["dizziness"],
-			"ADJ":      ["cures"],
-			"REQUIRED": ["HELPFUL"],
+		"FOCUS_TIMED":     {"__comment": "Raise focus by X for Y ticks",
+			"TYPE":   "FOCUS",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> increases focus for a <2:d> time",
+			"FORBIDDEN": ["FOCUS"],
 			"RAWS": {
-				"EFFECT": []
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:FOCUS:100:<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HELPFUL_BLEEDING":  {"__comment": "",
-			"TYPE":     "BLEEDING",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["bleeding"],
-			"ADJ":      ["cures"],
-			"REQUIRED": ["HELPFUL"],
+		"FOCUS_PERM":      {"__comment": "Raise focus by X permanently",
+			"TYPE":   "FOCUS",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly increases focus permanently",
+			"FORBIDDEN": ["FOCUS"],
 			"RAWS": {
-				"EFFECT": []
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:FOCUS:100:$5:10$:START:0]"]
 			}
 		},
-		"HELPFUL_UNCONCIOUS":{"__comment": "",
-			"TYPE":     "UNCONSCIOUSNESS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["unconsciousness"],
-			"ADJ":      ["cures"],
-			"REQUIRED": ["HELPFUL"],
+		"SPEED_TIMED":     {"__comment": "Increase speed by X for Y ticks",
+			"TYPE":   "SPEED",
+			"WEIGHT": 100,
+			"BIN":    ["spd_sev","syn_len"],
+			"DESC":   "<1:d> increases speed for a <2:d> time",
+			"FORBIDDEN": ["SPEED"],
 			"RAWS": {
-				"EFFECT": []
+				"EFFECT": ["[CE_SPEED_CHANGE:SPEED_ADD:<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HARMFUL_STRENGTH":  {"__comment": "",
-			"TYPE":     "STRENGTH",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["strength"],
-			"ADJ":      ["lowers"],
-			"REQUIRED": ["HARMFUL"],
+		"SPEED_PERM":      {"__comment": "Increase speed by X permanently",
+			"TYPE":   "SPEED",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly increases speed permanently",
+			"FORBIDDEN": ["SPEED"],
 			"RAWS": {
-				"EFFECT": ["[CE_PHYS_ATT_CHANGE:STRENGTH:100:100]"]
+				"EFFECT": ["[CE_SPEED_CHANGE:SPEED_ADD:$5:10$:START:0]"]
 			}
 		},
-		"HARMFUL_AGILITY":   {"__comment": "",
-			"TYPE":     "AGILITY",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["agility"],
-			"ADJ":      ["lowers"],
-			"REQUIRED": ["HARMFUL"],
+		"STUN_TIMED":      {"__comment": "Add NOSTUN for Y ticks",
+			"TYPE":   "STUN",
+			"WEIGHT": 100,
+			"BIN":    ["syn_len"],
+			"DESC":   "cures stun for a <1:d> time",
+			"FORBIDDEN": ["STUN","UNCONSCIOUSNESS"],
+			"RAWS":{
+				"EFFECT": ["[CE_ADD_TAG:NOSTUN:START:0:END:<1:r>]"]
+			}	
+		},
+		"PAIN_TIMED":      {"__comment": "Add NOPAIN for Y ticks",
+			"TYPE":   "PAIN",
+			"WEIGHT": 100,
+			"BIN":    ["syn_len"],
+			"DESC":   "cures pain for a <1:d> time",
+			"FORBIDDEN": ["PAIN"],
+			"RAWS":{
+				"EFFECT": ["[CE_ADD_TAG:NOPAIN:START:0:END:<1:r>]"]
+			}	
+		},
+		"NAUSEA_TIMED":    {"__comment": "Add NONAUSEA for Y ticks",
+			"TYPE":   "NAUSEA",
+			"WEIGHT": 100,
+			"BIN":    ["syn_len"],
+			"DESC":   "cures nausea for a <1:d> time",
+			"FORBIDDEN": ["NAUSEA"],
+			"RAWS":{
+				"EFFECT": ["[CE_ADD_TAG:NONAUSEA:START:0:END:<1:r>]"]
+			}	
+		},
+		"DIZZINESS_TIMED": {"__comment": "Add NO_DIZZINESS for Y ticks",
+			"TYPE":   "DIZZINESS",
+			"WEIGHT": 100,
+			"BIN":    ["syn_len"],
+			"DESC":   "cures dizziness for a <1:d> time",
+			"FORBIDDEN": ["DIZZINESS"],
+			"RAWS":{
+				"EFFECT": ["[CE_ADD_TAG:NO_DIZZINESS:START:0:END:<1:r>]"]
+			}	
+		},
+		"PARALYSIS_TIMED": {"__comment": "Add PARALYZEIMMUNE for Y ticks",
+			"TYPE":   "PARALYSIS",
+			"WEIGHT": 100,
+			"BIN":    ["syn_len"],
+			"DESC":   "cures paralysis for a <1:d> time",
+			"FORBIDDEN": ["PARALYSIS"],
+			"RAWS":{
+				"EFFECT": ["[CE_ADD_TAG:PARALYZEIMMUNE:START:0:END:<1:r>]"]
+			}	
+		},
+		"FEVER_TIMED":     {"__comment": "Add NO_FEVERS for Y ticks",
+			"TYPE":   "FEVER",
+			"WEIGHT": 100,
+			"BIN":    ["syn_len"],
+			"DESC":   "cures fever for a <1:d> time",
+			"FORBIDDEN": ["FEVER"],
+			"RAWS":{
+				"EFFECT": ["[CE_ADD_TAG:NO_FEVERS:START:0:END:<1:r>]"]
+			}	
+		}
+	},	
+	"harmful_effect": {"__comment": "Harmful Effects",
+		"STRENGTH_TIMED":  {"__comment": "Lower strength by X for Y ticks",
+			"TYPE":   "STRENGTH",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> decreases strength for a <2:d> time",
+			"FORBIDDEN": ["STRENGTH"],
 			"RAWS": {
-				"EFFECT": ["[CE_PHYS_ATT_CHANGE:AGILITY:100:-100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:STRENGTH:100:-<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HARMFUL_TOUGHNESS": {"__comment": "",
-			"TYPE":     "TOUGHNESS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["toughness"],
-			"ADJ":      ["lowers"],
-			"REQUIRED": ["HARMFUL"],
+		"STRENGTH_PERM":   {"__comment": "Lower strength by X permanently",
+			"TYPE":   "STRENGTH",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly decreases strength permanently",
+			"FORBIDDEN": ["STRENGTH"],
 			"RAWS": {
-				"EFFECT": ["[CE_PHYS_ATT_CHANGE:TOUGHNESS:100:-100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:STRENGTH:100:-$5:10$:START:0]"]
 			}
 		},
-		"HARMFUL_ENDURANCE": {"__comment": "",
-			"TYPE":     "ENDURANCE",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["endurance"],
-			"ADJ":      ["lowers"],
-			"REQUIRED": ["HARMFUL"],
+		"AGILITY_TIMED":   {"__comment": "Lower agility by X for Y ticks",
+			"TYPE":   "AGILITY",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> decreases agility for a <2:d> time",
+			"FORBIDDEN": ["AGILITY"],
 			"RAWS": {
-				"EFFECT": ["[CE_PHYS_ATT_CHANGE:ENDURANCE:100:-100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:AGILITY:100:-<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HARMFUL_WILLPOWER": {"__comment": "",
-			"TYPE":     "WILLPOWER",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["willpower"],
-			"ADJ":      ["lowers"],
-			"REQUIRED": ["HARMFUL"],
+		"AGILITY_PERM":    {"__comment": "Lower agility by X permanently",
+			"TYPE":   "AGILITY",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly decreases agility permanently",
+			"FORBIDDEN": ["AGILITY"],
 			"RAWS": {
-				"EFFECT": ["[CE_MENT_ATT_CHANGE:WILLPOWER:100:-100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:AGILITY:100:-$5:10$:START:0]"]
 			}
 		},
-		"HARMFUL_FOCUS":     {"__comment": "",
-			"TYPE":     "FOCUS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["focus"],
-			"ADJ":      ["lowers"],
-			"REQUIRED": ["HARMFUL"],
+		"TOUGHNESS_TIMED": {"__comment": "Lower toughness by X for Y ticks",
+			"TYPE":   "TOUGHNESS",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> decreases toughness for a <2:d> time",
+			"FORBIDDEN": ["TOUGHNESS"],
 			"RAWS": {
-				"EFFECT": ["[CE_MENT_ATT_CHANGE:FOCUS:100:-100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:TOUGHNESS:100:-<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HARMFUL_SPEED":     {"__comment": "",
-			"TYPE":     "SPEED",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["movement speed"],
-			"ADJ":      ["slows"],
-			"REQUIRED": ["HARMFUL"],
+		"TOUGHNESS_PERM":  {"__comment": "Lower toughness by X permanently",
+			"TYPE":   "TOUGHNESS",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly decreases toughness permanently",
+			"FORBIDDEN": ["TOUGHNESS"],
 			"RAWS": {
-				"EFFECT": ["[CE_SPEED_CHANGE:SPEED_ADD:-100]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:TOUGHNESS:100:-$5:10$:START:0]"]
 			}
 		},
-		"HARMFUL_NECROSIS":  {"__comment": "",
-			"TYPE":     "NECROSIS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["necrosis"],
-			"ADJ":      ["causes"],
-			"REQUIRED": ["HARMFUL"],
+		"ENDURANCE_TIMED": {"__comment": "Lower endurance by X for Y ticks",
+			"TYPE":   "ENDURANCE",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> decreases endurance for a <2:d> time",
+			"FORBIDDEN": ["ENDURANCE"],
 			"RAWS": {
-				"EFFECT": ["[CE_NECROSIS:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:ENDURANCE:100:-<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HARMFUL_PARALYSIS": {"__comment": "",
-			"TYPE":     "PARALYSIS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["paralysis"],
-			"ADJ":      ["causes"],
-			"REQUIRED": ["HARMFUL"],
+		"ENDURANCE_PERM":  {"__comment": "Lower endurance by X permanently",
+			"TYPE":   "ENDURANCE",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly decreases endurance permanently",
+			"FORBIDDEN": ["ENDURANCE"],
 			"RAWS": {
-				"EFFECT": ["[CE_PARALYSIS:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+				"EFFECT": ["[CE_PHYS_ATT_CHANGE:ENDURANCE:100:-$5:10$:START:0]"]
 			}
 		},
-		"HARMFUL_NAUSEA":    {"__comment": "",
-			"TYPE":     "NAUSEA",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["nausea"],
-			"ADJ":      ["causes"],
-			"REQUIRED": ["HARMFUL"],
+		"WILLPOWER_TIMED": {"__comment": "Lower willpower by X for Y ticks",
+			"TYPE":   "WILLPOWER",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> decreases willpower for a <2:d> time",
+			"FORBIDDEN": ["WILLPOWER"],
 			"RAWS": {
-				"EFFECT": ["[CE_NAUSEA:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:WILLPOWER:100:-<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HARMFUL_DIZZY":     {"__comment": "",
-			"TYPE":     "DIZZINESS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["dizziness"],
-			"ADJ":      ["causes"],
-			"REQUIRED": ["HARMFUL"],
+		"WILLPOWER_PERM":  {"__comment": "Lower willpower by X permanently",
+			"TYPE":   "WILLPOWER",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly decreases willpower permanently",
+			"FORBIDDEN": ["WILLPOWER"],
 			"RAWS": {
-				"EFFECT": ["[CE_DIZZINESS:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:WILLPOWER:100:-$5:10$:START:0]"]
 			}
 		},
-		"HARMFUL_BLEEDING":  {"__comment": "",
-			"TYPE":     "BLEEDING",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["bleeding"],
-			"ADJ":      ["causes"],
-			"REQUIRED": ["HARMFUL"],
+		"FOCUS_TIMED":     {"__comment": "Lower focus by X for Y ticks",
+			"TYPE":   "FOCUS",
+			"WEIGHT": 100,
+			"BIN":    ["att_sev","syn_len"],
+			"DESC":   "<1:d> decreases focus for a <2:d> time",
+			"FORBIDDEN": ["FOCUS"],
 			"RAWS": {
-				"EFFECT": ["[CE_BLEEDING:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:FOCUS:100:-<1:r>:START:0:END:<2:r>]"]
 			}
 		},
-		"HARMFUL_UNCONCIOUS":{"__comment": "",
-			"TYPE":     "UNCONSCIOUSNESS",
-			"WEIGHT":   100,
-			"TOKENS":   [""],
-			"DESC":     "It #ADJ #NOUN",
-			"NOUN":     ["unconsciousness"],
-			"ADJ":      ["causes"],
-			"REQUIRED": ["HARMFUL"],
+		"FOCUS_PERM":      {"__comment": "Lower focus by X permanently",
+			"TYPE":   "FOCUS",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly decreases focus permanently",
+			"FORBIDDEN": ["FOCUS"],
 			"RAWS": {
-				"EFFECT": ["[CE_UNCONSCIOUSNESS:PROB:100:SEV:$50:150$:START:50:END:$1500:2500$]"]
+				"EFFECT": ["[CE_MENT_ATT_CHANGE:FOCUS:100:-$5:10$:START:0]"]
+			}
+		},
+		"SPEED_TIMED":     {"__comment": "Increase speed by X for Y ticks",
+			"TYPE":   "SPEED",
+			"WEIGHT": 100,
+			"BIN":    ["spd_sev","syn_len"],
+			"DESC":   "<1:d> decreases speed for a <2:d> time",
+			"FORBIDDEN": ["SPEED"],
+			"RAWS": {
+				"EFFECT": ["[CE_SPEED_CHANGE:SPEED_ADD:-<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"SPEED_PERM":      {"__comment": "Increase speed by X permanently",
+			"TYPE":   "SPEED",
+			"WEIGHT": 1,
+			"TOKENS": ["PERMANENT"],
+			"DESC":   "slightly decreases speed permanently",
+			"FORBIDDEN": ["SPEED"],
+			"RAWS": {
+				"EFFECT": ["[CE_SPEED_CHANGE:SPEED_ADD:-$5:10$:START:0]"]
+			}
+		},
+		"BLEEDING_TIMED":  {"__comment": "Causes X severity bleeding for Y ticks   (localized)",
+			"TYPE":   "BLEEDING",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> bleeding for a <2:d> time",
+			"FORBIDDEN": ["BLEEDING"],
+			"RAWS": {
+				"EFFECT": ["[CE_BLEEDING:PROB:100:LOCALIZED:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"BLEEDING_PERM":   {"__comment": "Causes X severity bleeding permanently   (localized)",
+			"TYPE":   "BLEEDING",
+			"WEIGHT": 1,
+			"DESC":   "causes minor bleeding permanently",
+			"FORBIDDEN": ["BLEEDING"],
+			"RAWS": {
+				"EFFECT": ["[CE_BLEEDING:PROB:100:LOCALIZED:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"PAIN_TIMED":      {"__comment": "Causes X severity pain for Y ticks       (localized)",
+			"TYPE":   "PAIN",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> pain for a <2:d> time",
+			"FORBIDDEN": ["PAIN"],
+			"RAWS": {
+				"EFFECT": ["[CE_PAIN:PROB:100:LOCALIZED:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"PAIN_PERM":       {"__comment": "Causes X severity pain permanently       (localized)",
+			"TYPE":   "PAIN",
+			"WEIGHT": 1,
+			"DESC":   "causes minor pain permanently",
+			"FORBIDDEN": ["PAIN"],
+			"RAWS": {
+				"EFFECT": ["[CE_PAIN:PROB:100:LOCALIZED:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"NECROSIS_TIMED":  {"__comment": "Causes X severity necrosis for Y ticks   (localized)",
+			"TYPE":   "NECROSIS",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> necrosis for a <2:d> time",
+			"FORBIDDEN": ["NECROSIS"],
+			"RAWS": {
+				"EFFECT": ["[CE_NECROSIS:PROB:100:LOCALIZED:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"NECROSIS_PERM":   {"__comment": "Causes X severity necrosis permanently   (localized)",
+			"TYPE":   "NECROSIS",
+			"WEIGHT": 1,
+			"DESC":   "causes minor necrosis permanently",
+			"FORBIDDEN": ["NECROSIS"],
+			"RAWS": {
+				"EFFECT": ["[CE_NECROSIS:PROB:100:LOCALIZED:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"BLISTERS_TIMED":  {"__comment": "Causes X severity blisters for Y ticks   (localized)",
+			"TYPE":   "BLISTERS",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> blisters for a <2:d> time",
+			"FORBIDDEN": ["BLISTERS"],
+			"RAWS": {
+				"EFFECT": ["[CE_BLISTERS:PROB:100:LOCALIZED:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"BLISTERS_PERM":   {"__comment": "Causes X severity blisters permanently   (localized)",
+			"TYPE":   "BLISTERS",
+			"WEIGHT": 1,
+			"DESC":   "causes minor blisters permanently",
+			"FORBIDDEN": ["BLISTERS"],
+			"RAWS": {
+				"EFFECT": ["[CE_BLISTERS:PROB:100:LOCALIZED:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"BRUISING_TIMED":  {"__comment": "Causes X severity bruising for Y ticks   (localized)",
+			"TYPE":   "BRUISING",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> bruising for a <2:d> time",
+			"FORBIDDEN": ["BRUISING"],
+			"RAWS": {
+				"EFFECT": ["[CE_BRUISING:PROB:100:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"BRUISING_PERM":   {"__comment": "Causes X severity bruising permanently   (localized)",
+			"TYPE":   "BRUISING",
+			"WEIGHT": 1,
+			"DESC":   "causes minor bruising permanently",
+			"FORBIDDEN": ["BRUISING"],
+			"RAWS": {
+				"EFFECT": ["[CE_BRUISING:PROB:100:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"NUMBNESS_TIMED":  {"__comment": "Causes X severity numbness for Y ticks   (localized)",
+			"TYPE":   "NUMBNESS",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> numbness for a <2:d> time",
+			"FORBIDDEN": ["NUMBNESS"],
+			"RAWS": {
+				"EFFECT": ["[CE_NUMBNESS:PROB:100:LOCALIZED:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"NUMBNESS_PERM":   {"__comment": "Causes X severity numbness permanently   (localized)",
+			"TYPE":   "NUMBNESS",
+			"WEIGHT": 1,
+			"DESC":   "causes minor numbness permanently",
+			"FORBIDDEN": ["NUMBNESS"],
+			"RAWS": {
+				"EFFECT": ["[CE_NUMBNESS:PROB:100:LOCALIZED:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"SWELLING_TIMED":  {"__comment": "Causes X severity swelling for Y ticks   (localized)",
+			"TYPE":   "SWELLING",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> swelling for a <2:d> time",
+			"FORBIDDEN": ["SWELLING"],
+			"RAWS": {
+				"EFFECT": ["[CE_SWELLING:PROB:100:LOCALIZED:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"SWELLING_PERM":   {"__comment": "Causes X severity swelling permanently   (localized)",
+			"TYPE":   "SWELLING",
+			"WEIGHT": 1,
+			"DESC":   "causes minor swelling permanently",
+			"FORBIDDEN": ["SWELLING"],
+			"RAWS": {
+				"EFFECT": ["[CE_SWELLING:PROB:100:LOCALIZED:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"DIZZINESS_TIMED": {"__comment": "Causes X severity dizziness for Y ticks",
+			"TYPE":   "DIZZINESS",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> dizziness for a <2:d> time",
+			"FORBIDDEN": ["DIZZINESS"],
+			"RAWS": {
+				"EFFECT": ["[CE_DIZZINESS:PROB:100:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"DIZZINESS_PERM":  {"__comment": "Causes X severity dizziness permanently",
+			"TYPE":   "DIZZINESS",
+			"WEIGHT": 1,
+			"DESC":   "causes minor dizziness permanently",
+			"FORBIDDEN": ["DIZZINESS"],
+			"RAWS": {
+				"EFFECT": ["[CE_DIZZINESS:PROB:100:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"PARALYSIS_TIMED": {"__comment": "Causes X severity paralysis for Y ticks",
+			"TYPE":   "PARALYSIS",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> paralysis for a <2:d> time",
+			"FORBIDDEN": ["PARALYSIS"],
+			"RAWS": {
+				"EFFECT": ["[CE_PARALYSIS:PROB:100:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"PARALYSIS_PERM":  {"__comment": "Causes X severity paralysis permanently",
+			"TYPE":   "PARALYSIS",
+			"WEIGHT": 1,
+			"DESC":   "causes minor paralysis permanently",
+			"FORBIDDEN": ["PARALYSIS"],
+			"RAWS": {
+				"EFFECT": ["[CE_PARALYSIS:PROB:100:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"STUN_TIMED":      {"__comment": "Causes X severity stun for Y ticks",
+			"TYPE":   "UNCONSCIOUSNESS",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> unconciousness for a <2:d> time",
+			"FORBIDDEN": ["UNCONSCIOUSNESS"],
+			"RAWS": {
+				"EFFECT": ["[CE_UNCONSCIOUSNESS:PROB:100:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"STUN_PERM":       {"__comment": "Causes X severity stun permanently",
+			"TYPE":   "UNCONSCIOUSNESS",
+			"WEIGHT": 1,
+			"DESC":   "causes minor unconciousness permanently",
+			"FORBIDDEN": ["UNCONSCIOUSNESS"],
+			"RAWS": {
+				"EFFECT": ["[CE_UNCONSCIOUSNESS:PROB:100:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"NAUSEA_TIMED":    {"__comment": "Causes X severity nausea for Y ticks",
+			"TYPE":   "NAUSEA",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> nausea for a <2:d> time",
+			"FORBIDDEN": ["NAUSEA"],
+			"RAWS": {
+				"EFFECT": ["[CE_NAUSEA:PROB:100:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"NAUSEA_PERM":     {"__comment": "Causes X severity nausea permanently",
+			"TYPE":   "NAUSEA",
+			"WEIGHT": 1,
+			"DESC":   "causes minor nausea permanently",
+			"FORBIDDEN": ["NAUSEA"],
+			"RAWS": {
+				"EFFECT": ["[CE_NAUSEA:PROB:100:SEV:$5:10$:START:0:END:$Y:Y$]"]
+			}
+		},
+		"FEVER_TIMED":     {"__comment": "Causes X severity fever for Y ticks",
+			"TYPE":   "FEVER",
+			"WEIGHT": 100,
+			"BIN":    ["ill_sev","syn_len"],
+			"DESC":   "causes <1:d> fever for a <2:d> time",
+			"FORBIDDEN": ["FEVER"],
+			"RAWS": {
+				"EFFECT": ["[CE_FEVER:PROB:100:SEV:<1:r>:START:0:END:<2:r>]"]
+			}
+		},
+		"FEVER_PERM":      {"__comment": "Causes X severity fever permanently",
+			"TYPE":   "FEVER",
+			"WEIGHT": 1,
+			"DESC":   "causes minor fever permanently",
+			"FORBIDDEN": ["FEVER"],
+			"RAWS": {
+				"EFFECT": ["[CE_FEVER:PROB:100:SEV:$5:10$:START:0:END:$Y:Y$]"]
 			}
 		}
 	},
-	
-	"severity": {"__comment": "[ATTRIBUTE, SICKNESS, SPEED]",
-		"1": ["1","2","3"],
-		"2": ["1","2","3"],
-		"3": ["1","2","3"],
-		"4": ["1","2","3"],
-		"5": ["1","2","3"],
-		"6": ["1","2","3"],
-		"7": ["1","2","3"],
-		"8": ["1","2","3"],
-		"9": ["1","2","3"]
-	}
+
+
+	"binObjects": ["att_sev","spd_sev","ill_sev","syn_len"],
+    "att_sev": {"__comment": "Used for increases/decreases of attributes",
+		"1":   {"n": 100, "r": "$10:50$",   "d": "slightly"},
+		"2":   {"n": 50,  "r": "$51:100$",  "d": "moderately"},		
+		"3":   {"n": 10,  "r": "$101:250$", "d": "greatly"},	
+		"4":   {"n": 1,   "r": "$251:500$", "d": "extremely"}
+	},
+    "spd_sev": {"__comment": "Use for increases/decreases of speed (for now use att_sev values)",
+		"1":   {"n": 100, "r": "$10:50$",   "d": "slightly"},
+		"2":   {"n": 50,  "r": "$51:100$",  "d": "moderately"},		
+		"3":   {"n": 10,  "r": "$101:250$", "d": "greatly"},	
+		"4":   {"n": 1,   "r": "$251:500$", "d": "extremely"}
+	},
+    "ill_sev": {"__comment": "Used for severity of bleeding/bruising/etc...",
+		"1":   {"n": 100, "r": "$5:15$",    "d": "minor"},
+		"2":   {"n": 50,  "r": "$16:50$",   "d": "moderate"},		
+		"3":   {"n": 10,  "r": "$51:100$",  "d": "major"},	
+		"4":   {"n": 1,   "r": "$101:150$", "d": "extreme"}
+	},
+    "syn_len": {"__comment": "Length of syndrome",
+		"1":   {"n": 100, "r": "$20:80$",     "d": "short"},
+		"2":   {"n": 50,  "r": "$81:320$",    "d": "moderate amount of"},		
+		"3":   {"n": 10,  "r": "$321:1280$",  "d": "long"},	
+		"4":   {"n": 1,   "r": "$1281:5120$", "d": "extremely long"}
+	}	
 }
