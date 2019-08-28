@@ -187,7 +187,7 @@
 			"[IGNITE_POINT:10508]",
 			"[HEATDAM_POINT:10250]",
 			"[COLDDAM_POINT:9900]",
-			"[SOLID_DENSITY:1000]",],
+			"[SOLID_DENSITY:1000]"],
 		"CREATURE_LIQUID_TEMPLATE":  [
 			"[STATE_NAME_ADJ:ALL_SOLID:frozen creature liquid]",
 			"[STATE_NAME_ADJ:LIQUID:creature liquid]",
