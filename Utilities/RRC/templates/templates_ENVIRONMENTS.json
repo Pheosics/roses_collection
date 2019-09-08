@@ -233,7 +233,7 @@
 			"REQUIRED":  ["SUBTERRANEAN","SCORCHING"],
 			"FORBIDDEN": ["WET"],
 			"RAWS":   {
-				"BASE": ["[BIOME:SUBTERRANEAN_MAGMA]"]
+				"BASE": ["[BIOME:SUBTERRANEAN_LAVA]"]
 			}
 		},
 		"FOREST_CONIFER":                {"__comment": "",
@@ -263,7 +263,7 @@
 			"REQUIRED":  ["WOODLAND"],
 			"FORBIDDEN": ["ARID","SEMIARID","TEMPERATE","TUNDRA","ARCTIC"],
 			"RAWS":   {
-				"BASE": ["[BIOME:FOREST_TROPICAL_WET_BROADLEAF]"]
+				"BASE": ["[BIOME:FOREST_TROPICAL_MOIST_BROADLEAF]"]
 			}
 		},
 		"FOREST_BROADLEAF_TROPICAL_DRY": {"__comment": "",

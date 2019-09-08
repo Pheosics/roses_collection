@@ -1,18 +1,18 @@
 {
-   "n_plants":       10,
+   "n_plants":       1000,
    "n_weapons":      0,
-   "n_syndromes":    10,
-   "n_creatures":    1,
-   "n_inorganics":   10,
+   "n_syndromes":    1000,
+   "n_creatures":    1000,
+   "n_inorganics":   1000,
    "n_spells":       0,
    "n_entities":     0,
    "n_reactions":    0,
    "n_buildings":    0,
-   "n_materials":    10,
-   "n_environments": 10,
+   "n_materials":    1000,
+   "n_environments": 1000,
    "mat_source":    "local",
    "biome_source":  "raw_groups",
    "pretty_raws":   false,
    "details":       false,
-   "json_output":   true
+   "json_output":   false
 }

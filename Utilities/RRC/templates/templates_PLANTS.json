@@ -136,7 +136,7 @@
 					"[HEAVY_BRANCH_RADIUS:$0:3$]",
 					"[ROOT_DENSITY:$1:5$]",
 					"[ROOT_RADIUS:$1:5$]",
-					"[STANDARD_TILE_NOUNS]"],
+					"[STANDARD_TILE_NAMES]"],
 				"PRODUCT":  [
 					"[TREE:LOCAL_PLANT_MAT:WOOD]"]
 			}
@@ -183,7 +183,7 @@
 					"[HEAVY_BRANCH_RADIUS:$0:3$]",
 					"[ROOT_DENSITY:$1:5$]",
 					"[ROOT_RADIUS:$1:5$]",
-					"[STANDARD_TILE_NOUNS]"],
+					"[STANDARD_TILE_NAMES]"],
 				"PRODUCT":  [
 					"[TREE:LOCAL_PLANT_MAT:WOOD]"]
 			}
@@ -473,7 +473,7 @@
 					"[CAP_PERIOD:$20:40$]",
 					"[CAP_RADIUS:$1:3$]",
 					"[TRUNK_NAME:stem]",
-					"[TWIG_NAME:wart]",
+					"[TWIGS_NAME:wart]",
 					"[ROOT_NAME:volva]",
 					"[LIGHT_BRANCHES_NAME:pores]",
 					"[HEAVY_BRANCHES_NAME:gills]"],
@@ -672,7 +672,7 @@
 			"NOUN":      ["roots","tubers","bulbs","taproot"],
 			"ADJ":       [""],
 			"FORBIDDEN": ["GRAIN","POD","FRUIT"],
-			"PRODUCT":   ["BREW_SPIRIT","MILL_SEASONING"],
+			"PRODUCT":   ["BREW_DISTILL","MILL_SEASONING"],
 			"COLORS": {"BASE": ["ANY"]},
 			"EXTERNAL": {
 				"MATERIAL_TEMPLATE": [
@@ -684,7 +684,7 @@
 					"[ROTS][GENERATES_MIASMA]",
 					"[STOCKPILE_PLANT_GROWTH]",
 					"[EDIBLE_VERMIN][EDIBLE_COOKED]",
-					"[MATERIAL_REACTION_PRODUCT:BREW_SPIRIT:LOCAL_PLANT_MAT:BREW_SPIRIT]",
+					"[MATERIAL_REACTION_PRODUCT:BREW_DISTILL:LOCAL_PLANT_MAT:BREW_DISTILL]",
 					"[MATERIAL_REACTION_PRODUCT:MILL_SEASONING:LOCAL_PLANT_MAT:MILL_SEASONING]",
 					"[REACTION_CLASS:UNDERGROUND]"]
 			},
@@ -1402,6 +1402,20 @@
 			"DESC": "The #SOURCE_NAME can be used to make #NOUN",
 			"PREF": "#NOUN",
 			"NOUN": ["oil"],
+                        "EXTERNAL": {
+                                "MATERIAL_TEMPLATE": [
+                                        "[SPEC_HEAT:4181]",
+                                        "[MELTING_POINT:9950]",
+                                        "[BOILING_POINT:10200]",
+                                        "[SOLID_DENSITY:1200]",
+                                        "[LIQUID_DENSITY:1200]",
+                                        "[MOLAR_MASS:20000]",
+                                        "[EDIBLE_VERMIN][EDIBLE_COOKED]",
+                                        "[REACTION_CLASS:PRESS]",
+                                        "[REACTION_CLASS:PRESS_OIL]",
+					"[STOCKPILE_GLOB_PASTE]",
+                                        "[STOCKPILE_GLOB_PRESSED]"]
+                        },
 			"RAWS": {
 				"PROD_MAT": [
 					"[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]",
@@ -1409,11 +1423,7 @@
 						"[STATE_NAME_ADJ:SOLID_PRESSED:!NAME_SINGULAR #PRESS]",
 						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
 						"[DISPLAY_COLOR:!COLOR_RGB]",
-						"[MATERIAL_VALUE:$N:VALUE:3$]",
-						"[REACTION_CLASS:PRESS]",
-						"[REACTION_CLASS:PRESS_OIL]",
-						"[STOCKPILE_GLOB_PASTE]",
-						"[STOCKPILE_GLOB_PRESSED]"]
+						"[MATERIAL_VALUE:$N:VALUE:3$]"]
 			}
 		},
 		"EXTRACT_POISON": {"__comment": "Extract a poison",
@@ -1474,7 +1484,7 @@
 			"RAWS": {
 				"PROD_MAT": [
 					"[USE_MATERIAL_TEMPLATE:WOOD:&1:TAG&]",
-						"[STATE_NOUN_ADJ:ALL_SOLID:!NAME_SINGULAR wood]",
+						"[STATE_NAME_ADJ:ALL_SOLID:!NAME_SINGULAR wood]",
 						"[STATE_COLOR:ALL_SOLID:!COLOR_STATE]",
 						"[WOOD]",
 						"[REACTION_CLASS:WOOD]"]

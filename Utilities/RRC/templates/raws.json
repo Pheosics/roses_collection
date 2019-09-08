@@ -41,7 +41,7 @@
 						"States": ["ROSE"]},
 		"light magenta": {"Value": "5:0:1",
 						"Names": ["light magenta","pink","fuchsia","lavender"],
-						"States": ["HELIOTROPE","PINK","FUCHSIA","LAVENDER_FLUX"]},
+						"States": ["HELIOTROPE","PINK","FUCHSIA"]},
 		"yellow":        {"Value": "6:0:1",
 						"Names": ["yellow","amber","saffron","gold","lemon"],
 						"States": ["YELLOW","AMBER","SAFFRON","GOLD","LEMON"]},

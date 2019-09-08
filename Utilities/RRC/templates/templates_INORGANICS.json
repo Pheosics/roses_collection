@@ -459,12 +459,10 @@
 
 	"binObjects": ["layer_env","cluster_env","vein_env","soil_env"],	
 	"layer_env":   {
-		"1": { "n": 10, "r": "IGNEOUS_ALL",       "d": "igneous rock"},
-		"2": { "n": 10, "r": "METAMORPHIC",       "d": "metamorphic rock"},
-		"3": { "n": 10, "r": "SEDIMENTARY",       "d": "sedimentary rock"},
-		"4": { "n": 10, "r": "IGNEOUS_EXTRUSIVE", "d": "igneous extrusive rock"},
-		"5": { "n": 10, "r": "IGNEOUS_INTRUSIVE", "d": "igneous intrusive stone"},
-		"6": { "n": 10, "r": "ALLUVIAL",          "d": "alluvial rock"}
+		"1": { "n": 10, "r": "METAMORPHIC",       "d": "metamorphic rock"},
+		"2": { "n": 10, "r": "SEDIMENTARY",       "d": "sedimentary rock"},
+		"3": { "n": 10, "r": "IGNEOUS_EXTRUSIVE", "d": "igneous extrusive rock"},
+		"4": { "n": 10, "r": "IGNEOUS_INTRUSIVE", "d": "igneous intrusive stone"}
 	},		
 	"vein_env":    {
 		"1": { "n": 10, "r": "IGNEOUS_ALL", "d": "igneous rock"},

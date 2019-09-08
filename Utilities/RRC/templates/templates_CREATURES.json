@@ -572,7 +572,7 @@
 		},
 		"MANY_LEG":     {"__comment": "{10,5}           (100,1000) single part leg      attached to the lower body",
 			"TYPE":   "LEG_BASIC",
-			"WEIGHT": 10,
+			"WEIGHT": 0,
 			"ATTACK": ["KICK"],
 			"GAITS":  ["RUNNING"], 
 			"REPEAT": {
@@ -681,6 +681,7 @@
 					"[BP_LAYERS:BY_CATEGORY:SPLEEN:SPLEEN:100]",
 					"[BP_LAYERS:BY_CATEGORY:KIDNEY:KIDNEY:100]",
 					"[BP_LAYERS:BY_CATEGORY:SPINE:NERVE:2:STRUCTURE:2]",
+					"[BP_LAYERS:BY_CATEGORY:RIB:STRUCTURE:100]",
 					"-- Positions",
 					"[BP_RELATION:BY_CATEGORY:RIB:AROUND:BY_CATEGORY:HEART:10]",
 					"[BP_RELATION:BY_CATEGORY:RIB:AROUND:BY_CATEGORY:LUNG:10]",
@@ -774,7 +775,7 @@
 			"TYPE": "COVERING",
 			"MATERIAL": ["FEATHERS"],
 			"RAWS": {
-				"BDP": ["[BODY_DETAIL_PLAN:#KEY]"]
+				"BDP": ["[BODY_DETAIL_PLAN:COVERING]"]
 			}
 		},
 		"VENOMOUS":   {"__comment": "Extract POISON",
@@ -920,7 +921,7 @@
 			"TYPE": "TRAINABLE",
 			"FORBIDDEN": ["VERMIN"],
 			"RAWS": {
-				"BASE": ["[TRAINABLE_HUNT]"]
+				"BASE": ["[TRAINABLE_HUNTING]"]
 			}
 		}
 	},
@@ -1190,7 +1191,7 @@
 			"ATTACK": ["BODY_SLAM_SPIKE"],
 			"EXTERNAL": {
 				"BODY": [
-					"[BP:SPIKE:spikes:STP][CATEGORY:SPIKES][SMALL][NUMBER:40][DEFAULT_RELSIZE:20][CONTYPE:UPPERBODY]"],
+					"[BP:SPIKE:spikes:STP][CATEGORY:SPIKES][SMALL][NUMBER:30][DEFAULT_RELSIZE:20][CONTYPE:UPPERBODY]"],
 				"BODY_DETAIL_PLAN": [
 					"[BP_LAYERS:BY_CATEGORY:SPIKES:STRUCTURE:100]"]
 			},
@@ -3040,7 +3041,7 @@
 			"RAWS": {
 				"MATS": [
 					"[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]",
-						"[STATE_COLOR_ALL:!COLOR_STATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
 						"[DISPLAY_COLOR:!COLOR_RGB]"]
 			}
 		},
@@ -3067,7 +3068,7 @@
 			"RAWS": {
 				"MATS": [
 					"[USE_MATERIAL_TEMPLATE:#TYPE:#KEY]",
-						"[STATE_COLOR_ALL:!COLOR_STATE]",
+						"[STATE_COLOR:ALL:!COLOR_STATE]",
 						"[DISPLAY_COLOR:!COLOR_RGB]"]
 			}
 		}
