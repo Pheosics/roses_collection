@@ -2,95 +2,79 @@
 local usage = [====[
 
 item/subtype-change
-===================
+====================
 Purpose::
     Change the subtype of a given item or equipped item(s)
-    Changes are tracked
-
-Function Calls::
-    unit.getInventoryType
-    item.changeSubtype
-      
+ 
 Arguments::
-    -item           ITEM_ID
+    -item #ID
         id of item to change
-    -subtype        ITEM_SUBTYPE
+    -subtype ITEM_SUBTYPE
         Subtype to change item into
-    -unit           UNIT_ID
+    -unit #ID
         id of unit to change if using -equipment
-    -equipment      Equipment Type
+    -equipment ITEM_TYPE
         Type of equipment to check for
         Valid Types:
-           ALL
-           WEAPON
-           ARMOR
-           HELM
-           SHOES
-           SHIELD
-           GLOVES
-           PANTS
-           AMMO
-    -dur            #
+            ALL
+            WEAPON
+            ARMOR
+            HELM
+            SHOES
+            SHIELD
+            GLOVES
+            PANTS
+            AMMO
+    -dur #ticks
         Length of time for change to last
 
 Examples::
-    item/subtype-change -unit \\UNIT_ID -equipment WEAPON -subtype ITEM_WEAPON_RARE -dur 3600
-    item/subtype-change -item \\ITEM_ID -subtype ITEM_ARMOR_BETTER
+    item/subtype-change -item \\ITEM_ID -subtype INORGANIC:DIAMOND -dur 3600
+    item/subtype-change -unit \\UNIT_ID -equipment WEAPON -mat INORGANIC:SLADE
 
 ]====]
 
-local utils = require 'utils'
-local split = utils.split_string
+local utils = require "utils"
 validArgs = utils.invert({
- 'help',
- 'unit',
- 'item',
- 'equipment',
- 'subtype',
- 'dur',
- 'upgrade',
- 'downgrade',
+    "help",
+    "unit",
+    "item",
+    "equipment",
+    "subtype",
+    "dur",
 })
 local args = utils.processArgs({...}, validArgs)
+local error_str = "Error in item/subtype-change - "
 
-if args.help then -- Help declaration
- print(usage)
- return
+if args.help then
+    print(usage)
+    return
 end
-
-items = {}
-if args.unit and tonumber(args.unit) then
- unit = df.unit.find(tonumber(args.unit))
- local types = args.equipment
- items = dfhack.script_environment('functions/unit').getInventoryType(unit,types)
-elseif args.item and tonumber(args.item) then
- items = {df.item.find(tonumber(args.item))}
-else
- print('No unit or item selected')
- return
-end
+if not args.subtype then error(error_str.."No subtype change declared") end
 
 dur = tonumber(args.dur) or 0
+if dur < 0 then return end
+
+if args.item and tonumber(args.item) then
+    items = {dfhack.script_environment("functions/item").ITEM(tonumber(args.item))}
+elseif args.unit and tonumber(args.unit) then
+    unit = dfhack.script_environment("functions/unit").UNIT(tonumber(args.unit))
+    items = unit:getInventoryItems("TYPE",args.equipment)
+    for i,item in pairs(items) do
+        items[i] = dfhack.script_environment("functions/item").ITEM(item)
+    end
+end
+if not items then
+    error(error_str .. "No item or unit selected")
+end
+
 for _,item in pairs(items) do
- if tonumber(item) then
-  item = df.item.find(tonumber(item))
- end
- local name = item.subtype.id
- local namea = split(name,'_')
- local num = tonumber(namea[#namea])
- if args.upgrade then
-  num = num + 1
-  namea[#namea] = tostring(num)
-  subtype = table.concat(namea,'_')
- elseif args.downgrade then
-  num = num - 1
-  namea[#namea] = tostring(num)
-  subtype = table.concat(namea,'_')
- elseif args.subtype then
-  subtype = args.subtype
- else
-  print('No subtype specified')
-  return
- end
- dfhack.script_environment('functions/item').changeSubtype(item,subtype,dur,'track')
+    currentSubtype = item:getSubtype()
+    item:changeSubtype(args.subtype)
+    if dur > 0  then 
+        cmd = "item/subtype-change"
+        cmd = cmd .. " -item " .. tostring(item.id)
+        cmd = cmd .. " -subtype " .. currentSubtype
+        dfhack.script_environment("persist-delay").commandDelay(dur,cmd)
+    end
 end

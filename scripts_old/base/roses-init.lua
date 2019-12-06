@@ -26,10 +26,10 @@ end
 if not loaded then
  local fname = nil
  savepath = dfhack.getSavePath()
- print('Searching for RosesPersist.dat in '..savepath)
+ print("Searching for RosesPersist.dat in "..savepath)
  for _,f in pairs(dfhack.internal.getDir(savepath)) do
-  if f == 'RosesPersist.dat' then
-   fname = savepath..'/RosesPersist.dat'
+  if f == "RosesPersist.dat" then
+   fname = savepath.."/RosesPersist.dat"
    break
   end
  end

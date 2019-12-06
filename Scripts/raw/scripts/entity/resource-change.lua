@@ -6,31 +6,26 @@ entity/resource-change
 Purpose::
     Adds and removes available resources for an entity
 
-Function Calls::
-    entity.changeResources
-    
 Arguments::
-    -civ     ENTITY ID
-    -type    RESROUCE_TYPE:RESOURCE_SUBTYPE
+    -entity #ID
+        ID number of entity to change
+    -type RESROUCE_TYPE:RESOURCE_SUBTYPE
         The type and subtype of resource to change
         Valid TYPEs and SUBTYPEs:
             CREATURE
-                PET | PACK | MINION | WAGON | EXOTIC | MOUNT | FISH | EGG
+                PET | PACK | MINION | WAGON | EXOTIC | MOUNT
             INORGANIC
-                METAL | STONE | GEM
+                METAL | STONE | GEM | GLASS | SAND | CLAY
             ITEM
                 WEAPON | SHIELD | AMMO | HELM | ARMOR | PANTS | SHOES | GLOVES
                 TRAP | SIEGE | TOY | INSTRUMENT | TOOL
             ORGANIC
-                LEATHER | FIBER | SILK | WOOL | WOOD | PLANT | SEED
-            MISC
-                GLASS | SAND | BOOZE | CHEESE | POWDER | EXTRACT | MEAT
-            REFUSE
-                BONE | SHELL | PEARL | TOOTH | HORN
+                LEATHER | FIBER | SILK | WOOL | WOOD | PLANT | SEED | BONE
+                MEAT | CHEESE | SHELL | IVORY | HORN | PEARL | DRINK
             PRODUCT
-                PICK | MELEE | RANGED | AMMO | AMMO2 | ARMOR | ANVIL | CRAFTS
+                PICK | MELEE | RANGED | AMMO | ARMOR | ANVIL | CRAFTS
                 BARRELS | FLASKS | QUIVERS | BACKPACKS | CAGES
-    -obj     CREATURE_RACE:CREATURE_CASTE or MATERIAL_TYPE:MATERIAL_SUBTYPE
+    -obj CREATURE_RACE:CREATURE_CASTE or MATERIAL_TYPE:MATERIAL_SUBTYPE
         The type and subtype of the creature or material to add
         For Example
             DWARF:MALE
@@ -42,63 +37,64 @@ Arguments::
         Removes the resource from the entity
 
 Examples::
-    entity/resource-change -civ 23 -add -type CREATURE:PET -obj DRAGON:FEMALE
-    entity/resource-change -civ 57 -add -type INORGANIC -obj INORGANIC:ADAMANTINE
+    entity/resource-change -entity \\ENTITY_ID -add -type CREATURE:PET -obj DRAGON:FEMALE
+    entity/resource-change -entity \\ENTITY_ID -add -type INORGANIC:METAL -obj INORGANIC:ADAMANTINE
 ]====]
 
 local utils = require 'utils'
 local split = utils.split_string
 
 validArgs = utils.invert({
- 'help',
- 'civ',
- 'type',
- 'obj',
- 'remove',
- 'add',
- 'verbose'
+    "help",
+    "entity",
+    "type",
+    "obj",
+    "remove",
+    "add"
 })
 local args = utils.processArgs({...}, validArgs)
+local error_str = "Error in entity/resource-change - "
 
 if args.help then
- print(usage)
- return
+    print(usage)
+    return
 end
+
+if args.entity and tonumber(args.entity) then entity = dfhack.script_environment("functions/entity").ENTITY(args.entity) end
+if not entity then error(error_str .. "No valid entity decalred") end
 
 mtype = split(args.type,':')[1]
 stype = split(args.type,':')[2]
-if args.obj then
- mobj = split(args.obj,':')[1]
- sobj = split(args.obj,':')[2]
-else
- mobj = nil
- sobj = nil
+
+if args.add then
+    if entity:hasResource(args.type,args.obj) then return end
+    if mtype == "CREATURE" then
+        entity:addCreature(stype,args.obj)
+    elseif mtype == "INORGANIC" then
+        entity:addInorganic(stype,args.obj)
+    elseif mtype == "ITEM" then
+        entity:addItem(stype,args.obj)
+    elseif mtype == "ORGANIC" then
+        entity:addOrganic(stype,args.obj)
+    elseif mtype == "PRODUCT" then
+        entity:addProductMaterial(stype,args.obj)
+    else
+        error(error_str .. "Invalid type decalred")
+    end
 end
-direction = 0
-if args.remove then direction = -1 end
-if args.add then direction = 1 end
-if args.add and args.removes then return end
 
-if tonumber(args.civ) then
- civid = tonumber(args.civ)
- civ = df.global.world.entities.all[civid]
- if not civ then
-  print('Not a valid civ number')
-  return
- end
-
- dfhack.script_environment('functions/entity').changeResources(civ,mtype,stype,mobj,sobj,direction,args.verbose)
-else
- civs = {}
- n = 0
- for _,civ in pairs(df.global.world.entities.all) do
-  if civ.entity_raw.code == args.civ then
-   civs[n] = civ
-   n = n + 1
-  end
- end
- 
- for _,civ in pairs(civs) do
-  dfhack.script_environment('functions/entity').changeResources(civ,mtype,stype,mobj,sobj,direction,args.verbose)
- end
+if args.remove then
+    if mtype == "CREATURE" then
+        entity:removeCreature(stype,args.obj)
+    elseif mtype == "INORGANIC" then
+        entity:removeInorganic(stype,args.obj)
+    elseif mtype == "ITEM" then
+        entity:removeItem(stype,args.obj)
+    elseif mtype == "ORGANIC" then
+        entity:removeOrganic(stype,args.obj)
+    elseif mtype == "PRODUCT" then
+        entity:removeProductMaterial(stype,args.obj)
+    else
+        error(error_str .. "Invalid type decalred")
+    end
 end

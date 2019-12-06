@@ -5,18 +5,14 @@ unit/butcher
 ============
 Purpose::
     Butcher a unit
-    
-Function Calls::
-    None
 
 Arguments::
-    Requires -unit, -corpse, or -location to be specified
-    -unit        UNIT_ID
+    -unit #ID
         Unit id to check for butchering
         Will check for a given corpse from that unit first
-    -corpse      ITEM_ID
+    -corpse #ID
         Item id to check for butcher
-    -location    [ x y z ]
+    -location [ x y z ]
         Location to check for butchering
     -kill
         If present will kill unit to be butchered if still alive
@@ -27,69 +23,69 @@ Examples::
     unit/butcher -location [ \\LOCATION ]
 ]====]
 
-local utils=require 'utils'
-local gui = require 'gui'
+local utils=require "utils"
+local gui = require "gui"
 validArgs = utils.invert({
-  'help',
-  'unit',
-  'corpse',
-  'location',
-  'kill',
+    "help",
+    "unit",
+    "corpse",
+    "location",
+    "kill",
 })
 local args = utils.processArgs({...}, validArgs)
 
 if args.help then
-  print(usage)
-  return
+    print(usage)
+    return
 end
 
 corpse = nil
 if args.unit and tonumber(args.unit) then
- unit = df.unit.find(tonumber(args.unit))
- if not unit then return end
- if dfhack.units.isKilled(unit) then
-  for _,id in pairs(unit.corpse_parts) do
-   item = df.item.find(id)
-   if df.item_corpsest:is_instance(item) and not item.body.components.body_part_status[0].missing and item.corpse_flags.unbutchered then
-    corpse = item
-    break
-   end
-  end
- else
-  if args.kill then
-   unit.body.blood_count = 0
-   dfhack.timeout(1,'ticks',function () dfhack.run_command('unit/butcher -unit '..tostring(unit.id)) end)
-   return
-  else
-   print('Unit is still alive and has not been ordered -kill')
-  end
- end
-elseif args.corpse and tonumber(args.corpse) then
- item = df.item.find(tonumber(args.corpse))
- if not item then return end
- if df.item_corpsest:is_instance(item) then
-  if not item.body.components.body_part_status[0].missing and item.corpse_flags.unbutchered then
-   corpse = item
-  end
- end
-elseif args.location then
- locx = tonumber(args.location[1])
- locy = tonumber(args.location[2])
- locz = tonumber(args.location[3])
- block = dfhack.maps.ensureTileBlock(locx,locy,locz)
- if block.occupancy[locx%16][locy%16].item then
-  for _,id in pairs(block.items) do
-   item = df.item.find(id)
-   if df.item_corpsest:is_instance(item) then
-    if item.pos.x == locx and item.pos.y == locy and item.pos.z == locz then
-     if not item.body.components.body_part_status[0].missing and item.corpse_flags.unbutchered then
-      corpse = item
-      break
-     end
+    unit = df.unit.find(tonumber(args.unit))
+    if not unit then return end
+    if dfhack.units.isKilled(unit) then
+        for _,id in pairs(unit.corpse_parts) do
+            item = df.item.find(id)
+            if df.item_corpsest:is_instance(item) and not item.body.components.body_part_status[0].missing and item.corpse_flags.unbutchered then
+                corpse = item
+                break
+            end
+        end
+    else
+        if args.kill then
+            unit.body.blood_count = 0
+            dfhack.timeout(1,"ticks",function () dfhack.run_command("unit/butcher -unit "..tostring(unit.id)) end)
+            return
+        else
+            print("Unit is still alive and has not been ordered -kill")
+        end
     end
-   end
-  end
- end
+elseif args.corpse and tonumber(args.corpse) then
+    item = df.item.find(tonumber(args.corpse))
+    if not item then return end
+    if df.item_corpsest:is_instance(item) then
+        if not item.body.components.body_part_status[0].missing and item.corpse_flags.unbutchered then
+            corpse = item
+        end
+    end
+elseif args.location then
+    locx = tonumber(args.location[1])
+    locy = tonumber(args.location[2])
+    locz = tonumber(args.location[3])
+    block = dfhack.maps.ensureTileBlock(locx,locy,locz)
+    if block.occupancy[locx%16][locy%16].item then
+        for _,id in pairs(block.items) do
+            item = df.item.find(id)
+            if df.item_corpsest:is_instance(item) then
+                if item.pos.x == locx and item.pos.y == locy and item.pos.z == locz then
+                    if not item.body.components.body_part_status[0].missing and item.corpse_flags.unbutchered then
+                        corpse = item
+                        break
+                    end
+                end
+            end
+        end
+    end
 end
 if not corpse then return end
 
@@ -109,14 +105,12 @@ df.global.cursor.x = corpse.pos.x
 df.global.cursor.y = corpse.pos.y
 df.global.cursor.z = corpse.pos.z
 for i,_ in pairs(df.global.ui_look_list.items) do
- df.global.ui_look_cursor = i
- if dfhack.gui.getCurFocus() == 'dwarfmode/LookAround/Item' then
-  if corpse.id == dfhack.gui.getSelectedItem().id then
-   break
-  end
- end
+    df.global.ui_look_cursor = i
+    if dfhack.gui.getCurFocus() == "dwarfmode/LookAround/Item" then
+        if corpse.id == dfhack.gui.getSelectedItem().id then break end
+    end
 end
-gui.simulateInput(dfhack.gui.getCurViewscreen(), 'D_LOOK_ARENA_ADV_MODE')
+gui.simulateInput(dfhack.gui.getCurViewscreen(), "D_LOOK_ARENA_ADV_MODE")
 
 df.global.gametype = old_gametype
 curViewscreen.child = nil

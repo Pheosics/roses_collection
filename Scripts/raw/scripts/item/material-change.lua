@@ -5,20 +5,15 @@ item/material-change
 ====================
 Purpose::
     Change the material of a given item or equipped item(s)
-    Changes are tracked
 
-Function Calls::
-    unit.getInventoryType
-    item.changeMaterial
-      
 Arguments::
-    -item        ITEM_ID
+    -item #ID
         id of item to change
-    -mat         MATERIAL_TYPE:MATERIAL_SUBTYPE
+    -material MATERIAL_TYPE:MATERIAL_SUBTYPE
         Material to change item into
-    -unit        UNIT_ID
+    -unit #ID
         id of unit to change if using -equipment
-    -equipment   Equipment Type
+    -equipment ITEM_TYPE
         Type of equipment to check for
         Valid Types:
             ALL
@@ -30,46 +25,56 @@ Arguments::
             GLOVES
             PANTS
             AMMO
-    -dur         #
+    -dur #ticks
         Length of time for change to last
 
 Examples::
-    item/material-change -item \\ITEM_ID -mat INORGANIC:DIAMOND -dur 3600
+    item/material-change -item \\ITEM_ID -material INORGANIC:DIAMOND -dur 3600
     item/material-change -unit \\UNIT_ID -equipment WEAPON -mat INORGANIC:SLADE
 
 ]====]
 
-local utils = require 'utils'
+local utils = require "utils"
 validArgs = utils.invert({
- 'help',
- 'unit',
- 'item',
- 'equipment',
- 'mat',
- 'dur',
+    "help",
+    "unit",
+    "item",
+    "equipment",
+    "material",
+    "dur",
 })
 local args = utils.processArgs({...}, validArgs)
+local error_str = "Error in item/material-change - "
 
 if args.help then
- print(usage)
- return
+    print(usage)
+    return
 end
-
-items = {}
-if args.unit and tonumber(args.unit) then
- unit = df.unit.find(tonumber(args.unit))
- local types = args.equipment
- items = dfhack.script_environment('functions/unit').getInventoryType(unit,types)
-else
- if args.item and tonumber(args.item) then
-  items = {df.item.find(tonumber(args.item))}
- else
-  print('No unit or item selected')
-  return
- end
-end
+if not args.material then error(error_str.."No material change declared") end
 
 dur = tonumber(args.dur) or 0
+if dur < 0 then return end
+
+if args.item and tonumber(args.item) then
+    items = {dfhack.script_environment("functions/item").ITEM(tonumber(args.item))}
+elseif args.unit and tonumber(args.unit) then
+    unit = dfhack.script_environment("functions/unit").UNIT(tonumber(args.unit))
+    items = unit:getInventoryItems("TYPE",args.equipment)
+    for i,item in pairs(items) do
+        items[i] = dfhack.script_environment("functions/item").ITEM(item)
+    end
+end
+if not items then
+    error(error_str .. "No item or unit selected")
+end
+
 for _,item in pairs(items) do
- dfhack.script_environment('functions/item').changeMaterial(item,args.mat,dur,'track')
+    currentMat = item:getMaterial()
+    item:changeMaterial(args.material)
+    if dur > 0  then
+        cmd = "item/material-change"
+        cmd = cmd .. " -item " .. tostring(item.id)
+        cmd = cmd .. " -material " .. currentMat
+        dfhack.script_environment("persist-delay").commandDelay(dur,cmd)
+    end
 end
