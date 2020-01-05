@@ -185,7 +185,7 @@ function tests()
 		if not unit:_dfhack("isKilled") then
 			unitCheck[#unitCheck+1] = "Failed to kill unit"
 		end
-		if #unit:_struct().corpse_parts < 1 then
+		if #unit.corpse_parts < 1 then
 			unitCheck[#unitCheck+1] = "Failed to butcher unit"
 		end
 

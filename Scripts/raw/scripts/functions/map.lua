@@ -4,7 +4,6 @@ usages = {}
 local openTileTypes = {"Floor","Pebbles","Shrub","Open"}
 local positionTypes = {"CENTER","EDGE","UNIT"}
 local positionSubtypes = {"CAVERN","SKY","SURFACE","UNDERGROUND"}
-
 local function checkTypes(x,y)
 	if not x then return nil end
 	local check = nil
@@ -16,7 +15,6 @@ local function checkTypes(x,y)
 	end
 	return check
 end
-
 local function processXYZ(x,y,z)
 	local pos = {}
 	if y == nil and z == nil then
@@ -32,19 +30,24 @@ local function processXYZ(x,y,z)
 end
 
 --===============================================================================================--
+--== MAP CLASSES ================================================================================--
+--===============================================================================================--
+MAP = defclass(MAP)
+
+--===============================================================================================--
 --== MAP FUNCTIONS ==============================================================================--
 --===============================================================================================--
-MAP = {}
-MAP.__index = MAP
-setmetatable(MAP, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function MAP:_init()
-	self.last_updated = df.global.cur_year_tick
+function MAP:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(MAP,key) then return rawget(MAP,key) end
+	return self._map[key]
+end
+function MAP:init(initialize)
+	--??
+	self._map = df.global.world.map
+	if initialize == true then
+		self:_update()
+	end
 end
 function MAP:_update()
 	self.last_updated = df.global.cur_year_tick
@@ -58,8 +61,8 @@ function MAP:_update()
 	self.magma_core  = {}
 	self.underworld  = {}
 	local mapx, mapy, mapz = dfhack.maps.getTileSize()
-	for i = 1, mapx do
-		for j = 1, mapy do
+	for i = 2, mapx-1 do
+		for j = 2, mapy-1 do
 			outside = false
 			for k = 2, mapz-1 do
 				local pos = {x=i,y=j,z=k}
@@ -97,7 +100,7 @@ function MAP:_update()
 		end
 	end
 end
-		  
+
 function MAP:checkBounds(x,y,z)
 	local pos = processXYZ(x,y,z)
 	local mapx, mapy, mapz = dfhack.maps.getTileSize()
@@ -240,7 +243,7 @@ end
 
 
 --===============================================================================================--
---== TILE FUNCTIONS =============================================================================--
+--== MAP TILE FUNCTIONS =========================================================================--
 --===============================================================================================--
 TILE = {}
 TILE.__index = TILE
@@ -306,3 +309,7 @@ function TILE:occupancy()
 		return block.occupancy[self.x16][self.y16]
 	end
 end
+
+--===============================================================================================--
+--===============================================================================================--
+--===============================================================================================--

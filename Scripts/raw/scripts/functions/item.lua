@@ -4,21 +4,24 @@ usages[#usages+1] = [===[
 ]===]
 
 --===============================================================================================--
---== ITEM FUNCTIONS ==============================================================================--
+--== ITEM CLASSES ===============================================================================--
 --===============================================================================================--
+ITEM        = defclass(ITEM)        -- references <item>
+ITEM_ATTACK = defclass(ITEM_ATTACK) -- references
 
-ITEM = {}
-ITEM.__index = ITEM
-setmetatable(ITEM, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function ITEM:_init(item)
+--===============================================================================================--
+--== ITEM FUNCTIONS =============================================================================--
+--===============================================================================================--
+function ITEM:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(ITEM,key) then return rawget(ITEM,key) end
+	return self._item[key]
+end
+function ITEM:init(item)
+	--??
 	if tonumber(item) then item = df.item.find(tonumber(item)) end
 	self.id = item.id
+	self._item = item
 end
 
 function ITEM:getAttack(attack_verb)
@@ -39,12 +42,12 @@ function ITEM:getAttack(attack_verb)
 			if pick >= weights[i-1] and pick < weights[i] then attack = i-1 break end
 		end
 		if not attack then attack = n end
-		out = ITEM_ATTACK(item.id,item.subtype.attacks[attack])
+		out = ITEM_ATTACK({item.id,item.subtype.attacks[attack]})
 	else
 		for _,attack in pairs(item.subtype.attacks) do
 			if attack.verb_2nd:upper() == verb:upper() 
 				or attack.verb_3rd:upper() == verb:upper() then
-				out = ITEM_ATTACK(item.id,attack)
+				out = ITEM_ATTACK({item.id,attack})
 				break
 			end
 		end
@@ -164,18 +167,15 @@ end
 --===============================================================================================--
 --== ITEM_ATTACK FUNCTIONS ======================================================================--
 --===============================================================================================--
-ITEM_ATTACK = {}
-ITEM_ATTACK.__index = ITEM_ATTACK
-setmetatable(ITEM_ATTACK, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function ITEM_ATTACK:_init(item_id,attack)
-	self.attack = attack
-	self.item_id = item_id
+function ITEM_ATTACK:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(ITEM_ATTACK,key) then return rawget(ITEM_ATTACK,key) end
+	return self._attack[key]
+end
+function ITEM_ATTACK:init(input)
+	--??
+	self._attack = input[2]
+	self.item_id = input[1]
 end
 
 function ITEM_ATTACK:computeVelocity()
@@ -185,7 +185,7 @@ function ITEM_ATTACK:computeVelocity()
 		
 	local actweight = item.subtype.size*(material.solid_density/100)
 	local effweight = unit.body.size_info.size_cur/100 + actweight
-	local vel_mod = self.attack.velocity_mult
+	local vel_mod = self.velocity_mult
 	local strength = dfhack.units.getPhysicalAttrValue(unit,df.physical_attribute_type["STRENGTH"])
 	local velocity = unit.body.size_info.size_base*strength*(vel_mod/1000)*(effweight/1000)
 	if velocity < 1 then velocity = 1 end
@@ -193,6 +193,10 @@ function ITEM_ATTACK:computeVelocity()
 
 	return math.floor(velocity)
 end
+
+--===============================================================================================--
+--===============================================================================================--
+--===============================================================================================--
 
 function create(item,material,creatorID,quality) --from modtools/create-item
 	quality = tonumber(quality) or 0

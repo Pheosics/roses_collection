@@ -1,8 +1,9 @@
 local utils = require "utils"
+local split = utils.split_string
 local version = 1.0
 local dfhackv = 44.12
 local dfversn = 44.12
-dfhack.internal.addScriptPath("raw/systems/", true)
+dfhack.internal.addScriptPath(dfhack.getDFPath().."/raw/systems", true)
 
 -- DETECTION
 local function detectCollection()
@@ -26,9 +27,12 @@ local function detectCollection()
 	local scripts = {}
 	local scriptCategories = {"unit","item","entity","building"}
 	for _,category in pairs(scriptCategories) do
-		for _,name in pairs(dfhack.internal.getDir(dfhack.getSavePath().."/raw/scripts/"..category.."/")) do
-			scripts[#scripts+1] = name
-			print("    "..name)
+		print("    "..category:upper())
+		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath().."/raw/scripts/"..category.."/")) do
+			if name ~= "." and name ~= ".." then
+				scripts[#scripts+1] = category.."/"..split(name,'.lua')[1]
+				print("      "..split(name,'.lua')[1])
+			end
 		end
 	end
 
@@ -39,9 +43,12 @@ local function detectCollection()
 	local systems = {}
 	local systemCategories = {"enhanced"}
 	for _,category in pairs(systemCategories) do
-		for _,name in pairs(dfhack.internal.getDir(dfhack.getSavePath().."/raw/systems/"..category.."/")) do
-			systems[#systems+1] = name
-			print("    "..name)
+		print("    "..category:upper())
+		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath().."/raw/systems/"..category.."/")) do
+			if name ~= "." and name ~= ".." then
+				systems[#systems+1] = category.."/"..split(name,'.lua')[1]
+				print("      "..split(name,'.lua')[1])
+			end
 		end
 	end
 	
@@ -162,7 +169,7 @@ local function initializeFileTables(scripts,systems)
 		dfhack.script_environment("base/tables").loadFile(fname)
 	else
 		print("    No save file found, initializing tables")
-		dfhack.script_envrionment("base/tables").initTables(scripts,systems)
+		dfhack.script_environment("base/tables").initTables(scripts,systems)
 	end
 end
 
@@ -179,17 +186,23 @@ scripts, systems = detectCollection()
 initializePersistentTables()
 initializeFileTables(scripts,systems)
 
-
+local systemCheck = false
 print("")
 dfhack.color(COLOR_GREEN)
 print("Systems Loaded...")
 dfhack.color(COLOR_RESET)
 local Table = dfhack.script_environment("base/tables").Tables
 for system,n in pairs(Table.Systems) do
+	systemCheck = true
 	dfhack.color(COLOR_YELLOW)
 	print("  "..system.." - "..tostring(n))
 	dfhack.color(COLOR_RESET)
 	for _,entry in pairs(Table[system]) do
 		print("    "..entry.Name)
 	end
+end
+if not systemCheck then
+	dfhack.color(COLOR_YELLOW)
+	print("  None")
+	dfhack.color(COLOR_RESET)
 end

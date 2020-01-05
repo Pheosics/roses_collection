@@ -2,27 +2,36 @@ local utils = require 'utils'
 usages = {}
 
 --===============================================================================================--
+--== UNIT CLASSES ===============================================================================--
+--===============================================================================================--
+UNIT             = defclass(UNIT)             -- references <unit>
+UNIT_ACTION      = defclass(UNIT_ACTION)      -- references <unit_action>
+UNIT_ATTACK      = defclass(UNIT_ATTACK)      -- references <caste_attack>
+UNIT_ATTRIBUTE   = defclass(UNIT_ATTRIBUTE)   -- references <unit_attribute>
+UNIT_BODY        = defclass(UNIT_BODY)        -- references <unit.body>
+UNIT_BODYPART    = defclass(UNIT_BODYPART)    -- referenecs <body_part_raw>
+UNIT_INTERACTION = defclass(UNIT_INTERACTION) -- references <creature_interaction> and <interaction>
+UNIT_SKILL       = defclass(UNIT_SKILL)       -- references <unit_skill>
+UNIT_SYNDROME    = defclass(UNIT_SYNDROME)    -- references <syndrome>
+UNIT_TRAIT       = defclass(UNIT_TRAIT)       -- NA
+
+--===============================================================================================--
 --== UNIT FUNCTIONS =============================================================================--
 --===============================================================================================--
-UNIT = {}
-UNIT.__index = UNIT
-setmetatable(UNIT, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT:_init(unit)
+function UNIT:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT,key) then return rawget(UNIT,key) end
+	local unit = df.unit.find(self.id)
+	return unit[key]
+end
+function UNIT:init(unit)
+	--??
 	if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 	self.id = unit.id
+	self._unit = unit
 end
 function UNIT:_dfhack(func)
-	local unit = df.unit.find(self.id)
-	return dfhack.units[func](unit)
-end
-function UNIT:_struct()
-	return df.unit.find(self.id)
+	return dfhack.units[func](self._unit)
 end
 
 function UNIT:addAction(action_type,action_data) 
@@ -83,7 +92,7 @@ function UNIT:getActions(action_type)
 		if actions[i] and actions[i]["type"] >= 0 then
 			if (action_type:upper() == "ALL" or df.unit_action_type[action_type] == actions[i]["type"]) then
 				if df.unit_action_type[actions[i]["type"]]:upper() ~= "TALK" then 
-					out[#out+1] = UNIT_ACTION(self.id,actions[i])
+					out[#out+1] = UNIT_ACTION({self.id,actions[i]})
 				end
 			end
 		end
@@ -109,11 +118,11 @@ function UNIT:getAttack(attack_name)
 			if pick >= weights[i-1] and pick < weights[i] then attack_id= i-1 break end
 		end
 		if not attack_id then attack_id = n end
-		out = UNIT_ATTACK(unit,attack_id)
+		out = UNIT_ATTACK({unit,attack_id})
 	else
 		for attack_id,attack in pairs(unit.body.body_plan.attacks) do
 			if attack.name:upper() == name:upper() then
-				out = UNIT_ATTACK(unit,attack_id)
+				out = UNIT_ATTACK({unit,attack_id})
 			end
 		end
 	end
@@ -122,11 +131,11 @@ end
 
 function UNIT:getAttribute(attribute)
 	local unit = df.unit.find(self.id)
-	return UNIT_ATTRIBUTE(unit.id,attribute)
+	return UNIT_ATTRIBUTE({unit,attribute})
 end
 
 function UNIT:getBody()
-	return UNIT_BODY(self.id)
+	return UNIT_BODY({self.id})
 end
 
 function UNIT:getBodyParts(filter,value)
@@ -147,7 +156,7 @@ function UNIT:getBodyParts(filter,value)
 			if pick >= weights[i-1] and pick < weights[i] then target = i-1 break end
 		end
 		if not target then target = n end
-		parts[1] = UNIT_BODYPART(self.id,target)
+		parts[1] = UNIT_BODYPART({self.id,target})
 	else
 		for j,y in pairs(body.body_plan.body_parts) do
 			if not body.components.body_part_status[j].missing then
@@ -156,7 +165,7 @@ function UNIT:getBodyParts(filter,value)
 					or (filter:upper() == "TOKEN"     and y.token == value)
 					or (filter:upper() == "FLAG"      and y.flags[value])
 					or (filter:upper() == "CONNECTED" and y.con_part_id == value) then
-					parts[#parts+1] = UNIT_BODYPART(self.id,j)
+					parts[#parts+1] = UNIT_BODYPART({self.id,j})
 				end
 			end
 		end
@@ -172,12 +181,12 @@ function UNIT:getInteractions(interaction_type,interaction_name)
 	local interactions = {}
 	if i_type:upper() == "INNATE" or i_type:upper() == "BOTH" then
 		for i,id in pairs(unit.curse.own_interaction) do
-			if i_name:upper() == "ALL" or i_name == raws[id].name then interactions[#interactions+1] = UNIT_INTERACTION(unit,id,"INNATE") end
+			if i_name:upper() == "ALL" or i_name == raws[id].name then interactions[#interactions+1] = UNIT_INTERACTION({unit,id,"INNATE"}) end
 		end
 	end
 	if i_type:upper() == "LEARNED" or i_type:upper() == "BOTH" then
 		for i,id in pairs(unit.curse.interaction_id) do
-			if i_name:upper() == "ALL" or i_name == raws[id].name then interactions[#interactions+1] = UNIT_INTERACTION(unit,id,"LEARNED") end
+			if i_name:upper() == "ALL" or i_name == raws[id].name then interactions[#interactions+1] = UNIT_INTERACTION({unit,id,"LEARNED"}) end
 		end
 	end
 	return interactions
@@ -210,7 +219,7 @@ function UNIT:getSkill(skill)
 	local unit = df.unit.find(self.id)	
 	local skillid = df.job_skill[skill]
 	if not skillid then
-		return UNIT_SKILL(unit.id,skill)
+		return UNIT_SKILL({unit.id,skill})
 	end
 	local found = false
 	for i,x in ipairs(unit.status.current_soul.skills) do
@@ -220,7 +229,7 @@ function UNIT:getSkill(skill)
 		end
 	end
 	if found then
-		return UNIT_SKILL(unit.id,skill)
+		return UNIT_SKILL({unit.id,skill})
 	else
 		return nil
 	end
@@ -231,13 +240,13 @@ function UNIT:getSyndromes()
 	local syndromes = {}
 	local raws = df.global.world.raws.syndromes.all
 	for _,x in ipairs(unit.syndromes.active) do
-		syndromes[#syndromes+1] = UNIT_SYNDROME(unit.id,x)
+		syndromes[#syndromes+1] = UNIT_SYNDROME({unit.id,x})
 	end
 	return syndromes
 end
 
 function UNIT:getTrait(trait)
-	return UNIT_TRAIT(self.id,trait)
+	return UNIT_TRAIT({self.id,trait})
 end
 
 function UNIT:hasCreatureClass(class)
@@ -322,26 +331,23 @@ end
 --===============================================================================================--
 --== UNIT_ACTION FUNCTIONS ======================================================================--
 --===============================================================================================--
-UNIT_ACTION = {}
-UNIT_ACTION.__index = UNIT_ACTION
-setmetatable(UNIT_ACTION, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_ACTION:_init(unit_id,action)
-	self.action = action
+function UNIT_ACTION:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_ACTION,key) then return rawget(UNIT_ACTION,key) end
+	return self._action[key]
+end
+function UNIT_ACTION:init(input)
+	--??
+	action = input[2]
+	self._action = action
+	self.unit_id = input[1]
 	self.type = df.unit_action_type[action.type]
-	self.unit_id = unit_id
 end
 
 function UNIT_ACTION:removeAction()
 	actions = df.unit.find(self.unit_id).actions
 	for i = #actions-1, 0, -1 do
-		print(actions[i].id, self.action.id)
-		if actions[i].id == self.action.id then
+		if actions[i].id == self.id then
 			actions:erase(i)
 			break
 		end
@@ -349,7 +355,7 @@ function UNIT_ACTION:removeAction()
 end
 
 function UNIT_ACTION:changeDelay(change)
-	local data = self.action.data[string.lower(self.type)]
+	local data = self.data[string.lower(self.type)]
 	for t,_ in pairs(data) do
 		if t == "timer" then
 			data.timer = change
@@ -363,12 +369,12 @@ function UNIT_ACTION:changeDelay(change)
 end
 
 function UNIT_ACTION:getData()
-	return self.action.data[string.lower(self.type)]
+	return self.data[string.lower(self.type)]
 end
 
 function UNIT_ACTION:getDelay()
 	local value = -1
-	local data = self.action.data[string.lower(self.type)]
+	local data = self.data[string.lower(self.type)]
 	for t,_ in pairs(data) do
 		if t == "timer" then
 			value = data.timer
@@ -384,19 +390,18 @@ end
 --===============================================================================================--
 --== UNIT_ATTACK FUNCTIONS ======================================================================--
 --===============================================================================================--
-UNIT_ATTACK = {}
-UNIT_ATTACK.__index = UNIT_ATTACK
-setmetatable(UNIT_ATTACK, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_ATTACK:_init(unit,attack_id)
-	self.id = tonumber(attack_id)
-	self.attack = unit.body.body_plan.attacks[attack_id]
+function UNIT_ATTACK:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_ATTACK,key) then return rawget(UNIT_ATTACK,key) end
+	return self._attack[key]
+end
+function UNIT_ATTACK:init(input)
+	--??
+	unit = input[1]
+	attack_id = input[2]
 	self.unit_id = unit.id
+	self.id = tonumber(attack_id)
+	self._attack = unit.body.body_plan.attacks[attack_id]
 end
 
 function UNIT_ATTACK:computeMomentum()
@@ -407,7 +412,7 @@ function UNIT_ATTACK:computeMomentum()
 	local velocity = 100*(strength/1000)*(vel_mod/1000)
 	if velocity < 1 then velocity = 1 end
 	
-	local body_part = UNIT_BODYPART(unit.id,attack.body_part_idx[0])
+	local body_part = UNIT_BODYPART({unit.id,attack.body_part_idx[0]})
 	local tl_id = attack.tissue_layer_idx[0]
 	
 	local partsize = body_part:computeSize()
@@ -438,27 +443,29 @@ end
 --===============================================================================================--
 --== UNIT_ATTRIBUTE FUNCTIONS ===================================================================--
 --===============================================================================================--
-UNIT_ATTRIBUTE = {}
-UNIT_ATTRIBUTE.__index = UNIT_ATTRIBUTE
-setmetatable(UNIT_ATTRIBUTE, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_ATTRIBUTE:_init(unit_id,attribute_token)
-	self.token = attribute_token
-	self.unit_id = unit_id
+function UNIT_ATTRIBUTE:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_ATTRIBUTE,key) then return rawget(UNIT_ATTRIBUTE,key) end
+	return self._attribute[key]
+end
+function UNIT_ATTRIBUTE:init(input)
+	--??
+	unit = input[1]
+	token = input[2]
+	self.token = token
+	self.unit_id = unit.id
 	self.min_val = 0
-	self.max_val = 50000
-	if df.physical_attribute_type[attribute_token] then
+	self.max_val = 5000
+	self._unit = unit
+	if df.physical_attribute_type[token] then
 		self.type = "Physical"
-	elseif df.mental_attribute_type[attribute_token] then
+		self._attribute = self._unit.body.physical_attrs[token]
+	elseif df.mental_attribute_type[token] then
 		self.type = "Mental"
+		self._attribute = self._unit.status.current_soul.mental_attrs[token]
 	else
 		self.type = "Custom"
-	end
+	end	
 end
 
 function UNIT_ATTRIBUTE:changeValue(change)
@@ -533,17 +540,16 @@ end
 --===============================================================================================--
 --== UNIT_BODY FUNCTIONS ========================================================================--
 --===============================================================================================--
-UNIT_BODY = {}
-UNIT_BODY.__index = UNIT_BODY
-setmetatable(UNIT_BODY, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_BODY:_init(unit_id)
-	self.unit_id = unit_id
+function UNIT_BODY:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_BODY,key) then return rawget(UNIT_BODY,key) end
+	return self._body[key]
+end
+function UNIT_BODY:init(input)
+	--??
+	unit = df.unit.find(input[1])
+	self.unit_id = unit.id
+	self._body = unit.body
 end
 
 function UNIT_BODY:changeValue(changeType,change)
@@ -587,18 +593,19 @@ end
 --===============================================================================================--
 --== UNIT_BODYPART FUNCTIONS ====================================================================--
 --===============================================================================================--
-UNIT_BODYPART = {}
-UNIT_BODYPART.__index = UNIT_BODYPART
-setmetatable(UNIT_BODYPART, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_BODYPART:_init(unit_id,bp_id)
-	self.id = bp_id
+function UNIT_BODYPART:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_BODYPART,key) then return rawget(UNIT_BODYPART,key) end
+	return self._bodypart[key]
+end
+function UNIT_BODYPART:init(input)
+	--??
+	unit_id = input[1]
+	bp_id = input[2]
+	unit = df.unit.find(unit_id)
 	self.unit_id = unit_id
+	self.id = bp_id
+	self._bodypart = unit.body.body_plan.body_parts[bp_id]
 end
 
 function UNIT_BODYPART:changeStatus(status)
@@ -667,26 +674,26 @@ end
 --===============================================================================================--
 --== UNIT_INTERACTION FUNCTIONS =================================================================--
 --===============================================================================================--
-UNIT_INTERACTION = {}
-UNIT_INTERACTION.__index = UNIT_INTERACTION
-setmetatable(UNIT_INTERACTION, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_INTERACTION:_init(unit,interaction_id,interaction_type)
-	self.id = interaction_id --<int>
-	self.unit_id = unit.id --<int>
-	self.type = interaction_type --<string>
-	if interaction_type == "INNATE" then
-		self.details = unit.body.body_plan.interactions[interaction_id].interaction --<creature_interaction>
-	elseif interaction_type == "LEARNED" then
-		self.details = df.global.world.raws.effects.all[interaction_id].interaction --<creature_interaction>
+function UNIT_INTERACTION:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_INTERACTION,key) then return rawget(UNIT_INTERACTION,key) end
+	if rawget(self._interactionDetails,key) then return rawget(self._interactionDetails,key) end
+	return self._interactionRaws[key]
+end
+function UNIT_INTERACTION:init(input)
+	--??
+	unit = input[1]
+	self.unit_id = unit.id
+	self.id = input[2]
+	self.type = input[3]
+	if self.type == "INNATE" then
+		self._interactionDetails = unit.body.body_plan.interactions[self.id].interaction
+	elseif self.type == "LEARNED" then
+		self._interactionDetails = df.global.world.raws.effects.all[self.id].interaction
 	end
-	self.interaction_raw = df.global.world.raws.interactions[self.details.type_id] --<interaction>
-	self.name = self.details.adv_name	
+	self.type_id = self._interactionDetails.type_id
+	self.name = self._interactionDetails.adv_name
+	self._interactionRaws = df.global.world.raws.interactions[self.type_id]
 end
 
 function UNIT_INTERACTION:changeDelay(change)
@@ -728,23 +735,20 @@ end
 --===============================================================================================--
 --== UNIT_SKILL FUNCTIONS =======================================================================--
 --===============================================================================================--
-UNIT_SKILL = {}
-UNIT_SKILL.__index = UNIT_SKILL
-setmetatable(UNIT_SKILL, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_SKILL:_init(unit_id,skill_token)
-	self.token = skill_token
-	self.unit_id = unit_id
+function UNIT_SKILL:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_SKILL,key) then return rawget(UNIT_SKILL,key) end
+	return nil
+end
+function UNIT_SKILL:init(input)
+	--??
+	self.token = input[2]
+	self.unit_id = input[1]
 	self.min_val = 0
 	self.max_val = 50
-	if df.job_skill[skill_token] then
+	if df.job_skill[input[2]] then
 		self.type = "Normal"
-		self.skillid = df.job_skill[skill_token]
+		self.skillid = df.job_skill[input[2]]
 	else
 		self.type = "Custom"
 	end
@@ -834,26 +838,24 @@ end
 --===============================================================================================--
 --== UNIT_SYNDROME FUNCTIONS ====================================================================--
 --===============================================================================================--
-UNIT_SYNDROME = {}
-UNIT_SYNDROME.__index = UNIT_SYNDROME
-setmetatable(UNIT_SYNDROME, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_SYNDROME:_init(unit_id,syndrome)
+function UNIT_SYNDROME:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_SYNDROME,key) then return rawget(UNIT_SYNDROME,key) end
+	return self._syndromeRaw[key]
+end
+function UNIT_SYNDROME:init(input)
+	--??
+	syndrome = input[2]
+	self.unit_id = input[1]
 	self.type = syndrome.type
 	self.infect_time = {syndrome.year,syndrome.year_time}
-	self.unit_id = unit_id
-	self.syndrome_raw = df.global.world.raws.syndromes.all[syndrome.type] --<syndrome>
-	self.name = df.global.world.raws.syndromes.all[syndrome.type].syn_name
+	self._syndromeRaw = df.global.world.raws.syndromes.all[syndrome.type] --<syndrome>
+	self.name = self._syndromeRaw.syn_name
 end
 
 function UNIT_SYNDROME:getClasses()
 	local classes = {}
-	for _,v in pairs(self.syndrome_raw.syn_class) do
+	for _,v in pairs(self.syn_class) do
 		classes[v.value] = v.value
 	end
 	return classes
@@ -862,21 +864,18 @@ end
 --===============================================================================================--
 --== UNIT_TRAIT FUNCTIONS =======================================================================--
 --===============================================================================================--
-UNIT_TRAIT = {}
-UNIT_TRAIT.__index = UNIT_TRAIT
-setmetatable(UNIT_TRAIT, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function UNIT_TRAIT:_init(unit_id,trait_token)
-	self.token = trait_token
-	self.unit_id = unit_id
+function UNIT_TRAIT:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(UNIT_TRAIT,key) then return rawget(UNIT_TRAIT,key) end
+	return df.unit.find(self.unit_id).status.current_soul.personality.traits[self.token]
+end
+function UNIT_TRAIT:init(input)
+	--??
+	self.token = input[2]
+	self.unit_id = input[1]
 	self.min_val = -100
 	self.max_val = 100
-	if df.unit.find(unit_id).status.current_soul.personality.traits[trait_token] then
+	if df.unit.find(self.unit_id).status.current_soul.personality.traits[self.token] then
 		self.type = "Normal"
 	else
 		self.type = "Custom"
@@ -924,8 +923,9 @@ function UNIT_TRAIT:getBaseValue()
 	end
 end
 
-
-
+--===============================================================================================--
+--===============================================================================================--
+--===============================================================================================--
 
 
 
@@ -968,10 +968,6 @@ function UNIT:getCounterValue(counter)
 	end
 	return value
 end
-
-
-
-
 
 function create() end
 

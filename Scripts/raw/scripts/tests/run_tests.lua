@@ -1,24 +1,24 @@
 script = require "gui.script"
 
 function printplus(text,color)
- color = color or COLOR_WHITE
- dfhack.color(color)
-  dfhack.println(text)
- dfhack.color(COLOR_RESET)
- io.write(text.."\n")
+	color = color or COLOR_WHITE
+	dfhack.color(color)
+	dfhack.println(text)
+	dfhack.color(COLOR_RESET)
+	io.write(text.."\n")
 end
 
 function writeall(tbl)
- if not tbl then return end
- if type(tbl) == "table" then
-  for _,text in pairs(tbl) do
-   io.write(text.."\n")
-  end
- elseif type(tbl) == "userdata" then
-  io.write("userdata\n")
- else
-  io.write(tbl.."\n")
- end
+	if not tbl then return end
+	if type(tbl) == "table" then
+		for _,text in pairs(tbl) do
+			io.write(text.."\n")
+		end
+	elseif type(tbl) == "userdata" then
+		io.write("userdata\n")
+	else
+		io.write(tbl.."\n")
+	end
 end
 
 scriptChecks = {}
@@ -48,5 +48,7 @@ function scriptCheck()
 		io.close()
 	end
 end
+
+dfhack.run_command("base/initialize -testRun -verbose")
 
 script.start(scriptCheck)

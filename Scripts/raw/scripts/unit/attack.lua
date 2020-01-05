@@ -104,7 +104,7 @@ if item then
     attack_data.attack_body_part_id = -1
 else
     attack_data.attack_item_id = -1
-    attack_data.attack_body_part_id = attack.attack.body_part_idx[0]
+    attack_data.attack_body_part_id = attack.body_part_idx[0]
 end
 
 

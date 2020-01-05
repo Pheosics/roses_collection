@@ -4,24 +4,23 @@ usages[#usages+1] = [===[
 ]===]
 
 --===============================================================================================--
+--== BUILDING CLASSES ===========================================================================--
+--===============================================================================================--
+BUILDING = defclass(BUILDING) -- references <building>
+
+--===============================================================================================--
 --== BUILDING FUNCTIONS =========================================================================--
 --===============================================================================================--
-BUILDING = {}
-BUILDING.__index = BUILDING
-setmetatable(BUILDING, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function BUILDING:_init(building)
-	if tonumber(building) then building = df.building.find[tonumber(building)] end
+function BUILDING:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(BUILDING,key) then return rawget(BUILDING,key) end
+	return self._building[key]
+end
+function BUILDING:init(building)
+	--??
+	if tonumber(building) then building = df.building.find(tonumber(building)) end
 	self.id = building.id
-	self.category = ""
-	self.type = df.building_type[building:getType()]
-	self.subtype = building:getSubtype()
-	self.customtype = building:getCustomType()
+	self._building = building
 end
 
 function BUILDING:addItem(item)
@@ -55,6 +54,9 @@ end
 function BUILDING:getJobs()
 end
 
+--===============================================================================================--
+--===============================================================================================--
+--===============================================================================================--
 
 function create() end
 

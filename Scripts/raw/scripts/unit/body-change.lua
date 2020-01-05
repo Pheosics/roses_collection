@@ -104,7 +104,6 @@ if args.status then
         if args.partType then cmd = cmd .. " -partType ".. args.partType end
         if args.bodyPart then cmd = cmd .. " -bodyPart " end
         cmd = cmd .. " -status " .. args.status
-        cmd = cmd .. " -amount " .. tostring(-change)
         dfhack.script_environment("persist-delay").commandDelay(dur,cmd) 
     end
 end
@@ -112,17 +111,17 @@ end
 if args.size then
     size = args.size:upper()
     if size == "SIZE" or size == "ALL" then
-        body:computeChange("SIZE",args.amount,args.mode)
+        change = body:computeChange("SIZE",args.amount,args.mode)
         body:changeValue("SIZE",change)
         if dur >= 1 then cmd = "unit/body-change" end -- Duration callback here -ME
     end
     if size == "AREA" or size == "ALL" then
-        body:computeChange("AREA",args.amount,args.mode)
+        change = body:computeChange("AREA",args.amount,args.mode)
         body:changeValue("AREA",change)
         if dur >= 1 then cmd = "unit/body-change" end -- Duration callback here -ME
     end
     if size == "LENGTH" or size == "ALL" then
-        body:computeChange("LENGTH",args.amount,args.mode)
+        change = body:computeChange("LENGTH",args.amount,args.mode)
         body:changeValue("LENGTH",change)
         if dur >= 1 then cmd = "unit/body-change" end -- Duration callback here -ME
     end
