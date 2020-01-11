@@ -1,6 +1,46 @@
 local utils = require "utils"
 split = utils.split_string
 
+function readPlan(fileName)
+	local iofile = io.open(plan,"r")
+	local data = iofile:read("*all")
+	iofile:close()
+	local splitData = split(data,',')
+	local x = {}
+	local y = {}
+	local t = {}
+	local xi = 0
+	local yi = 1
+	local xT = -1
+	local yT = -1
+	local xS = -1
+	local yS = -1
+	for i,v in ipairs(splitData) do
+		if split(v,'\n')[1] ~= v then
+			xi = 1
+			yi = yi + 1
+		else
+			xi = xi + 1
+		end
+		if v == 'T' or v == '\nT' then
+			xT = xi
+			yT = yi
+		end
+		if v == 'S' or v == '\nS' then
+			xS = xi
+			yS = yi
+		end
+		if v == 'T' or v == '\nT' or v == '1' or v == '\n1' or v == 'C' or v == '\nC' then
+			t[i] = true
+		else
+			t[i] = false
+		end
+		x[i] = xi
+		y[i] = yi
+	end
+	return x, y, t, xT, yT, xS, yS
+end
+
 function readRaws(rawType,test,verbose)
 	if rawType == "Building" then
 		tokenCheck = "[BUILDING"

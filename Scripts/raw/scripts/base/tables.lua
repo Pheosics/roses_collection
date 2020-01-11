@@ -3,11 +3,9 @@ local split = utils.split_string
 local json = require "json"
 
 savepath = dfhack.getSavePath()
-Tables = Tables
+Tables = Tables or {}
 
 function initTables(scripts,systems)
-	Tables = {}
-	
 	-- Game Tables
 	Tables.GlobalTable = {}
 	Tables.CounterTable = {}
@@ -18,12 +16,13 @@ function initTables(scripts,systems)
 	
 	-- Systems
 	Tables.Systems = {}
-	for _,system in pairs(systems) do
-		n, Table = dfhack.script_environment(system).makeSystemTable()
+	for _,systemFile in pairs(systems) do
+		system = dfhack.script_environment(systemFile)
+		n, Table = dfhack.script_environment("base/systems").makeSystemTable(system.Tokens)
 		if n > 0 then
-			Tables.Systems[system] = n
-			Tables[system] = Table
-			dfhack.script_environment(system).startSystemTriggers()
+			Tables.Systems[system.Name] = n
+			Tables[system.Name] = Table
+			dfhack.script_environment(systemFile).startSystemTriggers()
 		end
 	end
 end

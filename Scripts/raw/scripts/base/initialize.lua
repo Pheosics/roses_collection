@@ -3,73 +3,83 @@ local split = utils.split_string
 local version = 1.0
 local dfhackv = 44.12
 local dfversn = 44.12
-dfhack.internal.addScriptPath(dfhack.getDFPath().."/raw/systems", true)
+local scripts_dir = "/raw/scripts"
+local systems_dir = "/raw/systems"
+dfhack.internal.addScriptPath(dfhack.getDFPath()..systems_dir, true)
+
+local s1 = ""
+local s2 = "  "
+local s3 = "    "
+local s4 = "      "
+local c1 = COLOR_GREEN
+local c2 = COLOR_YELLOW
+local c3 = COLOR_WHITE
 
 -- DETECTION
-local function detectCollection()
+local function detectCollection(verbose)
 	-- Detect version and scripts/systems
-	dfhack.color(COLOR_GREEN)
-	print("Detecting Versions and Loaded Scripts/Systems...")
-	dfhack.color(COLOR_RESET)
+	if verbose then
+		dfhack.color(c1)
+		print(s1.."Detecting Versions and Loaded Scripts/Systems...")
+		
+		---- Versions
+		dfhack.color(c2)
+		print(s2.."Versions:")
+		dfhack.color(c3)
+		print(s3.."Collection Version - "..tostring(version))
+		print(s3.."DFHack Version - "..tostring(dfhackv))
+		print(s3.."Dwarf Fortress Version - "..tostring(dfversn))
+	end
 	
-	---- Versions
-	dfhack.color(COLOR_YELLOW)
-	print("  Versions:")
-	dfhack.color(COLOR_RESET)
-	print("    Collection Version - "..tostring(version))
-	print("    DFHack Version - "..tostring(dfhackv))
-	print("    Dwarf Fortress Version - "..tostring(dfversn))
-
 	---- Scripts
-	dfhack.color(COLOR_YELLOW)
-	print("  Loaded Scripts:")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	if verbose then print(s2.."Loaded Scripts:") end
+	dfhack.color(c3)
 	local scripts = {}
 	local scriptCategories = {"unit","item","entity","building"}
 	for _,category in pairs(scriptCategories) do
-		print("    "..category:upper())
-		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath().."/raw/scripts/"..category.."/")) do
+		if verbose then print(s3..category:upper()) end
+		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath()..scripts_dir.."/"..category.."/")) do
 			if name ~= "." and name ~= ".." then
 				scripts[#scripts+1] = category.."/"..split(name,'.lua')[1]
-				print("      "..split(name,'.lua')[1])
+				if verbose then print(s4..split(name,'.lua')[1]) end
 			end
 		end
 	end
 
 	---- Systems
-	dfhack.color(COLOR_YELLOW)
-	print("  Loaded Systems:")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	if verbose then print(s2.."Loaded Systems:") end
+	dfhack.color(c3)
 	local systems = {}
 	local systemCategories = {"enhanced"}
 	for _,category in pairs(systemCategories) do
-		print("    "..category:upper())
-		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath().."/raw/systems/"..category.."/")) do
+		if verbose then print(s3..category:upper()) end
+		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath()..systems_dir.."/"..category.."/")) do
 			if name ~= "." and name ~= ".." then
 				systems[#systems+1] = category.."/"..split(name,'.lua')[1]
-				print("      "..split(name,'.lua')[1])
+				if verbose then print(s4..split(name,'.lua')[1]) end
 			end
 		end
 	end
+	dfhack.color(COLOR_RESET)
 	
 	return scripts, systems
 end
 
 -- INITIALIZATION
-local function initializePersistentTables()
+local function initializePersistentTables(verbose)
 	-- Initialize persistent tables
-	dfhack.color(COLOR_GREEN)
-	print("Intializing Persistent Tables...")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c1)
+	if verbose then print(s1.."Intializing Persistent Tables...") end
 	persistTable = require "persist-table"
 	persistTable.GlobalTable.roses = persistTable.GlobalTable.roses or {}
 	pT = persistTable.GlobalTable.roses
 
 	---- Command Delays
 	n = 0
-	dfhack.color(COLOR_YELLOW)
-	print("  CommandDelay Tables:")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	if verbose then print(s2.."CommandDelay Tables:") end
 	pT.CommandDelay = pT.CommandDelay or {}
 	for _,i in pairs(pT.CommandDelay._children) do
 		delay = pT.CommandDelay[i]
@@ -85,13 +95,13 @@ local function initializePersistentTables()
 							end)
 		end
 	end
-	print("    Command Delays Loaded - "..tostring(n))
+	dfhack.color(c3)
+	if verbose then print(s3.."Command Delays Loaded - "..tostring(n)) end
 
 	---- Script Environment Delays
 	n = 0
-	dfhack.color(COLOR_YELLOW)
-	print("  EnvironmentDelay Tables:")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	if verbose then print(s2.."EnvironmentDelay Tables:") end
 	pT.EnvironmentDelay = pT.EnvironmentDelay or {}
 	for _,i in pairs(pT.EnvironmentDelay._children) do
 		delay = pT.EnvironmentDelay[i]
@@ -110,15 +120,15 @@ local function initializePersistentTables()
 							end)
 		end
 	end
-	print("    Script Environment Delays Loaded - "..tostring(n))
+	dfhack.color(c3)
+	if verbose then print(s3.."Script Environment Delays Loaded - "..tostring(n)) end
 	
 	---- Liquid Sources and Sinks
 	n = 0
-	dfhack.color(COLOR_YELLOW)
-	print("  Liquid Tables:")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	if verbose then print(s2.."Liquid Tables:") end
 	pT.LiquidTable = pT.LiquidTable or {}
-	for _,i in pairs(pT.LiquidTable ._children) do
+	for _,i in pairs(pT.LiquidTable._children) do
 		liquid = pT.LiquidTable[i]
 		n = n + 1
 		if liquid.Type == "Source" then
@@ -127,15 +137,15 @@ local function initializePersistentTables()
 			--dfhack.script_environment('functions/map').liquidSink(i)
 		end
 	end
-	print("    Liquid Sources and Sinks Loaded - "..tostring(n))
+	dfhack.color(c3)
+	if verbose then print(s3.."Liquid Sources and Sinks Loaded - "..tostring(n)) end
 	
 	---- Flow Sources and Sinks
 	n = 0
-	dfhack.color(COLOR_YELLOW)
-	print("  Flow Tables:")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	if verbose then print(s2.."Flow Tables:") end
 	pT.FlowTable = pT.FlowTable or {}
-	for _,i in pairs(pT.FlowTable ._children) do
+	for _,i in pairs(pT.FlowTable._children) do
 		flow = pT.FlowTable[i]
 		n = n + 1
 		if flow.Type == "Source" then
@@ -144,33 +154,37 @@ local function initializePersistentTables()
 			--dfhack.script_environment('functions/map').flowSink(i)
 		end
 	end
-	print("    Flow Sources and Sinks Loaded - "..tostring(n))
+	dfhack.color(c3)
+	if verbose then print(s3.."Flow Sources and Sinks Loaded - "..tostring(n)) end
+
+	dfhack.color(COLOR_RESET)
 end
 
-local function initializeFileTables(scripts,systems)
+local function initializeFileTables(scripts,systems,verbose)
 	-- Initialize file tables
-	dfhack.color(COLOR_GREEN)
-	print("Intializing Tables from Files...")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c1)
+	if verbose then print(s1.."Intializing Tables from Files...") end
 	
 	local fname = nil
 	savepath = dfhack.getSavePath()
-	dfhack.color(COLOR_YELLOW)
-	print("  Searching for RosesPersist.dat in "..savepath)
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	if verbose then print(s2.."Searching for RosesPersist.dat in "..savepath) end
 	for _,f in pairs(dfhack.internal.getDir(savepath)) do
 		if f == "RosesPersist.dat" then
 			fname = savepath.."/RosesPersist.dat"
 			break
 		end
 	end
+	dfhack.color(c3)
 	if fname then
-		print("    "..fname.." found, loading saved tables")
+		if verbose then print(s3..fname.." found, loading saved tables") end
 		dfhack.script_environment("base/tables").loadFile(fname)
 	else
-		print("    No save file found, initializing tables")
+		if verbose then print(s3.."No save file found, initializing tables") end
 		dfhack.script_environment("base/tables").initTables(scripts,systems)
 	end
+	
+	dfhack.color(COLOR_RESET)
 end
 
 validArgs = utils.invert({
@@ -182,27 +196,26 @@ validArgs = utils.invert({
 })
 local args = utils.processArgs({...}, validArgs)
 
-scripts, systems = detectCollection()
-initializePersistentTables()
-initializeFileTables(scripts,systems)
+scripts, systems = detectCollection(args.verbose)
+initializePersistentTables(args.verbose)
+initializeFileTables(scripts,systems,args.verbose)
 
 local systemCheck = false
 print("")
-dfhack.color(COLOR_GREEN)
-print("Systems Loaded...")
-dfhack.color(COLOR_RESET)
+dfhack.color(c1)
+print(s1.."Systems Loaded...")
 local Table = dfhack.script_environment("base/tables").Tables
 for system,n in pairs(Table.Systems) do
 	systemCheck = true
-	dfhack.color(COLOR_YELLOW)
-	print("  "..system.." - "..tostring(n))
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	print(s2..system.." - "..tostring(n))
+	dfhack.color(c3)
 	for _,entry in pairs(Table[system]) do
-		print("    "..entry.Name)
+		print(s3..entry.Name)
 	end
 end
 if not systemCheck then
-	dfhack.color(COLOR_YELLOW)
-	print("  None")
-	dfhack.color(COLOR_RESET)
+	dfhack.color(c2)
+	print(s2.."None")
 end
+dfhack.color(COLOR_RESET)

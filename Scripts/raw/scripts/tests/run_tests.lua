@@ -22,7 +22,7 @@ function writeall(tbl)
 end
 
 scriptChecks = {}
-scriptCategories = {"unit","item","entity","building"}
+scriptCategories = {"unit","item","entity","building","map"}
 
 function scriptCheck()
 	for _,scripts in pairs(scriptCategories) do
@@ -30,20 +30,39 @@ function scriptCheck()
 		io.output(file)
 		printplus(scripts:upper().." Script Tests Starting")
 		tests = dfhack.script_environment("tests/"..scripts.."_tests").tests()
-		for name,func in pairs(tests) do
-			writeall(scripts.."/"..name.." checks starting")
-			check = func()
-			if not check then
-				printplus("NOT CHECKED: "..name,COLOR_YELLOW)
-			elseif #check == 0 then
-				printplus("PASSED: "..name,COLOR_GREEN)
-			else
-				printplus("FAILED: "..name,COLOR_RED)
-				writeall(check)
+		if tests.Order then
+			for _,name in pairs(tests.Order) do
+				func = tests[name]
+				writeall(scripts.."/"..name.." checks starting")
+				check = func()
+				if not check then
+					printplus("NOT CHECKED: "..name,COLOR_YELLOW)
+				elseif #check == 0 then
+					printplus("PASSED: "..name,COLOR_GREEN)
+				else
+					printplus("FAILED: "..name,COLOR_RED)
+					writeall(check)
+				end
+				scriptChecks[scripts.."_"..name] = check
+				writeall(scripts.."/"..name.." checks finished")
+				writeall("")
 			end
-			scriptChecks[scripts.."_"..name] = check
-			writeall(scripts.."/"..name.." checks finished")
-			writeall("")
+		else
+			for name,func in pairs(tests) do
+				writeall(scripts.."/"..name.." checks starting")
+				check = func()
+				if not check then
+					printplus("NOT CHECKED: "..name,COLOR_YELLOW)
+				elseif #check == 0 then
+					printplus("PASSED: "..name,COLOR_GREEN)
+				else
+					printplus("FAILED: "..name,COLOR_RED)
+					writeall(check)
+				end
+				scriptChecks[scripts.."_"..name] = check
+				writeall(scripts.."/"..name.." checks finished")
+				writeall("")
+			end
 		end
 		io.close()
 	end

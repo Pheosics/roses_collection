@@ -85,6 +85,7 @@ function tests()
 	
 	return {
 		create = create,
-		subtype_change = subtype_change
+		subtype_change = subtype_change,
+		order = {"create", "subtype_change"}
 	}
 end

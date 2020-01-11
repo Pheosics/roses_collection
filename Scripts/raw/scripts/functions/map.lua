@@ -15,6 +15,28 @@ local function checkTypes(x,y)
 	end
 	return check
 end
+local function isFree(x,y,z)
+	local pos = processXYZ(x,y,z)
+	local free = false
+	local tiletype = dfhack.maps.getTileType(pos)
+	local designation, occupancy = dfhack.maps.getTileFlags(pos)
+	if not tiletype or not tileflag then return false end
+	
+	-- Check that the tiletype is "open"
+	local open = false
+	for _,tt in pairs(openTileTypes) do
+		if string.match(df.tiletype[tiletype],tt) then
+			open = true
+			break
+		end
+	end
+	if not open then return false end
+	
+	-- Check that the tile isn't already occupied
+	if designation.flow_size == 0  and occupancy.building == 0 then	free = true	end
+
+	return free
+end
 local function processXYZ(x,y,z)
 	local pos = {}
 	if y == nil and z == nil then
@@ -28,11 +50,34 @@ local function processXYZ(x,y,z)
 	end
 	return pos
 end
+local function checkBounds(x,y,z)
+	local valid = true
+	local pos = processXYZ(x,y,z)
+	local mapx, mapy, mapz = dfhack.maps.getTileSize()
+	if pos.x < 1 or pos.x > mapx-1 then valid = false end
+	if pos.y < 1 or pos.y > mapy-1 then valid = false end
+	if pos.z < 1 or pos.z > mapz-1 then valid = false end
+	return valid
+end
+local function checkSurface(x,y,z)
+	local surface = false
+	local pos = processXYZ(x,y,z)
+	
+	local d1, _ = dfhack.maps.getTileFlags(pos.x,pos.y,pos.z)
+	local d2, _ = dfhack.maps.getTileFlags(pos.x,pos.y,pos.z-1)
+	
+	if d1.outside and not d2.outside then
+		surface = true
+	end
+	
+	return surface
+end
 
 --===============================================================================================--
 --== MAP CLASSES ================================================================================--
 --===============================================================================================--
-MAP = defclass(MAP)
+MAP = defclass(MAP)    -- references <df.global.world.map>
+FLOW = defclass(FLOW)  -- references <flow_info>
 
 --===============================================================================================--
 --== MAP FUNCTIONS ==============================================================================--
@@ -68,7 +113,7 @@ function MAP:_update()
 				local pos = {x=i,y=j,z=k}
 				previousOutside = outside
 				block = dfhack.maps.ensureTileBlock(i,j,k)
-				designation = block.designation[i%16][j%16]
+				designation, _ = dfhack.maps.getTileFlags(i,j,k)
 				if designation.subterranean then
 					self.underground[#self.underground + 1] = pos
 				else
@@ -101,61 +146,200 @@ function MAP:_update()
 	end
 end
 
-function MAP:checkBounds(x,y,z)
-	local pos = processXYZ(x,y,z)
-	local mapx, mapy, mapz = dfhack.maps.getTileSize()
-	if pos.x < 1 then pos.x = 1 end
-	if pos.x > mapx-1 then pos.x = mapx-1 end
-	if pos.y < 1 then pos.y = 1 end
-	if pos.y > mapy-1 then pos.y = mapy-1 end
-	if pos.z < 1 then pos.z = 1 end
-	if pos.z > mapz-1 then pos.z = mapz-1 end
-	return pos
+function MAP:createFlow(pos,flowType,density,inorganic,static)
+	local x = pos.x or pos[1]
+	local y = pos.y or pos[2]
+	local z = pos.z or pos[3]
+	flow = dfhack.maps.spawnFlow({x=x,y=y,z=z},flowType,0,inorganic,density)
+	if static then flow.expanding = false end
 end
 
-function MAP:checkSurface(x,y,z)
-	local surface = false
-	local pos = processXYZ(x,y,z)
+function MAP:createLiquid(pos,depth,magma)
+	local x = pos.x or pos[1]
+	local y = pos.y or pos[2]
+	local z = pos.z or pos[3]
+	block = dfhack.maps.ensureTileBlock(x,y,z)
+	dsgn = block.designation[x%16][y%16]
+	dsgn.flow_size = math.min(depth,7)
+	dsgn.liquid_type = magma or false
+	flow = block.liquid_flow[x%16][y%16]
+	flow.temp_flow_timer = 10
+	flow.unk_1 = 10
+	block.flags.update_liquid = true
+	block.flags.update_liquid_twice = true
+end
+
+function MAP:getPlanPositions(pos,plan,origin)
+	local xtar = pos.x or pos[1]
+	local ytar = pos.y or pos[2]
+	local ztar = pos.z or pos[3]
+	local n = 0
+	local locations = {}
+	x, y, t, xT, yT, xS, yS = dfhack.script_environment("functions/io").readPlan(plan)
 	
-	local d1 = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z).designation[pos.x%16][pos.y%16]
-	local d2 = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z-1).designation[pos.x%16][pos.y%16]
-	
-	if d1.outside and not d2.outside then
-		surface = true
+	-- Determine center of plan
+	if xT == -1 and xS == -1 then return locations, n end -- Has to have a source or target declared
+    if xT ~= -1 and xS ~= -1 then return locations, n end -- For now can't accept a source and a target, will change later -ME
+	if xT == -1 and xS ~= -1 then
+		xCenter = xS
+		yCenter = yS
+	elseif xT ~= -1 and xS == -1 then
+		xCenter = xT
+		yCenter = yT
 	end
+		
+	-- Get central in game position points, defaults to using the target position.
+	-- If an origin position is also supplied will use that instead and determine the 
+	-- relative facing between the target and the origin.
+	local xPoint = xtar
+	local yPoint = ytar
+	local zPoint = ztar
+	local xFace = 0
+	local yFace = 0
+	local diagonal = false
+	if origin then
+		if tonumber(origin) then origin = df.unit.find(tonumber(origin)).pos end
+		xorg = origin.x or origin[1]
+		yorg = origin.y or origin[2]
+		zorg = origin.z or origin[3]
+		if (xorg-xtar) ~= 0 then xFace = (xorg-xtar)/math.abs(xorg-xtar) end
+		if (yorg-ytar) ~= 0 then yFace = (yorg-ytar)/math.abs(yorg-ytar) end
+		xPoint = xorg
+		yPoint = yorg
+		zPoint = zorg
+	end
+	if xFace == 0 and yFace == 0 then yFace = 1 end -- Should actually be random, but for now just pick a direction -ME
+	if xFace ~= 0 and yFace ~= 0 then diagonal = true end -- We had extra locations for diagonal directions
 	
-	return surface
+	-- Get in-game positions by computing the facing position offsets
+	for i,tar in pairs(t) do
+		if tar then
+			n = n + 1
+			xO = x[i] - xCenter
+			yO = y[i] - yCenter
+			xRot = -yFace*xO + xFace*yO -- -yFace because of the DF coordinate system
+			yRot = xFace*xO + yFace*yO
+			locations[n] = {x = xPoint + xRot, y = yPoint + yRot, z = zPoint}
+			if diagonal and (xO ~= 0 and yO ~= 0 and (xO+yO) ~= 0 and (xO-yO) ~= 0) then
+				-- If origin is diagonal to target and plan position is an off diagonal position
+				-- an extra point needs to be added to handle the gridded DF map
+				n = n + 1
+				xSign = xO/abs(xO)
+				ySign = yO/abs(yO)
+				Fx = xFace*xFace*(xFace - xSign*ySign*yFace)/2
+				Fy = xFace*yFace*(xFace + xSign*ySign*yFace)/2
+				locations[n] = {x = xPoint + xRot - ySign*Fx, y = yPoint + yRot - ySign*Fy, z = zPoint}
+			end
+		end
+	end
+	return locations
 end
 
-function MAP:findPositions(position,posType,radius)
+function MAP:getEdgePositions(pos,radius,shape)
 	local edgePos = {}
-	local fillPos = {}
+	local shape = shape or "SQUARE"
 	local rx = radius.x or radius[1] or 0
 	local ry = radius.y or radius[2] or rx
 	local rz = radius.z or radius[3] or rx
 	local xpos = pos.x or pos[1]
 	local ypos = pos.y or pos[2]
 	local zpos = pos.z or pos[3]
-	for k = -rz, rz do
+	if shape == "SQUARE" then -- Inefficient, but for small radius it works fine
 		for j = -ry, ry do
 			for i = -rx, rx do
-				if abs(i) == rx or abs(j) == ry or abs(k) == rz then 
-					edgePos[#edgePos+1] = {x=xpos+i, y=ypos+j, z=zpos+k}
-					edgePos[#edgePos] = self:checkBounds(edgePos[#edgePos])
-				else
-					fillPos[#fillPos+1] = {x=xpos+i, y=ypos+j, z=zpos+k}
-					fillPos[#fillPos] = self:checkBounds(fillPos[#fillPos])					
+				if abs(i) == rx or abs(j) == ry then 
+					if checkBounds(xpos+i,ypos+j,zpos) then edgePos[#fillPos+1] = {x=xpos+i, y=ypos+j, z=zpos} end					
 				end
 			end
 		end
+	elseif shape == "CIRCLE" then
+		-- Doubt this actually works given the gridded nature of DF
+		-- will need to update later -ME
+		for j = -ry, ry do
+			for i = -rx, rx do
+				if i*i/rx*rx + j*j/ry*ry == 1 then
+					if checkBounds(xpos+i,ypos+j,zpos) then edgePos[#fillPos+1] = {x=xpos+i, y=ypos+j, z=zpos} end					
+				end
+			end
+		end
+	elseif shape == "CUBE" then
+		-- Add later if desired -ME
+	elseif shape == "SPHERE" then
+		-- Add later if desired -ME
 	end
-	if posType == "EDGES" then
-		return edgePos
-	elseif posType == "FILL" then
-		return fillPos
-	end
+	return edgePos
 end
 
+function MAP:getFillPositions(pos,radius,shape)
+	local fillPos = {}
+	local shape = shape or "SQUARE"
+	local rx = radius.x or radius[1] or 0
+	local ry = radius.y or radius[2] or rx
+	local rz = radius.z or radius[3] or rx
+	local xpos = pos.x or pos[1]
+	local ypos = pos.y or pos[2]
+	local zpos = pos.z or pos[3]
+	if shape == "SQUARE" then
+		for j = -ry, ry do
+			for i = -rx, rx do
+				if abs(i) ~= rx and abs(j) ~= ry then 
+					if checkBounds(xpos+i,ypos+j,zpos) then fillPos[#fillPos+1] = {x=xpos+i, y=ypos+j, z=zpos} end					
+				end
+			end
+		end
+	elseif shape == "CIRCLE" then
+		for j = -ry, ry do
+			for i = -rx, rx do
+				if abs(i) ~= rx and abs(j) ~= ry and i*i/rx*rx + j*j/ry*ry <= 1 then 
+					if checkBounds(xpos+i,ypos+j,zpos) then fillPos[#fillPos+1] = {x=xpos+i, y=ypos+j, z=zpos} end					
+				end
+			end
+		end
+	elseif shape == "CUBE" then
+		-- Add later if desired -ME
+	elseif shape == "SPHERE" then
+		-- Add later if desired -ME
+	end
+	return fillPos
+end
+
+function MAP:getCavernPosition(posType,posSubtype)
+	local pos = {}
+	local rand = dfhack.random.new()
+	local mapx, mapy, mapz = dfhack.maps.getTileSize()
+	local attempts = 0
+	
+	return pos
+end
+
+function MAP:getSkyPosition(posType,posSubtype)
+	local pos = {}
+	local rand = dfhack.random.new()
+	local mapx, mapy, mapz = dfhack.maps.getTileSize()
+	local attempts = 0
+	
+	return pos
+end
+
+function MAP:getSurfacePosition(posType,posSubtype)
+	local pos = {}
+	local rand = dfhack.random.new()
+	local mapx, mapy, mapz = dfhack.maps.getTileSize()
+	local attempts = 0
+	
+	return pos
+end
+
+function MAP:getUndergroundPosition(posType,posSubtype)
+	local pos = {}
+	local rand = dfhack.random.new()
+	local mapx, mapy, mapz = dfhack.maps.getTileSize()
+	local attempts = 0
+	
+	return pos
+end
+
+-- Generic combination of the above getXPosition() functions
 -- If position type and position subtype are declared they must be the first two arguments
 function MAP:getPosition(...)
 	local pos = {}
@@ -231,7 +415,7 @@ function MAP:getPosition(...)
 		end
 
 		if free then
-			check = self:checkFree(pos)
+			check = isFree(pos)
 			if not check then pos = {} end
 		end
 		attempts = attempts + 1
@@ -241,74 +425,21 @@ function MAP:getPosition(...)
 	return pos
 end
 
+--===============================================================================================--
+--== MAP FLOW FUNCTIONS =========================================================================--
+--===============================================================================================--
+function FLOW:__index(key)
+	if rawget(self,key) then return rawget(self,key) end
+	if rawget(FLOW,key) then return rawget(FLOW,key) end
+	return self._flow[key]
+end
+function FLOW:init(flow)
+	self._flow = flow
+end
 
 --===============================================================================================--
 --== MAP TILE FUNCTIONS =========================================================================--
 --===============================================================================================--
-TILE = {}
-TILE.__index = TILE
-setmetatable(TILE, {
-	__call = function (cls, ...)
-	local self = setmetatable({},cls)
-	self:_init(...)
-	return self
-	end,
-})
-function TILE:_init(x,y,z)
-	local pos = processXYZ(x,y,z)
-	self.pos = pos
-	self.x = pos.x
-	self.x16 = pos.x%16
-	self.y = pos.y
-	self.y16 = pos.y%16
-	self.z = pos.z
-end
-
-function TILE:isFree()
-	local free = false
-	local block = self:block()
-	if not block then return false end
-	
-	-- Check that the tiletype is "open"
-	local tiletype = block.tiletype[self.x16][self.y16]
-	local open = false
-	for _,tt in pairs(openTileTypes) do
-		if string.match(df.tiletype[tiletype],tt) then
-			open = true
-			break
-		end
-	end
-	if not open then return false end
-	
-	-- Check that the tile isn't already occupied
-	local designation = block.designation[self.x16][self.y16]
-	local occupancy   = block.occupancy[self.x16][self.y16]
-	if designation.flow_size == 0  and occupancy.building == 0 then	free = true	end
-
-	return free
-end
-
-function TILE:block()
-	return dfhack.maps.ensureTileBlock(self.x,self.y,self.z)
-end
-
-function TILE:designation()
-	local block = self:block()
-	if not block then 
-		return nil
-	else
-		return block.designation[self.x16][self.y16]
-	end
-end
-
-function TILE:occupancy()
-	local block = self:block()
-	if not block then 
-		return nil
-	else
-		return block.occupancy[self.x16][self.y16]
-	end
-end
 
 --===============================================================================================--
 --===============================================================================================--
