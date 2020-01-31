@@ -6,6 +6,7 @@ local dfversn = 44.12
 local scripts_dir = "/raw/scripts"
 local systems_dir = "/raw/systems"
 dfhack.internal.addScriptPath(dfhack.getDFPath()..systems_dir, true)
+tables = reqscript("core/tables")
 
 local s1 = ""
 local s2 = "  "
@@ -41,8 +42,8 @@ local function detectCollection(verbose)
 		if verbose then print(s3..category:upper()) end
 		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath()..scripts_dir.."/"..category.."/")) do
 			if name ~= "." and name ~= ".." then
-				scripts[#scripts+1] = category.."/"..split(name,'.lua')[1]
-				if verbose then print(s4..split(name,'.lua')[1]) end
+				scripts[#scripts+1] = category.."/"..split(name,".lua")[1]
+				if verbose then print(s4..split(name,".lua")[1]) end
 			end
 		end
 	end
@@ -57,8 +58,8 @@ local function detectCollection(verbose)
 		if verbose then print(s3..category:upper()) end
 		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath()..systems_dir.."/"..category.."/")) do
 			if name ~= "." and name ~= ".." then
-				systems[#systems+1] = category.."/"..split(name,'.lua')[1]
-				if verbose then print(s4..split(name,'.lua')[1]) end
+				systems[#systems+1] = category.."/"..split(name,".lua")[1]
+				if verbose then print(s4..split(name,".lua")[1]) end
 			end
 		end
 	end
@@ -122,40 +123,6 @@ local function initializePersistentTables(verbose)
 	end
 	dfhack.color(c3)
 	if verbose then print(s3.."Script Environment Delays Loaded - "..tostring(n)) end
-	
-	---- Liquid Sources and Sinks
-	n = 0
-	dfhack.color(c2)
-	if verbose then print(s2.."Liquid Tables:") end
-	pT.LiquidTable = pT.LiquidTable or {}
-	for _,i in pairs(pT.LiquidTable._children) do
-		liquid = pT.LiquidTable[i]
-		n = n + 1
-		if liquid.Type == "Source" then
-			--dfhack.script_environment('functions/map').liquidSource(i)
-		elseif liquid.Type == "Sink" then
-			--dfhack.script_environment('functions/map').liquidSink(i)
-		end
-	end
-	dfhack.color(c3)
-	if verbose then print(s3.."Liquid Sources and Sinks Loaded - "..tostring(n)) end
-	
-	---- Flow Sources and Sinks
-	n = 0
-	dfhack.color(c2)
-	if verbose then print(s2.."Flow Tables:") end
-	pT.FlowTable = pT.FlowTable or {}
-	for _,i in pairs(pT.FlowTable._children) do
-		flow = pT.FlowTable[i]
-		n = n + 1
-		if flow.Type == "Source" then
-			--dfhack.script_environment('functions/map').flowSource(i)
-		elseif flow.Type == "Sink" then
-			--dfhack.script_environment('functions/map').flowSink(i)
-		end
-	end
-	dfhack.color(c3)
-	if verbose then print(s3.."Flow Sources and Sinks Loaded - "..tostring(n)) end
 
 	dfhack.color(COLOR_RESET)
 end
@@ -178,10 +145,10 @@ local function initializeFileTables(scripts,systems,verbose)
 	dfhack.color(c3)
 	if fname then
 		if verbose then print(s3..fname.." found, loading saved tables") end
-		dfhack.script_environment("base/tables").loadFile(fname)
+		tables.loadFile(fname)
 	else
 		if verbose then print(s3.."No save file found, initializing tables") end
-		dfhack.script_environment("base/tables").initTables(scripts,systems)
+		tables.initTables(scripts,systems)
 	end
 	
 	dfhack.color(COLOR_RESET)
@@ -204,7 +171,7 @@ local systemCheck = false
 print("")
 dfhack.color(c1)
 print(s1.."Systems Loaded...")
-local Table = dfhack.script_environment("base/tables").Tables
+local Table = tables.Tables
 for system,n in pairs(Table.Systems) do
 	systemCheck = true
 	dfhack.color(c2)

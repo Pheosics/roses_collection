@@ -27,55 +27,6 @@ function tests()
 				wildUnits = non,
 				unitFunctions = dfhack.script_environment("functions/unit")}
 	
-	local action_change = function ()
-		local unit = self.civUnits[1]
-		local unitCheck = {}
-		writeall("unit/action-change checks starting")
-	
-	---- Check that the script succeeds and adds an action of every type with a 500 tick cooldown
-		writeall("unit/action-change -unit "..tostring(unit.id).." -timer 500 -action All -create")
-		output = dfhack.run_command_silent("unit/action-change -unit "..tostring(unit.id).." -timer 500 -action All -create")
-		writeall(output)
-		local check = true
-		local actions = unit:getActions("ALL")
-		for _,action in pairs(actions) do
-			local delay = action:getDelay()
-			if delay >= 0 and delay < 500 then
-				check = false
-				break
-			end
-		end
-		if not check then
-			unitCheck[#unitCheck+1] = "Failed to add a 500 tick action for each action to unit"
-		end
-		
-		---- Check that the script succeeds and removes all actions from unit
-		writeall("unit/action-change -unit "..tostring(unit.id).." -action ALL -timer clearAll")
-		output = dfhack.run_command_silent("unit/action-change -unit "..tostring(unit.id).." -action ALL -timer clearAll")
-		writeall(output)
-		if #unit:getActions("ALL") > 0 then
-			unitCheck[#unitCheck+1] = "Failed to remove all actions from unit"
-		end
-		
-		---- Check that the script succeeds and adds 100 ticks to all interaction cooldowns
-		writeall("unit/action-change -unit "..tostring(unit.id).." -timer 100 -interaction All")
-		output = dfhack.run_command_silent("unit/action-change -unit "..tostring(unit.id).." -timer 100 -interaction All")
-		writeall(output)
-		check = true
-		for _,interaction in pairs(unit:getInteractions()) do
-			local delay = interaction:getDelay()
-			if delay > 0 and delay < 100 then
-				check = false
-				break
-			end
-		end
-		if not check  then
-			unitCheck[#unitCheck+1] = "Failed to increase interaction delay by 100 ticks"
-		end
-		
-		return unitCheck
-	end
-	
 	local attack = function ()
 		local unitCheck = {}
 		local attacker = self.civUnits[1]
@@ -83,9 +34,11 @@ function tests()
 		defender:changePosition(attacker:getPosition())
 		
 		---- Check that the script succeeds and adds an attack action with the calculated velocity, hit chance, and body part target
-		writeall("unit/attack -defender "..tostring(defender.id).." -attacker "..tostring(attacker.id))
-		output = dfhack.run_command_silent("unit/attack -defender "..tostring(defender.id).." -attacker "..tostring(attacker.id))
-		--writeall(output)
+		dfhack.run_command_silent("unit/change-action -unit "..tostring(attacker.id).." -action Attack -clear")
+		local cmd = "unit/attack -defender "..tostring(defender.id).." -attacker "..tostring(attacker.id)
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
 		check = false
 		for _,action in pairs(attacker:getActions("Attack")) do
 			local data = action:getData()
@@ -99,65 +52,22 @@ function tests()
 		end
 		
 		---- Check that the script succeeds and adds 10 punch attacks against defenders head
-		writeall("unit/attack -defender "..tostring(defender.id).." -attacker "..tostring(attacker.id).." -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10")
-		dfhack.run_command("unit/attack -defender "..tostring(defender.id).." -attacker "..tostring(attacker.id).." -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10")
-		--writeall(output)
+		dfhack.run_command_silent("unit/change-action -unit "..tostring(attacker.id).." -action Attack -clear")
+		cmd = "unit/attack -defender "..tostring(defender.id).." -attacker "..tostring(attacker.id).." -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10"
+		writeall(cmd)
+		dfhack.run_command(cmd)
+		writeall(output)
 		local n = 0
 		local bps = defender:getBodyParts("CATEGORY","HEAD")
 		for _,action in pairs(attacker:getActions("Attack")) do
-			local data = action:getData()
-			if data.target_unit_id == defender.id then
-				if data.attack_velocity == 100 and data.target_body_part_id == bps[1].id then
+			if action.data.target_unit_id == defender.id then
+				if action.data.attack_velocity == 100 and action.data.target_body_part_id == bps[1].id then
 					n = n + 1
 				end
 			end
 		end
 		if n ~= 10 then
 			unitCheck[#unitCheck+1] = "Failed to add 10 100 velocity punches to the head of defender - " .. tostring(n)
-		end
-		
-		return unitCheck
-	end
-
-	local attribute_change = function ()
-		local unit = self.civUnits[1]
-		local unitCheck = {}
-		
-	---- Check that the script succeeds and adds 50 strength to the unit
-		local attribute = unit:getAttribute("STRENGTH")
-		local val = attribute:getBaseValue()
-		writeall("unit/attribute-change -unit "..tostring(unit.id).." -attribute STRENGTH -amount 50 -mode fixed")
-		--output = dfhack.run_command_silent("unit/attribute-change -unit "..tostring(unit.id).." -attribute STRENGTH -amount 50 -mode fixed")
-		output = dfhack.run_command_silent("unit/attribute-change -unit "..tostring(unit.id).." -attribute STRENGTH -amount 50 -mode fixed")
-		writeall(output)
-		if attribute:getBaseValue() ~= val + 50 then
-			unitCheck[#unitCheck+1] = "Failed to add 50 strength to unit "..tostring(val).." - "..tostring(attribute:getBaseValue())
-		end		
-		
-		return unitCheck
-	end
-
-	local body_change = function ()
-		local unit = self.wildUnits[2]
-		local unitCheck = {}
-	
-	---- Check that the script succeeds and set the eyes of unit on fire for 50 ticks
-		writeall("unit/body-change -unit "..tostring(unit.id).." -partType Flag -bodyPart SIGHT -status Fire -dur 50")
-		output = dfhack.run_command_silent("unit/body-change -unit "..tostring(unit.id).." -partType Flag -bodyPart SIGHT -status Fire -dur 50")
-		writeall(output)
-		parts = unit:getBodyParts("FLAGS","SIGHT")
-		for _,part in pairs(parts) do
-			if not part:getStatus("fire") then
-				unitCheck[#unitCheck+1] = "Failed to set SIGHT body parts on fire"
-			end
-		end
-		writeall("Pausing run_test.lua for 75 in-game ticks")
-		script.sleep(75,"ticks")
-		writeall("Resuming run_test.lua")
-		for _,part in pairs(parts) do
-			if part:getStatus("fire") then
-				unitCheck[#unitCheck+1] = "Failed to turn off fire of SIGHT body parts"
-			end
 		end
 		
 		return unitCheck
@@ -193,6 +103,146 @@ function tests()
         dfhack.run_command("full-heal -r -unit "..tostring(unit.id))
 		return unitCheck
 	end
+
+	local change_action = function ()
+		local unit = self.civUnits[1]
+		local unitCheck = {}
+		writeall("unit/change-action checks starting")
+	
+	---- Check that the script succeeds and adds an action of every type with a 500 tick cooldown
+		local cmd = "unit/change-action -unit "..tostring(unit.id).." -data [ timer 500 ] -action All -add"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
+		local check = true
+		local actions = unit:getActions("ALL")
+		for _,action in pairs(actions) do
+			local delay = action:getDelay()
+			if delay >= 0 and delay < 500 then
+				check = false
+				break
+			end
+		end
+		if not check then
+			unitCheck[#unitCheck+1] = "Failed to change all timed actions to 500"
+		end
+		
+		---- Check that the script succeeds and removes all actions from unit
+		cmd = "unit/action-change -unit "..tostring(unit.id).." -action ALL -clear"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
+		if #unit:getActions("ALL") > 0 then
+			unitCheck[#unitCheck+1] = "Failed to remove all actions from unit"
+		end
+		
+		return unitCheck
+	end
+
+	local change_attribute = function ()
+		local unit = self.civUnits[1]
+		local unitCheck = {}
+		
+	---- Check that the script succeeds and adds 50 strength to the unit
+		local attribute = unit:getAttribute("STRENGTH")
+		local val = attribute:getBaseValue()
+		local cmd = "unit/change-attribute -unit "..tostring(unit.id).." -attribute [ STRENGTH +50 ]"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
+		if attribute:getBaseValue() ~= val + 50 then
+			unitCheck[#unitCheck+1] = "Failed to add 50 strength to unit "..tostring(val).." - "..tostring(attribute:getBaseValue())
+		end		
+		
+		return unitCheck
+	end
+
+	local change_body = function ()
+		local unit = self.wildUnits[2]
+		local unitCheck = {}
+	
+	---- Check that the script succeeds and set the eyes of unit on fire for 50 ticks
+		writeall("unit/change-body -unit "..tostring(unit.id).." -bodyPart FLAG:SIGHT -status [ on_fire true ] -dur 50")
+		output = dfhack.run_command_silent("unit/change-body -unit "..tostring(unit.id).." -bodyPart FLAG:SIGHT -status [ on_fire true ] -dur 50")
+		writeall(output)
+		parts = unit:getBodyParts("FLAG","SIGHT")
+		for _,part in pairs(parts) do
+			if not part:getStatus("on_fire") then
+				unitCheck[#unitCheck+1] = "Failed to set SIGHT body parts on fire"
+			end
+		end
+		writeall("Pausing run_test.lua for 75 in-game ticks")
+		script.sleep(75,"ticks")
+		writeall("Resuming run_test.lua")
+		for _,part in pairs(parts) do
+			if part:getStatus("on_fire") then
+				unitCheck[#unitCheck+1] = "Failed to turn off fire of SIGHT body parts"
+			end
+		end
+		
+		return unitCheck
+	end
+
+	local change_personality = function ()
+		local unit = self.civUnits[1]
+		local personality = unit:getPersonality()
+		local unitCheck = {}
+		
+	---- Check that the script increases ELOQUENCY by 10 for 50 ticks
+		local trait = personality:getTrait("ELOQUENCY")
+		local cmd = "unit/change-personality -unit "..tostring(unit.id).." -trait [ ELOQUENCY +10 ] -dur 50"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
+		if personality:getTrait("ELOQUENCY") ~= trait + 10 then
+			unitCheck[#unitCheck+1] = "Failed to increase units ELOQUENCY trait by 10 - " .. tostring(trait+10) .. " " .. tostring(personality:getTrait("ELOQUENCY"))
+		end
+		writeall("Pausing run_test.lua for 75 in-game ticks")
+		script.sleep(75,"ticks")
+		writeall("Resuming run_test.lua")
+		if personality:getTrait("ELOQUENCY") ~= trait then
+			unitCheck[#unitCheck+1] = "Failed to reset units ELOQUENCY trait - " .. tostring(trait) .. " " .. tostring(personality:getTrait("ELOQUENCY"))
+		end		
+		
+		return unitCheck
+	end
+
+	local change_skill = function ()
+		local unit = self.civUnits[1]
+		local unitCheck = {}
+		
+	---- Check that the script succeeds and increases units dodging skill by 5 levels
+		local skill = unit:getSkill("DODGING")
+		local val = 0
+		if skill then
+			val = skill:getBaseValue("LEVEL")
+		end
+		cmd = "unit/change-skill -unit "..tostring(unit.id).." -skill [ DODGING +5 ] -add"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
+		skill = unit:getSkill("DODGING")
+		if skill:getBaseValue("LEVEL") ~= val + 5 then
+			unitCheck[#unitCheck+1] = "Failed to increase units dodging skill by 5 - " .. tostring(val+5) .. " " .. tostring(skill:getBaseValue("LEVEL"))
+		end
+
+	---- Check that the script succeeds and increases units mining skill experience by 500
+		local skill = unit:getSkill("MINING")
+		local val = 0
+		if skill then
+			val = skill:getEffectiveValue("EXPERIENCE")
+		end
+		cmd = "unit/change-skill -unit "..tostring(unit.id).." -skill [ MINING +500 ] -type Experience -add"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
+		skill = unit:getSkill("MINING")
+		if skill:getEffectiveValue("EXPERIENCE") ~= val + 500 then
+			unitCheck[#unitCheck+1] = "Failed to add 500 experience to units mining skill - " .. tostring(val+500) .. " " .. tostring(skill:getEffectiveValue("EXPERIENCE"))
+		end
+		
+		return unitCheck
+	end
 	
 	local propel = function ()
 		local unitCheck = {}
@@ -208,67 +258,14 @@ function tests()
 		
 		return unitCheck
 	end
-	
-	local skill_change = function ()
-		local unit = self.civUnits[1]
-		local unitCheck = {}
-		
-	---- Check that the script succeeds and increases units dodging skill by 5 levels
-		local skill = unit:getSkill("DODGING")
-		local val = 0
-		if skill then
-			val = skill:getBaseValue("LEVEL")
-		end
-		writeall("unit/skill-change -unit "..tostring(unit.id).." -skill DODGING -amount 5 -mode Fixed -add")
-		output = dfhack.run_command_silent("unit/skill-change -unit "..tostring(unit.id).." -skill DODGING -amount 5 -mode Fixed -add")
-		--writeall(output)
-		skill = unit:getSkill("DODGING")
-		if skill:getBaseValue("LEVEL") ~= val + 5 then
-			unitCheck[#unitCheck+1] = "Failed to increase units dodging skill by 5 - " .. tostring(val) .. " " .. tostring(skill:getBaseValue("LEVEL"))
-		end
-
-	---- Check that the script succeeds and increases units mining skill experience by 500
-		local skill = unit:getSkill("MINING")
-		local val = 0
-		if skill then
-			val = skill:getEffectiveValue("EXPERIENCE")
-		end
-		writeall("unit/skill-change -unit "..tostring(unit.id).." -skill MINING -amount 500 -type Experience -mode Fixed -add")
-		output = dfhack.run_command_silent("unit/skill-change -unit "..tostring(unit.id).." -skill MINING -amount 500 -type Experience -mode Fixed -add")
-		writeall(output)
-		skill = unit:getSkill("MINING")
-		if skill:getEffectiveValue("EXPERIENCE") ~= val + 500 then
-			unitCheck[#unitCheck+1] = "Failed to add 500 experience to units mining skill - " .. tostring(val) .. " " .. tostring(skill:getEffectiveValue("EXPERIENCE"))
-		end
-		
-		return unitCheck
-	end
-	
-	local trait_change = function ()
-		local unit = self.civUnits[1]
-		local unitCheck = {}
-
-	---- Check that the script succeeds and lowers the units greed trait by 5
-		local trait = unit:getTrait("GREED")
-		local val = trait:getBaseValue()
-		writeall("unit/trait-change -unit "..tostring(unit.id).." -trait GREED -amount 5 -mode Fixed")
-		output = dfhack.run_command_silent("unit/trait-change -unit "..tostring(unit.id).." -trait GREED -amount 5 -mode Fixed")
-		--writeall(output)
-		if trait:getBaseValue() ~= val+5 then
-			unitCheck[#unitCheck+1] = "Failed to increase GREED trait by 5 - " .. tostring(val) .. " " .. tostring(trait:getBaseValue())
-		end
-		
-		return unitCheck
-	end
 
 	return {
-		action_change = action_change,
 		attack = attack,
-		attribute_change = attribute_change,
-		body_change = body_change,
 		butcher = butcher,
+		change_action = change_action,
+		change_attribute = change_attribute,
+		change_body = change_body,
+		change_skill = change_skill,
 		propel = propel,
-		skill_change = skill_change,
-		trait_change = trait_change,
 	}
 end

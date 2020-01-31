@@ -72,6 +72,9 @@ local function checkSurface(x,y,z)
 	
 	return surface
 end
+local function samePosition(a, b)
+	return a.x == b.x and a.y == b.y and a.z == b.z
+end
 
 --===============================================================================================--
 --== MAP CLASSES ================================================================================--
@@ -425,6 +428,18 @@ function MAP:getPosition(...)
 	return pos
 end
 
+function MAP:getFlow(pos)
+	local block = dfhack.maps.ensureTileBlock(pos)
+	local flowOut
+	for i, flow in pairs(block.flows) do
+		if samePosition(flow.pos, pos) then
+			flowOut = FLOW(flow)
+			break
+		end
+	end
+	return flowOut
+end
+
 --===============================================================================================--
 --== MAP FLOW FUNCTIONS =========================================================================--
 --===============================================================================================--
@@ -434,9 +449,19 @@ function FLOW:__index(key)
 	return self._flow[key]
 end
 function FLOW:init(flow)
+	self.Type = string.upper(df.flow_type(flow.type))
+	self.Static = flow.expanding
+	if flow.mat_type >= 0 then
+		self.Inorganic = dfhack.matinfo.getToken(flow.mat_type,flow.mat_index)
+	else
+		self.Inorganic = "NA"
+	end
 	self._flow = flow
 end
 
+function FLOW:getDensity()
+	return self.density
+end
 --===============================================================================================--
 --== MAP TILE FUNCTIONS =========================================================================--
 --===============================================================================================--

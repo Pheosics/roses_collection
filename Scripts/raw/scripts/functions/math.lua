@@ -1,3 +1,22 @@
+--@ module=true
+
+function computeChange(mode, value, current)
+	local change
+	if mode == "+" or mode == "ADD" then
+		change = value
+	elseif mode == "-" or mode == "SUBTRACT" then
+		change = -value
+	elseif mode == "*" or mode == "MULTIPLY" then
+		change = current*value - current
+	elseif mode == "/" or mode == "DIVIDE" then 
+		change = = current/value - current	
+	elseif mode == "." or mode == "SET" then
+		change = value - current
+	else
+		change = value
+	end
+	return math.floor(change + 0.5)
+end
 
 function selectRandom(tab)
 	if #tab == 1 then

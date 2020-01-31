@@ -1,13 +1,13 @@
-usages = {}
-
-usages[#usages+1] = [===[
-]===]
+--@ module=true
+info = {}
+info["ITEM"]        = [===[ TODO ]===]
+info["ITEM_ATTACK"] = [===[ TODO ]===]
 
 --===============================================================================================--
 --== ITEM CLASSES ===============================================================================--
 --===============================================================================================--
-ITEM        = defclass(ITEM)        -- references <item>
-ITEM_ATTACK = defclass(ITEM_ATTACK) -- references <item_attack>
+ITEM        = defclass(ITEM)        -- references <df.item>
+ITEM_ATTACK = defclass(ITEM_ATTACK) -- references <df.item_attack>
 
 --===============================================================================================--
 --== ITEM FUNCTIONS =============================================================================--
@@ -18,7 +18,6 @@ function ITEM:__index(key)
 	return self._item[key]
 end
 function ITEM:init(item)
-	--??
 	if tonumber(item) then item = df.item.find(tonumber(item)) end
 	self.id = item.id
 	self._item = item
@@ -42,12 +41,12 @@ function ITEM:getAttack(attack_verb)
 			if pick >= weights[i-1] and pick < weights[i] then attack = i-1 break end
 		end
 		if not attack then attack = n end
-		out = ITEM_ATTACK({item.id,item.subtype.attacks[attack]})
+		out = ITEM_ATTACK({self._item,item.subtype.attacks[attack]})
 	else
 		for _,attack in pairs(item.subtype.attacks) do
 			if attack.verb_2nd:upper() == verb:upper() 
 				or attack.verb_3rd:upper() == verb:upper() then
-				out = ITEM_ATTACK({item.id,attack})
+				out = ITEM_ATTACK({self._item,attack})
 				break
 			end
 		end
@@ -59,15 +58,13 @@ function ITEM:changeMaterial(material)
 	local item = df.item.find(self.id)
 	local mat = dfhack.matinfo.find(material)
 	if not mat then return end
-	item.mat_type = mat.type
-	item.mat_index = mat.index
+	item:setMaterial(mat.type) --vmethod
+	item:setMaterialIndex(mat.index) --vmethod
 end
 
 function ITEM:changeQuality(quality)
 	local item = df.item.find(self.id)
-	if quality > 5 then quality = 5 end
-	if quality < 0 then quality = 0 end
-	item:setQuality(quality)
+	item:setQuality(quality) --vmethod
 end
 
 function ITEM:changeStackSize(change)
@@ -81,7 +78,7 @@ function ITEM:changeSubtype(subtype)
 	for i = 0, dfhack.items.getSubtypeCount(itemType)-1, 1 do
 		local item_sub = dfhack.items.getSubtypeDef(itemType,i)
 		if item_sub.id == subtype then
-			item:setSubtype(item_sub.subtype)
+			item:setSubtype(item_sub.subtype) --vmethod
 			break
 		end
 	end
@@ -108,16 +105,9 @@ function ITEM:getSubtype()
 	return dfhack.items.getSubtypeDef(itemType,itemSubtype).id
 end
 
-function ITEM:makeProjectile(projectileType,origin,velocity,options)
+function ITEM:makeProjectile(projectileType,origin,velocity,target,hit_chance,min_range,max_range)
 	local item = df.item.find(self.id)
 	dfhack.items.moveToGround(item,origin)
-	local velocity = velocity or {0,0,0}
-	if options then
-		target = options.target
-		hit_chance = options.accuracy or 50
-		max_range = options.range or 10
-		min_range = options.minimum or 1
-	end
 
 	proj = dfhack.items.makeProjectile(item)
 	proj.origin_pos.x = origin[1] or origin.x
@@ -175,28 +165,26 @@ end
 function ITEM_ATTACK:init(input)
 	--??
 	self._attack = input[2]
-	self.item_id = input[1]
+	self.item = input[1]
+	self.unit = dfhack.items.getHolderUnit(self.item)
 end
 
 function ITEM_ATTACK:computeVelocity()
-	local item = df.item.find(self.item_id)
-	local unit = dfhack.items.getHolderUnit(item)
-	local material = dfhack.matinfo.decode(item.mat_type,item.mat_index).material
-		
-	local actweight = item.subtype.size*(material.solid_density/100)
-	local effweight = unit.body.size_info.size_cur/100 + actweight
-	local vel_mod = self.velocity_mult
-	local strength = dfhack.units.getPhysicalAttrValue(unit,df.physical_attribute_type["STRENGTH"])
-	local velocity = unit.body.size_info.size_base*strength*(vel_mod/1000)*(effweight/1000)
+	local material = dfhack.matinfo.decode(self.item.mat_type,self.item.mat_index).material
+	
+	local actweight = self.item.subtype.size*(material.solid_density/100)
+	local effweight = self.unit.body.size_info.size_cur/100 + actweight
+	local vel_mod = self._attack.velocity_mult
+	local strength = dfhack.units.getPhysicalAttrValue(self.unit,df.physical_attribute_type["STRENGTH"])
+	local velocity = self.unit.body.size_info.size_base*strength*(vel_mod/1000)*(effweight/1000)
 	if velocity < 1 then velocity = 1 end
-	local momentum = (velocity*actweight)/1000 + 1
 
-	return math.floor(velocity)
+	return math.floor(velocity+0.5)
 end
 
---===============================================================================================--
---===============================================================================================--
---===============================================================================================--
+function copy_item(item)
+
+end
 
 function create(item,material,creatorID,quality) --from modtools/create-item
 	quality = tonumber(quality) or 0
@@ -212,11 +200,3 @@ function create(item,material,creatorID,quality) --from modtools/create-item
 	
 	return ITEM(item)
 end
-
-function destroy () end
-
-function locate() end
-
-function makeProjectile() end
-
-function move() end

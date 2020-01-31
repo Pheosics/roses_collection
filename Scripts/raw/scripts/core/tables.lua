@@ -1,6 +1,8 @@
+--@ module = true
 local utils = require "utils"
 local split = utils.split_string
 local json = require "json"
+systemCore = reqscript("core/systems")
 
 savepath = dfhack.getSavePath()
 Tables = Tables or {}
@@ -18,7 +20,7 @@ function initTables(scripts,systems)
 	Tables.Systems = {}
 	for _,systemFile in pairs(systems) do
 		system = dfhack.script_environment(systemFile)
-		n, Table = dfhack.script_environment("base/systems").makeSystemTable(system.Tokens)
+		n, Table = systemCore.makeSystemTable(system.Tokens)
 		if n > 0 then
 			Tables.Systems[system.Name] = n
 			Tables[system.Name] = Table

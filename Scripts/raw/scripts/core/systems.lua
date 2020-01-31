@@ -1,3 +1,4 @@
+--@ module = true
 local utils = require "utils"
 local eventful = require "plugins.eventful"
 local split = utils.split_string
