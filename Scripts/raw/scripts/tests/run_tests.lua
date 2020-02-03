@@ -22,7 +22,7 @@ function writeall(tbl)
 end
 
 scriptChecks = {}
-scriptCategories = {"unit","item","entity","building","map"}
+scriptCategories = {"unit","item"}--,"entity","building","map"}
 
 function scriptCheck()
 	for _,scripts in pairs(scriptCategories) do

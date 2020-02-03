@@ -64,13 +64,13 @@ validArgs = utils.invert({
 })
 
 local function setAttack(attacker, defender, target_bp, attack, velocity, hitchance, delay, number)
-	number = number or 1
+	number = tonumber(number) or 1
 	delay = delay or 1
 	
 	-- Set Attack Action Data
 	local attack_data = {}
 	attack_data.target_unit_id = defender.id
-	attack_data.target_body_part_id = target.id
+	attack_data.target_body_part_id = defender.id
 	attack_data.attack_id = attack.id
 	attack_data.attack_velocity = velocity
 	attack_data.attack_accuracy = hitchance
@@ -187,8 +187,6 @@ local function main(...)
 		weaponAttack(attacker,defender,options)
 	else
 		bodyPartAttack(attacker,defender,options)
-		attack = attacker:getAttack(args.attack)
-		if not attack then error(error_str .. "No appropriate attack found") end
 	end
 end
 

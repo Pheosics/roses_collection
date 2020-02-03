@@ -1,5 +1,5 @@
 script = require "gui.script"
-defitem = reqscript("functions/item")
+local defitem = reqscript("functions/item").ITEM
 
 function writeall(tbl)
  if not tbl then return end
@@ -41,7 +41,7 @@ function tests()
 		output = dfhack.run_command_silent("item/create -creator "..tostring(unit.id).." -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -dur 20")
 		writeall(output)
 		local item = mostRecentItem()
-		if dfhack.items.getSubtypeDef(item:getType(),item:getSubtype()).id ~= "ITEM_WEAPON_SWORD_SHORT" then
+		if item:getSubtype() ~= "ITEM_WEAPON_SWORD_SHORT" then
 			Check[#Check+1] = "Failed to create short sword"
 		end
 		local id = item.id
@@ -149,7 +149,7 @@ function tests()
 		---- Check that the script succeeds and changes the pants unit is wearing into greaves for 50 ticks
 		cmd = "item/change-subtype -unit "..tostring(unit.id).." -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50"
 		writeall(cmd)
-		output = dfhack.run_command_silent(cmd")
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
 		items = unit:getInventoryItems("TYPE","PANTS")
 		for _,v in pairs(items) do

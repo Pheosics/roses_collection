@@ -9,7 +9,7 @@ function computeChange(mode, value, current)
 	elseif mode == "*" or mode == "MULTIPLY" then
 		change = current*value - current
 	elseif mode == "/" or mode == "DIVIDE" then 
-		change = = current/value - current	
+		change = current/value - current	
 	elseif mode == "." or mode == "SET" then
 		change = value - current
 	else

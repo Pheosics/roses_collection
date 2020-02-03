@@ -1,4 +1,6 @@
 --@ module=true
+local utils = require "utils"
+
 info = {}
 info["UNIT"]           = [===[ TODO ]===]
 info["UNIT_ACTION"]    = [===[ TODO ]===]
@@ -49,12 +51,12 @@ end
 function UNIT:addAttack(attack_data)
 	unit = df.unit.find(self.id)
 	attack = df.unit_action:new()
-	action.id = unit.next_action_id
-	action.type = df.unit_action_type["Attack"]
+	attack.id = unit.next_action_id
+	attack.type = df.unit_action_type["Attack"]
 	for k,v in pairs(attack_data) do
-		action.data.attack[k] = v
+		attack.data.attack[k] = v
 	end
-	unit.actions:insert('#',action)
+	unit.actions:insert('#',attack)
 	unit.next_action_id = unit.next_action_id + 1
 end
 
@@ -269,7 +271,7 @@ function UNIT_ACTION:init(input)
 	self.unit = input[1]
 	self._action = input[2]
 	self.type = df.unit_action_type[self._action.type]
-	self.data = action.data[self.type]
+	self.data = self._action.data[self.type:lower()]
 end
 
 function UNIT_ACTION:removeAction()
@@ -301,7 +303,8 @@ end
 function UNIT_ATTACK:init(input)
 	self.unit = input[1]
 	self.id = input[2]
-	self._attack = unit.body.body_plan.attacks[input[2]]
+	self.item_id = false
+	self._attack = self.unit.body.body_plan.attacks[input[2]]
 end
 
 function UNIT_ATTACK:computeHitChance()
@@ -554,13 +557,30 @@ end
 function UNIT_SKILL:getBaseValue(Type)
 	Type = Type or "LEVEL"
 	local value = 0
-	local unit = df.unit.find(self.unit_id)
+	local unit = df.unit.find(self.unit.id)
 	if self.type == "Normal" then
 		local skillid = df.job_skill[self.token]
 		if Type:upper() == "EXPERIENCE" then
 			value = dfhack.units.getExperience(unit, skillid, false)
 		elseif Type:upper() == "LEVEL" then
 			value = dfhack.units.getNominalSkill(unit, skillid, false)
+		end	
+	elseif self.type == "Custom" then
+		-- No custom skills yet
+	end
+	return value
+end
+
+function UNIT_SKILL:getEffectiveValue(Type)
+	Type = Type or "LEVEL"
+	local value = 0
+	local unit = df.unit.find(self.unit.id)
+	if self.type == "Normal" then
+		local skillid = df.job_skill[self.token]
+		if Type:upper() == "EXPERIENCE" then
+			value = dfhack.units.getExperience(unit, skillid, true)
+		elseif Type:upper() == "LEVEL" then
+			value = dfhack.units.getEffectiveSkill(unit, skillid)
 		end	
 	elseif self.type == "Custom" then
 		-- No custom skills yet

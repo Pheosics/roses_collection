@@ -1,4 +1,5 @@
 script = require "gui.script"
+local defunit = reqscript("functions/unit").UNIT
 
 function writeall(tbl)
  if not tbl then return end
@@ -18,9 +19,9 @@ function tests()
 	local non = {}
 	for _,unit in pairs(df.global.world.units.active) do
 		if dfhack.units.isCitizen(unit) then
-			civ[#civ+1] = dfhack.script_environment("functions/unit").UNIT(unit.id)
+			civ[#civ+1] = defunit(unit.id)
 		elseif unit.training_level == 7 then
-			non[#non+1] = dfhack.script_environment("functions/unit").UNIT(unit.id)
+			non[#non+1] = defunit(unit.id)
 		end
 	end
 	local self = {civUnits = civ,
@@ -31,7 +32,7 @@ function tests()
 		local unitCheck = {}
 		local attacker = self.civUnits[1]
 		local defender = self.wildUnits[4]
-		defender:changePosition(attacker:getPosition())
+		dfhack.script_environment("teleport").teleport(defender._unit,attacker.pos)
 		
 		---- Check that the script succeeds and adds an attack action with the calculated velocity, hit chance, and body part target
 		dfhack.run_command_silent("unit/change-action -unit "..tostring(attacker.id).." -action Attack -clear")
@@ -41,8 +42,7 @@ function tests()
 		writeall(output)
 		check = false
 		for _,action in pairs(attacker:getActions("Attack")) do
-			local data = action:getData()
-			if data.target_unit_id == defender.id then
+			if action.data.target_unit_id == defender.id then
 				check = true
 				break
 			end
@@ -81,7 +81,7 @@ function tests()
 		writeall("unit/butcher -unit "..tostring(unit.id))
 		output = dfhack.run_command_silent("unit/butcher -unit "..tostring(unit.id))
 		writeall(output)
-		if unit:_dfhack("isKilled") then
+		if dfhack.units.isKilled(unit._unit) then
 			unitCheck[#unitCheck+1] = "Incorrectly killed the unit"
 		end
 		
@@ -92,7 +92,7 @@ function tests()
 		writeall("Pausing run_test.lua for 5 in-game ticks")
 		script.sleep(5,"ticks")
 		writeall("Resuming run_test.lua")
-		if not unit:_dfhack("isKilled") then
+		if not dfhack.units.isKilled(unit._unit) then
 			unitCheck[#unitCheck+1] = "Failed to kill unit"
 		end
 		if #unit.corpse_parts < 1 then
@@ -212,7 +212,7 @@ function tests()
 		local unitCheck = {}
 		
 	---- Check that the script succeeds and increases units dodging skill by 5 levels
-		local skill = unit:getSkill("DODGING")
+		local skill = unit:getSkill("DODGING",true)
 		local val = 0
 		if skill then
 			val = skill:getBaseValue("LEVEL")
@@ -221,13 +221,13 @@ function tests()
 		writeall(cmd)
 		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		skill = unit:getSkill("DODGING")
+		skill = unit:getSkill("DODGING",true)
 		if skill:getBaseValue("LEVEL") ~= val + 5 then
 			unitCheck[#unitCheck+1] = "Failed to increase units dodging skill by 5 - " .. tostring(val+5) .. " " .. tostring(skill:getBaseValue("LEVEL"))
 		end
 
 	---- Check that the script succeeds and increases units mining skill experience by 500
-		local skill = unit:getSkill("MINING")
+		local skill = unit:getSkill("MINING",true)
 		local val = 0
 		if skill then
 			val = skill:getEffectiveValue("EXPERIENCE")
@@ -236,7 +236,7 @@ function tests()
 		writeall(cmd)
 		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		skill = unit:getSkill("MINING")
+		skill = unit:getSkill("MINING",true)
 		if skill:getEffectiveValue("EXPERIENCE") ~= val + 500 then
 			unitCheck[#unitCheck+1] = "Failed to add 500 experience to units mining skill - " .. tostring(val+500) .. " " .. tostring(skill:getEffectiveValue("EXPERIENCE"))
 		end
