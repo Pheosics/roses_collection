@@ -1,13 +1,12 @@
 --@ module = true
 local utils = require "utils"
-local eventful = require "plugins.eventful"
 local split = utils.split_string
-usages = {}
-	
+local myIO = reqscript("functions/io")
+
 function makeSystemTable(systemTokens)
 	local numEnhanced = 0
 	local Table = {}
-	dataFiles,dataInfoFiles,files = dfhack.script_environment("functions/io").readRaws("Building")
+	dataFiles,dataInfoFiles,files = myIO.readRaws("Building")
 	if not dataFiles then return numEnhanced end
 
 	for _,file in ipairs(files) do
@@ -67,7 +66,7 @@ function makeSystemTable(systemTokens)
 							end							
 						elseif Subtype == "Script" then
 							temp = {}
-							script, frequency = dfhack.script_environment("functions/io").parseScript(data[j])
+							script, frequency = myIO.parseScript(data[j])
 							temp.Script = script
 							temp.Frequency = tonumber(frequency)
 						end

@@ -1,7 +1,165 @@
-usages = {}
+--@ module=true
 
-usages[#usages+1] = [===[
-]===]
+info = {}
+info["BUILDING"] = [===[ TODO ]===]
+
+hardcoded_bldgs = { -- df.building_type
+	WORKSHOP = { -- df.workshop_type
+		CARPENTERS = df.workshop_type.Carpenters,
+		FARMERS = df.workshop_type.Farmers,
+		MASONS = df.workshop_type.Masons,
+		CRAFTSDWARFS = df.workshop_type.Craftsdwarfs,
+		JEWELERS = df.workshop_type.Jewelers,
+		METALSMITHSFORGE = df.workshop_type.MetalsmithsForge,
+		MAGMAFORGE = df.workshop_type.MagmaForge,
+		BOWYERS = df.workshop_type.Bowyers,
+		MECHANICS = df.workshop_type.Mechanics,
+		SIEGE = df.workshop_type.Siege,
+		BUTCHERS = df.workshop_type.Butchers,
+		LEATHERWORKS = df.workshop_type.Leatherworks,
+		TANNERS = df.workshop_type.Tanners,
+		CLOTHIERS = df.workshop_type.Clothiers,
+		FISHERY = df.workshop_type.Fishery,
+		STILL = df.workshop_type.Still,
+		LOOM = df.workshop_type.Loom,
+		QUERN = df.workshop_type.Quern,
+		KENNELS = df.workshop_type.Kennels,
+		ASHERY = df.workshop_type.Ashery,
+		KITCHEN = df.workshop_type.Kitchen,
+		DYERS = df.workshop_type.Dyers,
+		TOOL = df.workshop_type.Tool,
+		MILLSTONE = df.workshop_type.Millstone,
+		CUSTOM = df.workshop_type.Custom,
+	},
+	FURNACE = { -- df.furnace_type
+		WOOD_FURNACE = df.furnace_type.WoodFurnace,
+		SMELTER = df.furnace_type.Smelter,
+		GLASS_FURNACE = df.furnace_type.GlassFurnace,
+		MAGMA_SMELTER = df.furnace_type.MagmaSmelter,
+		MAGMA_GLASS_FURNACE = df.furnace_type.MagmaGlassFurnace,
+		MAGMA_KILN = df.furnace_type.MagmaKiln,
+		KILN = df.furnace_type.Kiln,
+		CUSTOM = df.furnace_type.Custom
+	},
+	CIVZONE = { -- df.civzone_type
+		HOME = df.civzone_type.Home,
+		DEPOT = df.civzone_type.Depot,
+		STOCKPILE = df.civzone_type.Stockpile,
+		NOBLEQUARTERS = df.civzone_type.NobleQuarters,
+		MEADHALL = df.civzone_type.MeadHall,
+		THRONEROOM = df.civzone_type.ThroneRoom,
+		ACTIVITYZONE = df.civzone_type.ActivityZone,
+		TEMPLE = df.civzone_type.Temple,
+		KITCHEN = df.civzone_type.Kitchen,
+		CAPTIVEROOM = df.civzone_type.CaptiveRoom,
+		TOWERTOP = df.civzone_type.TowerTop,
+		COURTYARD = df.civzone_type.Courtyard,
+		TREASURY = df.civzone_type.Treasury,
+		GUARDPOST = df.civzone_type.GuardPost,
+		ENTRANCE = df.civzone_type.Entrance,
+		SECRETLIBRARY = df.civzone_type.SecretLibrary,
+		LIBRARY = df.civzone_type.Library,
+		PLOT = df.civzone_type.Plot,
+		MARKETSTALL = df.civzone_type.MarketStall,
+		CAMPGROUND = df.civzone_type.Campground,
+		COMMANDTENT = df.civzone_type.CommandTent,
+		TENT = df.civzone_type.Tent,
+		COMMANDTENTBLD = df.civzone_type.CommandTentBld,
+		TENTBLD = df.civzone_type.TentBld,
+		MECHANISMROOM = df.civzone_type.MechanismRoom,
+		DUNGEONCELL = df.civzone_type.DungeonCell,
+		ANIMALPIT = df.civzone_type.AnimalPit,
+		CLOTHPIT = df.civzone_type.ClothPit,
+		TANNINGPIT = df.civzone_type.TanningPit,
+		CLOTHCLOTHINGPIT = df.civzone_type.ClothClothingPit,
+		LEATHERCLOTHINGPIT = df.civzone_type.LeatherClothingPit,
+		BONECARVINGPIT = df.civzone_type.BoneCarvingPit,
+		GEMCUTTINGPIT = df.civzone_type.GemCuttingPit,
+		WEAPONSMITHINGPIT = df.civzone_type.WeaponsmithingPit,
+		BOWMAKINGPIT = df.civzone_type.BowmakingPit,
+		BLACKSMITHINGPIT = df.civzone_type.BlacksmithingPit,
+		ARMORSMITHINGPIT = df.civzone_type.ArmorsmithingPit,
+		METALCRAFTINGPIT = df.civzone_type.MetalCraftingPit,
+		LEATHERWORKINGPIT = df.civzone_type.LeatherworkingPit,
+		CARPENTRYPIT = df.civzone_type.CarpentryPit,
+		STONEWORKINGPIT = df.civzone_type.StoneworkingPit,
+		FORGINGPIT = df.civzone_type.ForgingPit,
+		FIGHTINGPIT = df.civzone_type.FightingPit,
+		ANIMALWORKSHOP = df.civzone_type.AnimalWorkshop,
+		CLOTHWORKSHOP = df.civzone_type.ClothWorkshop,
+		TANNINGWORKSHOP = df.civzone_type.TanningWorkshop,
+		CLOTHCLOTHINGWORKSHOP = df.civzone_type.ClothClothingWorkshop,
+		LEATHERCLOTHINGWORKSHOP = df.civzone_type.LeatherClothingWorkshop,
+		BONECARVINGWORKSHOP = df.civzone_type.BoneCarvingWorkshop,
+		GEMCUTTINGWORKSHOP = df.civzone_type.GemCuttingWorkshop,
+		WEAPONSMITHINGWORKSHOP = df.civzone_type.WeaponsmithingWorkshop,
+		BOWMAKINGWORKSHOP = df.civzone_type.BowmakingWorkshop,
+		BLACKSMITHINGWORKSHOP = df.civzone_type.BlacksmithingWorkshop,
+		ARMORSMITHINGWORKSHOP = df.civzone_type.ArmorsmithingWorkshop,
+		METALCRAFTINGWORKSHOP = df.civzone_type.MetalCraftingWorkshop,
+		LEATHERWORKINGWORKSHOP = df.civzone_type.LeatherworkingShop,
+		CARPENTRYWORKSHOP = df.civzone_type.CarpentryWorkshop,
+		STONEWORKINGWORKSHOP = df.civzone_type.StoneworkingWorkshop,
+		FORGINGWORKSHOP = df.civzone_type.ForgingWorkshop,
+	},
+	CONSTRUCTION = { -- df.construction_type
+		FORTIFICATION = df.construction_type.Fortification,
+		WALL = df.construction_type.Wall,
+		FLOOR = df.construction_type.Floor,
+		UPSTRAIR = df.construction_type.UpStair,
+		DOWNSTAIR = df.construction_type.DownStair,
+		UPDOWNSTAIR = df.construction_type.UpDownStair,
+		RAMP = df.construction_type.Ramp,
+		TRACKN = df.construction_type.TrackN,
+		TRACKS = df.construction_type.TrackS,
+		TRACKE = df.construction_type.TrackE,
+		TRACKW = df.construction_type.TrackW,
+		TRACKNS = df.construction_type.TrackNS,
+		TRACKNE = df.construction_type.TrackNE,
+		TRACKNW = df.construction_type.TrackNW,
+		TRACKSE = df.construction_type.TrackSE,
+		TRACKSW = df.construction_type.TrackSW,
+		TRACKEW = df.construction_type.TrackEW,
+		TRACKNSE = df.construction_type.TrackNSE,
+		TRACKNSW = df.construction_type.TrackNSW,
+		TRACKNEW = df.construction_type.TrackNEW,
+		TRACKSEW = df.construction_type.TrackSEW,
+		TRACKNSEW = df.construction_type.TrackNSEW,
+		TRACKRAMPN = df.construction_type.TrackRampN,
+		TRACKRAMPS df.construction_type.TrackRampS,
+		TRACKRAMPE = df.construction_type.TrackRampE,
+		TRACKRAMPW = df.construction_type.TrackRampW,
+		TRACKRAMPNS = df.construction_type.TrackRampNS,
+		TRACKRAMPNE = df.construction_type.TrackRampNE,
+		TRACKRAMPNW = df.construction_type.TrackRampNW,
+		TRACKRAMPSE = df.construction_type.TrackRampSE,
+		TRACKRAMPSW = df.construction_type.TrackRampSW,
+		TRACKRAMPEW = df.construction_type.TrackRampEW,
+		TRACKRAMPNSE = df.construction_type.TrackRampNSE,
+		TRACKRAMPNSW = df.construction_type.TrackRampNSW,
+		TRACKRAMPNEW = df.construction_type.TrackRampNEW,
+		TRACKRAMPSEW = df.construction_type.TrackRampSEW,
+		TRACKRAMPNSEW = df.construction_type.TrackRampNSEW,
+	},
+	SHOP = { -- df.shop_type
+		GENERALSTORE = df.shop_type.GeneralStore,
+		CRAFTSMARKET = df.shop_type.CraftsMarket,
+		CLOTHINGSHOP = df.shop_type.ClothingShop,
+		EXOTICCLOTHINGSHOP = df.shop_type.ExoticClothingShop,
+	},
+	SIEGEENGINE = { -- df.siegeengine_type
+		CATAPULT = df.siegeengine_type.Catapult,
+		BALLISTA = df.siegeengine_type.Ballista,
+	},
+	TRAP = { --df.trap_type
+		LEVER = df.trap_type.Lever,
+		PRESSUREPLATE = df.trap_type.PressurePlate,
+		CAGETRAP = df.trap_type.CageTrap,
+		STONEFALLTRAP = df.trap_type.StoneFallTrap,
+		WEAPONTRAP = df.trap_type.WeaponTrap,
+		TRACKSTOP = df.trap_type.TrackStop,
+	},
+}
 
 --===============================================================================================--
 --== BUILDING CLASSES ===========================================================================--
@@ -17,9 +175,23 @@ function BUILDING:__index(key)
 	return self._building[key]
 end
 function BUILDING:init(building)
-	--??
 	if tonumber(building) then building = df.building.find(tonumber(building)) end
 	self.id = building.id
+	self.type_id = building:getType()
+	self.subtype_id = building:getSubtype()
+	self.customtype_id = building:getCustomType()
+	self.type = df.building_type[self.type_id]:upper()
+	if hardcoded_bldgs[self.type] then
+		self.subtype = df[self.type:lower().."_type"][self.subtype_id]:upper()
+	else
+		self.subtype = "NONE"
+	end
+	if self.customtype_id >= 0 then
+		self.customtype = df.global.world.raws.buildings.all[self.customtype_id].code -- Is this true? -ME
+		self.subtype = "CUSTOM"
+	else
+		self.customtype = "NONE"
+	end
 	self._building = building
 end
 
@@ -30,38 +202,69 @@ function BUILDING:addItem(item)
 	item.flags.in_building = true
 end
 
-function BUILDING:changeSubtype(subtype)
+function BUILDING:changeCustomtype(custom)
 	local building = df.building.find(self.id)
+	local ctype = -1
 	for _,bldgRaw in ipairs(df.global.world.raws.buildings.all) do
-		if bldgRaw.code == subtype then
+		if bldgRaw.code == custom then
 			ctype = bldgRaw.id
 			break
 		end
 	end
-	if ctype then
-		building.custom_type = ctype
+	if ctype >= 0 then
+		building:setCustomType(ctype) -- vmethod
 		return true
 	end
 	return false
 end
 
-function BUILDING:getItems()
-end
-
-function BUILDING:destroy()
-end
-
-function BUILDING:getJobs()
+function BUILDING:changeSubtype(subtype)
+	local building = df.building.find(self.id)
+	local stype = hardcoded_bldgs[self.type:upper()][subtype:upper()]
+	if stype >= 0 then
+		building:setSubtype(stype) -- vmethod
+		return true
+	end
+	return false
 end
 
 --===============================================================================================--
+--== ENHANCED BUILDING FUNCTIONS ================================================================--
 --===============================================================================================--
+function BUILDING:count()
+	local number = 0
+	return number
+end
+
+function BUILDING:deconstruct()
+end
+
+function BUILDING:nearbyMagma()
+	local amount = 0
+	return amount
+end
+
+function BUILDING:nearbyWater()
+	local amount = 0
+	return amount
+end
+
+function BUILDING:isInside()
+	return false
+end
+
+function BUILDING:isOutside()
+	return false
+end
+
 --===============================================================================================--
-
-function create() end
-
-function destroy () end
-
-function locate() end
-
-function move() end
+--== UNCLASSED BUILDING FUNCTIONS ===============================================================--
+--===============================================================================================--
+function countBuildings(buildingToken)
+	local n = 0
+	for _,bldg in pairs(df.global.world.buildings.all) do
+		if bldg:getCustomType() >= 0 and bldg:getCustomType().code == reqBldg then
+			n = n+1
+		end
+	end
+end

@@ -1,15 +1,25 @@
---entity/resource-change.lua
+-- TODO Allow multiple additions and removals in an individual call
+
+--entity/change-resource.lua
+--@ module=true
+local utils = require 'utils'
+local split = utils.split_string
+local validResources = reqscript("functions/entity").validResources
+
 local usage = [====[
 
-entity/resource-change
+entity/change-resource
 ==================
 Purpose::
     Adds and removes available resources for an entity
 
+Uses::
+	functions/entity
+
 Arguments::
-    -entity #ID
+    -entity <HISTORICAL_ENTITY_ID>
         ID number of entity to change
-    -type RESROUCE_TYPE:RESOURCE_SUBTYPE
+    -type <RESROUCE_TYPE:RESOURCE_SUBTYPE>
         The type and subtype of resource to change
         Valid TYPEs and SUBTYPEs:
             CREATURE
@@ -25,7 +35,7 @@ Arguments::
             PRODUCT
                 PICK | MELEE | RANGED | AMMO | ARMOR | ANVIL | CRAFTS
                 BARRELS | FLASKS | QUIVERS | BACKPACKS | CAGES
-    -obj CREATURE_RACE:CREATURE_CASTE or MATERIAL_TYPE:MATERIAL_SUBTYPE
+    -obj <CREATURE_RACE:CREATURE_CASTE> or <MATERIAL_TYPE:MATERIAL_SUBTYPE> or <ITEM_TYPE:ITEM_SUBTYPE>
         The type and subtype of the creature or material to add
         For Example
             DWARF:MALE
@@ -37,12 +47,13 @@ Arguments::
         Removes the resource from the entity
 
 Examples::
-    entity/resource-change -entity \\ENTITY_ID -add -type CREATURE:PET -obj DRAGON:FEMALE
-    entity/resource-change -entity \\ENTITY_ID -add -type INORGANIC:METAL -obj INORGANIC:ADAMANTINE
+	* Add female dragons to the entities available pets
+		entity/change-resource -entity \\ENTITY_ID -add -type CREATURE:PET -obj DRAGON:FEMALE
+	* Add adamantine to the entities available metals
+		entity/change-resource -entity \\ENTITY_ID -add -type INORGANIC:METAL -obj INORGANIC:ADAMANTINE
+	* Remove all animals from the entities available mounts
+		entity/change-resource -entity \\ENTITY_ID -remove -type CREATURE:MOUNT -obj ALL:ALL
 ]====]
-
-local utils = require 'utils'
-local split = utils.split_string
 
 validArgs = utils.invert({
     "help",
@@ -52,49 +63,52 @@ validArgs = utils.invert({
     "remove",
     "add"
 })
-local args = utils.processArgs({...}, validArgs)
-local error_str = "Error in entity/resource-change - "
 
-if args.help then
-    print(usage)
-    return
+function addResource(entity,resourceType,resourceSubtype,object)
+	local defentity = reqscript("functions/entity").ENTITY
+	entity = defentity(entity)
+	entity:addResource(resourceType,resourceSubtype,object)
 end
 
-if args.entity and tonumber(args.entity) then entity = dfhack.script_environment("functions/entity").ENTITY(args.entity) end
-if not entity then error(error_str .. "No valid entity decalred") end
-
-mtype = split(args.type,':')[1]
-stype = split(args.type,':')[2]
-
-if args.add then
-    if entity:hasResource(args.type,args.obj) then return end
-    if mtype == "CREATURE" then
-        entity:addCreature(stype,args.obj)
-    elseif mtype == "INORGANIC" then
-        entity:addInorganic(stype,args.obj)
-    elseif mtype == "ITEM" then
-        entity:addItem(stype,args.obj)
-    elseif mtype == "ORGANIC" then
-        entity:addOrganic(stype,args.obj)
-    elseif mtype == "PRODUCT" then
-        entity:addProductMaterial(stype,args.obj)
-    else
-        error(error_str .. "Invalid type decalred")
-    end
+function removeResource(entity,resourceType,resourceSubtype,object)
+	local defentity = reqscript("functions/entity").ENTITY
+	entity = defentity(entity)
+	entity:removeResource(resourceType,resourceSubtype,object)
 end
 
-if args.remove then
-    if mtype == "CREATURE" then
-        entity:removeCreature(stype,args.obj)
-    elseif mtype == "INORGANIC" then
-        entity:removeInorganic(stype,args.obj)
-    elseif mtype == "ITEM" then
-        entity:removeItem(stype,args.obj)
-    elseif mtype == "ORGANIC" then
-        entity:removeOrganic(stype,args.obj)
-    elseif mtype == "PRODUCT" then
-        entity:removeProductMaterial(stype,args.obj)
-    else
-        error(error_str .. "Invalid type decalred")
-    end
+local function main(...)
+	local args = utils.processArgs({...}, validArgs)
+	local error_str = "Error in entity/resource-change - "
+	
+	if args.help then
+		print(usage)
+		return
+	end
+	
+	-- Check for valid entity
+	if args.entity and tonumber(args.entity) then entity = df.historical_entity.find(tonumber(args.entity)) end
+	if not entity then error(error_str .. "No valid entity decalred") end
+	
+	-- Check for required arguments
+	if not args.type then error(error_str .. "No RESOURCE_TYPE:RESOURCE_SUBTYPE declared") end
+	if not args.obj  then error(error_str .. "No OBJ_TYPE:OBJ_SUBTYPE decalred") end
+	
+	-- Parse Arguments
+	splitType = split(args.type,':')
+	resourceType = splitType[1]
+	resourceSubtype = splitType[2]
+	if not validResources[resourceType] then error(error_str .. "Not a valid resource type - " .. resourceType) end
+	if not validResources[resourceType][resourceSubtype] then error(error_str .. "Not a valid resource subtype - " .. resourceSubtype) end
+
+	if args.add then
+		addResource(entity,resourceType,resourceSubtype,args.obj)
+	elseif args.remove then
+		removeResource(entity,resourceType,resourceSubtype,args.obj)
+	else
+		error(error_str .. "Must decalre -add or -remove")
+	end
+end
+
+if not dfhack_flags.module then
+	main(...)
 end

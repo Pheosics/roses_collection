@@ -1,6 +1,8 @@
+--@ module=true
 local utils = require "utils"
 split = utils.split_string
 
+-- Read a PLAN file name for determining positions
 function readPlan(fileName)
 	local iofile = io.open(plan,"r")
 	local data = iofile:read("*all")
@@ -41,6 +43,7 @@ function readPlan(fileName)
 	return x, y, t, xT, yT, xS, yS
 end
 
+-- Read raws and parse the information into a single table
 function readRaws(rawType,test,verbose)
 	if rawType == "Building" then
 		tokenCheck = "[BUILDING"
@@ -138,6 +141,7 @@ function readRaws(rawType,test,verbose)
 	return data, dataInfo, files
 end
 
+-- Parse a script string used in command line and modtools script calls
 function parseScript(a)
 	a = table.concat({select(2,table.unpack(split(a,":")))},":")
 	n = string.find(string.reverse(a),":")
@@ -146,11 +150,10 @@ function parseScript(a)
 	return script, frequency
 end
 
+-- Return a table of race_id and caste_id's that match a given token
 function decode_creatureToken(creatureToken)
 	local spl = split(creatureToken,":")
-	if #spl ~= 2 then
-		error "creature expected in the form RACE:CASTE (e.g. DWARF:MALE)"
-	end
+	if #spl ~= 2 then error "creature expected in the form RACE:CASTE (e.g. DWARF:MALE)" end
 	local race = spl[1]:upper()
 	local caste = spl[2]:upper()
 	local creatures = {}
@@ -171,6 +174,7 @@ function decode_creatureToken(creatureToken)
 	return creatures
 end
 
+-- Return a table of inorganic material index's base on a token
 function decode_inorganicToken(inorganicToken)
 	local inorganicToken = inorganicToken:upper()
 	local inorganics = {}
@@ -206,11 +210,10 @@ function decode_inorganicToken(inorganicToken)
 	return inorganics
 end
 
+-- Return a table of item ids based on an item token
 function decode_itemToken(itemToken)
 	local spl = split(itemToken,":")
-	if #spl ~= 2 then
-		error "itemToken expected in the form ITEM_TYPE:ITEM_SUBTYPE (e.g. ITEM_WEAPON:ITEM_WEAPON_SWORD_SHOT)"
-	end
+	if #spl ~= 2 then error "itemToken expected in the form ITEM_TYPE:ITEM_SUBTYPE (e.g. ITEM_WEAPON:ITEM_WEAPON_SWORD_SHOT)" end
 	local itemType = spl[1]:upper()
 	local itemSubType = spl[2]:upper()
 	local items = {}
@@ -256,6 +259,7 @@ function decode_itemToken(itemToken)
 	return items
 end
 
+-- Shortcut for decode_inorganicToken and decode_organicToken
 function decode_materialToken(materialToken)
 	local spl = split(materialToken,":")
 	if #spl == 1 then
@@ -267,6 +271,7 @@ function decode_materialToken(materialToken)
 	end
 end
 
+-- Returns a table of material type ids and indexes based on the provided token
 function decode_organicToken(organicToken)
 	local organics = {}
 	if dfhack.matinfo.find(organicToken) then
@@ -276,9 +281,7 @@ function decode_organicToken(organicToken)
 		return organics
 	end
 	local spl = split(organicToken,":")
-	if #spl ~= 3 then
-		error("organicToken expected in the form ORGANIC_TYPE:ORGANIC_SUBTYPE:ORGANIC_MATERIAL (e.g. CREATURE:DWARF:MEAT) - " .. organicToken)
-	end
+	if #spl ~= 3 then error("organicToken expected in the form ORGANIC_TYPE:ORGANIC_SUBTYPE:ORGANIC_MATERIAL (e.g. CREATURE:DWARF:MEAT) - " .. organicToken) end
 	local organicType = spl[1]:upper()
 	local organicSubType = spl[2]:upper()
 	local organicMaterial = spl[3]:upper()

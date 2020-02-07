@@ -7,6 +7,7 @@ local scripts_dir = "/raw/scripts"
 local systems_dir = "/raw/systems"
 dfhack.internal.addScriptPath(dfhack.getDFPath()..systems_dir, true)
 tables = reqscript("core/tables")
+persistFileName = "RosesPersist.dat"
 
 local s1 = ""
 local s2 = "  "
@@ -37,7 +38,7 @@ local function detectCollection(verbose)
 	if verbose then print(s2.."Loaded Scripts:") end
 	dfhack.color(c3)
 	local scripts = {}
-	local scriptCategories = {"unit","item","entity","building"}
+	local scriptCategories = {"unit","item","entity","building","map"}
 	for _,category in pairs(scriptCategories) do
 		if verbose then print(s3..category:upper()) end
 		for _,name in pairs(dfhack.internal.getDir(dfhack.getDFPath()..scripts_dir.."/"..category.."/")) do
@@ -74,38 +75,35 @@ local function initializePersistentTables(verbose)
 	dfhack.color(c1)
 	if verbose then print(s1.."Intializing Persistent Tables...") end
 	persistTable = require "persist-table"
-	persistTable.GlobalTable.roses = persistTable.GlobalTable.roses or {}
-	pT = persistTable.GlobalTable.roses
 
-	---- Command Delays
+	---- Persist CommandDelays
 	n = 0
 	dfhack.color(c2)
 	if verbose then print(s2.."CommandDelay Tables:") end
-	pT.CommandDelay = pT.CommandDelay or {}
-	for _,i in pairs(pT.CommandDelay._children) do
-		delay = pT.CommandDelay[i]
+	persistTable.GlobalTable.persistCommandDelay = persistTable.GlobalTable.persistCommandDelay or {}
+	delayTable = persistTable.GlobalTable.persistCommandDelay
+	for _,i in pairs(delayTable._children) do
+		delay = delayTable[i]
 		local currentTick = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick
 		if currentTick >= tonumber(delay.Tick) then
 			delay = nil
 		else
 			n = n + 1
 			local ticks = delay.Tick-currentTick
-			dfhack.timeout(ticks,'ticks',
-							function ()
-								dfhack.run_command(delay.Script)
-							end)
+			dfhack.timeout(ticks, "ticks", function () dfhack.run_command(delay.Script) end)
 		end
 	end
 	dfhack.color(c3)
 	if verbose then print(s3.."Command Delays Loaded - "..tostring(n)) end
 
-	---- Script Environment Delays
+	---- Persist FunctionDelays
 	n = 0
 	dfhack.color(c2)
-	if verbose then print(s2.."EnvironmentDelay Tables:") end
-	pT.EnvironmentDelay = pT.EnvironmentDelay or {}
-	for _,i in pairs(pT.EnvironmentDelay._children) do
-		delay = pT.EnvironmentDelay[i]
+	if verbose then print(s2.."FunctionDelay Tables:") end
+	persistTable.GlobalTable.persistFunctionDelay = persistTable.GlobalTable.persistFunctionDelay or {}
+	delayTable = persistTable.GlobalTable.persistFunctionDelay
+	for _,i in pairs(delayTable._children) do
+		delay = delayTable[i]
 		local currentTick = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick
 		if currentTick >= tonumber(delay.Tick) then
 			delay = nil
@@ -115,15 +113,12 @@ local function initializePersistentTables(verbose)
 			local environment = delay.Environment
 			local functions = delay.Function
 			local arguments = delay.Arguments._children
-			dfhack.timeout(ticks,'ticks',
-							function ()
-								dfhack.script_environment(environment)[functions](table.unpack(arguments))
-							end)
+			dfhack.timeout(ticks, "ticks", function () dfhack.script_environment(environment)[functions](table.unpack(arguments)) end)
 		end
 	end
 	dfhack.color(c3)
-	if verbose then print(s3.."Script Environment Delays Loaded - "..tostring(n)) end
-
+	if verbose then print(s3.."Function Delays Loaded - "..tostring(n)) end
+	
 	dfhack.color(COLOR_RESET)
 end
 
@@ -135,10 +130,10 @@ local function initializeFileTables(scripts,systems,verbose)
 	local fname = nil
 	savepath = dfhack.getSavePath()
 	dfhack.color(c2)
-	if verbose then print(s2.."Searching for RosesPersist.dat in "..savepath) end
+	if verbose then print(s2.."Searching for "..persistFileName.." in "..savepath) end
 	for _,f in pairs(dfhack.internal.getDir(savepath)) do
-		if f == "RosesPersist.dat" then
-			fname = savepath.."/RosesPersist.dat"
+		if f == persistFileName then
+			fname = savepath.."/"..persistFileName
 			break
 		end
 	end

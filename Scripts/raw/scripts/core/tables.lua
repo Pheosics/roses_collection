@@ -1,12 +1,11 @@
 --@ module = true
-local utils = require "utils"
-local split = utils.split_string
 local json = require "json"
 systemCore = reqscript("core/systems")
 
 savepath = dfhack.getSavePath()
 Tables = Tables or {}
 
+-- Initialize tables that will be used for the various scripts and systems included in this package
 function initTables(scripts,systems)
 	-- Game Tables
 	Tables.GlobalTable = {}
@@ -19,24 +18,26 @@ function initTables(scripts,systems)
 	-- Systems
 	Tables.Systems = {}
 	for _,systemFile in pairs(systems) do
-		system = dfhack.script_environment(systemFile)
+		system = reqscript(systemFile)
 		n, Table = systemCore.makeSystemTable(system.Tokens)
 		if n > 0 then
 			Tables.Systems[system.Name] = n
 			Tables[system.Name] = Table
-			dfhack.script_environment(systemFile).startSystemTriggers()
+			system.startSystemTriggers()
 		end
 	end
 end
 
+-- Load tables from a save file
 function loadFile(fname)
 	Tables = json.decode_file(fname)
 	
 	for system,_ in pairs(Tables.Systems) do
-		dfhack.script_environment(system).startSystemTriggers()
+		reqscript(system).startSystemTriggers()
 	end
 end
 
+-- Add a new entry in the Tables.BuildingTable
 function makeBuildingTable(building)
 	if Tables.BuildingTable[building.id] then return Tables.BuildingTable[building.id] end
 	
@@ -46,13 +47,20 @@ function makeBuildingTable(building)
 	Tables.BuildingTable[building.id].Position.x = building.centerx
 	Tables.BuildingTable[building.id].Position.y = building.centery
 	Tables.BuildingTable[building.id].Position.z = building.z
-	if building.custom_type >= 0 then
-		Tables.BuildingTable[building.id].Token = df.global.world.raws.buildings.all[building.custom_type].code
+	Tables.BuildingTable[building.id].Type = building.type
+	Tables.BuildingTable[building.id].Subtype = building.subtype
+	Tables.BuildingTable[building.id].Customtype = building.customtype
+	Tables.BuildingTable[building.id].Hardcoded = building.subtype ~= "CUSTOM"
+	if Tables.BuildingTable[building.id].Hardcoded then
+		Tables.BuildingTable[building.id].Token = building.subtype
+	else
+		Tables.BuildingTable[building.id].Token = building.customtype
 	end
 	
 	return Tables.BuildingTable[building.id]
 end
 
+-- Add a new entry in the Tables.EntityTable
 function makeEntityTable(entity)
 	if Tables.EntityTable[entity.id] then return Tables.EntityTable[entity.id] end
 	
@@ -61,6 +69,7 @@ function makeEntityTable(entity)
 	return Tables.EntityTable[entity.id]
 end
 
+-- Add a new entry in the Tables.ItemTable
 function makeItemTable(item)
 	if Tables.ItemTable[item.id] then return Tables.ItemTable[item.id] end
 	
@@ -69,6 +78,7 @@ function makeItemTable(item)
 	return Tables.ItemTable[item.id]
 end
 
+-- Add a new entry in the Tables.UnitTable
 function makeUnitTable(unit)
 	if Tables.UnitTable[unit.id] then return Tables.UnitTable[unit.id] end
 	

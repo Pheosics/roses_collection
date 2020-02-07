@@ -1,7 +1,6 @@
 --unit/change-action
 --@ module = true
 local utils = require "utils"
-defunit = reqscript("functions/unit").UNIT
 
 local help = [====[
 
@@ -10,6 +9,9 @@ unit/change-action
 Purpose::
     Changes the information for a given action
 	NOTE: Only tested with movement and attack actions at this point
+
+Uses::
+	functions/unit
 
 Arguments::
     -unit <UNIT_ID>
@@ -45,6 +47,7 @@ validArgs = utils.invert({
 })
 
 function changeAction(unit,actionType,data)
+	local defunit = reqscript("functions/unit").UNIT
 	unit = defunit(unit)
 	actions = unit:getActions(actionType)
 	for _,action in pairs(actions) do
@@ -55,6 +58,7 @@ function changeAction(unit,actionType,data)
 end
 
 function removeAction(unit,actionType)
+	local defunit = reqscript("functions/unit").UNIT
 	unit = defunit(unit)
 	actions = unit:getActions(actionType)
 	for _,action in pairs(actions) do

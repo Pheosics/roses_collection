@@ -1,7 +1,6 @@
 --unit/change-skill.lua
 --@ module=true
 local utils = require 'utils'
-defunit = reqscript("functions/unit").UNIT
 
 local usage = [====[
 
@@ -9,7 +8,10 @@ unit/change-skill
 =================
 Purpose::
     Change the skill(s) of a unit
-    
+
+Uses::
+	functions/unit
+
 Arguments::
     -unit <UNIT_ID>
         id of unit to change attributes of
@@ -47,6 +49,7 @@ validArgs = utils.invert({
 })
 
 function changeSkillExperience(unit,skill,mode,value,dur,add)
+	local defunit = reqscript("functions/unit").UNIT
 	unit = defunit(unit)
 	skill = unit:getSkill(skill,add)
 	if not skill then return end
@@ -68,6 +71,7 @@ function changeSkillExperience(unit,skill,mode,value,dur,add)
 end
 
 function changeSkillLevel(unit,skill,mode,value,dur,add)
+	local defunit = reqscript("functions/unit").UNIT
 	unit = defunit(unit)
 	skill = unit:getSkill(skill,add)
 	if not skill then return end
@@ -119,7 +123,7 @@ local function main(...)
 	-- Parse arguments
 	local skills = {}
 	for i = 1, #args.skill, 2 do
-		skill[args.skill[i]] = args.skill[i+1]
+		skills[args.skill[i]] = args.skill[i+1]
 	end
 	args.type = args.type or "LEVEL"
 

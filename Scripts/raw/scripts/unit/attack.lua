@@ -1,9 +1,6 @@
 --unit/attack.lua
 --@ module=true
 local utils = require 'utils'
-defunit = reqscript("functions/unit").UNIT
-defitem = reqscript("functions/item").ITEM
-randoms = reqscript("functions/math").selectRandom
 
 local usage = [====[
 
@@ -11,7 +8,12 @@ unit/attack
 ===========
 Purpose::
     Create a custom attack using either supplied or calculated values
-   
+
+Uses::
+	functions/unit
+	functions/item
+	functions/math
+
 Arguments::
     -defender <UNIT_ID>
         Unit ID of defending unit
@@ -92,6 +94,9 @@ local function setAttack(attacker, defender, target_bp, attack, velocity, hitcha
 end
 
 function weaponAttack(attacker, defender, options)
+	local defunit = reqscript("functions/unit").UNIT
+	local defitem = reqscript("functions/item").ITEM
+	local randoms = reqscript("functions/math").selectRandom
 	options = options or {}
 	
 	-- Get Attacker Information
@@ -125,6 +130,8 @@ function weaponAttack(attacker, defender, options)
 end
 
 function bodyPartAttack(attacker, defender, options)
+	local defunit = reqscript("functions/unit").UNIT
+	local randoms = reqscript("functions/math").selectRandom
 	options = options or {}
 	
 	-- Get Attacker Information

@@ -1,7 +1,6 @@
 --unit/change-attribute.lua
 --@ module=true
 local utils = require 'utils'
-defunit = reqscript("functions/unit").UNIT
 
 local usage = [====[
 
@@ -9,6 +8,9 @@ unit/change-attribute
 =====================
 Purpose::
     Change the attriubute(s) of a unit
+
+Uses::
+	functions/unit
 
 Arguments::
     -unit <UNIT_ID>
@@ -39,6 +41,7 @@ validArgs = utils.invert({
 })
 
 function changeAttribute(unit,attribute,mode,value,dur)
+	local defunit = reqscript("functions/unit").UNIT
 	unit = defunit(unit)
 	attribute = unit:getAttribute(attribute)
 	if not attribute then return end

@@ -1,5 +1,25 @@
--- Map Based Functions
-usages = {}
+--@ module=true
+
+info = {}
+info["MAP"]  = [===[ TODO ]===]
+info["FLOW"] = [===[ TODO ]===]
+
+flow_types = {
+	MIASMA = df.flow_type.Miasma,
+	STEAM = df.flow_type.Steam,
+	MIST = df.flow_type.Mist,
+	MATERIALDUST = df.flow_type.MaterialDust,
+	MAGMAMIST = df.flow_type.MagmaMist,
+	SMOKE = df.flow_type.Smoke,
+	DRAGONFIRE = df.flow_type.Dragonfire,
+	FIRE = df.flow_type.Fire,
+	WEB = df.flow_type.Web,
+	MATERIALGAS = df.flow_type.MaterialGas,
+	MATERIALVAPOR = df.flow_type.MaterialVapor,
+	OCEANWAVE = df.flow_type.OceanWave,
+	SEAFOAM = df.flow_type.SeaFoam,
+	ITEMCLOUD = df.flow_type.ItemCloud,
+}
 
 local openTileTypes = {"Floor","Pebbles","Shrub","Open"}
 local positionTypes = {"CENTER","EDGE","UNIT"}
@@ -178,7 +198,7 @@ function MAP:getPlanPositions(pos,plan,origin)
 	local ztar = pos.z or pos[3]
 	local n = 0
 	local locations = {}
-	x, y, t, xT, yT, xS, yS = dfhack.script_environment("functions/io").readPlan(plan)
+	x, y, t, xT, yT, xS, yS = reqscript("functions/io").readPlan(plan)
 	
 	-- Determine center of plan
 	if xT == -1 and xS == -1 then return locations, n end -- Has to have a source or target declared
@@ -440,6 +460,12 @@ function MAP:getFlow(pos)
 	return flowOut
 end
 
+function MAP:getDepth(pos)
+	local x = pos.x or pos[1]
+	local y = pos.y or pos[2]
+	local z = pos.z or pos[3]
+	return dfhack.maps.ensureTileBlock(x,y,z).designation[x%16][y%16].flow_size
+end
 --===============================================================================================--
 --== MAP FLOW FUNCTIONS =========================================================================--
 --===============================================================================================--

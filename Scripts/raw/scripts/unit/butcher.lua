@@ -10,6 +10,9 @@ unit/butcher
 Purpose::
     Butcher a unit
 
+Uses::
+	NONE
+
 Arguments::
     -unit <UNIT_ID>
         Unit id to check for butchering

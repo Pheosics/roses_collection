@@ -1,5 +1,6 @@
 --@ module=true
 
+-- Computes change needed according to mode, value, and current
 function computeChange(mode, value, current)
 	local change
 	if mode == "+" or mode == "ADD" then
@@ -18,6 +19,7 @@ function computeChange(mode, value, current)
 	return math.floor(change + 0.5)
 end
 
+-- Select a random item from a table
 function selectRandom(tab)
 	if #tab == 1 then
 		return tab[1]
@@ -27,8 +29,8 @@ function selectRandom(tab)
 	end
 end
 
+-- Randomly permutes a given table. Returns permuted table
 function permute(tab,zero)
-	-- Randomly permutes a given table. Returns permuted table
 	if zero then
 		n = #tab-1
 		for i = 0, n do

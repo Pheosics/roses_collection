@@ -91,7 +91,7 @@ end
 
 function ITEM:getQuality()
 	local item = df.item.find(self.id)
-	return item.quality
+	return item:getQuality()
 end
 
 function ITEM:getStackSize()

@@ -1,7 +1,6 @@
 --unit/propel.lua
 --@ module=true
 local utils = require 'utils'
-defunit = reqscript("functions/unit").UNIT
 
 local usage = [====[
 
@@ -9,6 +8,9 @@ unit/propel
 ===========
 Purpose::
     Turns a unit into a projectile with a given velocity
+
+Uses::
+	functions/unit
 
 Arguments::
     -unit <UNIT_ID>
@@ -46,6 +48,7 @@ validArgs = utils.invert({
 
 function propel(unit,vx,vy,vz)
 	if vx == 0 and vy == 0 and vz == 0 then return end
+	local defunit = reqscript("functions/unit").UNIT
 	unit = defunit(unit)
 	unit:makeProjectile({resultx,resulty,resultz})
 end

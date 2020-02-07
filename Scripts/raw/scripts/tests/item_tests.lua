@@ -62,12 +62,12 @@ function tests()
 		item = mostRecentItem()
 		
 	---- Check that the script succeeds and changes the steel short sword into a brain short sword
-		cmd = "item/change-material -item "..tostring(item.id).." -material CREATURE_MAT:DWARF:BRAIN"
+		cmd = "item/change-material -item "..tostring(item.id).." -material CREATURE:DWARF:BRAIN"
 		writeall(cmd)
 		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		if item:getMaterial() ~= "CREATURE_MAT:DWARF:BRAIN" then
-			Check[#Check+1] = "Failed to change short sword material - CREATURE_MAT:DWARF:BRAIN " .. item:getMaterial()
+		if item:getMaterial() ~= "CREATURE:DWARF:BRAIN" then
+			Check[#Check+1] = "Failed to change short sword material - CREATURE:DWARF:BRAIN " .. item:getMaterial()
 		end
 		
 	---- Check that the script succeeds and changed the entire units inventory into adamantine for 50 ticks

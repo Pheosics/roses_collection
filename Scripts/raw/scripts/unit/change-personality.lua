@@ -1,7 +1,6 @@
 --unit/change-personality.lua
 --@ module=true
 local utils = require 'utils'
-defunit = reqscript("functions/unit").UNIT
 
 local usage = [====[
 
@@ -9,7 +8,10 @@ unit/change-personality
 =====================
 Purpose::
     Change the traits, dreams, values, and emotions of a unit
- 
+
+Uses::
+	functions/unit
+
 Arguments::
     -unit #ID
         id of unit to change traits of
@@ -35,6 +37,7 @@ validArgs = utils.invert({
 })
 
 function changeTrait(unit,trait,mode,value,dur)
+	local defunit = reqscript("functions/unit").UNIT
 	unit = defunit(unit)
 	personality = unit:getPersonality()
 	if not personality then return end

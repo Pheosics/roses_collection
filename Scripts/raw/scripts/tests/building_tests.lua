@@ -1,4 +1,6 @@
 script = require "gui.script"
+local defbldg = reqscript("functions/building").BUILDING
+local map = reqscript("functions/map").MAP()
 
 function writeall(tbl)
  if not tbl then return end
@@ -14,70 +16,82 @@ function writeall(tbl)
 end
 
 function tests()
-	for i,bldg in pairs(df.global.world.raws.buildings.all) do
-		if bldg.code == "TEST_BUILDING_1" then ctype1 = i end
-		if bldg.code == "TEST_BUILDING_2" then ctype2 = i end
-	end
-	local self = {buildingFunctions = dfhack.script_environment("functions/building"),
-				  map = dfhack.script_environment("functions/map").MAP(),
-				  ctype1 = ctype1, ctype2 = ctype2}
+	local self = {}
 	
 	local create = function ()
 		local Check = {}
-		if not self.ctype1 or not self.ctype2 then return nil end
 		
-	---- Check that the script creates a quern (only vanilla building it can make)
-		location = self.map:getPosition("SURFACE",true)
+	---- Check that the script creates a hardcoded building (Quern)
+		location = map:getPosition("SURFACE",true)
 		loc_str = tostring(location.x) .. " " .. tostring(location.y) .. " " .. tostring(location.z)
-		writeall("building/create -location [ "..loc_str.." ] -type Workshop -subtype 17 -test")
-		output = dfhack.run_command_silent("building/create -location [ "..loc_str.." ] -type Workshop -subtype 17 -test")
+		cmd = "building/create -location [ "..loc_str.." ] -type Workshop -subtype Quern"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
 		if not dfhack.buildings.findAtTile(location) then
-			Check[#Check+1] = "Failed to create Quern"
+			Check[#Check+1] = "Failed to create WORKSHOP:QUERN"
 		else
-			self.buildingVanilla = dfhack.buildings.findAtTile(location)
+			self.quern = dfhack.buildings.findAtTile(location)
 		end
 
-	---- Check that the script creates TEST_BUILDING_1
-		location = self.map:getPosition("SURFACE",true)
+	---- Check that the script creates a raw based building (SCREW_PRESS)
+		location = map:getPosition("SURFACE",true)
 		loc_str = tostring(location.x).." "..tostring(location.y).." "..tostring(location.z)
-		writeall("building/create -location [ "..loc_str.." ] -type Workshop -subtype TEST_BUILDING_1 ")
-		output = dfhack.run_command_silent("building/create -location [ "..loc_str.." ] -type Workshop -subtype TEST_BUILDING_1")
+		cmd = "building/create -location [ "..loc_str.." ] -type Workshop -subtype SCREW_PRESS"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
 		if not dfhack.buildings.findAtTile(location) then
-			Check[#Check+1] = "Failed to create TEST_BUILDING_1"
+			Check[#Check+1] = "Failed to create WORKSHOP:SCREW_PRESS"
 		else
-			self.buildingCustom = dfhack.buildings.findAtTile(location)
+			self.screwpress = dfhack.buildings.findAtTile(location)
 		end
 		
+	---- Check that the script creates a multitile building (MASONS)
+		location = map:getPosition("SURFACE",true)
+		loc_str = tostring(location.x) .. " " .. tostring(location.y) .. " " .. tostring(location.z)
+		cmd = "building/create -location [ "..loc_str.." ] -type Workshop -subtype MASONS"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
+		if not dfhack.buildings.findAtTile(location) then
+			Check[#Check+1] = "Failed to create WORKSHOP:MASONS"
+		else
+			self.masons = dfhack.buildings.findAtTile(location)
+		end
+
 		return Check
 	end
 	
-	local subtype_change = function ()
+	local change_subtype = function ()
 		local Check = {}
-		if not self.buildingVanilla or not self.buildingCustom then return nil end
+		if not self.quern or not self.masons then return nil end
 
-	---- Check that script fails to change vanilla building
-		writeall("building/subtype-change -building "..tostring(self.buildingVanilla.id).." -subtype TEST_BUILDING_2")
-		output = dfhack.run_command_silent("building/subtype-change -building "..tostring(self.buildingVanilla.id).." -subtype TEST_BUILDING_2")
+	---- Check that script changes the quern into a millstone
+		local quern = defbldg(self.quern)
+		cmd = "building/change-subtype -building "..tostring(quern.id).." -subtype MILLSTONE"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		if self.buildingVanilla.custom_type > 0 then 
-			Check[#Check+1] = "Vanilla building incorrectly changed to a custom building"
+		if df.building.find(quern.id):getSubtype ~= df.workshop_type.Millstone then 
+			Check[#Check+1] = "Quern not changed into millstone"
 		end
 	
-	---- Check that the script succeeds in changing the subtype from TEST_BUILDING_1 to TEST_BUILDING_2 for 50 ticks
-		writeall("building/subtype-change -building "..tostring(self.buildingCustom.id).." -subtype TEST_BUILDING_2 -dur 50)")
-		output = dfhack.run_command_silent("building/subtype-change -building "..tostring(self.buildingCustom.id).." -subtype TEST_BUILDING_2 -dur 50")
+	---- Check that the script succeeds in changing the subtype from MASONS to CARPENTERS for 50 ticks
+		local masons = defbldg(self.masons)
+		cmd = "building/change-subtype -building "..tostring(masons.id).." -subtype CARPENTERS -dur 50"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		if self.buildingCustom.custom_type ~= self.ctype2 then
-			Check[#Check+1] = "Test Building 1 did not correctly change to Test Building 2"
+		if df.building.find(masons.id):getSubtype ~= df.workshop_type.Carpenters then
+			Check[#Check+1] = "MASONS did not correctly change to CARPENTERS"
 		end
 		---- Pause script for 75 ticks
 		writeall("Pausing run_test.lua for 75 in-game ticks")
 		script.sleep(75,"ticks")
 		writeall("Resuming run_test.lua")
-		if self.buildingCustom.custom_type ~= self.ctype1 then
-			Check[#Check+1] = "Test Building 2 did not revert back to Test Building 1"
+		if df.building.find(masons.id):getSubtype ~= df.workshop_type.Masons then
+			Check[#Check+1] = "CARPENTERS did not revert back to MASONS"
 		end	
 
 		return Check
@@ -85,7 +99,7 @@ function tests()
 	
 	return {
 		create = create,
-		subtype_change = subtype_change,
-		order = {"create", "subtype_change"}
+		change_subtype = change_subtype,
+		order = {"create", "change_subtype"}
 	}
 end

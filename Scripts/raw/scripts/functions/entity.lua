@@ -1,10 +1,77 @@
+--@ module=true
 local utils = require 'utils'
 local split = utils.split_string
+local decode = reqscript("functions/io")
 
-usages = {}
+info = {}
+info["ENTITY"] = [===[ TODO ]===]
 
-usages[#usages+1] = [===[
-]===]
+validResources = {
+	CREATURE  = {dual_resource = true,
+		EXOTIC = {"animals","exotic_pet_races","exotic_pet_castes"},
+		MINION = {"animals","minion_races","minion_castes"},
+		MOUNT  = {"animals","mount_races","mount_castes"},
+		PACK   = {"animals","pack_animal_races","pack_animal_castes"},
+		PET    = {"animals","pet_races","pet_castes"},
+		WAGON  = {"animals","wagon_puller_races","wagon_puller_castes"},
+	},
+	INORGANIC = {dual_resource = false,
+		METAL = {"metals"},
+		STONE = {"stones"},
+		GEM   = {"gems"},
+		GLASS = {"misc_mat","glass"},
+		SAND  = {"misc_mat","sand"},
+		CLAY  = {"misc_mat","clay"},
+	},
+	ITEM      = {dual_resource = false,
+		WEAPON     = {"weapon_type"},
+		SHIELD     = {"shield_type"},
+		AMMO       = {"ammo_type"},
+		HELM       = {"helm_type"},
+		ARMOR      = {"armor_type"},
+		PANTS      = {"pants_type"},
+		SHOES      = {"shoes_type"},
+		GLOVES     = {"gloves_type"},
+		TRAP       = {"trap_type"},
+		SIEGE      = {"siegeammo_type"},
+		TOY        = {"toy_type"},
+		INSTRUMENT = {"instrument_type"},
+		TOOL       = {"tool_type"},
+	},
+	ORGANIC   = {dual_resource = true,
+		LEATHER   = {"organic","leather","mat_type","mat_index"},
+		FIBER     = {"organic","fiber","mat_type","mat_index"},
+		SILK      = {"organic","silk","mat_type","mat_index"},
+		WOOL      = {"organic","wool","mat_type","mat_index"},
+		WOOD      = {"organic","wood","mat_type","mat_index"},
+		PLANT     = {"plants","mat_type","mat_index"},
+		SEED      = {"seeds","mat_type","mat_index"},
+		BONE      = {"refuse","bone","mat_type","mat_index"},
+		MEAT      = {"misc_mat","meat","mat_type","mat_index"},
+		CHEESE    = {"misc_mat","cheese","mat_type","mat_index"},
+		SHELL     = {"refuse","shell","mat_type","mat_index"},
+		IVORY     = {"refuse","ivory","mat_type","mat_index"},
+		HORN      = {"refuse","horn","mat_type","mat_index"},
+		PEARL     = {"refuse","pearl","mat_type","mat_index"},
+		DRINK     = {"misc_mat","booze","mat_type","mat_index"},
+		EXTRACT   = {"misc_mat","extracts","mat_type","mat_index"},
+		PARCHMENT = {"organic","parchment","mat_type","mat_index"},
+	},
+	PRODUCT   = {dual_resource = true,
+		PICK      = {"metal","pick","mat_type","mat_index"},
+		MELEE     = {"metal","weapon","mat_type","mat_index"},
+		RANGED    = {"metal","ranged","mat_type","mat_index"},
+		AMMO      = {"metal","ammo","mat_type","mat_index"},
+		ARMOR     = {"metal","armor","mat_type","mat_index"},
+		ANVIL     = {"metal","anvil","mat_type","mat_index"},
+		CRAFTS    = {"misc_mat","crafts","mat_type","mat_index"},
+		BARRELS   = {"misc_mat","barrels","mat_type","mat_index"},
+		FLASKS    = {"misc_mat","flasks","mat_type","mat_index"},
+		QUIVERS   = {"misc_mat","quivers","mat_type","mat_index"},
+		BACKPACKS = {"misc_mat","backpacks","mat_type","mat_index"},
+		CAGES     = {"misc_mat","cages","mat_type","mat_index"},
+	}
+}
 
 --===============================================================================================--
 --== ENTITY CLASSES =============================================================================--
@@ -26,12 +93,24 @@ function ENTITY:init(entity)
 	self._entity = entity
 end
 
+function ENTITY:addResource(resourceType,resourceSubtype,token)
+	if resourceType == "CREATURE" then
+		self:addCreature(resourceSubtype,token)
+	elseif resourceType == "INORGANIC" then
+		self:addInorganic(resourceSubtype,token)	
+	elseif resourceType == "ITEM" then
+		self:addItem(resourceSubtype,token)
+	elseif resourceType == "ORGANIC" then
+		self:addOrganic(resourceSubtype,token)
+	elseif resourceType == "PRODUCT" then
+		self:addProduct(resourceSubtype,token)
+	end
+end
+
 function ENTITY:addCreature(creatureType,creatureToken)
 	resource_races, resource_castes = self:getResourceTables("CREATURE",creatureType)
-	if not resource_races then
-		error "Invalid creatureType"
-	end
-	local creatures = dfhack.script_environment("functions/io").decode_creatureToken(creatureToken)
+	if not resource_races then return end
+	local creatures = decode.decode_creatureToken(creatureToken)
 	for i,x in pairs(creatures) do
 		for j,_ in pairs(x) do
 			resource_races:insert('#',i)
@@ -42,10 +121,8 @@ end
 
 function ENTITY:addInorganic(inorganicType,inorganicToken)
 	resource_inorganic, _ = self:getResourceTables("INORGANIC",inorganicType)
-	if not resource_inorganic then
-		error "Invalid inorganicType"
-	end
-	local inorganics = dfhack.script_environment("functions/io").decode_inorganicToken(inorganicToken,inorganicType)
+	if not resource_inorganic then return end
+	local inorganics = decode.decode_inorganicToken(inorganicToken,inorganicType)
 	for i,_ in pairs(inorganics) do
 		resource_inorganic:insert('#',i)
 	end
@@ -53,10 +130,8 @@ end
 
 function ENTITY:addItem(itemType,itemToken)
 	resource_item, _ = self:getResourceTables("ITEM",itemType)
-	if not resource_item then
-		error "Invalid itemType"
-	end
-	local items = dfhack.script_environment("functions/io").decode_itemToken(itemToken)
+	if not resource_item then return end
+	local items = decode.decode_itemToken(itemToken)
 	for i,_ in pairs(items) do
 		resource_item:insert('#',i)
 	end
@@ -64,10 +139,8 @@ end
 
 function ENTITY:addOrganic(organicType,organicToken)
 	resource_matType, resource_matIndex = self:getResourceTables("ORGANIC",organicType)
-	if not resource_matType then
-		error "Invalid organicType"
-	end
-	local organics = dfhack.script_environment("functions/io").decode_organicToken(organicToken)
+	if not resource_matType then return end
+	local organics = decode.decode_organicToken(organicToken)
 	for mat_type,x in pairs(organics) do
 		for mat_index,_ in pairs(x) do
 			resource_matType:insert('#',mat_type)
@@ -78,10 +151,8 @@ end
 
 function ENTITY:addProductMaterial(productType,materialToken)
 	resource_matType, resource_matIndex = self:getResourceTables("PRODUCT",productType)
-	if not resource_matType then
-		error("Invalid productType - "..productType.." "..materialToken)
-	end
-	local materials = dfhack.script_environment("functions/io").decode_materialToken(materialToken)
+	if not resource_matType then return end
+	local materials = decode.decode_materialToken(materialToken)
 	for mat_type,x in pairs(materials) do
 		if type(x) == "boolean" then
 			resource_matType:insert('#',0)
@@ -113,177 +184,13 @@ function ENTITY:getResourceTables(resourceType,resourceSubType)
 	local resource_A
 	local resource_B
 	entity = df.global.world.entities.all[self.id]
-	if resourceType == "CREATURE" then
-		local creatureType = resourceSubType:upper()
-		if creatureType == "EXOTIC" then
-			resource_A = entity.resources.animals.exotic_pet_races
-			resource_B = entity.resources.animals.exotic_pet_castes
-		elseif creatureType == "MINION" then
-			resource_A = entity.resources.animals.minion_races
-			resource_B = entity.resources.animals.minion_castes
-		elseif creatureType == "MOUNT" then
-			resource_A = entity.resources.animals.mount_races
-			resource_B = entity.resources.animals.mount_castes
-		elseif creatureType == "PACK" then
-			resource_A = entity.resources.animals.pack_animal_races
-			resource_B = entity.resources.animals.pack_animal_castes
-		elseif creatureType == "PET" then
-			resource_A = entity.resources.animals.pet_races
-			resource_B = entity.resources.animals.pet_castes
-		elseif creatureType == "WAGON" then
-			resource_A = entity.resources.animals.wagon_puller_races
-			resource_B = entity.resources.animals.wagon_puller_castes
-		end
-	elseif resourceType == "INORGANIC" then
-		local inorganicType = resourceSubType:upper()
-		if inorganicType == "CLAY" then
-			resource_A = entity.resources.misc_mat.clay
-		elseif inorganicType == "GEM" then
-			resource_A = entity.resources.gems
-		elseif inorganicType == "GLASS" then
-			resource_A = entity.resources.misc_mat.glass
-		elseif inorganicType == "METAL" then
-			resource_A = entity.resources.metals
-		elseif inorganicType == "SAND" then
-			resource_A = entity.resources.misc_mat.sand
-		elseif inorganicType == "STONE" then
-			resource_A = entity.resources.stones
-		end
-	elseif resourceType == "ITEM" then
-		local itemType = resourceSubType:upper()
-		if itemType == "AMMO" then
-			resource_A = entity.resources.ammo_type
-		elseif itemType == "ARMOR" then
-			resource_A = entity.resources.armor_type
-		elseif itemType == "DIGGING_WEAPON" then
-			resource_A = entity.resources.digger_type
-		elseif itemType == "GLOVES" then
-			resource_A = entity.resources.gloves_type
-		elseif itemType == "HELM" then
-			resource_A = entity.resources.helm_type
-		elseif itemType == "INSTRUMENT" then
-			resource_A = entity.resources.instrument_type
-		elseif itemType == "PANTS" then
-			resource_A = entity.resources.pants_type
-		elseif itemType == "SHIELD" then
-			resource_A = entity.resources.shield_type
-		elseif itemType == "SIEGE_AMMO" then
-			resource_A = entity.resources.siegeammo_type
-		elseif itemType == "SHOES" then
-			resource_A = entity.resources.shoes_type
-		elseif itemType == "TOOL" then
-			resource_A = entity.resources.tool_type
-		elseif itemType == "TOY" then
-			resource_A = entity.resources.toy_type
-		elseif itemType == "TRAINING_WEAPON" then
-			resource_A = entity.resources.training_weapon_type
-		elseif itemType == "TRAP_COMPONENT" then
-			resource_A = entity.resources.trapcomp_type
-		elseif itemType == "WEAPON" then
-			resource_A = entity.resources.weapon_type
-		end
-	elseif resourceType == "ORGANIC" then
-		local organicType = resourceSubType:upper()
-		if organicType == "BONE" then
-			resource_A = entity.resources.refuse.bone.mat_type
-			resource_B = entity.resources.refuse.bone.mat_index
-		elseif organicType == "CHEESE" then
-			resource_A = entity.resources.misc_mat.cheese.mat_type
-			resource_B = entity.resources.misc_mat.cheese.mat_index
-		elseif organicType == "DRINK" then
-			resource_A = entity.resources.misc_mat.booze.mat_type
-			resource_B = entity.resources.misc_mat.booze.mat_index
-		elseif organicType == "EXTRACT" then
-			resource_A = entity.resources.misc_mat.extracts.mat_type
-			resource_B = entity.resources.misc_mat.extracts.mat_index
-		elseif organicType == "HORN" then
-			resource_A = entity.resources.refuse.horn.mat_type
-			resource_B = entity.resources.refuse.horn.mat_index
-		elseif organicType == "IVORY" then
-			resource_A = entity.resources.refuse.ivory.mat_type
-			resource_B = entity.resources.refuse.ivory.mat_index
-		elseif organicType == "LEATHER" then
-			resource_A = entity.resources.organic.leather.mat_type
-			resource_B = entity.resources.organic.leather.mat_index
-		elseif organicType == "MEAT" then
-			resource_A = entity.resources.misc_mat.meat.mat_type
-			resource_B = entity.resources.misc_mat.meat.mat_index
-		elseif organicType == "PARCHMENT" then
-			resource_A = entity.resources.organic.parchment.mat_type
-			resource_B = entity.resources.organic.parchment.mat_index
-		elseif organicType == "PEARL" then
-			resource_A = entity.resources.refuse.pearl.mat_type
-			resource_B = entity.resources.refuse.pearl.mat_index
-		elseif organicType == "PLANT" then
-			resource_A = entity.resources.plants.mat_type
-			resource_B = entity.resources.plants.mat_index
-		elseif organicType == "SEED" then
-			resource_A = entity.resources.seeds.mat_type
-			resource_B = entity.resources.seeds.mat_index
-		elseif organicType == "SHELL" then
-			resource_A = entity.resources.refuse.shell.mat_type
-			resource_B = entity.resources.refuse.shell.mat_index
-		elseif organicType == "SILK" then
-			resource_A = entity.resources.organic.silk.mat_type
-			resource_B = entity.resources.organic.silk.mat_index
-		elseif organicType == "THREAD_CREATURE" then
-			resource_A = entity.resources.organic.wool.mat_type
-			resource_B = entity.resources.organic.wool.mat_index
-		elseif organicType == "THREAD_PLANT" then
-			resource_A = entity.resources.organic.fiber.mat_type
-			resource_B = entity.resources.organic.fiber.mat_index
-		elseif organicType == "WOOD" then
-			resource_A = entity.resources.organic.wood.mat_type
-			resource_B = entity.resources.organic.wood.mat_index
-		end
-	elseif resourceType == "PRODUCT_MATERIAL" or resourceType == "PRODUCT" then
-		local productType = resourceSubType:upper()
-		if productType == "AMMO" then
-			resource_A = entity.resources.metal.ammo.mat_type
-			resource_B = entity.resources.metal.ammo.mat_index
-		elseif productType == "ANVIL" then
-			resource_A = entity.resources.metal.anvil.mat_type
-			resource_B = entity.resources.metal.anvil.mat_index
-		elseif productType == "ARMOR" then
-			resource_A = entity.resources.metal.armor.mat_type
-			resource_B = entity.resources.metal.armor.mat_index
-		elseif productType == "BACKPACK" then
-			resource_A = entity.resources.misc_mat.backpacks.mat_type
-			resource_B = entity.resources.misc_mat.backpacks.mat_index
-		elseif productType == "BARREL" then
-			resource_A = entity.resources.misc_mat.barrels.mat_type
-			resource_B = entity.resources.misc_mat.barrels.mat_index
-		elseif productType == "CAGE" then
-			resource_A = entity.resources.misc_mat.cages.mat_type
-			resource_B = entity.resources.misc_mat.cages.mat_index
-		elseif productType == "CRAFTS" then
-			resource_A = entity.resources.misc_mat.crafts.mat_type
-			resource_B = entity.resources.misc_mat.crafts.mat_index
-		elseif productType == "FLASK" then
-			resource_A = entity.resources.misc_mat.flasks.mat_type
-			resource_B = entity.resources.misc_mat.flasks.mat_index
-		elseif productType == "INSTRUMENT" then
-			resource_A = entity.resources.metal.armor.mat_type
-			resource_B = entity.resources.metal.armor.mat_index
-		elseif productType == "MELEE_WEAPON" then
-			resource_A = entity.resources.metal.weapon.mat_type
-			resource_B = entity.resources.metal.weapon.mat_index
-		elseif productType == "PICK" then
-			resource_A = entity.resources.metal.pick.mat_type
-			resource_B = entity.resources.metal.pick.mat_index
-		elseif productType == "QUIVER" then
-			resource_A = entity.resources.misc_mat.quivers.mat_type
-			resource_B = entity.resources.misc_mat.quivers.mat_index
-		elseif productType == "RANGED_WEAPON" then
-			resource_A = entity.resources.metal.ranged.mat_type
-			resource_B = entity.resources.metal.ranged.mat_index
-		elseif productType == "TOOL" then
-			resource_A = entity.resources.metal.armor.mat_type
-			resource_B = entity.resources.metal.armor.mat_index
-		elseif productType == "TOY" then
-			resource_A = entity.resources.metal.armor.mat_type
-			resource_B = entity.resources.metal.armor.mat_index
-		end
+	resourceTable = validResources[resourceType:upper()][resourceSubType:upper()]
+	if validResources[resourceType:upper()]["dual_resource"] then
+		local N = #resourceTable
+		resource_A = safe_index(entity.resources,table.unpack(resourceTable,1,N-1))
+		resource_B = safe_index(entity.resources,table.unpack(resourceTable,1,N-2),resourceTable[N])
+	else
+		resource_A = safe_index(entity.resources,table.unpack(resourceTable))
 	end
 	return resource_A, resource_B
 end
@@ -295,15 +202,15 @@ function ENTITY:hasResource(resourceGroup,resourceToken)
 	resourceSubType = spl[2]
 	resource_A, resource_B = self:getResourceTables(resourceType,resourceSubType)
 	if resourceType == "CREATURE" then
-		object = dfhack.script_environment("functions/io").decode_creatureToken(resourceToken)
+		object = decode.decode_creatureToken(resourceToken)
 	elseif resourceType == "INORGANIC" then
-		object = dfhack.script_environment("functions/io").decode_inorganicToken(resourceToken)
+		object = decode.decode_inorganicToken(resourceToken)
 	elseif resourceType == "ITEM" then
-		object = dfhack.script_environment("functions/io").decode_itemToken(resourceToken)
+		object = decode.decode_itemToken(resourceToken)
 	elseif resourceType == "ORGANIC" then
-		object = dfhack.script_environment("functions/io").decode_organicToken(resourceToken)
+		object = decode.decode_organicToken(resourceToken)
 	elseif resourceType == "PRODUCT" then
-		object = dfhack.script_environment("functions/io").decode_materialToken(resourceToken)
+		object = decode.decode_materialToken(resourceToken)
 	end
 	if not resource_A and not resource_B then
 		--print(resourceType)
@@ -326,12 +233,24 @@ function ENTITY:hasResource(resourceGroup,resourceToken)
 	return found
 end
 
+function ENTITY:removeResource(resourceType,resourceSubType,token)
+	if resourceType == "CREATURE" then
+		self:removeCreature(resourceSubtype,token)
+	elseif resourceType == "INORGANIC" then
+		self:removeInorganic(resourceSubtype,token)	
+	elseif resourceType == "ITEM" then
+		self:removeItem(resourceSubtype,token)
+	elseif resourceType == "ORGANIC" then
+		self:removeOrganic(resourceSubtype,token)
+	elseif resourceType == "PRODUCT" then
+		self:removeProduct(resourceSubtype,token)
+	end
+end
+
 function ENTITY:removeCreature(creatureType,creatureToken)
 	resource_races, resource_castes = self:getResourceTables("CREATURE",creatureType)
-	if not resource_races then
-		error "Invalid creatureType"
-	end
-	local creatures = dfhack.script_environment("functions/io").decode_creatureToken(creatureToken)
+	if not resource_races then return end
+	local creatures = decode.decode_creatureToken(creatureToken)
 	local removing = {}
 	for i,x in pairs(resource_races) do
 		if creatures[x] and creatures[x][resource_castes[i]] then
@@ -346,10 +265,8 @@ end
 
 function ENTITY:removeInorganic(inorganicType,inorganicToken)
 	resource_inorganic, _ = self:getResourceTables("INORGANIC",inorganicType)
-	if not resource_inorganic then
-		error "Invalid inorganicType"
-	end
-	local inorganics = dfhack.script_environment("functions/io").decode_inorganicToken(inorganicToken)
+	if not resource_inorganic then return end
+	local inorganics = decode.decode_inorganicToken(inorganicToken)
 	for i=#resource_inorganic-1,0,-1 do
 		if resource_inorganic[i] and inorganics[resource_inorganic[i]] then
 			resource_inorganic:erase(i)
@@ -359,10 +276,8 @@ end
 
 function ENTITY:removeItem(itemType,itemToken)
 	resource_item, _ = self:getResourceTables("ITEM",itemType)
-	if not resource_item then
-		error "Invalid itemType"
-	end
-	local items = dfhack.script_environment("functions/io").decode_itemToken(itemToken)
+	if not resource_item then return end
+	local items = decode.decode_itemToken(itemToken)
 	for i=#resource_item-1,0,-1 do
 		if resource_item[i] and items[resource_item[i]] then
 			resource_item:erase(i)
@@ -372,10 +287,8 @@ end
 
 function ENTITY:removeOrganic(organicType,organicToken)
 	resource_matType, resource_matIndex = self:getResourceTables("ORGANIC",organicType)
-	if not resource_matType then
-		error "Invalid organicType"
-	end
-	local organics = dfhack.script_environment("functions/io").decode_organicToken(organicToken)
+	if not resource_matType then return end
+	local organics = decode.decode_organicToken(organicToken)
 	local removing = {}
 	for i,x in pairs(resource_matType) do
 		if organics[x] and organics[x][resource_matIndex[i]] then
@@ -390,10 +303,8 @@ end
 
 function ENTITY:removeProductMaterial(productType,materialToken)
 	resource_matType, resource_matIndex = self:getResourceTables("PRODUCT",productType)
-	if not resource_matType then
-		error "Invalid productType"
-	end
-	local materials = dfhack.script_environment("functions/io").decode_materialToken(materialToken)
+	if not resource_matType then return end
+	local materials = decode.decode_materialToken(materialToken)
 	local removing = {}
 	for i,x in pairs(resource_matType) do
 		if materials[x] and materials[x][resource_matIndex[i]] then

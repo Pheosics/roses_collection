@@ -25,8 +25,7 @@ function tests()
 		end
 	end
 	local self = {civUnits = civ,
-				wildUnits = non,
-				unitFunctions = dfhack.script_environment("functions/unit")}
+				wildUnits = non}
 	
 	local attack = function ()
 		local unitCheck = {}
@@ -110,7 +109,7 @@ function tests()
 		writeall("unit/change-action checks starting")
 	
 	---- Check that the script succeeds and adds an action of every type with a 500 tick cooldown
-		local cmd = "unit/change-action -unit "..tostring(unit.id).." -data [ timer 500 ] -action All -add"
+		local cmd = "unit/change-action -unit "..tostring(unit.id).." -data [ timer 500 ] -action All"
 		writeall(cmd)
 		output = dfhack.run_command_silent(cmd)
 		writeall(output)
@@ -128,7 +127,7 @@ function tests()
 		end
 		
 		---- Check that the script succeeds and removes all actions from unit
-		cmd = "unit/action-change -unit "..tostring(unit.id).." -action ALL -clear"
+		cmd = "unit/change-action -unit "..tostring(unit.id).." -action ALL -clear"
 		writeall(cmd)
 		output = dfhack.run_command_silent(cmd)
 		writeall(output)

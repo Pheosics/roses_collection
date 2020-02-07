@@ -1,4 +1,5 @@
 script = require "gui.script"
+local map = reqscript("functions/map").MAP(false)
 
 local function posString(a)
 	return tostring(a.x) .. " " .. tostring(a.y) .. " " .. tostring(a.z)
@@ -18,16 +19,17 @@ function writeall(tbl)
 end
 
 function tests()
-	local self = {map = dfhack.script_environment("functions/map").MAP()}
+	local self = {}
 	
 	local spawn_flow = function ()
 		local Check = {}
-		local location = self.map:getPosition("SURFACE",true)
+		local location = map:getPosition("SURFACE",true)
 		local loc_str = posString(location)
-		writeall("map/spawn-flow -pos [ "..loc_str.." ] -type MaterialDust -inorganic OBSIDIAN -static -density 100")
-		output = dfhack.run_command_silent("map/spawn-flow -pos [ "..loc_str.." ] -type MaterialDust -inorganic OBSIDIAN -static -density 100")
+		cmd = "map/spawn-flow -pos [ "..loc_str.." ] -type MaterialDust -inorganic OBSIDIAN -static -density 100"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		local flow = self.map:getFlow(location)
+		local flow = map:getFlow(location)
 		if not flow then 
 			Check[#Check+1] = "Failed to create flow"
 		else
@@ -42,18 +44,19 @@ function tests()
 	
 	local spawn_liquid = function ()
 		local Check = {}
-		local location = self.map:getPosition("SURFACE",true)
+		local location = map:getPosition("SURFACE",true)
 		local loc_str = posString(location)
-		writeall("map/spawn-liquid -pos [ "..loc_str.." ] -depth 1 -shape SQUARE -radius [ 1 1 ]")
-		output = dfhack.run_command_silent("map/spawn-liquid -pos [ "..loc_str.." ] -depth 1 -shape SQUARE -radius [ 1 1 ]")
+		cmd = "map/spawn-liquid -pos [ "..loc_str.." ] -depth 1 -shape SQUARE -radius [ 1 1 ]"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
 		for i = -1, 1 do
 			for j = -1, 1 do
 				local pos = location
 				pos.x = pos.x + i
-				pos.y = pos.y + j\
+				pos.y = pos.y + j
 				local ps = posString(pos)
-				local n = self.map:WaterDepth(pos)
+				local n = map:getDepth(pos)
 				if not n == 1 then Check[#Check+1] = "Incorrect water depth - "..tostring(n).." - at position - "..ps end
 			end
 		end

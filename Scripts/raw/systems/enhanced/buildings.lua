@@ -1,7 +1,9 @@
+--@ module=true
 local utils = require "utils"
 local eventful = require "plugins.eventful"
 local split = utils.split_string
-usages = {}
+local defbldg = reqscript("functions/building").BUILDING
+local bldgCount = reqscript("functions/building").countBuildings
 
 -- Name of the system
 Name = "enhancedBuildings"
@@ -19,14 +21,16 @@ Tokens = {
 	SCRIPT             = {Type="Main", Subtype="Script",  Name="Scripts"},
 }
 
+-- startSystemTriggers is called on intialization
 function startSystemTriggers()
+	-- Can the building ID ref ever be not the first one? -ME
 	-- Event for initiating construction/deconstruction of a building (JOB_INITIATED)
 	eventful.onJobInitiated.buildingTrigger = function(job)
 		if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
-			buildingID = job.general_refs[0].building_id -- Can the building ID ref ever be not the first one?
+			buildingID = job.general_refs[0].building_id 
 			checkBuildingStarted(buildingID) -- This runs building checks such as Inside Only
 		elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
-			buildingID = job.general_refs[0].building_id -- Can the building ID ref ever be not the first one?
+			buildingID = job.general_refs[0].building_id
 			checkBuildingUnstarted(buildingID) -- This currently doesn't do anything
 		end
 	end
@@ -34,10 +38,10 @@ function startSystemTriggers()
 	-- Event for finishing construction/destruction of a building (JOB_COMPLETED)
 	eventful.onJobCompleted.buildingTrigger = function(job)
 		if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
-			buildingID = job.general_refs[0].building_id -- Can the building ID ref ever be not the first one?
+			buildingID = job.general_refs[0].building_id
 			checkBuildingFinished(buildingID) -- This runs scripts
 		elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
-			buildingID = job.general_refs[0].building_id -- Can the building ID ref ever be not the first one?
+			buildingID = job.general_refs[0].building_id
 			checkBuildingDestroyed(buildingID) -- This currently doesn't do anything
 		end
 	end
@@ -47,149 +51,69 @@ function startSystemTriggers()
 	eventful.enableEvent(eventful.eventType.JOB_COMPLETED,5)
 end
 
-function checkSystemTable(buildingID)
+-- Get the building and check if there is an enhanced building entry
+local function checkSystemTable(buildingID)
 	-- Make sure the building exists
-	local building = df.building.find(buildingID)
+	local building = defbldg(buildingID)
 	if not building then return nil end
 	
-	-- Make sure the building is a custom building
-	local ctype = building:getCustomType()
-	if ctype < 0 then return nil end
-	
-	-- Get the building token and check if there is an enhanced building entry
-	local buildingToken = df.global.world.raws.buildings.all[ctype].code
-	local Table = dfhack.script_environment("base/tables").Tables[Name]
+	local buildingToken = building.subtype
+	if buildingToken == "CUSTOM" then buildingToken = building.customtype end
+	local Table = dfhack.script_environment("core/tables").Tables[Name]
 	if not Table[buildingToken] then return nil end
 	
 	return building, Table[buildingToken]
 end
 
-function checkBuildingStarted(buildingID)
+local function checkBuildingStarted(buildingID)
 	building, Table = checkSystemTable(buildingID)
 	if not building then return end
-	
-	local allow = true
-	local pos = {}
-	pos.x = building.centerx
-	pos.y = building.centery
-	pos.z = building.z
-	designation = dfhack.maps.getTileBlock(pos).designation[pos.x%16][pos.y%16]
  
 	-- Run through checks
-	-- InsideOnly
-	if Table.InsideOnly and allow then
-		if designation.outside then allow = false end
-	end
+	local allow = true
 	
-	-- OutsideOnly
-	if Table.OutsideOnly and allow then
-		if not designation.outside then allow = false end
-	end
+	-- Boolean Checks
+	if allow and Table.InsideOnly and building:isOutside() then allow = false end
+	if allow and Table.OutsideOnly and building:isInside() then allow = false end
 	
-	-- RequiredWater
-	if Table.RequiredWater and allow then
-		local amount = 0
-		for x = building.x1-1,building.x2+1 do
-			for y = building.y1-1,building.y2+1 do
-				for z = building.z-1,building.z do
-					if dfhack.maps.isValidTilePos(x,y,z) then 
-						designation = dfhack.maps.getTileBlock(x,y,z).designation[x%16][y%16]
-						if not designation.liquid_type then amount = amount + designation.flow_size end
-					end
-				end
-			end
-		end
-		if amount < Table.RequiredWater then allow = false end
-	end
+	-- Number Checks
+	if allow and Table.RequiredWater and building:nearbyWater() < Table.RequiredWater then allow = false end
+	if allow and Table.RequiredMagma and building:nearbyMagma() < Table.RequiredMagma then allow = false end
+	if allow and Table.MaxAmount and building:count() > Table.MaxAmount then allow = false end
 	
-	-- RequiredMagma
-	if Table.RequiredMagma and allow then
-		local amount = 0
-		for x = building.x1-1,building.x2+1 do
-			for y = building.y1-1,building.y2+1 do
-				for z = building.z-1,building.z do
-					if dfhack.maps.isValidTilePos(x,y,z) then 
-						designation = dfhack.maps.getTileBlock(x,y,z).designation[x%16][y%16]
-						if designation.liquid_type then amount = amount + designation.flow_size end
-					end
-				end
-			end
-		end
-		if amount < Table.RequiredMagma then allow = false end
-	end
-	
-	-- RequiredBuildings
-	if Table.RequiredBuildings and allow then
+	-- Array Checks
+	if allow and Table.RequiredBuildings then
 		for reqBldg,reqNum in pairs(Table.RequiredBuilding) do
-			local check = false
-			local n = 0
-			for _,bldg in pairs(df.global.world.buildings.all) do
-				if bldg:getCustomType() >= 0 and bldg:getCustomType().code == reqBldg then
-					n = n+1
-					if n >= reqNum then
-						check = true
-						break
-					end
-				end
-			end
-			if not check then
+			if bldgCount(reqBldg) < reqNum then
 				allow = false
 				break
 			end
 		end
 	end
-	
-	-- ForbiddenBuildings
-	if Table.ForbiddenBuildings and allow then
+	if allow and Table.ForbiddenBuildings then
 		for reqBldg,reqNum in pairs(Table.ForbiddenBuildings) do
-			local check = false
-			local n = 0
-			for _,bldg in pairs(df.global.world.buildings.all) do
-				if bldg:getCustomType() >= 0 and bldg:getCustomType().code == reqBldg then
-					n = n+1
-					if n >= reqNum then
-						check = true
-						break
-					end
-				end
-			end
-			if check then
+			if bldgCount(reqBldg) > reqNum then
 				allow = false
 				break
 			end
 		end
 	end
-	
-	-- MaxAmount
-	if Table.MaxAmount and allow then
-		local n = 0
-		for _,bldg in pairs(df.global.world.buildings.all) do
-			if bldg:getCustomType() >= 0 and bldg:getCustomType() == building:getCustomType() then
-				if n >= Table.MaxAmount then
-					allow = false
-					break
-				end
-				n = n + 1
-			end
-		end
-	end
+
 	
 	if not allow then
-		if building.jobs[0] and building.jobs[0].job_type == df.job_type.DestroyBuilding then return end
-		local b = dfhack.buildings.deconstruct(building)
+		building:deconstruct()
 	end
 end
 
-function checkBuildingUnstarted(buildingID)
+local function checkBuildingUnstarted(buildingID)
 	-- Nothing to be done for beginning to deconstruct a building yet
-	--building, Table = checkSystemTable(buildingID)
 end
 
-function checkBuildingFinished(buildingID)
+local function checkBuildingFinished(buildingID)
 	building, Table = checkSystemTable(buildingID)
 	if not building then return end
 	
-	BuildingTable = dfhack.script_environment("base/tables").makeBuildingTable(building)
+	BuildingTable = dfhack.script_environment("core/tables").makeBuildingTable(building)
 	BuildingTable.Enhanced = true
 
 	if Table.Scripts then
@@ -202,23 +126,21 @@ function checkBuildingFinished(buildingID)
 			script = script:gsub("BUILDING_LOCATION",""..tostring(building.centerx).." "..tostring(building.centery).." "..tostring(building.z).."")
 			dfhack.run_command(script)
 			if frequency > 0 then
-				dfhack.script_environment("persist-delay").environmentDelay(frequency,"enhanced/building","scriptTrigger",{building.id,script,frequency})
+				dfhack.script_environment("persist-delay").functionDelay(frequency,"enhanced/building","scriptTrigger",{building.id,script,frequency})
 			end
 		end
 	end
 end
 
-function checkBuildingDestroyed(buildingID)
+local function checkBuildingDestroyed(buildingID)
 	-- Nothing to be done for deconstructing a building yet (except removing the building table)
-	--building, Table = checkSystemTable(buildingID)
-	--if not building then return end
-	
-	dfhack.script_environment("base/tables").Tables.BuildingTable[buildingID] = nil
+	-- Frequency based scripts will stop automatically, but may need to enable a script to run deconstruction
+	dfhack.script_environment("core/tables").Tables.BuildingTable[buildingID] = nil
 end
 
-function scriptTrigger(buildingID, script, frequency)
-	if df.building.find(buildingID) then -- This should automatically stop the scripts from repeating if the building is deconstructed
+local function scriptTrigger(buildingID, script, frequency)
+	if df.building.find(buildingID) then
 		dfhack.run_command(script)
-		dfhack.script_environment("persist-delay").environmentDelay(frequency,"enhanced/building","scriptTrigger",{building.id,script,frequency})
+		dfhack.script_environment("persist-delay").functionDelay(frequency,"enhanced/building","scriptTrigger",{building.id,script,frequency})
 	end	
 end

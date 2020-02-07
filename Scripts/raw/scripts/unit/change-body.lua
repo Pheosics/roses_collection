@@ -1,7 +1,7 @@
 --unit/change-body.lua
 --@ module=true
 local utils = require 'utils'
-defunit = reqscript("functions/unit").UNIT
+local split = utils.split_string
 
 local usage = [====[
 
@@ -9,6 +9,9 @@ unit/change-body
 ================
 Purpose::
     Changes the entire body or individual body parts of a given unit
+
+Uses::
+	functions/unit
 
 Arguments::
     -unit <UNIT_ID>
@@ -59,6 +62,7 @@ validArgs = utils.invert({
 })
 
 function changeBodyPartStatus(unit,partType,partSubtype,statusTable,dur)
+	local defunit = reqscript("functions/unit").UNIT
 	unit = defunit(unit)
 	parts = unit:getBodyParts(partType, partSubtype)
 	for _, part in pairs(parts) do
