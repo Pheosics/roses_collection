@@ -175,8 +175,8 @@ function tests()
 		local Check = {}
 		
 	---- Check that the script succeeds and creates an iron bolt shooting from source to target
-		projid = df.global.proj_next_id
-		itemid = df.global.item_next_id
+		local projid = df.global.proj_next_id
+		local itemid = df.global.item_next_id
 		writeall("item/projectile -unitSource "..tostring(unitSource.id).." -unitTarget "..tostring(unitTarget.id).." -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON")
 		output = dfhack.run_command_silent("item/projectile -unitSource "..tostring(unitSource.id).." -unitTarget "..tostring(unitTarget.id).." -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON")
 		writeall(output)
@@ -185,8 +185,8 @@ function tests()
 		end
 		
 	---- Check that the script succeeds and creates 10 iron bolts falling from 5 z levels above the source
-		projid = df.global.proj_next_id
-		itemid = df.global.item_next_id
+		local projid = df.global.proj_next_id
+		local itemid = df.global.item_next_id
 		writeall("item/projectile -unitSource "..tostring(unitSource.id).." -type Falling -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON -height 5 -number 10")
 		output = dfhack.run_command_silent("item/projectile -unitSource "..tostring(unitSource.id).." -type Falling -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON -height 5 -number 10")
 		writeall(output)
