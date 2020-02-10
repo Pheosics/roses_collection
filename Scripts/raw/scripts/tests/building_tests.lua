@@ -1,3 +1,4 @@
+
 script = require "gui.script"
 local defbldg = reqscript("functions/building").BUILDING
 local map = reqscript("functions/map").MAP()
@@ -73,7 +74,7 @@ function tests()
 		writeall(cmd)
 		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		if df.building.find(quern.id):getSubtype ~= df.workshop_type.Millstone then 
+		if not df.building.find(quern.id):getSubtype() == df.workshop_type.Millstone then 
 			Check[#Check+1] = "Quern not changed into millstone"
 		end
 	
@@ -83,14 +84,14 @@ function tests()
 		writeall(cmd)
 		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		if df.building.find(masons.id):getSubtype ~= df.workshop_type.Carpenters then
+		if not df.building.find(masons.id):getSubtype() == df.workshop_type.Carpenters then
 			Check[#Check+1] = "MASONS did not correctly change to CARPENTERS"
 		end
 		---- Pause script for 75 ticks
 		writeall("Pausing run_test.lua for 75 in-game ticks")
 		script.sleep(75,"ticks")
 		writeall("Resuming run_test.lua")
-		if df.building.find(masons.id):getSubtype ~= df.workshop_type.Masons then
+		if not df.building.find(masons.id):getSubtype() == df.workshop_type.Masons then
 			Check[#Check+1] = "CARPENTERS did not revert back to MASONS"
 		end	
 

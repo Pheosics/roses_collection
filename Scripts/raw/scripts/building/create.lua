@@ -6,7 +6,6 @@
 --building/create.lua
 --@ module=true
 local utils = require "utils"
-require "dfhack.buildings"
 local hardcoded_bldgs = reqscript("functions/building").hardcoded_bldgs
 
 local usage = [====[
@@ -44,6 +43,7 @@ validArgs = utils.invert({
 })
 
 function createBuilding(pos,type_id,subtype_id,custom_id)
+	require "dfhack.buildings"
 	building = dfhack.buildings.constructBuilding({pos=pos,type=type_id,subtype=subtype_id,custom=custom_id,filters={{},{}}})
 	building.construction_stage = building:getMaxBuildStage()
 	dfhack.job.removeJob(building.jobs[0])

@@ -126,7 +126,7 @@ hardcoded_bldgs = { -- df.building_type
 		TRACKSEW = df.construction_type.TrackSEW,
 		TRACKNSEW = df.construction_type.TrackNSEW,
 		TRACKRAMPN = df.construction_type.TrackRampN,
-		TRACKRAMPS df.construction_type.TrackRampS,
+		TRACKRAMPS = df.construction_type.TrackRampS,
 		TRACKRAMPE = df.construction_type.TrackRampE,
 		TRACKRAMPW = df.construction_type.TrackRampW,
 		TRACKRAMPNS = df.construction_type.TrackRampNS,

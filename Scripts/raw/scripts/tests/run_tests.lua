@@ -1,3 +1,4 @@
+-- Run tests
 script = require "gui.script"
 
 function printplus(text,color)
@@ -22,7 +23,7 @@ function writeall(tbl)
 end
 
 scriptChecks = {}
-scriptCategories = {"unit","item","entity","building","map"}
+scriptCategories = {"unit"}--{"unit","item","entity","building","map"}
 
 function scriptCheck()
 	for _,scripts in pairs(scriptCategories) do
@@ -30,8 +31,8 @@ function scriptCheck()
 		io.output(file)
 		printplus(scripts:upper().." Script Tests Starting")
 		tests = dfhack.script_environment("tests/"..scripts.."_tests").tests()
-		if tests.Order then
-			for _,name in pairs(tests.Order) do
+		if tests.order then
+			for _,name in pairs(tests.order) do
 				func = tests[name]
 				writeall(scripts.."/"..name.." checks starting")
 				check = func()
@@ -68,6 +69,6 @@ function scriptCheck()
 	end
 end
 
-dfhack.run_command("base/initialize -testRun -verbose")
+dfhack.run_command("core/initialize -testRun -verbose")
 
 script.start(scriptCheck)

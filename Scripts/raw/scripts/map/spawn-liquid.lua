@@ -133,7 +133,7 @@ local function main(...)
 	elseif args.shape then
 		positions = getPositions({pos=target, shape=args.shape, radius=radius}, "SHAPE")
 	else
-		positions = getPositions({pos=target, radius=radius}, "FILL"))
+		positions = getPositions({pos=target, radius=radius}, "FILL")
 	end
 	createLiquids(positions,{depth=args.depth, magma=args.magma, number=args.number})
 end
@@ -141,50 +141,3 @@ end
 if not dfhack_flags.module then
 	main(...)
 end
-
-
-
-local args = utils.processArgs({...}, validArgs)
-local error_str = "Error in map/spawn-liquid - "
-
-if args.help then
-	print(usage)
-	return
-end
-
-local pos = {}
-if args.unit and tonumber(args.unit) then
-	pos = df.unit.find(tonumber(args.unit)).pos
-elseif args.pos then
-	pos.x = args.pos[1]
-	pos.y = args.pos[2]
-	pos.z = args.pos[3]
-else
-	error(error_str.."No unit or location selected")
-	return
-end
-
-local radius = args.radius or {0,0,0}
-local offset = args.offset or {0,0,0}
-local number = args.number or 0
-local depth = args.depth or 1
-local target = {x=pos.x+offset[1], y=pos.y+offset[2], z=pos.z+offset[3]}
-
-local positions = {}
-MAP = dfhack.script_environment("functions/map").MAP(false)
-if args.plan then
-	positions = MAP:getPlanPositions(target,args.plan,args.origin)
-elseif args.shape then
-	positions = MAP:getFillPositions(target,radius,args.shape)
-else
-	positions = MAP:getFillPositions(target,radius)
-end
-if #positions == 0 then return end
-if number == 0 then number = #positions end
-local n = math.min(number,#positions)
-positions = dfhack.script_environment("functions/math").permute(positions)
-
-for i = 1, n do
-	MAP:createLiquid(positions[i],depth,args.magma)
-end
-

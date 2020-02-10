@@ -188,7 +188,7 @@ function ENTITY:getResourceTables(resourceType,resourceSubType)
 	if validResources[resourceType:upper()]["dual_resource"] then
 		local N = #resourceTable
 		resource_A = safe_index(entity.resources,table.unpack(resourceTable,1,N-1))
-		resource_B = safe_index(entity.resources,table.unpack(resourceTable,1,N-2),resourceTable[N])
+		resource_B = safe_index(safe_index(entity.resources,table.unpack(resourceTable,1,N-2)),resourceTable[N])
 	else
 		resource_A = safe_index(entity.resources,table.unpack(resourceTable))
 	end

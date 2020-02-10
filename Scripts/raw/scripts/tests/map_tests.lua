@@ -24,6 +24,7 @@ function tests()
 	local spawn_flow = function ()
 		local Check = {}
 		local location = map:getPosition("SURFACE",true)
+		if not location.x then return nil end
 		local loc_str = posString(location)
 		cmd = "map/spawn-flow -pos [ "..loc_str.." ] -type MaterialDust -inorganic OBSIDIAN -static -density 100"
 		writeall(cmd)
@@ -34,7 +35,7 @@ function tests()
 			Check[#Check+1] = "Failed to create flow"
 		else
 			if not flow.Type == "MATERIALDUST" then Check[#Check+1] = "Incorrect flow type - "..flow.Type end
-			if not flow:getDensity() = 100 then Check[#Check+1] = "Incorrect flow density - "..tostring(flow:getDensity()) end
+			if not flow:getDensity() == 100 then Check[#Check+1] = "Incorrect flow density - "..tostring(flow:getDensity()) end
 			if not flow.Inorganic == "OBSIDIAN" then Check[#Check+1] = "Incorrect flow inorganic - "..flow.Inorganic end
 			if not flow.Static then Check[#Check+1] = "Flow is not static" end
 		end
@@ -45,6 +46,7 @@ function tests()
 	local spawn_liquid = function ()
 		local Check = {}
 		local location = map:getPosition("SURFACE",true)
+		if not location.x then return nil end
 		local loc_str = posString(location)
 		cmd = "map/spawn-liquid -pos [ "..loc_str.." ] -depth 1 -shape SQUARE -radius [ 1 1 ]"
 		writeall(cmd)

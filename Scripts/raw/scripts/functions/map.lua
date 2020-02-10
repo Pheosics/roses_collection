@@ -24,6 +24,19 @@ flow_types = {
 local openTileTypes = {"Floor","Pebbles","Shrub","Open"}
 local positionTypes = {"CENTER","EDGE","UNIT"}
 local positionSubtypes = {"CAVERN","SKY","SURFACE","UNDERGROUND"}
+local function processXYZ(x,y,z)
+	local pos = {}
+	if y == nil and z == nil then
+		pos.x = x.x or x[1]
+		pos.y = x.y or x[2]
+		pos.z = x.z or x[3]
+	else
+		pos.x = x
+		pos.y = y
+		pos.z = z
+	end
+	return pos
+end
 local function checkTypes(x,y)
 	if not x then return nil end
 	local check = nil
@@ -40,7 +53,7 @@ local function isFree(x,y,z)
 	local free = false
 	local tiletype = dfhack.maps.getTileType(pos)
 	local designation, occupancy = dfhack.maps.getTileFlags(pos)
-	if not tiletype or not tileflag then return false end
+	if not tiletype then return false end
 	
 	-- Check that the tiletype is "open"
 	local open = false
@@ -56,19 +69,6 @@ local function isFree(x,y,z)
 	if designation.flow_size == 0  and occupancy.building == 0 then	free = true	end
 
 	return free
-end
-local function processXYZ(x,y,z)
-	local pos = {}
-	if y == nil and z == nil then
-		pos.x = x.x or x[1]
-		pos.y = x.y or x[2]
-		pos.z = x.z or x[3]
-	else
-		pos.x = x
-		pos.y = y
-		pos.z = z
-	end
-	return pos
 end
 local function checkBounds(x,y,z)
 	local valid = true
@@ -181,6 +181,7 @@ function MAP:createLiquid(pos,depth,magma)
 	local x = pos.x or pos[1]
 	local y = pos.y or pos[2]
 	local z = pos.z or pos[3]
+	depth = depth or 7
 	block = dfhack.maps.ensureTileBlock(x,y,z)
 	dsgn = block.designation[x%16][y%16]
 	dsgn.flow_size = math.min(depth,7)
@@ -305,7 +306,7 @@ function MAP:getFillPositions(pos,radius,shape)
 	if shape == "SQUARE" then
 		for j = -ry, ry do
 			for i = -rx, rx do
-				if abs(i) ~= rx and abs(j) ~= ry then 
+				if math.abs(i) ~= rx and math.abs(j) ~= ry then 
 					if checkBounds(xpos+i,ypos+j,zpos) then fillPos[#fillPos+1] = {x=xpos+i, y=ypos+j, z=zpos} end					
 				end
 			end
@@ -313,7 +314,7 @@ function MAP:getFillPositions(pos,radius,shape)
 	elseif shape == "CIRCLE" then
 		for j = -ry, ry do
 			for i = -rx, rx do
-				if abs(i) ~= rx and abs(j) ~= ry and i*i/rx*rx + j*j/ry*ry <= 1 then 
+				if math.abs(i) ~= rx and math.abs(j) ~= ry and i*i/rx*rx + j*j/ry*ry <= 1 then 
 					if checkBounds(xpos+i,ypos+j,zpos) then fillPos[#fillPos+1] = {x=xpos+i, y=ypos+j, z=zpos} end					
 				end
 			end
@@ -444,7 +445,7 @@ function MAP:getPosition(...)
 		attempts = attempts + 1
 		if attempts > 1000 then break end
 	end
-	
+
 	return pos
 end
 

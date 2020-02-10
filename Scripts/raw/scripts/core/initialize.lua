@@ -85,12 +85,12 @@ local function initializePersistentTables(verbose)
 	for _,i in pairs(delayTable._children) do
 		delay = delayTable[i]
 		local currentTick = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick
-		if currentTick >= tonumber(delay.Tick) then
-			delay = nil
-		else
+		if tonumber(delay.Tick) and currentTick < tonumber(delay.Tick) then
 			n = n + 1
 			local ticks = delay.Tick-currentTick
 			dfhack.timeout(ticks, "ticks", function () dfhack.run_command(delay.Script) end)
+		else
+			delay = nil
 		end
 	end
 	dfhack.color(c3)

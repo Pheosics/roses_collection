@@ -213,7 +213,7 @@ local function main(...)
     -- Apply status change
 	if args.status and args.bodyPart then
 		for k,v in pairs(partArgs) do
-			changeBodyPartStatus(unit,k,v,statusArgs)
+			changeBodyPartStatus(unit,k,v,statusArgs,dur)
 		end
 	end
 	

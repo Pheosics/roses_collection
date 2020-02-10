@@ -507,9 +507,9 @@ end
 
 function UNIT_SKILL:changeExperienceValue(change) -- Skill leveling taken from modtools/skill-change.lua
 	if change == 0 then return change end
-	local unit = df.unit.find(self.unit_id)
+	local unit = df.unit.find(self.unit.id)
 	if self.type == "Normal" then
-		skill = unit.status.current_soul.skills[id]
+		skill = unit.status.current_soul.skills[self.id]
 		local newExp = skill.experience + change
 		if (newExp < 0) or (newExp > nextSkillLevel(skill.rating+1)) then
 			if newExp > 0 then --positive
@@ -533,7 +533,7 @@ end
 
 function UNIT_SKILL:changeLevelValue(change)
 	if change == 0 then return change end
-	local unit = df.unit.find(self.unit_id)
+	local unit = df.unit.find(self.unit.id)
 	if self.type == "Normal" then
 		local id = self.id
 		unit.status.current_soul.skills[id].rating = unit.status.current_soul.skills[id].rating + change

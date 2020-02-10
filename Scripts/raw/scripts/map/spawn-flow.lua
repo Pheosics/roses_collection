@@ -164,7 +164,7 @@ local function main(...)
 	elseif args.shape then
 		positions = getPositions({pos=target, shape=args.shape, radius=radius}, "SHAPE")
 	else
-		positions = getPositions({pos=target, radius=radius}, "FILL"))
+		positions = getPositions({pos=target, radius=radius}, "FILL")
 	end
 	createFlows(flowType,positions,{density=args.density, inorganic=args.inorganic, number=args.number, static=args.static})
 end

@@ -136,9 +136,9 @@ local function main(...)
 			mode = string.sub(v,1,1)
 			value = tonumber(string.sub(v,2))
 		end
-		if Type:upper() == "LEVEL" then
+		if args.type:upper() == "LEVEL" then
 			changeSkillLevel(unit, skill, mode, value, dur, args.add)
-		elseif Type:upper() == "EXPERIENCE" then
+		elseif args.type:upper() == "EXPERIENCE" then
 			changeSkillExperience(unit, skill, mode, value, dur)
 		end
     end

@@ -9,14 +9,14 @@ function commandDelay(ticks,script)
 	local currentTick = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick
 	local runTick = currentTick + ticks
 	local persistDelay = persistTable.GlobalTable.persistCommandDelay
-	local currentNumber = tostring(persistDelay["nextID"])
+	local currentNumber = persistDelay["nextID"] or "0"
 	persistDelay[currentNumber] = {}
-	persistDelay[currentNumber].ID = id
+	persistDelay[currentNumber].ID = tostring(id)
 	persistDelay[currentNumber].Tick = tostring(runTick)
 	persistDelay[currentNumber].Command = script
 	
 	-- Update the nextID 
-	persistDelay["nextID"] = tostring(math.floor(persistDelay["nextID"] + 1))
+	persistDelay["nextID"] = tostring(math.floor(tonumber(currentNumber) + 1))
 	
 	return id
 end
@@ -29,7 +29,7 @@ function functionDelay(ticks,env,func,args)
 	local currentTick = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick
 	local runTick = currentTick + ticks
 	local persistDelay = persistTable.GlobalTable.persistFunctionDelay
-	local currentNumber = tostring(persistDelay["nextID"])
+	local currentNumber = persistDelay["nextID"] or "0"
 	persistDelay[currentNumber] = {}
 	persistDelay[currentNumber].ID = tostring(id)
 	persistDelay[currentNumber].Tick = tostring(runTick)
@@ -41,7 +41,7 @@ function functionDelay(ticks,env,func,args)
 	end
 
 	-- Update the nextID 
-	persistDelay["nextID"] = tostring(math.floor(persistDelay["nextID"] + 1))
+	persistDelay["nextID"] = tostring(math.floor(tonumber(currentNumber) + 1))
 	
 	return id	
 end
