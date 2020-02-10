@@ -1,106 +1,63 @@
 UNIT Script Tests Starting
-unit/attack checks starting
-unit/attack -defender 298 -attacker 288
+unit/change_attribute checks starting
+unit/change-attribute -unit 409 -attribute [ STRENGTH +50 ]
 
-unit/attack -defender 298 -attacker 288 -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10
+PASSED: change_attribute
+unit/change_attribute checks finished
+
+unit/attack checks starting
+unit/attack -defender 419 -attacker 409
+
+unit/attack -defender 419 -attacker 409 -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10
 
 FAILED: attack
 Failed to add 10 100 velocity punches to the head of defender - 0
 unit/attack checks finished
 
 unit/change_skill checks starting
-unit/change-skill -unit 288 -skill [ DODGING +5 ] -add
-...es\Desktop\DF\DF_44_12/raw/scripts/unit/change-skill.lua:122: attempt to index a nil value (global 'skill')
-stack traceback:
-	...es\Desktop\DF\DF_44_12/raw/scripts/unit/change-skill.lua:122: in local 'main'
-	...es\Desktop\DF\DF_44_12/raw/scripts/unit/change-skill.lua:144: in local 'script_code'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
-	(...tail calls...)
+unit/change-skill -unit 409 -skill [ DODGING +5 ] -add
 
-unit/change-skill -unit 288 -skill [ MINING +500 ] -type Experience -add
-...es\Desktop\DF\DF_44_12/raw/scripts/unit/change-skill.lua:122: attempt to index a nil value (global 'skill')
-stack traceback:
-	...es\Desktop\DF\DF_44_12/raw/scripts/unit/change-skill.lua:122: in local 'main'
-	...es\Desktop\DF\DF_44_12/raw/scripts/unit/change-skill.lua:144: in local 'script_code'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
-	(...tail calls...)
+unit/change-skill -unit 409 -skill [ MINING +500 ] -type Experience -add
 
-FAILED: change_skill
-Failed to increase units dodging skill by 5 - 5 0
-Failed to add 500 experience to units mining skill - 1600 1100
+PASSED: change_skill
 unit/change_skill checks finished
-
-unit/propel checks starting
-unit/propel -unit 290 -velocity [ 0 0 100 ] -mode Fixed
-PASSED: propel
-unit/propel checks finished
 
 unit/change_action checks starting
 unit/change-action checks starting
-unit/change-action -unit 288 -data [ timer 500 ] -action All -add
-C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\utils.lua:598: error: invalid arg: 10: add
-stack traceback:
-	[C]: in function 'error'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\utils.lua:598: in function 'utils.processArgs'
-	...s\Desktop\DF\DF_44_12/raw/scripts/unit/change-action.lua:66: in local 'main'
-	...s\Desktop\DF\DF_44_12/raw/scripts/unit/change-action.lua:106: in local 'script_code'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
-	(...tail calls...)
+unit/change-action -unit 409 -data [ timer 500 ] -action All
 
-unit/action-change -unit 288 -action ALL -clear
-C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\utils.lua:598: error: invalid arg: 5: clear
-stack traceback:
-	[C]: in function 'error'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\utils.lua:598: in function 'utils.processArgs'
-	...s\Desktop\DF\DF_44_12/raw/scripts/unit/action-change.lua:46: in local 'script_code'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
-	(...tail calls...)
+unit/change-action -unit 409 -action ALL -clear
 
-FAILED: change_action
-Failed to change all timed actions to 500
-Failed to remove all actions from unit
+PASSED: change_action
 unit/change_action checks finished
 
-unit/change_body checks starting
-unit/change-body -unit 296 -bodyPart FLAG:SIGHT -status [ on_fire true ] -dur 50
-...les\Desktop\DF\DF_44_12/raw/scripts/unit/change-body.lua:170: attempt to call a nil value (global 'split')
-stack traceback:
-	...les\Desktop\DF\DF_44_12/raw/scripts/unit/change-body.lua:170: in local 'main'
-	...les\Desktop\DF\DF_44_12/raw/scripts/unit/change-body.lua:232: in local 'script_code'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
-	(...tail calls...)
-
-Pausing run_test.lua for 75 in-game ticks
-Resuming run_test.lua
-FAILED: change_body
-Failed to set SIGHT body parts on fire
-Failed to set SIGHT body parts on fire
-unit/change_body checks finished
-
 unit/butcher checks starting
-unit/butcher -unit 297
-...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:111: Error in unit/butcher - Unit is still alive and has not been ordered -kill
+unit/butcher -unit 418
+...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:114: Error in unit/butcher - Unit is still alive and has not been ordered -kill
 stack traceback:
 	[C]: in function 'error'
-	...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:111: in local 'main'
-	...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:147: in local 'script_code'
+	...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:114: in local 'main'
+	...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:150: in local 'script_code'
 	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
 	(...tail calls...)
-	[C]: in function 'dfhack.saferesume'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
-	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:62: in function <C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:51>
-	[C]: in ?
 
-unit/butcher -unit 297 -kill
+unit/butcher -unit 418 -kill
 
 Pausing run_test.lua for 5 in-game ticks
 Resuming run_test.lua
 PASSED: butcher
 unit/butcher checks finished
 
-unit/change_attribute checks starting
-unit/change-attribute -unit 288 -attribute [ STRENGTH +50 ]
+unit/propel checks starting
+unit/propel -unit 411 -velocity [ 0 0 100 ] -mode Fixed
+PASSED: propel
+unit/propel checks finished
 
-PASSED: change_attribute
-unit/change_attribute checks finished
+unit/change_body checks starting
+unit/change-body -unit 417 -bodyPart FLAG:SIGHT -status [ on_fire true ] -dur 50
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+PASSED: change_body
+unit/change_body checks finished
 

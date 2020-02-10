@@ -1,8 +1,28 @@
 ITEM Script Tests Starting
-item/change_quality checks starting
-item/change-quality -item 1282 -upgrade
+item/change_material checks starting
+item/change-material -item 2053 -material CREATURE:DWARF:BRAIN
 
-item/change-quality -unit 288 -equipment ALL -quality 5 -dur 50
+item/change-material -unit 409 -equipment ALL -material INORGANIC:ADAMANTINE -dur 50
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+PASSED: change_material
+item/change_material checks finished
+
+item/change_subtype checks starting
+item/change-subtype -item 2054 -subtype ITEM_WEAPON_SWORD_LONG
+
+item/change-subtype -unit 409 -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+PASSED: change_subtype
+item/change_subtype checks finished
+
+item/change_quality checks starting
+item/change-quality -item 2055 -upgrade
+
+item/change-quality -unit 409 -equipment ALL -quality 5 -dur 50
 
 Pausing run_test.lua for 75 in-game ticks
 Resuming run_test.lua
@@ -10,42 +30,32 @@ FAILED: change_quality
 Failed to increase item quality by 1 - 3 
 item/change_quality checks finished
 
-item/create checks starting
-item/create -creator 288 -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -dur 20
-
-Pausing run_test.lua for 75 in-game ticks
-Resuming run_test.lua
-PASSED: create
-item/create checks finished
-
-item/change_material checks starting
-item/change-material -item 1284 -material CREATURE_MAT:DWARF:BRAIN
-
-item/change-material -unit 288 -equipment ALL -material INORGANIC:ADAMANTINE -dur 50
-
-Pausing run_test.lua for 75 in-game ticks
-Resuming run_test.lua
-FAILED: change_material
-Failed to change short sword material - CREATURE_MAT:DWARF:BRAIN CREATURE:DWARF:BRAIN
-item/change_material checks finished
-
-item/change_subtype checks starting
-item/change-subtype -item 1285 -subtype ITEM_WEAPON_SWORD_LONG
-
-item/change-subtype -unit 288 -equipment PANTS -subtype ITEM_PANTS_GREAVES -dur 50
-
-Pausing run_test.lua for 75 in-game ticks
-Resuming run_test.lua
-PASSED: change_subtype
-item/change_subtype checks finished
-
 item/projectile checks starting
-item/projectile -unitSource 288 -unitTarget 295 -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON
+item/projectile -unitSource 409 -unitTarget 416 -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON
 
-item/projectile -unitSource 288 -type Falling -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON -height 5 -number 10
+item/projectile -unitSource 409 -type Falling -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON -height 5 -number 10
 
 FAILED: projectile
 Failed to create 1 shooting projectile
 Failed to create 10 falling projectiles
 item/projectile checks finished
+
+item/create checks starting
+item/create -creator 409 -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:STEEL -dur 20
+...miles\Desktop\DF\DF_44_12/raw/scripts/functions/item.lua:200: attempt to index a number value (local 'item')
+stack traceback:
+	...miles\Desktop\DF\DF_44_12/raw/scripts/functions/item.lua:200: in field 'create'
+	...rs\miles\Desktop\DF\DF_44_12/raw/scripts/item/create.lua:54: in local 'script_code'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:62: in function <C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+FAILED: create
+Short sword was not correctly removed
+item/create checks finished
 

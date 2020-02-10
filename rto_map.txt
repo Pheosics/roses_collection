@@ -1,0 +1,14 @@
+MAP Script Tests Starting
+map/spawn_liquid checks starting
+map/spawn-liquid -pos [ 13 28 177 ] -depth 1 -shape SQUARE -radius [ 1 1 ]
+
+PASSED: spawn_liquid
+map/spawn_liquid checks finished
+
+map/spawn_flow checks starting
+map/spawn-flow -pos [ 24 6 177 ] -type MaterialDust -inorganic OBSIDIAN -static -density 100
+
+FAILED: spawn_flow
+Failed to create flow
+map/spawn_flow checks finished
+
