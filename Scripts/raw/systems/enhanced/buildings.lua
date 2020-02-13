@@ -3,7 +3,7 @@ local utils = require "utils"
 local eventful = require "plugins.eventful"
 local split = utils.split_string
 local defbldg = reqscript("functions/building").BUILDING
-local bldgCount = reqscript("functions/building").countBuildings
+local myMath = reqscript("funcitons/map")
 
 -- Name of the system
 Name = "enhancedBuildings"
@@ -84,7 +84,7 @@ local function checkBuildingStarted(buildingID)
 	-- Array Checks
 	if allow and Table.RequiredBuildings then
 		for reqBldg,reqNum in pairs(Table.RequiredBuilding) do
-			if bldgCount(reqBldg) < reqNum then
+			if myMath.count("BUILDING",reqBldg) < reqNum then
 				allow = false
 				break
 			end
@@ -92,7 +92,7 @@ local function checkBuildingStarted(buildingID)
 	end
 	if allow and Table.ForbiddenBuildings then
 		for reqBldg,reqNum in pairs(Table.ForbiddenBuildings) do
-			if bldgCount(reqBldg) > reqNum then
+			if myMath.count("BUILDING",reqBldg) > reqNum then
 				allow = false
 				break
 			end

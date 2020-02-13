@@ -47,3 +47,15 @@ function permute(tab,zero)
 		return tab
 	end
 end
+
+function count(countType,countSubtype)
+	local n = 0
+	if countType == "BUILDING" then
+		for _,bldg in pairs(df.global.world.buildings.all) do
+			if bldg:getCustomType() >= 0 and bldg:getCustomType().code == countSubtype then
+				n = n+1
+			end
+		end
+	end
+	return n
+end

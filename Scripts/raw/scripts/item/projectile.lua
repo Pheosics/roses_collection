@@ -170,7 +170,7 @@ local function main(...)
 			end
 		else
 			if not args.material or not dfhack.matinfo.find(args.material) then error(error_str .. "Invalid material") end
-			item = reqscript("modtools/create-item").createItem(args.creator,args.item,args.material)
+			item = reqscript("functions/item").create(args.item,args.material,args.creator,args.quality)
 		end
 		if not item then return end
 		if args.type:upper() == "FALLING" then

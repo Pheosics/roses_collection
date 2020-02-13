@@ -52,7 +52,7 @@ function tests()
 		
 		---- Check that the script succeeds and adds 10 punch attacks against defenders head
 		dfhack.run_command_silent("unit/change-action -unit "..tostring(attacker.id).." -action Attack -clear")
-		cmd = "unit/attack -defender "..tostring(defender.id).." -attacker "..tostring(attacker.id).." -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10"
+		cmd = "unit/attack -defender "..tostring(defender.id).." -attacker "..tostring(attacker.id).." -target HEAD -number 10 -velocity 100 -delay 10"
 		writeall(cmd)
 		dfhack.run_command(cmd)
 		writeall(output)

@@ -2,6 +2,7 @@
 -- TODO Add support for custom building items list
 -- TODO Add support for abstract buildings
 -- TODO Add duration for created buildings
+-- TODO Add option to clear ground area for building
 
 --building/create.lua
 --@ module=true

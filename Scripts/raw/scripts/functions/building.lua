@@ -256,15 +256,3 @@ end
 function BUILDING:isOutside()
 	return false
 end
-
---===============================================================================================--
---== UNCLASSED BUILDING FUNCTIONS ===============================================================--
---===============================================================================================--
-function countBuildings(buildingToken)
-	local n = 0
-	for _,bldg in pairs(df.global.world.buildings.all) do
-		if bldg:getCustomType() >= 0 and bldg:getCustomType().code == reqBldg then
-			n = n+1
-		end
-	end
-end

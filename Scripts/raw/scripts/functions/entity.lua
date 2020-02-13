@@ -103,7 +103,7 @@ function ENTITY:addResource(resourceType,resourceSubtype,token)
 	elseif resourceType == "ORGANIC" then
 		self:addOrganic(resourceSubtype,token)
 	elseif resourceType == "PRODUCT" then
-		self:addProduct(resourceSubtype,token)
+		self:addProductMaterial(resourceSubtype,token)
 	end
 end
 
@@ -180,11 +180,11 @@ end
 function ENTITY:changeEthic(ethic_token,change) end
 function ENTITY:changeValue(value_token,change) end
 
-function ENTITY:getResourceTables(resourceType,resourceSubType)
+function ENTITY:getResourceTables(resourceType,resourceSubtype)
 	local resource_A
 	local resource_B
 	entity = df.global.world.entities.all[self.id]
-	resourceTable = validResources[resourceType:upper()][resourceSubType:upper()]
+	resourceTable = validResources[resourceType:upper()][resourceSubtype:upper()]
 	if validResources[resourceType:upper()]["dual_resource"] then
 		local N = #resourceTable
 		resource_A = safe_index(entity.resources,table.unpack(resourceTable,1,N-1))
@@ -199,8 +199,8 @@ function ENTITY:hasResource(resourceGroup,resourceToken)
 	local found = false
 	local spl = split(resourceGroup,":")
 	resourceType = spl[1]
-	resourceSubType = spl[2]
-	resource_A, resource_B = self:getResourceTables(resourceType,resourceSubType)
+	resourceSubtype = spl[2]
+	resource_A, resource_B = self:getResourceTables(resourceType,resourceSubtype)
 	if resourceType == "CREATURE" then
 		object = decode.decode_creatureToken(resourceToken)
 	elseif resourceType == "INORGANIC" then
@@ -233,7 +233,7 @@ function ENTITY:hasResource(resourceGroup,resourceToken)
 	return found
 end
 
-function ENTITY:removeResource(resourceType,resourceSubType,token)
+function ENTITY:removeResource(resourceType,resourceSubtype,token)
 	if resourceType == "CREATURE" then
 		self:removeCreature(resourceSubtype,token)
 	elseif resourceType == "INORGANIC" then
@@ -243,7 +243,7 @@ function ENTITY:removeResource(resourceType,resourceSubType,token)
 	elseif resourceType == "ORGANIC" then
 		self:removeOrganic(resourceSubtype,token)
 	elseif resourceType == "PRODUCT" then
-		self:removeProduct(resourceSubtype,token)
+		self:removeProductMaterial(resourceSubtype,token)
 	end
 end
 

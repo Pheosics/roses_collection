@@ -450,7 +450,7 @@ function MAP:getPosition(...)
 end
 
 function MAP:getFlow(pos)
-	local block = dfhack.maps.ensureTileBlock(pos)
+	local block = dfhack.maps.ensureTileBlock(pos.x,pos.y,pos.z)
 	local flowOut
 	for i, flow in pairs(block.flows) do
 		if samePosition(flow.pos, pos) then

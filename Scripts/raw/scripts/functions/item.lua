@@ -196,7 +196,8 @@ function create(item,material,creatorID,quality) --from modtools/create-item
 	local itemSubtype = dfhack.items.findSubtype(item)
 	local material = dfhack.matinfo.find(material)
 	if not material then return end
-	item = dfhack.items.createItem(itemType, itemSubtype, material.type, material.index, df.unit.find(creatorID))
+	itemID = dfhack.items.createItem(itemType, itemSubtype, material.type, material.index, df.unit.find(creatorID))
+	item = df.item.find(itemID)
 	item:setQuality(quality)
 	
 	return ITEM(item)
