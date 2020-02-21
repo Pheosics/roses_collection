@@ -1,4 +1,4 @@
---@ module=true
+--@ module = true
 local utils = require "utils"
 
 info = {}

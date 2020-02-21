@@ -96,14 +96,14 @@ EventfulFunctions = {
 		end
 	},
 	onProjItemCheckMovement = {
-		move - function(projectile)
+		move = function(projectile)
 		end
 	},
-},
+}
 EventfulTypes = {
 	UNIT_ATTACK = 1,
 	INVENTORY_CHANGE = 5,
-},
+}
 CustomFunctions = {
 	onItemAction = {
 		attack = function(unit_id, action) -- Event for OnAttack
@@ -137,10 +137,11 @@ CustomFunctions = {
 		fired = function(projectile)
 		end,
 	}
-},
+}
 CustomTypes = {
 	onAction = {ticks = 1, func=reqscript("functions/custom-events").checkForActions}
-},
+}
+
 -- Custom Triggers
 onItemAction = onItemAction or dfhack.event.new()
 onShoot = onShoot or dfhack.event.new()

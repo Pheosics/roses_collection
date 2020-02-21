@@ -68,11 +68,11 @@ validArgs = utils.invert({
 local function setAttack(attacker, defender, target_bp, attack, velocity, hitchance, delay, number)
 	number = tonumber(number) or 1
 	delay = delay or 1
-	
+
 	-- Set Attack Action Data
 	local attack_data = {}
 	attack_data.target_unit_id = defender.id
-	attack_data.target_body_part_id = defender.id
+	attack_data.target_body_part_id = target_bp.id
 	attack_data.attack_id = attack.id
 	attack_data.attack_velocity = velocity
 	attack_data.attack_accuracy = hitchance

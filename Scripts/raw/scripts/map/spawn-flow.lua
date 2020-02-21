@@ -108,7 +108,7 @@ local function getPositions(posFields,posType)
 end
 
 function createFlows(flowType,positions,flowOptions)
-	local map = reqscript("functions/map").MAP(false)
+	local map = reqscript("functions/map").MAP(false) 
 	if #positions == 0 then return end
     density, inorganic, number, static = parseFlowOptions(flowOptions)
 	flowN = flow_types[flowType]
@@ -158,7 +158,7 @@ local function main(...)
 	local radius = args.radius or {0,0,0}
 	local offset = args.offset or {0,0,0}
 	local target = {x=pos.x+offset[1], y=pos.y+offset[2], z=pos.z+offset[3]}
-	
+
 	if args.plan then
 		positions = getPositions({pos=target, plan=args.plan, origin=args.origin}, "PLAN")
 	elseif args.shape then

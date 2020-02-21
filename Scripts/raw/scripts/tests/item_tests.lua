@@ -177,8 +177,9 @@ function tests()
 	---- Check that the script succeeds and creates an iron bolt shooting from source to target
 		local projid = df.global.proj_next_id
 		local itemid = df.global.item_next_id
-		writeall("item/projectile -unitSource "..tostring(unitSource.id).." -unitTarget "..tostring(unitTarget.id).." -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON")
-		output = dfhack.run_command_silent("item/projectile -unitSource "..tostring(unitSource.id).." -unitTarget "..tostring(unitTarget.id).." -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON")
+        cmd = "item/projectile -unitSource "..tostring(unitSource.id).." -unitTarget "..tostring(unitTarget.id).." -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
 		if df.global.proj_next_id ~= projid + 1 and df.global.item_next_id ~= itemid + 1 then
 			Check[#Check+1] = "Failed to create 1 shooting projectile"
@@ -187,8 +188,9 @@ function tests()
 	---- Check that the script succeeds and creates 10 iron bolts falling from 5 z levels above the source
 		local projid = df.global.proj_next_id
 		local itemid = df.global.item_next_id
-		writeall("item/projectile -unitSource "..tostring(unitSource.id).." -type Falling -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON -height 5 -number 10")
-		output = dfhack.run_command_silent("item/projectile -unitSource "..tostring(unitSource.id).." -type Falling -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON -height 5 -number 10")
+        cmd = "item/projectile -unitSource "..tostring(unitSource.id).." -type Falling -item AMMO:ITEM_AMMO_BOLT -material INORGANIC:IRON -height 5 -number 10"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
 		writeall(output)
 		if df.global.proj_next_id ~= projid + 10 and df.global.item_next_id ~= itemid + 10 then
 			Check[#Check+1] = "Failed to create 10 falling projectiles"

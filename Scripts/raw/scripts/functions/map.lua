@@ -306,9 +306,9 @@ function MAP:getFillPositions(pos,radius,shape)
 	if shape == "SQUARE" then
 		for j = -ry, ry do
 			for i = -rx, rx do
-				if math.abs(i) ~= rx and math.abs(j) ~= ry then 
+				--if math.abs(i) ~= rx and math.abs(j) ~= ry then
 					if checkBounds(xpos+i,ypos+j,zpos) then fillPos[#fillPos+1] = {x=xpos+i, y=ypos+j, z=zpos} end					
-				end
+				--end
 			end
 		end
 	elseif shape == "CIRCLE" then
@@ -476,8 +476,8 @@ function FLOW:__index(key)
 	return self._flow[key]
 end
 function FLOW:init(flow)
-	self.Type = string.upper(df.flow_type(flow.type))
-	self.Static = flow.expanding
+	self.Type = string.upper(df.flow_type[flow.type])
+	self.Static = not flow.expanding
 	if flow.mat_type >= 0 then
 		self.Inorganic = dfhack.matinfo.getToken(flow.mat_type,flow.mat_index)
 	else

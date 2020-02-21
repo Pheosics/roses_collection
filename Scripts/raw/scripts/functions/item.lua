@@ -1,4 +1,4 @@
---@ module=true
+--@ module = true
 info = {}
 info["ITEM"]        = [===[ TODO ]===]
 info["ITEM_ATTACK"] = [===[ TODO ]===]

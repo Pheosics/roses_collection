@@ -4,7 +4,7 @@ local eventful = require "plugins.eventful"
 local split = utils.split_string
 local repeats = require("repeat-util")
 local defbldg = reqscript("functions/building").BUILDING
-local myMath = reqscript("funcitons/math")
+local myMath = reqscript("functions/math")
 local systemTable = systemTable or {}
 local function checkSystemTable(buildingID)
 	-- Make sure the building exists
@@ -62,7 +62,7 @@ EventfulTypes = {
 	JOB_INITIATED = 5,
 	JOB_COMPLETED = 5,
 }
-CustomFunctions = {},
+CustomFunctions = {}
 CustomTypes = {}
 
 -- startSystemTriggers is called on intialization

@@ -17,6 +17,7 @@ function makeSystemTable(systemTokens)
 			startLine  = x[2]
 			endLine    = x[3]
 			Table[token] = {}
+            subtable = {}
 			ptable = Table[token]
 			ptable.Scripts = {}
 			scripts = 0
@@ -35,6 +36,7 @@ function makeSystemTable(systemTokens)
 					-- This is here so we skip unnecessary raw tokens
 				elseif string.sub(test,1,1) == "{" then
 					array[1] = split(test,"{")[2]
+                    print(array[1])
 					if systemTokens[array[1]] then
 						local enhanced = true
 						local Type = systemTokens[array[1]].Type

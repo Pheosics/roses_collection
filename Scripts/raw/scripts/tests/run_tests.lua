@@ -1,5 +1,12 @@
 -- Run tests
 script = require "gui.script"
+utils = require "utils"
+
+validArgs = utils.invert({
+	"help",
+	"test",
+})
+local args = utils.processArgs({...}, validArgs)
 
 function printplus(text,color)
 	color = color or COLOR_WHITE
@@ -23,7 +30,15 @@ function writeall(tbl)
 end
 
 scriptChecks = {}
-scriptCategories = {"unit"}--{"unit","item","entity","building","map"}
+if not args.test then
+    scriptCategories = {"unit","item","entity","building","map"}
+else
+    if type(args.test) == "string" then
+        scriptCategories = {args.test}
+    else
+        scriptCategories = args.test
+    end
+end
 
 function scriptCheck()
 	for _,scripts in pairs(scriptCategories) do

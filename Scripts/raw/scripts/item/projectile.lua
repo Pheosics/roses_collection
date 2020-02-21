@@ -159,7 +159,6 @@ local function main(...)
 	local min_range = tonumber(args.minumim)   or 1
 	args.type = args.type or "FALLING"
 	
-	
 	for n = 1, number do
 		item = nil
 		if args.equipped then
@@ -187,4 +186,8 @@ local function main(...)
 			makeShootingProjectile(item,position,velocity,target,hitchance,max_range,min_range)
 		end
     end
+end
+
+if not dfhack_flags.module then
+	main(...)
 end
