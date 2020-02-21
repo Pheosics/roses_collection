@@ -2,8 +2,21 @@
 local utils = require "utils"
 local eventful = require "plugins.eventful"
 local split = utils.split_string
+local repeats = require("repeat-util")
 local defbldg = reqscript("functions/building").BUILDING
-local myMath = reqscript("funcitons/map")
+local myMath = reqscript("funcitons/math")
+local systemTable = systemTable or {}
+local function checkSystemTable(buildingID)
+	-- Make sure the building exists
+	local building = defbldg(buildingID)
+	if not building then return nil end
+	
+	local buildingToken = building.subtype
+	if buildingToken == "CUSTOM" then buildingToken = building.customtype end
+	if not systemTable[buildingToken] then return nil end
+	
+	return building, systemTable[buildingToken]
+end
 
 -- Name of the system
 Name = "enhancedBuildings"
@@ -21,48 +34,77 @@ Tokens = {
 	SCRIPT             = {Type="Main", Subtype="Script",  Name="Scripts"},
 }
 
+EventfulFunctions = {
+	onJobInitiated = {
+		buildingTrigger = function(job)
+			if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
+				buildingID = job.general_refs[0].building_id 
+				checkBuildingStarted(buildingID) -- This runs building checks such as Inside Only
+			elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
+				buildingID = job.general_refs[0].building_id
+				checkBuildingUnstarted(buildingID) -- This currently doesn't do anything
+			end
+		end
+	},
+	onJobCompleted = {
+		buildingTrigger = function(job)
+			if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
+				buildingID = job.general_refs[0].building_id
+				checkBuildingFinished(buildingID) -- This runs scripts
+			elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
+				buildingID = job.general_refs[0].building_id
+				checkBuildingDestroyed(buildingID) -- This currently doesn't do anything
+			end
+		end
+	},
+}
+EventfulTypes = {
+	JOB_INITIATED = 5,
+	JOB_COMPLETED = 5,
+}
+CustomFunctions = {},
+CustomTypes = {}
+
 -- startSystemTriggers is called on intialization
 function startSystemTriggers()
-	-- Can the building ID ref ever be not the first one? -ME
-	-- Event for initiating construction/deconstruction of a building (JOB_INITIATED)
-	eventful.onJobInitiated.buildingTrigger = function(job)
-		if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
-			buildingID = job.general_refs[0].building_id 
-			checkBuildingStarted(buildingID) -- This runs building checks such as Inside Only
-		elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
-			buildingID = job.general_refs[0].building_id
-			checkBuildingUnstarted(buildingID) -- This currently doesn't do anything
+	-- This only needs to be loaded once since it is unchanging during gameplay
+	systemTable = reqscript("core/tables").Tables[Name]
+	if not systemTable then return end
+	
+	-- Eventful Triggers
+	for k,t in pairs(EventfulFunctions) do -- No idea if this is going to work
+		for name,func in pairs(t) do
+			eventful[k][name] = function(...) return func(...) end
 		end
 	end
-
-	-- Event for finishing construction/destruction of a building (JOB_COMPLETED)
-	eventful.onJobCompleted.buildingTrigger = function(job)
-		if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
-			buildingID = job.general_refs[0].building_id
-			checkBuildingFinished(buildingID) -- This runs scripts
-		elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
-			buildingID = job.general_refs[0].building_id
-			checkBuildingDestroyed(buildingID) -- This currently doesn't do anything
-		end
+	for Type,ticks in pairs(EventfulTypes) do
+		eventful.enableEvent(eventful.eventType[Type],ticks)
 	end
-
-    -- Enable events
-	eventful.enableEvent(eventful.eventType.JOB_INITIATED,5)
-	eventful.enableEvent(eventful.eventType.JOB_COMPLETED,5)
+	
+	-- Custom Triggers
+	for Type,v in pairs(CustomTypes) do
+		repeats.scheduleUnlessAlreadyScheduled(Type,v.ticks,"ticks",v.func)
+	end
 end
 
--- Get the building and check if there is an enhanced building entry
-local function checkSystemTable(buildingID)
-	-- Make sure the building exists
-	local building = defbldg(buildingID)
-	if not building then return nil end
-	
-	local buildingToken = building.subtype
-	if buildingToken == "CUSTOM" then buildingToken = building.customtype end
-	local Table = dfhack.script_environment("core/tables").Tables[Name]
-	if not Table[buildingToken] then return nil end
-	
-	return building, Table[buildingToken]
+local function checkJobInitiated(job)
+	if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
+		buildingID = job.general_refs[0].building_id 
+		checkBuildingStarted(buildingID) -- This runs building checks such as Inside Only
+	elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
+		buildingID = job.general_refs[0].building_id
+		checkBuildingUnstarted(buildingID) -- This currently doesn't do anything
+	end
+end
+
+local function checkJobCompleted(job)
+	if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
+		buildingID = job.general_refs[0].building_id
+		checkBuildingFinished(buildingID) -- This runs scripts
+	elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
+		buildingID = job.general_refs[0].building_id
+		checkBuildingDestroyed(buildingID) -- This currently doesn't do anything
+	end
 end
 
 local function checkBuildingStarted(buildingID)
@@ -126,7 +168,7 @@ local function checkBuildingFinished(buildingID)
 			script = script:gsub("BUILDING_LOCATION",""..tostring(building.centerx).." "..tostring(building.centery).." "..tostring(building.z).."")
 			dfhack.run_command(script)
 			if frequency > 0 then
-				dfhack.script_environment("persist-delay").functionDelay(frequency,"enhanced/building","scriptTrigger",{building.id,script,frequency})
+				dfhack.script_environment("persist-delay").functionDelay(frequency,"enhanced/buildings","scriptTrigger",{building.id,script,frequency})
 			end
 		end
 	end
@@ -141,6 +183,6 @@ end
 local function scriptTrigger(buildingID, script, frequency)
 	if df.building.find(buildingID) then
 		dfhack.run_command(script)
-		dfhack.script_environment("persist-delay").functionDelay(frequency,"enhanced/building","scriptTrigger",{building.id,script,frequency})
+		dfhack.script_environment("persist-delay").functionDelay(frequency,"enhanced/buildings","scriptTrigger",{buildingID,script,frequency})
 	end	
 end
