@@ -4,7 +4,7 @@ local usage = [====[
 item/create
 ===========
 Purpose::
-    Creates an item and it"s cooresponding item table for tracking
+    Creates an item and its cooresponding item table for tracking
 
 Arguments::
     -creator #ID

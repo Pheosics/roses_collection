@@ -1,48 +1,54 @@
 --@ module=true
+-- Plugins
 local utils = require "utils"
 local eventful = require "plugins.eventful"
 local split = utils.split_string
 local repeats = require("repeat-util")
-local defbldg = reqscript("functions/building").BUILDING
 local myMath = reqscript("functions/math")
-local systemTable = systemTable or {}
-local function checkSystemTable(buildingID)
-	-- Make sure the building exists
-	local building = defbldg(buildingID)
-	if not building then return nil end
-	
-	local buildingToken = building.subtype
-	if buildingToken == "CUSTOM" then buildingToken = building.customtype end
-	if not systemTable[buildingToken] then return nil end
-	
-	return building, systemTable[buildingToken]
-end
+local checkSystemTable = reqscript("core/systems").checkSystemTable
 
--- Name of the system
+-- System Definition
+Initialization = true
+
+---- Name of the system
 Name = "enhancedBuildings"
 
--- List of currently accepted tokens for the system
+---- Raw file type to read
+RawFileType = "Building"
+
+---- Object function file
+ObjFuncFile = "building"
+
+---- List of currently accepted tokens for the system
 Tokens = {
 	DESCRIPTION        = {Type="Main", Subtype="String",  Name="Description"},
-	OUTSIDE_ONLY       = {Type="Main", Subtype="Boolean", Name="OutsideOnly"},
-	INSIDE_ONLY        = {Type="Main", Subtype="Boolean", Name="InsideOnly"},
+	OUTSIDE_ONLY       = {Type="Main", Subtype="Boolean", Name="OutsideOnly"}, -- Tested
+	INSIDE_ONLY        = {Type="Main", Subtype="Boolean", Name="InsideOnly"}, -- Tested
 	REQUIRED_WATER     = {Type="Main", Subtype="Number",  Name="RequiredWater"},
 	REQUIRED_MAGMA     = {Type="Main", Subtype="Number",  Name="RequiredMagma"},
 	REQUIRED_BUILDING  = {Type="Main", Subtype="Table",   Name="RequiredBuildings"},
 	FORBIDDEN_BUILDING = {Type="Main", Subtype="Table",   Name="ForbiddenBuildings"},
-	MAX_AMOUNT         = {Type="Main", Subtype="Number",  Name="MaxAmount"},
-	SCRIPT             = {Type="Main", Subtype="Script",  Name="Scripts"},
+	MAX_AMOUNT         = {Type="Main", Subtype="Number",  Name="MaxAmount"}, -- Tested
+	SCRIPT             = {Type="Main", Subtype="Script",  Name="Scripts"}, -- Tested
+	CONSTRUCTION_TIME  = {Type="Main", Subtype="Named",   Name="ConstructionTime", Names={Skill=2, BaseDur=3, SkillDecrease=4, MinDur=5}}, -- Tested
+	MECHANICAL         = {Type="Sub",  Subtype="Set",     Name="Mechanical"}, -- Tested
+	POWER_CONSUMED     = {Type="Sub",  Subtype="Number",  Name="PowerConsumed"}, -- Tested
+	POWER_PRODUCED     = {Type="Sub",  Subtype="Number",  Name="PowerProduced"}, -- Tested
+	GEAR_POINT         = {Type="Sub",  Subtype="Named",   Name="Gears", Names={x=2,y=3}},
+	AUTO_GEARS         = {Type="Sub",  Subtype="Boolean", Name="AutoGears"}, -- Tested
+	NEEDS_POWER        = {Type="Sub",  Subtype="Boolean", Name="NeedsPower"},
 }
 
+---- Eventful based functions
 EventfulFunctions = {
 	onJobInitiated = {
 		buildingTrigger = function(job)
 			if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
 				buildingID = job.general_refs[0].building_id 
-				checkBuildingStarted(buildingID) -- This runs building checks such as Inside Only
+				checkBuildingStarted(buildingID,job) -- This runs building checks such as Inside Only
 			elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
 				buildingID = job.general_refs[0].building_id
-				checkBuildingUnstarted(buildingID) -- This currently doesn't do anything
+				-- checkBuildingUnstarted(buildingID,job) -- Not currently needed
 			end
 		end
 	},
@@ -50,65 +56,45 @@ EventfulFunctions = {
 		buildingTrigger = function(job)
 			if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
 				buildingID = job.general_refs[0].building_id
-				checkBuildingFinished(buildingID) -- This runs scripts
+				checkBuildingFinished(buildingID,job) -- This runs scripts
 			elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
 				buildingID = job.general_refs[0].building_id
-				checkBuildingDestroyed(buildingID) -- This currently doesn't do anything
+				-- checkBuildingDestroyed(buildingID,job) -- Not currently needed
 			end
 		end
 	},
 }
+---- Eventful based types
 EventfulTypes = {
 	JOB_INITIATED = 5,
 	JOB_COMPLETED = 5,
 }
+
+---- Custom functions
 CustomFunctions = {}
+
+---- Custom types
 CustomTypes = {}
 
--- startSystemTriggers is called on intialization
-function startSystemTriggers()
-	-- This only needs to be loaded once since it is unchanging during gameplay
-	systemTable = reqscript("core/tables").Tables[Name]
+function initialize()
+	local systemTable = reqscript("core/tables").Tables[Name]
 	if not systemTable then return end
 	
-	-- Eventful Triggers
-	for k,t in pairs(EventfulFunctions) do -- No idea if this is going to work
-		for name,func in pairs(t) do
-			eventful[k][name] = function(...) return func(...) end
+	-- Run through necessary initialization (currently only Mechanical)
+	registerBuilding = require('plugins.building-hacks').registerBuilding
+	for token, Table in pairs(systemTable) do
+		if Table.Mechanical then
+			registerBuilding{name=token,
+				consume = Table.Mechanical.PowerConsumed,
+				produce = Table.Mechanical.PowerProduced,
+				auto_gears = Table.Mechanical.AutoGears
+			}
 		end
 	end
-	for Type,ticks in pairs(EventfulTypes) do
-		eventful.enableEvent(eventful.eventType[Type],ticks)
-	end
-	
-	-- Custom Triggers
-	for Type,v in pairs(CustomTypes) do
-		repeats.scheduleUnlessAlreadyScheduled(Type,v.ticks,"ticks",v.func)
-	end
 end
 
-local function checkJobInitiated(job)
-	if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
-		buildingID = job.general_refs[0].building_id 
-		checkBuildingStarted(buildingID) -- This runs building checks such as Inside Only
-	elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
-		buildingID = job.general_refs[0].building_id
-		checkBuildingUnstarted(buildingID) -- This currently doesn't do anything
-	end
-end
-
-local function checkJobCompleted(job)
-	if job.job_type and df.job_type[job.job_type] == "ConstructBuilding" then
-		buildingID = job.general_refs[0].building_id
-		checkBuildingFinished(buildingID) -- This runs scripts
-	elseif job.job_type and df.job_type[job.job_type] == "DestroyBuilding" then
-		buildingID = job.general_refs[0].building_id
-		checkBuildingDestroyed(buildingID) -- This currently doesn't do anything
-	end
-end
-
-local function checkBuildingStarted(buildingID)
-	building, Table = checkSystemTable(buildingID)
+function checkBuildingStarted(buildingID,job)
+	local building, Table = checkSystemTable(Name, ObjFuncFile, buildingID)
 	if not building then return end
  
 	-- Run through checks
@@ -141,18 +127,31 @@ local function checkBuildingStarted(buildingID)
 		end
 	end
 
-	
 	if not allow then
 		building:deconstruct()
+		return
+	end
+	
+	if Table.ConstructionTime then
+		local unit
+		local skillLvl = 0
+		for i,x in pairs(job.general_refs) do
+			if x._type == df.general_ref_unit_workerst then
+				unit = df.unit.find(job.general_refs[i].unit_id)
+				break
+			end
+		end
+		if unit and df.job_skill[Table.ConstructionTime.Skill] then
+			skillLvl = dfack.units.getEffectiveSkill(unit,df.job_skill[Table.ConstructionTime.Skill])
+		end
+		local delay = Table.ConstructionTime.BaseDur - skillLvl*Table.ConstructionTime.SkillDecrease
+		delay = math.max(delay,Table.ConstructionTime.MinDur)
+		reqscript("functions/custom-events").delayJob(job,delay)
 	end
 end
 
-local function checkBuildingUnstarted(buildingID)
-	-- Nothing to be done for beginning to deconstruct a building yet
-end
-
-local function checkBuildingFinished(buildingID)
-	building, Table = checkSystemTable(buildingID)
+function checkBuildingFinished(buildingID,job)
+	local building, Table = checkSystemTable(Name, ObjFuncFile, buildingID)
 	if not building then return end
 	
 	BuildingTable = dfhack.script_environment("core/tables").makeBuildingTable(building)
@@ -166,23 +165,7 @@ local function checkBuildingFinished(buildingID)
 			script = script:gsub("BUILDING_ID",tostring(building.id))
 			script = script:gsub("BUILDING_TOKEN",BuildingTable.Token)
 			script = script:gsub("BUILDING_LOCATION",""..tostring(building.centerx).." "..tostring(building.centery).." "..tostring(building.z).."")
-			dfhack.run_command(script)
-			if frequency > 0 then
-				dfhack.script_environment("persist-delay").functionDelay(frequency,"enhanced/buildings","scriptTrigger",{building.id,script,frequency})
-			end
+			reqscript("functions/custom-events").repeatingScriptTrigger("building", buildingID, script, frequency, delayID)
 		end
 	end
-end
-
-local function checkBuildingDestroyed(buildingID)
-	-- Nothing to be done for deconstructing a building yet (except removing the building table)
-	-- Frequency based scripts will stop automatically, but may need to enable a script to run deconstruction
-	dfhack.script_environment("core/tables").Tables.BuildingTable[buildingID] = nil
-end
-
-local function scriptTrigger(buildingID, script, frequency)
-	if df.building.find(buildingID) then
-		dfhack.run_command(script)
-		dfhack.script_environment("persist-delay").functionDelay(frequency,"enhanced/buildings","scriptTrigger",{buildingID,script,frequency})
-	end	
 end

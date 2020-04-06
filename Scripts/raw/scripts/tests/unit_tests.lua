@@ -30,7 +30,7 @@ function tests()
 	local attack = function ()
 		local unitCheck = {}
 		local attacker = self.civUnits[1]
-		local defender = self.wildUnits[4]
+		local defender = self.wildUnits[1]
 		dfhack.script_environment("teleport").teleport(defender._unit,attacker.pos)
 		
 		---- Check that the script succeeds and adds an attack action with the calculated velocity, hit chance, and body part target
@@ -74,7 +74,7 @@ function tests()
 	
 	local butcher = function ()
 		local unitCheck = {}
-		local unit = self.wildUnits[3]
+		local unit = self.wildUnits[2]
         local id = unit.id
 		---- Check that the script fails because unit is still alive
 		writeall("unit/butcher -unit "..tostring(unit.id))
@@ -157,7 +157,7 @@ function tests()
 	end
 
 	local change_body = function ()
-		local unit = self.wildUnits[2]
+		local unit = self.wildUnits[1]
 		local unitCheck = {}
 	
 	---- Check that the script succeeds and set the eyes of unit on fire for 50 ticks

@@ -70,26 +70,18 @@ function readRaws(rawType,test,verbose)
 		tokenCheck = "[REACTION"
 		filename = "reaction"
 	else
+		if verbose then print("No valid rawType found "..rawType) end
 		return
 	end
-	if verbose then print("Searching for a "..rawType.." file") end
 	local files = {}
-	local dir = dfhack.getDFPath()
-	local locations = {"/raw/objects/"}
-	local n = 1
-	if test then
-		filename = filename.."_test"
-		locations = {"/raw/scripts/tests/raw_files"}
-	end
-	for _,location in ipairs(locations) do
-		local path = dir..location
-		if verbose then print("Looking in "..location) end
-		if dfhack.internal.getDir(path) then
-			for _,fname in pairs(dfhack.internal.getDir(path)) do
-				if (split(fname,"_")[1] == filename or fname == filename..".txt") and string.match(fname,"txt") then
-					files[n] = path..fname
-					n = n + 1
-				end
+	local location = "/raw/objects/"
+	if test then location = "/raw/scripts/tests/raw_files/" end
+	if verbose then print("Searching for "..rawType.." files in "..location) end
+	local path = dfhack.getDFPath()..location
+	if dfhack.internal.getDir(path) then
+		for _,fname in pairs(dfhack.internal.getDir(path)) do
+			if (split(fname,"_")[1] == filename or fname == filename..".txt") and string.match(fname,"txt") then
+				files[#files+1] = path..fname
 			end
 		end
 	end

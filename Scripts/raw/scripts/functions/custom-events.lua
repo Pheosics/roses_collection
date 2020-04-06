@@ -1,4 +1,5 @@
 --@ module=true
+local functionDelay = reqscript("persist-delay").functionDelay
 
 local actions_already_checked=actions_already_checked or {}
 things_to_do_every_action=things_to_do_every_action or {}
@@ -31,5 +32,27 @@ function checkForActions()
 				end
 			end
 		end
+	end
+end
+
+function repeatingScriptTrigger(Type, id, script, frequency, delayID)
+	if df[Type].find(id) then
+		dfhack.run_command(script)
+		if tonumber(frequency) <= 0 then return end
+		functionDelay(frequency,"functions/custom-events","repeatingScriptTrigger",{Type,id,script,frequency,delayID},delayID)
+	end	
+end
+
+function delayJob(job,delay) -- Should this be a persistent delay? Probably...
+	if delay <= 0 then
+		job.completion_timer = 1
+		return
+	end
+	if job.completion_timer == -1 then
+		dfhack.timeout(1,'ticks',function () delayJob(job,delay) end)
+	else
+		delay = delay - 1
+		job.completion_timer = 10
+		dfhack.timeout(1,'ticks',function () delayJob(job,delay) end)
 	end
 end

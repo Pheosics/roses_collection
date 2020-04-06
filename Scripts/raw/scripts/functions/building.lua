@@ -189,8 +189,10 @@ function BUILDING:init(building)
 	if self.customtype_id >= 0 then
 		self.customtype = df.global.world.raws.buildings.all[self.customtype_id].code -- Is this true? -ME
 		self.subtype = "CUSTOM"
+		self.Token = self.customtype
 	else
 		self.customtype = "NONE"
+		self.Token = self.subtype
 	end
 	self._building = building
 end
@@ -231,28 +233,64 @@ end
 --===============================================================================================--
 --== ENHANCED BUILDING FUNCTIONS ================================================================--
 --===============================================================================================--
-function BUILDING:count()
+function BUILDING:count() -- For now only counts custom buildings as custom buildings are the only ones that can be "enhanced"
 	local number = 0
+	for _,bldg in pairs(df.global.world.buildings.all) do
+		if bldg:getCustomType() >= 0 and df.global.world.raws.buildings.all[bldg:getCustomType()].code == self.customtype then
+			number = number+1
+		end
+	end
 	return number
 end
 
 function BUILDING:deconstruct()
+	dfhack.buildings.deconstruct(self._building)
 end
 
 function BUILDING:nearbyMagma()
 	local amount = 0
+	for z = self._building.z - 1, self._building.z do
+		for y = self.building.y1 - 1, self._building.y2 + 1 do
+			for x = self.building.x1 - 1, self._building.x2 + 1 do
+				local flags = dfhack.maps.getTileFlags(x,y,z)
+				if flags.liquid_type then amount = amount + flags.flow_size end
+			end
+		end
+	end
 	return amount
 end
 
 function BUILDING:nearbyWater()
 	local amount = 0
+	for z = self._building.z - 1, self._building.z do
+		for y = self.building.y1 - 1, self._building.y2 + 1 do
+			for x = self.building.x1 - 1, self._building.x2 + 1 do
+				local flags = dfhack.maps.getTileFlags(x,y,z)
+				if not flags.liquid_type then amount = amount + flags.flow_size end
+			end
+		end
+	end
 	return amount
 end
 
 function BUILDING:isInside()
-	return false
+	local z = self._building.z
+	local inside = true
+	for x = self._building.x1, self._building.x2 do
+		for y = self._building.y1, self._building.y2 do
+			if dfhack.maps.getTileFlags(x,y,z).outside then inside = false end
+		end
+	end
+	return inside
 end
 
 function BUILDING:isOutside()
-	return false
+	local z = self._building.z
+	local outside = true
+	for x = self._building.x1, self._building.x2 do
+		for y = self._building.y1, self._building.y2 do
+			if not dfhack.maps.getTileFlags(x,y,z).outside then outside = false end
+		end
+	end
+	return outside
 end
