@@ -59,7 +59,7 @@ local function main(...)
 
 	-- Print help message
 	if args.help then
-		print(help)
+		print(usage)
 		return
 	end
 	

@@ -1,5 +1,14 @@
 --@ module=true
 
+-- 
+function roll(percent, out_of)
+	if percent == 100 then return true end
+	if percent == 0   then return false end
+	local out_of = out_of or 100
+	local rand = dfhack.random.new()
+	return 100*rand:random(out_of)/out_of < percent
+end
+
 -- Computes change needed according to mode, value, and current
 function computeChange(mode, value, current)
 	local change

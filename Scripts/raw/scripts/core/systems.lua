@@ -1,28 +1,7 @@
 --@ module = true
 local utils = require "utils"
 local split = utils.split_string
-local repeats = require("repeat-util")
-local eventful = require "plugins.eventful"
 local myIO = reqscript("functions/io")
-
-function startSystemTriggers(system)
-	if not reqscript("core/tables").Tables[system.Name] then return end
-	
-	-- Eventful Triggers
-	for k,t in pairs(system.EventfulFunctions) do
-		for name,func in pairs(t) do
-			eventful[k][name] = function(...) return func(...) end
-		end
-	end
-	for Type,ticks in pairs(system.EventfulTypes) do
-		eventful.enableEvent(eventful.eventType[Type],ticks)
-	end
-	
-	-- Custom Triggers
-	for Type,v in pairs(system.CustomTypes) do
-		repeats.scheduleUnlessAlreadyScheduled(Type,v.ticks,"ticks",v.func)
-	end
-end
 
 function checkSystemTable(Name, ObjFuncFile, id)
 	-- Make sure the object exists and has a systam table entry
@@ -55,6 +34,8 @@ function makeSystemTable(system,test,verbose)
             local subtable = {}
 			local scripts = 0
 			local enhanced = false
+			local prevToken = ""
+			local prevName = ""
 			Table[token] = {}
 			Table[token].Scripts = {}
 			for j = startLine,endLine,1 do
@@ -99,12 +80,28 @@ function makeSystemTable(system,test,verbose)
 							temp = {}
 							for key,i in pairs(systemTokens[array[1]].Names) do
 								temp[key] = tonumber(array[i]) or array[i]
-							end							
-						elseif Subtype == "Script" then
+							end
+						elseif Subtype == "List" then
+							tempKey = "#LIST"
+							temp = tonumber(array[2]) or array[2]
+						elseif Subtype == "NamedList" then
+							tempKey = "#LIST"
+							temp = {}
+							for key,i in pairs(systemTokens[array[1]].Names) do
+								temp[key] = tonumber(array[i]) or array[i]
+							end
+						elseif Subtype == "ScriptF" then
 							temp = {}
 							script, frequency = myIO.parseScript(data[j])
 							temp.Script = script
 							temp.Frequency = tonumber(frequency)
+							scripts = scripts + 1
+							tempKey = scripts
+						elseif Subtype == "ScriptC" then
+							temp = {}
+							script, chance = myIO.parseScript(data[j])
+							temp.Script = script
+							temp.Chance = tonumber(chance)
 							scripts = scripts + 1
 							tempKey = scripts
 						end
@@ -113,6 +110,7 @@ function makeSystemTable(system,test,verbose)
 						if Type == "Main" then
 							if tempKey then
 								Table[token][name] = Table[token][name] or {}
+								if tempKey == "#LIST" then tempKey = #Table[token][name] + 1 end
 								Table[token][name][tempKey] = temp
 							else
 								Table[token][name] = temp
@@ -120,15 +118,20 @@ function makeSystemTable(system,test,verbose)
 						elseif Type == "Sub" then
 							if Subtype == "Set" then
 								Table[token][name] = Table[token][name] or {}
-								subtable = Table[token][name]
+								prevToken = token
+								prevName = name
 							else
 								if tempKey then
-									subtable[name][tempKey] = temp
+									--if tempKey == "#LIST" then tempKey = #subtable[name] + 1 end
+									Table[prevToken][prevName][name] = Table[prevToken][prevName][name] or {}
+									Table[prevToken][prevName][name][tempKey] = temp
 								else
 									subtable[name] = temp
 								end
 							end
 						end
+					else
+						print("Unrecognized system token: "..test)
 					end
 				end
 			end

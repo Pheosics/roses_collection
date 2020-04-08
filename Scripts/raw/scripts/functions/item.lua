@@ -19,7 +19,15 @@ function ITEM:__index(key)
 end
 function ITEM:init(item)
 	if tonumber(item) then item = df.item.find(tonumber(item)) end
+	if not item then return nil end
+	local itemType = item:getType()
+	local itemSubtype = item:getSubtype()
 	self.id = item.id
+	if dfhack.items.getSubtypeDef(itemType,itemSubtype) then
+		self.Token = dfhack.items.getSubtypeDef(itemType,itemSubtype).id
+	else
+		self.Token = "???"
+	end
 	self._item = item
 end
 

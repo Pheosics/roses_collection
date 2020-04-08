@@ -2,6 +2,26 @@
 local utils = require "utils"
 split = utils.split_string
 
+--
+function locationString(x,y,z)
+	if x and y and z then
+		return ""..tostring(x).." "..tostring(y).." "..tostring(z)
+	elseif x and x.x then
+		return ""..tostring(x.x).." "..tostring(x.y).." "..tostring(x.z)
+	elseif x and x[1] then
+		return ""..tostring(x[1]).." "..tostring(x[2]).." "..tostring(x[3])
+	else
+		return ""
+	end
+end
+
+function gsub_script(script,Table)
+	for k,v in pairs(Table) do
+		script = script:gsub(k:upper(), tostring(v))
+	end
+	return script
+end
+
 -- Read a PLAN file name for determining positions
 function readPlan(fileName)
 	local iofile = io.open(plan,"r")

@@ -128,10 +128,12 @@ local function initializeFileTables(scripts,systems,verbose,test)
 	local fname = nil
 	savepath = dfhack.getSavePath()
 	if verbose > 1 then print_color(c2, s2.."Searching for "..persistFileName.." in "..savepath) end
-	for _,f in pairs(dfhack.internal.getDir(savepath)) do
-		if f == persistFileName then
-			fname = savepath.."/"..persistFileName
-			break
+	if dfhack.internal.getDir(savepath) then
+		for _,f in pairs(dfhack.internal.getDir(savepath)) do
+			if f == persistFileName then
+				fname = savepath.."/"..persistFileName
+				break
+			end
 		end
 	end
 	if fname then
@@ -152,8 +154,8 @@ local function initializeSystems(systems,verbose)
 		local systemName = system.Name
 		local n = tables.Tables.Systems[systemName] or 0
 		
-		if system.Initialization then system.initialize() end -- This runs all necessary initialization steps
-		reqscript("core/systems").startSystemTriggers(system) -- This sets up all eventful and custom triggers
+		system.initialize() -- This runs all necessary initialization steps and starts the event triggers
+		
 		if verbose > 1 then print_color(c2, s2..systemName.." - "..tostring(n)) end
 		if verbose > 2 then print_color(c3, s3.."TODO") end
 	end

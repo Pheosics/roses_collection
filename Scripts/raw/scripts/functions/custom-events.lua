@@ -26,13 +26,43 @@ function checkForActions()
 					end
 				end
 				if not unit_action_checked[action_id] then
-					reqscript("enhanced/unit").onUnitAction(unit_id,action)
-					reqscript("enhanced/item").onItemAction(unit_id,action)
+					--reqscript("enhanced/unit").onUnitAction(unit_id,action)
+					reqscript("enhanced/items").onItemAction(unit_id,action)
 					unit_action_checked[action_id]=true
 				end
 			end
 		end
 	end
+end
+
+function checkForNewProjectiles()
+	old_projectile_id = number_of_projectiles
+	new_projectile_id = df.global.proj_next_id
+	if old_projectile_id == new_projectile_id then return end
+	diff_projectile_id = new_projectile_id - old_projectile_id
+	i = 0
+	items = {}
+	while i < diff_projectile_id do
+		found = false
+		projectile = df.global.world.proj_list
+		while not found do
+			projectile = projectile.next
+			if projectile then
+				if projectile.item.id == old_projectile_id + i then
+					items[i+1] = projectile.item
+					found = true
+				end
+			else
+				items[i+1] = nil
+				found = true
+			end
+		end
+		i = i + 1
+	end
+	for j,item in ipairs(items) do
+		reqscript("enhanced/items").onItemProjectile(item)
+	end
+	number_of_projectiles = new_projectile_id
 end
 
 function repeatingScriptTrigger(Type, id, script, frequency, delayID)

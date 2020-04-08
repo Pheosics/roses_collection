@@ -5,6 +5,7 @@ local eventful = require "plugins.eventful"
 local split = utils.split_string
 local repeats = require("repeat-util")
 local myMath = reqscript("functions/math")
+local myIO = reqscript("functions/io")
 local checkSystemTable = reqscript("core/systems").checkSystemTable
 
 -- System Definition
@@ -21,22 +22,24 @@ ObjFuncFile = "building"
 
 ---- List of currently accepted tokens for the system
 Tokens = {
-	DESCRIPTION        = {Type="Main", Subtype="String",  Name="Description"},
-	OUTSIDE_ONLY       = {Type="Main", Subtype="Boolean", Name="OutsideOnly"}, -- Tested
-	INSIDE_ONLY        = {Type="Main", Subtype="Boolean", Name="InsideOnly"}, -- Tested
-	REQUIRED_WATER     = {Type="Main", Subtype="Number",  Name="RequiredWater"},
-	REQUIRED_MAGMA     = {Type="Main", Subtype="Number",  Name="RequiredMagma"},
-	REQUIRED_BUILDING  = {Type="Main", Subtype="Table",   Name="RequiredBuildings"},
-	FORBIDDEN_BUILDING = {Type="Main", Subtype="Table",   Name="ForbiddenBuildings"},
-	MAX_AMOUNT         = {Type="Main", Subtype="Number",  Name="MaxAmount"}, -- Tested
-	SCRIPT             = {Type="Main", Subtype="Script",  Name="Scripts"}, -- Tested
-	CONSTRUCTION_TIME  = {Type="Main", Subtype="Named",   Name="ConstructionTime", Names={Skill=2, BaseDur=3, SkillDecrease=4, MinDur=5}}, -- Tested
-	MECHANICAL         = {Type="Sub",  Subtype="Set",     Name="Mechanical"}, -- Tested
-	POWER_CONSUMED     = {Type="Sub",  Subtype="Number",  Name="PowerConsumed"}, -- Tested
-	POWER_PRODUCED     = {Type="Sub",  Subtype="Number",  Name="PowerProduced"}, -- Tested
-	GEAR_POINT         = {Type="Sub",  Subtype="Named",   Name="Gears", Names={x=2,y=3}},
-	AUTO_GEARS         = {Type="Sub",  Subtype="Boolean", Name="AutoGears"}, -- Tested
-	NEEDS_POWER        = {Type="Sub",  Subtype="Boolean", Name="NeedsPower"},
+	DESCRIPTION        = {Type="Main", Subtype="String",  Name="Description", Purpose="Sets a description to be used for the journal utility in the future"},
+	OUTSIDE_ONLY       = {Type="Main", Subtype="Boolean", Name="OutsideOnly", Purpose="If present, will only allow construction if all squares are outside"},
+	INSIDE_ONLY        = {Type="Main", Subtype="Boolean", Name="InsideOnly", Purpose="If present, will only allow construction if all squares are inside"},
+	REQUIRED_WATER     = {Type="Main", Subtype="Number",  Name="RequiredWater", Purpose="Amount of water needed around and/or under the building to be constructed"},
+	REQUIRED_MAGMA     = {Type="Main", Subtype="Number",  Name="RequiredMagma", Purpose="Amount of magma needed around and/or under the building to be constructed"},
+	REQUIRED_BUILDING  = {Type="Main", Subtype="Table",   Name="RequiredBuildings", Purpose="Amount of specific building needed to exist in order for this building to be constructed"},
+	FORBIDDEN_BUILDING = {Type="Main", Subtype="Table",   Name="ForbiddenBuildings", Purpose="Amount of specific building needed to exist in order for this building to not be constructed"},
+	MAX_AMOUNT         = {Type="Main", Subtype="Number",  Name="MaxAmount", Purpose="Max number of this building that can be constructed (equivalent to {FORBIDDEN_BUILDING:THIS_BUILDING:#}"},
+	SCRIPT             = {Type="Main", Subtype="ScriptF", Name="Scripts", Purpose="A dfhack script to run at a specific frequency once the building is constructed (if # == 0 the script is only run once)"},
+	CONSTRUCTION_TIME  = {Type="Main", Subtype="Named",   Name="ConstructionTime", Purpose="Changes the amount of time it takes to construct the building once all materials are brought to it", 
+							Names={Skill=2, BaseDur=3, SkillDecrease=4, MinDur=5}},
+	MECHANICAL         = {Type="Sub",  Subtype="Set",     Name="Mechanical", Purpose="Sets the building as a mechanical building through require('plugins.building-hacks').registerBuilding"},
+	POWER_CONSUMED     = {Type="Sub",  Subtype="Number",  Name="PowerConsumed", Purpose="Amount of power consumed if {MECHANICAL}"},
+	POWER_PRODUCED     = {Type="Sub",  Subtype="Number",  Name="PowerProduced", Purpose="Amount of power produced if {MECHANICAL}"},
+	GEAR_POINT         = {Type="Sub",  Subtype="Named",   Name="Gears", Purpose="Location of gear connection point if {MECHANICAL}", 
+							Names={x=2,y=3}},
+	AUTO_GEARS         = {Type="Sub",  Subtype="Boolean", Name="AutoGears", Purpose="Sets auto_gears to true for registerBuilding"},
+	NEEDS_POWER        = {Type="Sub",  Subtype="Boolean", Name="NeedsPower", Purpose="Sets needs_power to true for registerBuilding"},
 }
 
 ---- Eventful based functions
@@ -79,6 +82,19 @@ CustomTypes = {}
 function initialize()
 	local systemTable = reqscript("core/tables").Tables[Name]
 	if not systemTable then return end
+
+	-- Eventful Triggers
+	for k,t in pairs(EventfulFunctions) do
+		for name,func in pairs(t) do
+			eventful[k][name] = function(...) return func(...) end
+		end
+	end
+	for Type,ticks in pairs(EventfulTypes) do
+		eventful.enableEvent(eventful.eventType[Type],ticks)
+	end
+	
+	-- Custom Triggers
+	-- None
 	
 	-- Run through necessary initialization (currently only Mechanical)
 	registerBuilding = require('plugins.building-hacks').registerBuilding
@@ -95,7 +111,7 @@ end
 
 function checkBuildingStarted(buildingID,job)
 	local building, Table = checkSystemTable(Name, ObjFuncFile, buildingID)
-	if not building then return end
+	if not building or not Table then return end
  
 	-- Run through checks
 	local allow = true
@@ -158,13 +174,14 @@ function checkBuildingFinished(buildingID,job)
 	BuildingTable.Enhanced = true
 
 	if Table.Scripts then
+		local scriptTable = {}
+		scriptTable.building_id = building.id
+		scriptTable.building_token = BuildingTable.Token
+		scriptTable.building_location = myIO.locationString(building.centerx,building.centery,building.z)
 		BuildingTable.Scripts = true
 		for i,x in pairs(Table.Scripts) do
-			local script = x.Script
+			local script = myIO.gsub_script(x.Script,scriptTable)
 			local frequency = x.Frequency
-			script = script:gsub("BUILDING_ID",tostring(building.id))
-			script = script:gsub("BUILDING_TOKEN",BuildingTable.Token)
-			script = script:gsub("BUILDING_LOCATION",""..tostring(building.centerx).." "..tostring(building.centery).." "..tostring(building.z).."")
 			reqscript("functions/custom-events").repeatingScriptTrigger("building", buildingID, script, frequency, delayID)
 		end
 	end
