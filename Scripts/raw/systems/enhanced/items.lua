@@ -28,6 +28,7 @@ Tokens = {
 
 	-- Trigger Tokens
 	ON_EQUIP            = {Type="Sub", Subtype="Set", Name="OnEquip", Purpose="Sets up a trigger for when the item is equipped"},
+	ON_UNEQUIP          = {Type="Sub", Subtype="Set", Name="OnUnequip", Purpose="Sets up a trigger for when the item is unequipped"},
 	ON_ATTACK           = {Type="Sub", Subtype="Set", Name="OnAttack", Purpose="Sets up a trigger for when a unit attacks (melee) with the item"},
 	ON_SHOOT            = {Type="Sub", Subtype="Set", Name="OnShoot", Purpose="Sets up a trigger for when a unit attacks (ranged) with the item"},
 	ON_PARRY            = {Type="Sub", Subtype="Set", Name="OnParry", Purpose="Sets up a trigger for when a unit parries with the item"},
@@ -48,6 +49,10 @@ Tokens = {
 	-- Script Tokens
 	SCRIPT           = {Type="Sub", Subtype="ScriptC", Name="Scripts", Purpose="A dfhack script to run with a specific chance when triggered"},
 	--REPEATING_SCRIPT = {Type="Sub", Subtype="ScriptF", Name="RepeatingScripts", Purpose=""}
+	
+	-- Special Tokens
+	FIRE_RATE = {Type="OnShoot", Subtype="Named", Name="FireRate", Purpose="Adjust the fire rate for ranged weapons",
+				 Names={BaseRate=2, SkillIncrease=3, MaxRate=4}}
 }
 
 EventfulFunctions = {
@@ -58,9 +63,9 @@ EventfulFunctions = {
 			if not unit or not item then return end
 			if item_new and item_old then return end
 			if item_new and not item_old then
-				checkItemTrigger(item,"OnEquip",unit,"equip")
+				checkItemTrigger(item,"OnEquip",unit)
 			else
-				checkItemTrigger(item,"OnEquip",unit,"unequip")
+				checkItemTrigger(item,"OnUnequip",unit)
 			end
 		end
 	},
@@ -117,11 +122,13 @@ CustomFunctions = {
 	},
 	onItemProjectile  = {
 		shoot = function(projectile)
+			if not projectile._type == df.proj_itemst then return end
 			local item = df.item.find(projectile.bow_id)
 			if not item then return end
 			checkItemTrigger(item,"OnShoot",projectile)
 		end,
 		fired = function(projectile)
+			if not projectile._type == df.proj_itemst then return end
 			local item = projectile.item
 			if not item then return end
 			checkItemTrigger(item,"OnProjectileFired",projectile)
@@ -166,8 +173,9 @@ function checkItemTrigger(itemID, triggerType, ...)
 	if not item or not Table then return end -- If not a valid item or the item doesn't have an enhanced table return
 	if not Table[triggerType] then return end -- If the item doesn't have the correct enhanced table return
 	
-	if triggerType == "OnEquip" then
-		onEquip(Table[triggerType], item, ...)
+	if triggerType == "OnEquip" or
+		triggerType == "OnUnequip" then
+		onEquipChange(Table[triggerType], item, ...)
 	elseif triggerType == "OnWound" then
 		onWound(Table[triggerType], item, ...)
 	elseif triggerType == "OnMove" or
@@ -186,37 +194,49 @@ end
 function itemTrigger(triggerTable, item, unitHolder, opponent, projectile)
 	local opponent = opponent or {}
 	local projectile = projectile or {firer={}}
-	local scriptTable = {}
 	
-	-- Base Item Stuff (Always present)
-	scriptTable.item_id = item.id
-	scriptTable.item_token = item.Token
-	scriptTable.item_location = myIO.locationString(dfhack.items.getPosition(item._item))
-	scriptTable.item_holder_id = unitHolder.id
-	scriptTable.item_holder_location = myIO.locationString(unitHolder.pos)
+	if triggerTable.FireRate then
+		local skillID = item.subtype.skill_ranged
+		local skillLevel = dfhack.units.getEffectiveSkill(unitHolder,skillID) or 0
+		local rate = triggerTable.FireRate.BaseRate - skillLevel*triggerTable.FireRate.SkillIncrease
+		local maxRate = triggerTable.FireRate.MaxRate or unitHolder.counts.think_counter
+		rate = math.max(rate,maxRate)
+		unitHolder.counters.think_counter = rate
+	end
 	
-	-- Opponent Item Stuff (Only present for actions that involve an opponent (e.g. Attack, Wound, Block, etc..)
-	scriptTable.opponent_id = opponent.id or -1
-	scriptTable.opponent_location = myIO.locationString(opponent.pos)
-	
-	-- Projectile Item Stuff (Only present for actions that include a projectile)
-	scriptTable.projectile_id = projectile.id or -1
-	scriptTable.projectile_location = myIO.locationString(projectile.cur_pos)
-	scriptTable.projectile_firer_id = projectile.firer.id or -1
-	scriptTable.projectile_target_id = opponent.id or -1
-	scriptTable.projectile_firer_location = myIO.locationString(projectile.origin_pos)
-	scriptTable.projectile_target_location = myIO.locationString(projectile.target_pos)
-	
-	for i,x in pairs(triggerTable.Scripts) do
-		local script = x.Script
-		local chance = x.Chance
-		if myMath.roll(chance) then
-			dfhack.run_command(myIO.gsub_script(script,scriptTable))
+	if triggerTable.Scripts then
+		local scriptTable = {}
+		
+		-- Base Item Stuff (Always present)
+		scriptTable.item_id = item.id
+		scriptTable.item_token = item.Token
+		scriptTable.item_location = myIO.locationString(dfhack.items.getPosition(item._item))
+		scriptTable.item_holder_id = unitHolder.id
+		scriptTable.item_holder_location = myIO.locationString(unitHolder.pos)
+		
+		-- Opponent Item Stuff (Only present for actions that involve an opponent (e.g. Attack, Wound, Block, etc..)
+		scriptTable.opponent_id = opponent.id or -1
+		scriptTable.opponent_location = myIO.locationString(opponent.pos)
+		
+		-- Projectile Item Stuff (Only present for actions that include a projectile)
+		scriptTable.projectile_id = projectile.id or -1
+		scriptTable.projectile_location = myIO.locationString(projectile.cur_pos)
+		scriptTable.projectile_firer_id = projectile.firer.id or -1
+		scriptTable.projectile_target_id = opponent.id or -1
+		scriptTable.projectile_firer_location = myIO.locationString(projectile.origin_pos)
+		scriptTable.projectile_target_location = myIO.locationString(projectile.target_pos)
+		
+		for i,x in pairs(triggerTable.Scripts) do
+			local script = x.Script
+			local chance = x.Chance or 100
+			if myMath.roll(chance) then
+				dfhack.run_command(myIO.gsub_script(script,scriptTable))
+			end
 		end
 	end
 end
 
-function onEquip(Table, item, unit, mode)
+function onEquipChange(Table, item, unit)
 	itemTrigger(Table, item, unit, nil, nil)
 end
 

@@ -126,8 +126,16 @@ function makeSystemTable(system,test,verbose)
 									Table[prevToken][prevName][name] = Table[prevToken][prevName][name] or {}
 									Table[prevToken][prevName][name][tempKey] = temp
 								else
-									subtable[name] = temp
+									Table[prevToken][prevName][name] = temp
 								end
+							end
+						else
+							Table[token][Type] = Table[token][Type] or {}
+							if tempKey then
+								Table[token][Type][name] = Table[token][Type][name] or {}
+								Table[token][Type][name][tempKey] = temp
+							else
+								Table[token][Type][name] = temp
 							end
 						end
 					else
