@@ -6,8 +6,9 @@ info["ITEM_ATTACK"] = [===[ TODO ]===]
 --===============================================================================================--
 --== ITEM CLASSES ===============================================================================--
 --===============================================================================================--
-ITEM        = defclass(ITEM)        -- references <df.item>
-ITEM_ATTACK = defclass(ITEM_ATTACK) -- references <df.item_attack>
+local ITEM        = defclass(ITEM)        -- references <df.item>
+local ITEM_ATTACK = defclass(ITEM_ATTACK) -- references <df.item_attack>
+function getItem(item) return ITEM(item) end
 
 --===============================================================================================--
 --== ITEM FUNCTIONS =============================================================================--
@@ -20,6 +21,7 @@ end
 function ITEM:init(item)
 	if tonumber(item) then item = df.item.find(tonumber(item)) end
 	if not item then return nil end
+
 	local itemType = item:getType()
 	local itemSubtype = item:getSubtype()
 	self.id = item.id
@@ -29,6 +31,11 @@ function ITEM:init(item)
 		self.Token = "???"
 	end
 	self._item = item
+	
+	-- dfhack.items Functions
+	for name, func in pairs(dfhack.items) do
+		self[name] = function(...) return func(self._item, ...) end
+	end
 end
 
 function ITEM:getAttack(attack_verb)
@@ -208,5 +215,5 @@ function create(item,material,creatorID,quality) --from modtools/create-item
 	item = df.item.find(itemID)
 	item:setQuality(quality)
 	
-	return ITEM(item)
+	return item
 end

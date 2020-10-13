@@ -1,5 +1,5 @@
 script = require "gui.script"
-local defunit = reqscript("functions/unit").UNIT
+local defunit = reqscript("functions/unit").getUnit
 
 function writeall(tbl)
  if not tbl then return end
@@ -143,7 +143,7 @@ function tests()
 		local unitCheck = {}
 		
 	---- Check that the script succeeds and adds 50 strength to the unit
-		local attribute = unit:getAttribute("STRENGTH")
+		local attribute = unit.Attributes.STRENGTH
 		local val = attribute:getBaseValue()
 		local cmd = "unit/change-attribute -unit "..tostring(unit.id).." -attribute [ STRENGTH +50 ]"
 		writeall(cmd)
@@ -151,7 +151,23 @@ function tests()
 		writeall(output)
 		if attribute:getBaseValue() ~= val + 50 then
 			unitCheck[#unitCheck+1] = "Failed to add 50 strength to unit "..tostring(val).." - "..tostring(attribute:getBaseValue())
-		end		
+		end	
+
+		local attribute = unit.Attributes.AGILITY
+		local val = attribute:getBaseValue()
+		local cmd = "unit/change-attribute -unit "..tostring(unit.id).." -attribute [ AGILITY *2 ] -dur 50"
+		writeall(cmd)
+		output = dfhack.run_command_silent(cmd)
+		writeall(output)
+		if attribute:getBaseValue() ~= 2*val then
+			unitCheck[#unitCheck+1] = "Failed to multiply agility by 2 "..tostring(val).." - "..tostring(attribute:getBaseValue())
+		end			
+		writeall("Pausing run_test.lua for 75 in-game ticks")
+		script.sleep(75,"ticks")
+		writeall("Resuming run_test.lua")
+		if attribute:getBaseValue() ~= val then
+			unitCheck[#unitCheck+1] = "Failed to reset agility to base value"..tostring(val).." - "..tostring(attribute:getBaseValue())
+		end
 		
 		return unitCheck
 	end
@@ -211,7 +227,7 @@ function tests()
 		local unitCheck = {}
 		
 	---- Check that the script succeeds and increases units dodging skill by 5 levels
-		local skill = unit:getSkill("DODGING",true)
+		local skill = unit.Skills.DODGING
 		local val = 0
 		if skill then
 			val = skill:getBaseValue("LEVEL")
@@ -226,7 +242,7 @@ function tests()
 		end
 
 	---- Check that the script succeeds and increases units mining skill experience by 500
-		local skill = unit:getSkill("MINING",true)
+		local skill = unit.Skills.MINING
 		local val = 0
 		if skill then
 			val = skill:getEffectiveValue("EXPERIENCE")
@@ -235,7 +251,7 @@ function tests()
 		writeall(cmd)
 		output = dfhack.run_command_silent(cmd)
 		writeall(output)
-		skill = unit:getSkill("MINING",true)
+		skill = unit.Skills.MINING
 		if skill:getEffectiveValue("EXPERIENCE") ~= val + 500 then
 			unitCheck[#unitCheck+1] = "Failed to add 500 experience to units mining skill - " .. tostring(val+500) .. " " .. tostring(skill:getEffectiveValue("EXPERIENCE"))
 		end
@@ -246,12 +262,12 @@ function tests()
 	local propel = function ()
 		local unitCheck = {}
 		local unit = self.civUnits[3]
-
+		
 	---- Check that the script succeeds and turns the unit into a projectile
 		writeall("unit/propel -unit "..tostring(unit.id).." -velocity [ 0 0 100 ] -mode Fixed")
 		output = dfhack.run_command_silent("unit/propel -unit "..tostring(unit.id).." -velocity [ 0 0 100 ] -mode Fixed")
-		--writeall(output)
-		if not unit:hasFlag("projectile") then
+		writeall(output)
+		if not unit.Flags.projectile then
 			unitCheck[#unitCheck+1] = "Failed to turn unit into projectile"
 		end
 		

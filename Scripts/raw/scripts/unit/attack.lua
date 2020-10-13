@@ -1,6 +1,9 @@
 --unit/attack.lua
 --@ module=true
 local utils = require 'utils'
+local getUnit = reqscript("functions/unit").getUnit
+local getItem = reqscript("functions/item").getItem
+local randoms = reqscript("functions/math").selectRandom
 
 local usage = [====[
 
@@ -94,15 +97,12 @@ local function setAttack(attacker, defender, target_bp, attack, velocity, hitcha
 end
 
 function weaponAttack(attacker, defender, options)
-	local defunit = reqscript("functions/unit").UNIT
-	local defitem = reqscript("functions/item").ITEM
-	local randoms = reqscript("functions/math").selectRandom
 	options = options or {}
 	
 	-- Get Attacker Information
-	attacker = defunit(attacker)
+	attacker = getUnit(attacker)
 	items = attacker:getInventoryItems("Type","WEAPON")
-	weapon = defitem(randoms(items))
+	weapon = getItem(randoms(items))
 	if not weapon then return end
 	
 	-- Get Attack Information
@@ -121,7 +121,7 @@ function weaponAttack(attacker, defender, options)
 	end
 	
 	-- Get Defender Information
-	defender = defunit(defender)
+	defender = getUnit(defender)
 	targetCategory = options.target or "RANDOM"
 	body_parts = defender:getBodyParts("CATEGORY",targetCategory)
 	target_bp = randoms(body_parts)
@@ -130,12 +130,10 @@ function weaponAttack(attacker, defender, options)
 end
 
 function bodyPartAttack(attacker, defender, options)
-	local defunit = reqscript("functions/unit").UNIT
-	local randoms = reqscript("functions/math").selectRandom
 	options = options or {}
 	
 	-- Get Attacker Information
-	attacker = defunit(attacker)
+	attacker = getUnit(attacker)
 	attackType = options.attack or "RANDOM"
 	
 	-- Get Attack Information
@@ -154,7 +152,7 @@ function bodyPartAttack(attacker, defender, options)
 	end
 	
 	-- Get Defender Information
-	defender = defunit(defender)
+	defender = getUnit(defender)
 	targetCategory = options.target or "RANDOM"
 	body_parts = defender:getBodyParts("CATEGORY",targetCategory)
 	target_bp = randoms(body_parts)

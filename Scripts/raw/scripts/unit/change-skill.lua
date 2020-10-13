@@ -1,6 +1,7 @@
 --unit/change-skill.lua
 --@ module=true
 local utils = require 'utils'
+local getUnit = reqscript("functions/unit").getUnit
 
 local usage = [====[
 
@@ -49,9 +50,8 @@ validArgs = utils.invert({
 })
 
 function changeSkillExperience(unit,skill,mode,value,dur,add)
-	local defunit = reqscript("functions/unit").UNIT
-	unit = defunit(unit)
-	skill = unit:getSkill(skill,add)
+	unit = getUnit(unit)
+	skill = unit.Skills[skill]
 	if not skill then return end
 	change = skill:computeExperienceChange(value,mode)
 	if change == 0 then return end
@@ -71,9 +71,8 @@ function changeSkillExperience(unit,skill,mode,value,dur,add)
 end
 
 function changeSkillLevel(unit,skill,mode,value,dur,add)
-	local defunit = reqscript("functions/unit").UNIT
-	unit = defunit(unit)
-	skill = unit:getSkill(skill,add)
+	unit = getUnit(unit)
+	skill = unit.Skills[skill]
 	if not skill then return end
 	change = skill:computeLevelChange(value,mode)
 	if change == 0 then return end

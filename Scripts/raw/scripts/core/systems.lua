@@ -6,7 +6,7 @@ local myIO = reqscript("functions/io")
 function checkSystemTable(Name, ObjFuncFile, id)
 	-- Make sure the object exists and has a systam table entry
 	local systemTable = dfhack.script_environment("core/tables").Tables[Name]
-	local defobject = reqscript("functions/"..ObjFuncFile:lower())[ObjFuncFile:upper()]
+	local defobject = reqscript("functions/"..ObjFuncFile:lower())["get"..ObjFuncFile]
 	local object = defobject(id)
 	if not object then return nil end
 	
@@ -122,20 +122,39 @@ function makeSystemTable(system,test,verbose)
 								prevName = name
 							else
 								if tempKey then
-									--if tempKey == "#LIST" then tempKey = #subtable[name] + 1 end
 									Table[prevToken][prevName][name] = Table[prevToken][prevName][name] or {}
+									if tempKey == "#LIST" then tempKey = #Table[prevToken][prevName][name] + 1 end
 									Table[prevToken][prevName][name][tempKey] = temp
 								else
 									Table[prevToken][prevName][name] = temp
 								end
 							end
 						else
-							Table[token][Type] = Table[token][Type] or {}
-							if tempKey then
-								Table[token][Type][name] = Table[token][Type][name] or {}
-								Table[token][Type][name][tempKey] = temp
+							if string.match(Type,"-") then
+								Type1 = split(Type,"-")[1]
+								Type2 = split(Type,"-")[2]
+								Table[token][Type1] = Table[token][Type1] or {}
+								Table[token][Type2] = Table[token][Type2] or {}
+								if tempKey then
+									Table[token][Type1][name] = Table[token][Type1][name] or {}
+									Table[token][Type2][name] = Table[token][Type2][name] or {}
+									if tempKey == "#LIST" then tempKey1 = #Table[token][Type1][name] + 1 end
+									if tempKey == "#LIST" then tempKey2 = #Table[token][Type2][name] + 1 end
+									Table[token][Type1][name][tempKey1] = temp
+									Table[token][Type2][name][tempKey2] = -temp
+								else
+									Table[token][Type1][name] = temp
+									Table[token][Type2][name] = -temp
+								end
 							else
-								Table[token][Type][name] = temp
+								Table[token][Type] = Table[token][Type] or {}
+								if tempKey then
+									Table[token][Type][name] = Table[token][Type][name] or {}
+									if tempKey == "#LIST" then tempKey = #Table[token][Type][name] + 1 end
+									Table[token][Type][name][tempKey] = temp
+								else
+									Table[token][Type][name] = temp
+								end
 							end
 						end
 					else

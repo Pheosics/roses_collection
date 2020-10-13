@@ -1,5 +1,5 @@
 script = require "gui.script"
-local defitem = reqscript("functions/item").ITEM
+local defitem = reqscript("functions/item").getItem
 
 function writeall(tbl)
  if not tbl then return end
@@ -24,9 +24,9 @@ function tests()
 	local non = {}
 	for _,unit in pairs(df.global.world.units.active) do
 		if dfhack.units.isCitizen(unit) then
-			civ[#civ+1] = reqscript("functions/unit").UNIT(unit.id)
+			civ[#civ+1] = reqscript("functions/unit").getUnit(unit.id)
 		elseif unit.training_level == 7 then
-			non[#non+1] = reqscript("functions/unit").UNIT(unit.id)
+			non[#non+1] = reqscript("functions/unit").getUnit(unit.id)
 		end
 	end
 	local self = {civUnits = civ,

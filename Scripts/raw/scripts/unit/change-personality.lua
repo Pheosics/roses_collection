@@ -1,6 +1,7 @@
 --unit/change-personality.lua
 --@ module=true
 local utils = require 'utils'
+local getUnit = reqscript("functions/unit").getUnit
 
 local usage = [====[
 
@@ -37,9 +38,8 @@ validArgs = utils.invert({
 })
 
 function changeTrait(unit,trait,mode,value,dur)
-	local defunit = reqscript("functions/unit").UNIT
-	unit = defunit(unit)
-	personality = unit:getPersonality()
+	unit = getUnit(unit)
+	personality = unit.Personality()
 	if not personality then return end
 	change = personality:computeTraitChange(trait,value,mode)
 	if change == 0 then return end

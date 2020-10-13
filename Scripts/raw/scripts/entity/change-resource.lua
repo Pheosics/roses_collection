@@ -5,6 +5,7 @@
 local utils = require 'utils'
 local split = utils.split_string
 local validResources = reqscript("functions/entity").validResources
+local getEntity = reqscript("functions/entity").getEntity
 
 local usage = [====[
 
@@ -65,14 +66,12 @@ validArgs = utils.invert({
 })
 
 function addResource(entity,resourceType,resourceSubtype,object)
-	local defentity = reqscript("functions/entity").ENTITY
-	entity = defentity(entity)
+	entity = getEntity(entity)
 	entity:addResource(resourceType,resourceSubtype,object)
 end
 
 function removeResource(entity,resourceType,resourceSubtype,object)
-	local defentity = reqscript("functions/entity").ENTITY
-	entity = defentity(entity)
+	entity = getEntity(entity)
 	entity:removeResource(resourceType,resourceSubtype,object)
 end
 

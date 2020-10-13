@@ -2,6 +2,8 @@
 --@ module=true
 local utils = require "utils"
 local flow_types = reqscript("functions/map").flow_types
+local getMap = reqscript("functions/map").getMap
+local permute = reqscript("functions/math").permute
 
 local usage = [====[
 
@@ -93,7 +95,7 @@ local function parseFlowOptions(flowOptions)
 end
 
 local function getPositions(posFields,posType)
-	local map = reqscript("functions/map").MAP(false)
+	local map = getMap(false)
 	local positions = {}
 	if not posType then
 		positions = map:getFillPositions(posFields.pos,posFields.radius)
@@ -108,7 +110,7 @@ local function getPositions(posFields,posType)
 end
 
 function createFlows(flowType,positions,flowOptions)
-	local map = reqscript("functions/map").MAP(false) 
+	local map = getMap(false) 
 	if #positions == 0 then return end
     density, inorganic, number, static = parseFlowOptions(flowOptions)
 	flowN = flow_types[flowType]
@@ -119,7 +121,7 @@ function createFlows(flowType,positions,flowOptions)
 		end
 	else
 		local n = math.min(number,#positions)
-		positions = reqscript("functions/math").permute(positions)
+		positions = permute(positions)
 		for i = 1, n do
 			map:createFlow(positions[i],flowN,density,inorganic,static)
 		end

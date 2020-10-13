@@ -1,7 +1,7 @@
 --item/projectile.lua
 --@ module=true
 local utils = require 'utils'
-defitem = reqscript("functions/item").ITEM
+local getItem = reqscript("functions/item").getItem
 
 local usage = [====[
 
@@ -87,11 +87,13 @@ validArgs = utils.invert({
 })
 
 function makeFallingProjectile(item,pos,velocity)
-	defitem(item):makeProjectile("FALLING",pos,velocity)
+	local item = getItem(item)
+	item:makeProjectile("FALLING",pos,velocity)
 end
 
 function makeShootingProjectile(item,pos,velocity,target,hitchance,min_range,max_range)
-	defitem(item):makeProjectile("SHOOTING",pos,velocity,target,hitchance,min_range,max_range)
+	local item = getItem(item)
+	item:makeProjectile("SHOOTING",pos,velocity,target,hitchance,min_range,max_range)
 end
 
 local function main(...)

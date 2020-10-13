@@ -1,7 +1,8 @@
 --item/change-quality.lua
 --@ module=true
 local utils = require 'utils'
-defitem = reqscript("functions/item").ITEM
+local getItem = reqscript("functions/item").getItem
+local getUnit = reqscript("functions/unit").getUnit
 
 local usage = [====[
 
@@ -57,8 +58,9 @@ validArgs = utils.invert({
 })
 
 function changeQuality(item, quality, dur)
+	item = getItem(item)
 	current = item:getQuality() --vmethod
-	item:setQuality(quality) --vmethod
+	item:changeQuality(quality)
     if dur > 1  then
         cmd = "item/change-quality"
         cmd = cmd .. " -item " .. tostring(item.id)
@@ -94,7 +96,7 @@ local function main(...)
 	if args.item and tonumber(args.item) then
 		items = {df.item.find(args.item)}
 	elseif args.unit and tonumber(args.unit) then
-		unit = reqscript("functions/unit").UNIT(tonumber(args.unit))
+		unit = getUnit(tonumber(args.unit))
 		items = unit:getInventoryItems("TYPE",args.equipment)
 	end
 	if not items then

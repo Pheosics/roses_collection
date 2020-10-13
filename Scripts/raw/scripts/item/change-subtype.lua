@@ -1,7 +1,8 @@
 --item/change-subtype.lua
 --@ module=true
 local utils = require 'utils'
-defitem = reqscript("functions/item").ITEM
+local getItem = reqscript("functions/item").getItem
+local getUnit = reqscript("functions/unit").getUnit
 
 local usage = [====[
 
@@ -51,7 +52,7 @@ validArgs = utils.invert({
 })
 
 function changeSubtype(item, subtype, dur)
-	item = defitem(item)
+	item = getItem(item)
     currentSubtype = item:getSubtype()
     item:changeSubtype(subtype)
     if dur > 1  then
@@ -89,7 +90,7 @@ local function main(...)
 	if args.item and tonumber(args.item) then
 		items = {df.item.find(args.item)}
 	elseif args.unit and tonumber(args.unit) then
-		unit = reqscript("functions/unit").UNIT(tonumber(args.unit))
+		unit = getUnit(tonumber(args.unit))
 		items = unit:getInventoryItems("TYPE",args.equipment)
 	end
 	if not items then

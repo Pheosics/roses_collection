@@ -3,6 +3,7 @@
 --building/change-subtype.lua
 --@ module=true
 local utils = require "utils"
+local getBuilding = reqscript("functions/building").getBuilding
 
 local usage = [====[
 
@@ -42,8 +43,7 @@ validArgs = utils.invert({
 })
 
 function changeSubtype(bldg,subtype,dur)
-	local defbldg = reqscript("functions/building").BUILDING
-	bldg = defbldg(bldg)
+	bldg = getBuilding(bldg)
 	local current = bldg.subtype
 	check = bldg:changeSubtype(subtype)
 	if not check then return end
@@ -56,8 +56,7 @@ function changeSubtype(bldg,subtype,dur)
 end
  
 function changeCustomtype(bldg,customtype,dur)
-	local defbldg = reqscript("functions/building").BUILDING
-	bldg = defbldg(bldg)
+	bldg = getBuilding(bldg)
 	local current = bldg.customtype
 	check = bldg:changeCustomtype(customtype)
 	if not check then return end

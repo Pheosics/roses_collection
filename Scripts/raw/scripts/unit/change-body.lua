@@ -2,6 +2,7 @@
 --@ module=true
 local utils = require 'utils'
 local split = utils.split_string
+local getUnit = reqscript("functions/unit").getUnit
 
 local usage = [====[
 
@@ -29,6 +30,8 @@ Arguments::
         If present will change the status of the body part(s)
         Valid Values:
             Fire - Sets the body part on fire
+	-blood <CHANGE>
+		If present will change the amount of blood
     -size [ <SIZE_TYPE> <CHANGE> <SIZE_TYPE> <CHANGE> ]
         Changes the dimensions of given units size
         Changing sizes of individual body parts is not currently possible
@@ -58,12 +61,12 @@ validArgs = utils.invert({
     "unit",
     "size",
     "status",
+	"blood",
 	"args",
 })
 
 function changeBodyPartStatus(unit,partType,partSubtype,statusTable,dur)
-	local defunit = reqscript("functions/unit").UNIT
-	unit = defunit(unit)
+	unit = getUnit(unit)
 	parts = unit:getBodyParts(partType, partSubtype)
 	for _, part in pairs(parts) do
 		part:changeStatus(statusTable)
@@ -82,7 +85,7 @@ function changeBodyPartStatus(unit,partType,partSubtype,statusTable,dur)
 end
 
 function changeBodyPartTemperature(unit,partType,partSubType,mode,value,dur)
-	unit = defunit(unit)
+	unit = getUnit(unit)
 	parts = unit:getBodyParts(partType, partSubtype)
 	for _, part in pairs(parts) do
 		change = part:computeTemperatureChange(value, mode)
@@ -92,7 +95,7 @@ function changeBodyPartTemperature(unit,partType,partSubType,mode,value,dur)
 end
 
 function changeBodySize(unit,sizeType,mode,value,dur)
-	unit = defunit(unit)
+	unit = getUnit(unit)
 	body = unit:getBody()
     size = sizeType:upper()
     if size == "SIZE" or size == "ALL" then
@@ -229,6 +232,10 @@ local function main(...)
 			end
 			changeBodySize(unit,k,mode,value,dur)
 		end
+	end
+	
+	if args.blood then
+		unit.body.blood_count = unit.body.blood_count + tonumber(args.blood)
 	end
 end
 

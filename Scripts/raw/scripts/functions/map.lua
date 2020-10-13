@@ -99,8 +99,10 @@ end
 --===============================================================================================--
 --== MAP CLASSES ================================================================================--
 --===============================================================================================--
-MAP = defclass(MAP)    -- references <df.global.world.map>
-FLOW = defclass(FLOW)  -- references <flow_info>
+local MAP = defclass(MAP)    -- references <df.global.world.map>
+local FLOW = defclass(FLOW)  -- references <flow_info>
+function getMap(init) return MAP(init) end
+function getFlow(flow) return FLOW(flow) end
 
 --===============================================================================================--
 --== MAP FUNCTIONS ==============================================================================--
@@ -169,15 +171,20 @@ function MAP:_update()
 	end
 end
 
-function MAP:createFlow(pos,flowType,density,inorganic,static)
+function MAP:createFlow(pos,flowType,density,inorganic,static,matType)
+	printall(pos)
+	print(flowType,density,inorganic,static,matType)
+	local matType = matType or 0
 	local x = pos.x or pos[1]
 	local y = pos.y or pos[2]
 	local z = pos.z or pos[3]
-	flow = dfhack.maps.spawnFlow({x=x,y=y,z=z},flowType,0,inorganic,density)
+	flow = dfhack.maps.spawnFlow({x=x,y=y,z=z},flowType,matType,inorganic,density)
 	if static then flow.expanding = false end
 end
 
 function MAP:createLiquid(pos,depth,magma)
+	printall(pos)
+	print(depth,magma)
 	local x = pos.x or pos[1]
 	local y = pos.y or pos[2]
 	local z = pos.z or pos[3]

@@ -1,7 +1,7 @@
 
 script = require "gui.script"
-local defbldg = reqscript("functions/building").BUILDING
-local map = reqscript("functions/map").MAP()
+local defbldg = reqscript("functions/building").getBuilding
+local map = reqscript("functions/map").getMap()
 
 function writeall(tbl)
  if not tbl then return end

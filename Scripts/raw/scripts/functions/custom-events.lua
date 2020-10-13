@@ -72,17 +72,3 @@ function repeatingScriptTrigger(Type, id, script, frequency, delayID)
 		functionDelay(frequency,"functions/custom-events","repeatingScriptTrigger",{Type,id,script,frequency,delayID},delayID)
 	end	
 end
-
-function delayJob(job,delay) -- Should this be a persistent delay? Probably...
-	if delay <= 0 then
-		job.completion_timer = 1
-		return
-	end
-	if job.completion_timer == -1 then
-		dfhack.timeout(1,'ticks',function () delayJob(job,delay) end)
-	else
-		delay = delay - 1
-		job.completion_timer = 10
-		dfhack.timeout(1,'ticks',function () delayJob(job,delay) end)
-	end
-end

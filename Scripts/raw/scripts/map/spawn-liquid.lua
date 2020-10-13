@@ -1,6 +1,8 @@
 --map/spawn-liquid.lua
 --@ module=true
 local utils = require "utils"
+local getMap = reqscript("functions/map").getMap
+local permute = reqscript("functions/math").permute
 
 local usage = [====[
 
@@ -69,7 +71,7 @@ local function parseLiquidOptions(liquidOptions)
 end
 
 local function getPositions(posFields,posType)
-	local map = reqscript("functions/map").MAP(false)
+	local map = getMap(false)
 	local positions = {}
 	if not posType then
 		positions = map:getFillPositions(posFields.pos,posFields.radius)
@@ -84,7 +86,7 @@ local function getPositions(posFields,posType)
 end
 
 function createLiquids(positions,liquidOptions)
-	local map = reqscript("functions/map").MAP(false)
+	local map = getMap(false)
 	if #positions == 0 then return end
     depth, magma, number = parseLiquidOptions(liquidOptions)
 
@@ -94,7 +96,7 @@ function createLiquids(positions,liquidOptions)
 		end
 	else
 		local n = math.min(number,#positions)
-		positions = dfhack.script_environment("functions/math").permute(positions)
+		positions = permute(positions)
 		for i = 1, n do
 			map:createLiquid(positions[i],depth,magma)
 		end

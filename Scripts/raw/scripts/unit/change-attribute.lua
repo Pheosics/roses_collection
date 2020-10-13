@@ -1,6 +1,7 @@
 --unit/change-attribute.lua
 --@ module=true
 local utils = require 'utils'
+local getUnit = reqscript("functions/unit").getUnit
 
 local usage = [====[
 
@@ -41,24 +42,12 @@ validArgs = utils.invert({
 })
 
 function changeAttribute(unit,attribute,mode,value,dur)
-	local defunit = reqscript("functions/unit").UNIT
-	unit = defunit(unit)
-	attribute = unit:getAttribute(attribute)
+	unit = getUnit(unit)
+	attribute = unit.Attributes[attribute]
 	if not attribute then return end
 	change = attribute:computeChange(value,mode)
 	if change == 0 then return end
-	attribute:changeValue(change)
-	if dur > 1 then
-		cmd = "unit/change-attribute"
-		cmd = cmd .. " -unit " ..tostring(unit.id)
-		cmd = cmd .. " -attribute [ " .. attribute.token
-		if change > 0 then
-			cmd = cmd .. " -" .. tostring(change) .. " ]"
-		else
-			cmd = cmd .. " +" .. tostring(change) .. " ]"
-		end
-		dfhack.script_environment("persist-delay").commandDelay(dur,cmd)
-	end
+	attribute:changeValue(change, dur)
 end
 
 local function main(...)

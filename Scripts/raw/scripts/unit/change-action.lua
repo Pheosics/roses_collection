@@ -1,6 +1,7 @@
 --unit/change-action
 --@ module = true
 local utils = require "utils"
+local getUnit = reqscript("functions/unit").getUnit
 
 local help = [====[
 
@@ -47,8 +48,7 @@ validArgs = utils.invert({
 })
 
 function changeAction(unit,actionType,data)
-	local defunit = reqscript("functions/unit").UNIT
-	unit = defunit(unit)
+	unit = getUnit(unit)
 	actions = unit:getActions(actionType)
 	for _,action in pairs(actions) do
 		for k,_ in pairs(action.data) do
@@ -58,8 +58,7 @@ function changeAction(unit,actionType,data)
 end
 
 function removeAction(unit,actionType)
-	local defunit = reqscript("functions/unit").UNIT
-	unit = defunit(unit)
+	unit = getUnit(unit)
 	actions = unit:getActions(actionType)
 	for _,action in pairs(actions) do
 		action:removeAction()

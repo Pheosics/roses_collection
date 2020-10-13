@@ -1,5 +1,5 @@
 script = require "gui.script"
-local defentity = reqscript("functions/entity").ENTITY
+local defentity = reqscript("functions/entity").getEntity
 
 function writeall(tbl)
  if not tbl then return end

@@ -1,5 +1,5 @@
 script = require "gui.script"
-local map = reqscript("functions/map").MAP(false)
+local map = reqscript("functions/map").getMap()
 
 local function posString(a)
 	return tostring(a.x) .. " " .. tostring(a.y) .. " " .. tostring(a.z)

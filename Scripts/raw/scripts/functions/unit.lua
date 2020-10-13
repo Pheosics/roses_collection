@@ -21,17 +21,52 @@ local function nextSkillLevel(rating)
 	end
 end
 
+local counterLocation = {
+	-- counters
+	think_counter = "counters",
+	job_counter = "counters",
+	swap_counter = "counters",
+	death_cause = "counters",
+	death_id = "counters",
+	winded = "counters", 
+	stunned = "counters",
+	unconscious = "counters",
+	suffocation = "counters",
+	webbed = "counters",
+	pain = "counters",
+	nausea = "counters",
+	dizziness = "counters",
+	-- counters2
+	paralysis = "counters2",
+	numbness = "counters2",
+	fever = "counters2",
+	exhaustion = "counters2",
+	hunger_timer = "counters2",
+	thirst_timer = "counters2",
+	sleepiness_timer = "counters2",
+	stomach_content = "counters2",
+	stomach_food = "counters2",
+	vomit_timeout = "counters2",
+	stored_fat = "counters2",
+}
+local counterShortcuts = {
+	sleepiness = "sleepiness_timer",
+	thirst = "thirst_timer",
+	hunger = "hunger_timer",
+}
+
 --===============================================================================================--
 --== UNIT CLASSES ===============================================================================--
 --===============================================================================================--
-UNIT             = defclass(UNIT)             -- references <df.unit>
-UNIT_ACTION      = defclass(UNIT_ACTION)      -- references <df.unit_action>
-UNIT_ATTACK      = defclass(UNIT_ATTACK)      -- references <df.caste_attack>
-UNIT_ATTRIBUTE   = defclass(UNIT_ATTRIBUTE)   -- references <df.unit_attribute>
-UNIT_BODY        = defclass(UNIT_BODY)        -- references <df.unit.T_body>
-UNIT_BODYPART    = defclass(UNIT_BODYPART)    -- references <df.body_part_raw>
-UNIT_PERSONALITY = defclass(UNIT_PERSONALITY) -- references <df.unit_personality>
-UNIT_SKILL       = defclass(UNIT_SKILL)       -- references <df.unit_skill>
+local UNIT             = defclass(UNIT)             -- references <df.unit>
+local UNIT_ACTION      = defclass(UNIT_ACTION)      -- references <df.unit_action>
+local UNIT_ATTACK      = defclass(UNIT_ATTACK)      -- references <df.caste_attack>
+local UNIT_ATTRIBUTE   = defclass(UNIT_ATTRIBUTE)   -- references <df.unit_attribute>
+local UNIT_BODY        = defclass(UNIT_BODY)        -- references <df.unit.T_body>
+local UNIT_BODYPART    = defclass(UNIT_BODYPART)    -- references <df.body_part_raw>
+local UNIT_PERSONALITY = defclass(UNIT_PERSONALITY) -- references <df.unit_personality>
+local UNIT_SKILL       = defclass(UNIT_SKILL)       -- references <df.unit_skill>
+function getUnit(unit) return UNIT(unit) end
 
 --===============================================================================================--
 --== UNIT FUNCTIONS =============================================================================--
@@ -39,13 +74,36 @@ UNIT_SKILL       = defclass(UNIT_SKILL)       -- references <df.unit_skill>
 function UNIT:__index(key)
 	if rawget(self,key) then return rawget(self,key) end
 	if rawget(UNIT,key) then return rawget(UNIT,key) end
-	local unit = df.unit.find(self.id)
-	return unit[key]
+	if dfhack.units[key] then 
+		return function(...) 
+			return dfhack.units[key](self._unit,...) 
+		end
+	end
+	return df.unit.find(self.id)[key]
 end
 function UNIT:init(unit)
 	if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 	self.id = unit.id
 	self._unit = unit
+	self.Attributes = setmetatable({}, {__index = function (table, key) 
+													return UNIT_ATTRIBUTE({self._unit,key})
+												end})
+	self.Skills     = setmetatable({}, {__index = function (table, key) 
+													return self:getSkill(key, true)
+												end})
+	self.Flags      = setmetatable({}, {__index = function (table, key)
+													local flags = {}
+													for k,v in pairs(self._unit.flags1) do flags[k] = v end
+													for k,v in pairs(self._unit.flags2) do flags[k] = v end
+													for k,v in pairs(self._unit.flags3) do flags[k] = v end
+													return flags[key] or false
+												end})
+	self.Counters   = setmetatable({}, {__index = function (table, key)
+													local c = counterShortcuts[counter] or counter
+													if not counterLocation[c] then return -1 end
+													return self._unit[counterLocation[c]][c]	
+												end})
+	self.Personality = function () return UNIT_PERSONALITY({self._unit}) end
 end
 
 function UNIT:addAttack(attack_data)
@@ -110,10 +168,6 @@ function UNIT:getAttack(attack_name)
 	return out
 end
 
-function UNIT:getAttribute(attribute)
-	return UNIT_ATTRIBUTE({self._unit,attribute})
-end
-
 function UNIT:getBody()
 	return UNIT_BODY({df.unit.find(self.id)})
 end
@@ -169,15 +223,11 @@ function UNIT:getInventoryItems(filter,value)
 	return items
 end
 
-function UNIT:getPersonality()
-	return UNIT_PERSONALITY({df.unit.find(self.id)})
-end
-
 function UNIT:getSkill(skill,add)
 	local unit = df.unit.find(self.id)	
 	local skillid = df.job_skill[skill]
 	if not skillid then
-		return UNIT_SKILL({unit.id,skill})
+		return UNIT_SKILL({unit,skill})
 	end
 	local found = false
 	for i,x in pairs(unit.status.current_soul.skills) do
@@ -198,13 +248,9 @@ function UNIT:getSkill(skill,add)
 	end
 end
 
-function UNIT:hasFlag(flag)
-	local flags = {}
-	local unit = df.unit.find(self.id)
-	for k,v in pairs(unit.flags1) do flags[k] = v end
-	for k,v in pairs(unit.flags2) do flags[k] = v end
-	for k,v in pairs(unit.flags3) do flags[k] = v end
-	return flags[flag] or false
+function UNIT:getSkillRate(skill,baseRate,changeRate)
+	local skillLevel = dfhack.units.getEffectiveSkill(self._unit,skill) or 0
+	return baseRate - skillLevel*changeRate
 end
 
 function UNIT:makeProjectile(velocity)
@@ -257,6 +303,12 @@ function UNIT:makeProjectile(velocity)
 	end
 	unit.flags1.projectile = true
 	unit.flags1.on_ground  = false
+end
+
+function UNIT:setCounter(counter, value)
+	local c = counterShortcuts[counter] or counter
+	if not counterLocation[c] then return end
+	self._unit[counterLocation[c]][c] = value
 end
 
 --===============================================================================================--
@@ -330,6 +382,9 @@ function UNIT_ATTRIBUTE:__index(key)
 	if rawget(UNIT_ATTRIBUTE,key) then return rawget(UNIT_ATTRIBUTE,key) end
 	return self._attribute[key]
 end
+function UNIT_ATTRIBUTE:__add(x)
+	self:changeValue(x)
+end
 function UNIT_ATTRIBUTE:init(input)
 	self.unit = input[1]
 	self.token = input[2]
@@ -343,10 +398,12 @@ function UNIT_ATTRIBUTE:init(input)
 		self._attribute = self.unit.status.current_soul.mental_attrs[self.token]
 	else
 		self.type = "Custom"
-	end	
+	end
 end
 
-function UNIT_ATTRIBUTE:changeValue(change)
+function UNIT_ATTRIBUTE:changeValue(change,dur)
+	change = tonumber(change)
+	dur = dur or 0
 	if change == 0 then return end
 	local unit = df.unit.find(self.unit.id)
 	if self.type == "Physical" then
@@ -358,6 +415,7 @@ function UNIT_ATTRIBUTE:changeValue(change)
 	elseif self.type == "Custom" then
 		-- No custom attrtibutes yet
 	end
+	if dur > 0 then dfhack.script_environment("persist-delay").classDelay(dur,"unit",{self.unit.id,"Attributes",self.token,-change}) end
 end
 
 function UNIT_ATTRIBUTE:computeChange(value,mode)
@@ -491,6 +549,13 @@ function UNIT_SKILL:__index(key)
 	if rawget(self,key) then return rawget(self,key) end
 	if rawget(UNIT_SKILL,key) then return rawget(UNIT_SKILL,key) end
 	return nil
+end
+function UNIT_SKILL:__add(x)
+	if math.abs(x) < 1 then
+		self:changeExperienceValue(1/x)
+	else
+		self:changeLevelValue(x)
+	end
 end
 function UNIT_SKILL:init(input)
 	self.unit = input[1]

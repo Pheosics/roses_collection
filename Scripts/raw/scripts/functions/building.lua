@@ -164,18 +164,23 @@ hardcoded_bldgs = { -- df.building_type
 --===============================================================================================--
 --== BUILDING CLASSES ===========================================================================--
 --===============================================================================================--
-BUILDING = defclass(BUILDING) -- references <building>
+local BUILDING = defclass(BUILDING) -- references <building>
+function getBuilding(building) return BUILDING(building) end
 
 --===============================================================================================--
 --== BUILDING FUNCTIONS =========================================================================--
 --===============================================================================================--
-function BUILDING:__index(key)
+function BUILDING:__index(key,...)
 	if rawget(self,key) then return rawget(self,key) end
 	if rawget(BUILDING,key) then return rawget(BUILDING,key) end
 	return self._building[key]
 end
+function BUILDING:__tostring()
+	return self.type..":"..self.subtype..":"..self.customtype
+end
 function BUILDING:init(building)
 	if tonumber(building) then building = df.building.find(tonumber(building)) end
+	if not building then return nil end
 	self.id = building.id
 	self.type_id = building:getType()
 	self.subtype_id = building:getSubtype()
@@ -195,6 +200,12 @@ function BUILDING:init(building)
 		self.Token = self.subtype
 	end
 	self._building = building
+	
+	-- dfhack.buildings Functions
+	self.dfhack_functions = {}
+	for name, func in pairs(dfhack.buildings) do
+		self.dfhack_functions[name] = function(...) return func(self._building, ...) end
+	end
 end
 
 function BUILDING:addItem(item)
@@ -263,8 +274,8 @@ end
 function BUILDING:nearbyWater()
 	local amount = 0
 	for z = self._building.z - 1, self._building.z do
-		for y = self.building.y1 - 1, self._building.y2 + 1 do
-			for x = self.building.x1 - 1, self._building.x2 + 1 do
+		for y = self._building.y1 - 1, self._building.y2 + 1 do
+			for x = self._building.x1 - 1, self._building.x2 + 1 do
 				local flags = dfhack.maps.getTileFlags(x,y,z)
 				if not flags.liquid_type then amount = amount + flags.flow_size end
 			end

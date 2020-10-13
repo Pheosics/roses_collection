@@ -1,6 +1,7 @@
 --unit/propel.lua
 --@ module=true
 local utils = require 'utils'
+local getUnit = reqscript("functions/unit").getUnit
 
 local usage = [====[
 
@@ -48,8 +49,7 @@ validArgs = utils.invert({
 
 function propel(unit,vx,vy,vz)
 	if vx == 0 and vy == 0 and vz == 0 then return end
-	local defunit = reqscript("functions/unit").UNIT
-	unit = defunit(unit)
+	unit = getUnit(unit)
 	unit:makeProjectile({resultx,resulty,resultz})
 end
 

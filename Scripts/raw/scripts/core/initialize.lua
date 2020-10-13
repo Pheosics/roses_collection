@@ -1,8 +1,8 @@
 local utils = require "utils"
 local split = utils.split_string
 local version = 1.0
-local dfhackv = 44.12
-local dfversn = 44.12
+local dfhackv = dfhack.getDFHackVersion()
+local dfversn = dfhack.getDFVersion()
 local scripts_dir = "/raw/scripts"
 local systems_dir = "/raw/systems"
 dfhack.internal.addScriptPath(dfhack.getDFPath()..systems_dir, true)
@@ -75,48 +75,22 @@ local function initializePersistentTables(verbose)
 	persistTable = require "persist-table"
 
 	---- Persist CommandDelays
-	n = 0
 	if verbose > 1 then print_color(c2, s2.."CommandDelay Tables:") end
 	persistTable.GlobalTable.persistCommandDelay = persistTable.GlobalTable.persistCommandDelay or {}
-	delayTable = persistTable.GlobalTable.persistCommandDelay
-	for _,i in pairs(delayTable._children) do
-		delay = delayTable[i]
-		local currentTick = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick
-		if tonumber(delay.Tick) and currentTick < tonumber(delay.Tick) then
-			n = n + 1
-			local ticks = delay.Tick-currentTick
-			dfhack.timeout(ticks, "ticks", function () dfhack.run_command(delay.Script) end)
-		else
-			delay = nil
-		end
-	end
-	if verbose > 1 then print_color(c3, s3.."Command Delays Loaded - "..tostring(n)) end
+	local n1 = reqscript("persist-delay").loadCommandDelays()
+	if verbose > 1 then print_color(c3, s3.."Command Delays Loaded - "..tostring(n1)) end
 
 	---- Persist FunctionDelays
-	n = 0
 	if verbose > 1 then print_color(c2, s2.."FunctionDelay Tables:") end
 	persistTable.GlobalTable.persistFunctionDelay = persistTable.GlobalTable.persistFunctionDelay or {}
-	delayTable = persistTable.GlobalTable.persistFunctionDelay
-	for _,i in pairs(delayTable._children) do
-		delay = delayTable[i]
-		local currentTick = 1200*28*3*4*df.global.cur_year + df.global.cur_year_tick
-		if i == "nextID" or not delay then
-			-- Skip
-		elseif currentTick >= tonumber(delay.Tick) then
-			delayTable[i] = nil
-		else
-			n = n + 1
-			local ticks = delay.Tick-currentTick
-			local env = delay.Environment
-			local func = delay.Function
-			local args = {}
-			for j = 1, #delay.Arguments._children do
-				args[j] = delay.Arguments[tostring(j)]
-			end
-			dfhack.timeout(ticks, "ticks", function () dfhack.script_environment(env)[func](table.unpack(args)) end)
-		end
-	end
-	if verbose > 1 then print_color(c3, s3.."Function Delays Loaded - "..tostring(n)) end
+	local n2 = reqscript("persist-delay").loadFunctionDelays()
+	if verbose > 1 then print_color(c3, s3.."Function Delays Loaded - "..tostring(n2)) end
+
+	---- Persist FunctionDelays
+	if verbose > 1 then print_color(c2, s2.."ClassDelay Tables:") end
+	persistTable.GlobalTable.persistClassDelay = persistTable.GlobalTable.persistClassDelay or {}
+	local n2 = reqscript("persist-delay").loadClassDelays()
+	if verbose > 1 then print_color(c3, s3.."Class Delays Loaded - "..tostring(n2)) end
 	
 	dfhack.color(COLOR_RESET)
 end
