@@ -1,199 +1,105 @@
+-- TODO Add support for custom building filters
+-- TODO Add support for custom building items list
+-- TODO Add support for abstract buildings
+-- TODO Add duration for created buildings
+-- TODO Add option to clear ground area for building
+
 --building/create.lua
+--@ module=true
+local utils = require "utils"
+local hardcoded_bldgs = reqscript("functions/building").hardcoded_bldgs
+
 local usage = [====[
 
 building/create
 ===============
 Purpose::
     Create a fully functioning building
-    Vanilla buildings are not currently supported
 
-Function Calls::
-    map.checkFree
-    building.addItem
-    item.create
+Uses::
+	functions/building
 
 Arguments::
-    -location      [ x y z ]
-    -type          Building Type
+    -location [ x y z ]
+    -type Type
         Building type to create
         Valid Types:
             Furnace
             Workshop
-    -subtype       BUILDING_TOKEN
+    -subtype SUBTYPE
         Building token to create
-    -item          ITEM_ID or ITEM_TYPE:ITEM_SUBTYPE
-        id(s) of item(s) to be added to created building or item(s) to be created
-    -material      MATERIAL_TYPE:MATERIAL_SUBTYPE
-        If creating item(s) provides material for the item
 
 Examples::
-    building/create -location [ \\LOCATION ] -type Workshop -subtype SCREW_PRESS
+	* Create a custom building (e.g. a building found in the raws)
+		building/create -location [ \\LOCATION ] -type Workshop -subtype SCREW_PRESS
+	* Create a hardcoded building
+		building/create -location [ \\LOCATION ] -type Furnace -subtype SMELTER
 ]====]
 
-local utils = require 'utils'
-require 'dfhack.buildings'
 validArgs = utils.invert({
- 'help',
- 'type',
- 'subtype',
- 'location',
- 'item',
- 'material',
- 'test',
- 'force'
+    "help",
+    "type",
+    "subtype",
+    "location"
 })
 
-local args = utils.processArgs({...}, validArgs)
-
-local mtype = nil
-local stype = nil
-local ctype = nil
-local dimx = nil
-local dimy = nil
-local stages = nil
-
-if args.help then
- print(usage)
- return
+function createBuilding(pos,type_id,subtype_id,custom_id)
+	require "dfhack.buildings"
+	building = dfhack.buildings.constructBuilding({pos=pos,type=type_id,subtype=subtype_id,custom=custom_id,filters={{},{}}})
+	building.construction_stage = building:getMaxBuildStage()
+	dfhack.job.removeJob(building.jobs[0])
 end
 
-if not args.location then
- print('No location to place building declared')
- return
+local function main(...)
+	local args = utils.processArgs({...}, validArgs)
+	local error_str = "Error in building/create -"
+
+	if args.help then
+		print(usage)
+		return
+	end
+
+	-- Check for required arguments
+	if not args.location then error(error_str .. "No location to place building declared") end
+	if not args.type then error(error_str .. "No building type declared") end
+	if not args.subtype then error(error_str .. "No building subtype declared") end
+
+	-- Parse arguments
+	local pos = {}
+	pos.x = tonumber(args.location[1])
+	pos.y = tonumber(args.location[2])
+	pos.z = tonumber(args.location[3])
+
+	-- Check that the building type is valid
+	local type_id = df.building_type[args.type]
+	if not type_id then error(error_str .. "Invalid building type - " .. args.type) end
+	
+	-- Check that the building subtype is valid
+	local subtype_id
+	local custom_id
+	if hardcoded_bldgs[args.type:upper()] then
+		-- Check for hardcoded or custom building
+		if hardcoded_bldgs[args.type:upper()][args.subtype:upper()] then
+			subtype_id = hardcoded_bldgs[args.type:upper()][args.subtype:upper()]
+			custom_id = -1
+		else
+			subtype_id = hardcoded_bldgs[args.type:upper()]["CUSTOM"]
+			for i,bldg in pairs(df.global.world.raws.buildings.all) do
+				if bldg.code == args.subtype then
+					custom_id = i
+					break
+				end
+			end
+		end
+	else
+		subtype_id = -1
+		custom_id = -1
+	end
+	if not subtype_id then error(error_str .. "Invalid subtype " .. args.subtype .. " for type " .. args.type) end
+	
+	createBuilding(pos,type_id,subtype_id,custom_id)
 end
 
-bldgType = args.type or 'Workshop'
-if not args.subtype then
- print('No building subtype declared')
- return
-end
-
-for i,bldg in pairs(df.global.world.raws.buildings.all) do
- if bldg.code == args.subtype then
-  mtype = bldg.building_type
-  stype = bldg.building_subtype
-  ctype = i
-  dimx = bldg.dim_x
-  dimy = bldg.dim_y
-  stages = bldg.build_stages
- end
-end
-
-if args.test then -- This can make a Quern but that's it
- mtype = df.building_type[args.type]
- stype = tonumber(args.subtype) -- How to get vanilla building subtype
- ctype = -1
- dimx = 1 -- How to get vanilla building sizes
- dimy = 1
- stages = 1 -- How to get vanilla building stages
-end
-
-if not mtype then
- print('Custom building not found')
- return
-end
-
-
-local x = args.location[1]
-local y = args.location[2]
-local z = args.location[3]
-
-check = dfhack.script_environment('functions/map').checkFree
--- Check quadrant 4
-local free = true
-local quad = 4
-for xp = x, x+dimx-1 do
- for yp = y, y+dimy-1 do
-  if not check(xp,yp,z) then
-   free = false
-  end
- end
-end
--- Check quadrant 1
-if not free then
- free = true
- quad = 1
- for xp = x, x+dimx-1 do
-  for yp = y-dimy-1, y do
-   if not check(xp,yp,z) then
-    free = false
-   end
-  end
- end
-end
--- Check quadrant 3
-if not free then
- free = true
- quad = 3
- for xp = x-dimx-1, x do
-  for yp = y, y+dimy-1 do
-   if not check(xp,yp,z) then
-    free = false
-   end
-  end
- end
-end
--- Check quadrant 2
-if not free then
- free = true
- quad = 2
- for xp = x-dimx-1, x do
-  for yp = y-dimy-1, y do
-   if not check(xp,yp,z) then
-    free = false
-   end
-  end
- end
-end
-
-if args.force then
- quad = 4
- free = true
-end
-
-if not free then
- print('Building location not free')
- return
-end
-
-if quad == 1 then
- x = x
- y = y - dimy - 1
-elseif quad == 2 then
- x = x - dimx - 1
- y = y - dimy - 1
-elseif quad == 3 then
- x = x - dimx - 1
- y = y
-end
-
-local pos = {}
-pos.x = x
-pos.y = y
-pos.z = z
-
-filters = dfhack.buildings.getFiltersByType({},mtype,stype,ctype)
-if not filters then
- filters = dfhack.buildings.getFiltersByType({},mtype,stype,0)
- --filters = dfhack.buildings.input_filter_defaults
-end
-
-building = dfhack.buildings.constructBuilding({pos=pos,type=mtype,subtype=stype,custom=ctype,filters=filters})
-building.construction_stage = stages
-dfhack.job.removeJob(building.jobs[0])
-
-if args.item then
- if type(args.item) ~= 'table' then args.item = {args.item} end
- if args.material then
-  if type(args.material) ~= 'table' then args.material = {args.material} end
- end
- for i,x in pairs(args.item) do
-  if tonumber(x) then
-   id = tonumber(x)
-   dfhack.script_environment('functions/building').addItem(building,id)
-  elseif args.material[i] then
-   item = dfhack.script_environment('functions/item').create(x,args.material[i])
-   dfhack.script_environment('functions/building').addItem(building,item)
-  end
- end
+if not dfhack_flags.module then
+	main(...)
 end

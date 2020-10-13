@@ -2246,7 +2246,6 @@
 				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
 			}
 		},
-
 		"COVERING_HAIR":     {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
 			"TYPE": "HAIR",
 			"NOUN": ["fur","wool"],
@@ -2323,7 +2322,6 @@
 							"[TLCM_NOUN:#NOUN:SINGULAR]"]
 			}
 		},
-
 		"SURFACE_SKIN":      {"__comment": "Materials = [Skin and leather],             Tissues = [thin, average, thick]",
 			"TYPE":   "SURFACE",
 			"LINK":   ["materials:SOLID"],
@@ -2480,7 +2478,6 @@
 						"[TLCM_NOUN:chitin:SINGULAR]"]
 			}
 		},
-
 		"INSULATION_FAT":    {"__comment": "Materials = [BASE] (should it pick?),       Tissues = [thin, average, thick]",
 			"TYPE":   "INSULATION",
 			"REPEAT": {
@@ -2529,7 +2526,6 @@
 				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
 			}
 		},
-
 		"MEAT_MUSCLE":       {"__comment": "Materials = [BASE] (should it pick?),       Tissues = [thin, average, thick]",
 			"TYPE":   "MEAT",
 			"REPEAT": {
@@ -2577,7 +2573,6 @@
 				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
 			}
 		},
-
 		"STRUCTURE_BONE":    {"__comment": "Materails = [Bone],                         Tissues = [thin, average, thick]",
 			"TYPE":   "STRUCTURE",
 			"LINK":   ["materials:SOLID"],
@@ -2616,7 +2611,6 @@
 				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
 			}
 		},
-
 		"SCAFOLD_CARTILAGE": {"__comment": "Materials = [BASE] (should it pick?),       Tissues = [BASE]",
 			"TYPE":   "SCAFOLDING",
 			"EXTERNAL": {
@@ -2648,7 +2642,6 @@
 				"TISSUES": ["[USE_TISSUE_TEMPLATE:#TYPE:#KEY]"]
 			}
 		},
-
 		"EYE_STANDARD":      {"__comment": "Materials = [BASE],                         Tissues = [BASE]",
 			"TYPE": "EYE",
 			"COLORS": {"BASE": ["ANY"]},
@@ -3437,14 +3430,14 @@
 		"4": {"n": 100, "r": "123:128:131:133:135:138:143", "d": ""},
 		"5": {"n": 100, "r": "156:161:164:166:168:171:176", "d": ""}
 	},
-	"activity":  {"__comment": "Activity tokens",
+	"activity":   {"__comment": "Activity tokens",
 		"1": {"n": 100, "r": "[ALL_ACTIVE]", "d": "active at all times"},
 		"2": {"n": 100, "r": "[DIURNAL]",    "d": "active during dawn and dusk"},
 		"3": {"n": 100, "r": "[MATUTINAL]",  "d": "active at dawn"},
 		"4": {"n": 100, "r": "[NOCTURNAL]",  "d": "active at night"},
 		"5": {"n": 100, "r": "[VESPERTINE]", "d": "active at dusk"}
 	},
-	"age":       {"__comment": "Baby age, child age, max age (years)",
+	"age":        {"__comment": "Baby age, child age, max age (years)",
 		"1": {"n": 5,   "BABY": "0",     "CHILD": "0",      "MAX": "1:1",                 "d": "unbelievably short lived"},
 		"2": {"n": 10,  "BABY": "$0:1$", "CHILD": "2",      "MAX": "3:3",                 "d": "extremely short lived"},
 		"3": {"n": 25,  "BABY": "$1:2$", "CHILD": "$3:4$",  "MAX": "5:6",                 "d": "very short lived"},
@@ -3455,7 +3448,7 @@
 		"8": {"n": 10,  "BABY": "$3:5$", "CHILD": "$8:12$", "MAX": "$50:80$:$80:150$",    "d": "extremely long lived"},
 		"9": {"n": 5,   "BABY": "$3:5$", "CHILD": "$8:12$", "MAX": "$150:300$:$300:450$", "d": "unbelievably long lived"}
 	},
-	"size":      {"__comment": "new born size, child size, adult size, trade capacity",
+	"size":       {"__comment": "new born size, child size, adult size, trade capacity",
 		"1": {"n": 100, "BABY": "$100:300$",     "CHILD": "$300:500$",       "ADULT": "$500:800$",         "TRADE": "$X:X$", "d": "tiny"},
 		"2": {"n": 100, "BABY": "$300:600$",     "CHILD": "$900:1500$",      "ADULT": "$1500:3000$",       "TRADE": "$X:X$", "d": "very small"},
 		"3": {"n": 100, "BABY": "$1000:2000$",   "CHILD": "$3000:10000$",    "ADULT": "$10000:20000$",     "TRADE": "$X:X$", "d": "small"},
@@ -3465,7 +3458,7 @@
 		"7": {"n": 100, "BABY": "$32000:48000$", "CHILD": "$160000:320000$", "ADULT": "$800000:1600000$",  "TRADE": "$X:X$", "d": "huge"},
 		"8": {"n": 100, "BABY": "$48000:64000$", "CHILD": "$320000:640000$", "ADULT": "$2000000:5000000$", "TRADE": "$X:X$", "d": "gigantic"}
 	},
-	"speed":     {"__comment": "!!!!!! NEED TO FIGURE THIS OUT !!!!! Just picked 8 speeds semi-randomly",
+	"speed":      {"__comment": "!!!!!! NEED TO FIGURE THIS OUT !!!!! Just picked 8 speeds semi-randomly",
 		"1": {"n": 10,  "r": "9000:8900:8825:8775:9500:9900", "d": "extremely slow"},
 		"2": {"n": 50,  "r": "4122:3330:2541:975:5411:7233",  "d": "very slow"},
 		"3": {"n": 250, "r": "1683:1315:947:516:2800:4100",   "d": "slow"},

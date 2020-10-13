@@ -1,0 +1,27 @@
+BUILDING Script Tests Starting
+building/create checks starting
+building/create -location [ 23 23 177 ] -type Workshop -subtype Quern
+
+building/create -location [ 33 16 177 ] -type Workshop -subtype SCREW_PRESS
+
+building/create -location [ 13 28 177 ] -type Workshop -subtype MASONS
+...iles\Desktop\DF\DF_44_12/raw/scripts/building/create.lua:48: attempt to index a nil value (global 'building')
+stack traceback:
+	...iles\Desktop\DF\DF_44_12/raw/scripts/building/create.lua:48: in global 'createBuilding'
+	...iles\Desktop\DF\DF_44_12/raw/scripts/building/create.lua:99: in local 'main'
+	...iles\Desktop\DF\DF_44_12/raw/scripts/building/create.lua:103: in local 'script_code'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:62: in function <C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+FAILED: create
+Failed to create WORKSHOP:MASONS
+building/create checks finished
+
+building/change_subtype checks starting
+NOT CHECKED: change_subtype
+building/change_subtype checks finished
+

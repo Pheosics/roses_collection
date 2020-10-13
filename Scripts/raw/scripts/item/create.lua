@@ -4,21 +4,18 @@ local usage = [====[
 item/create
 ===========
 Purpose::
-    Creates an item and it's cooresponding item table for tracking
+    Creates an item and its cooresponding item table for tracking
 
-Function Calls::
-    item.create
-      
 Arguments::
-    -creator     UNIT_ID
+    -creator #ID
         id of creator unit, set to 0 if not present
-    -item        ITEM_TYPE:ITEM_SUBTYPE
+    -item ITEM_TYPE:ITEM_SUBTYPE
         Item to be created
-    -material    MATERIAL_TYPE:MATERIAL_SUBTYPE
+    -material MATERIAL_TYPE:MATERIAL_SUBTYPE
         Material to make item out of
-    -quality     #
+    -quality #(0-7)
         Quality to create the item at
-    -dur         #
+    -dur #ticks
         Length of time for item to exist
     -matchingGloves
         If present it will create two gloves with correct handedness
@@ -29,36 +26,42 @@ Examples::
     item/create -item WEAPON:ITEM_WEAPON_SWORD_SHORT -material INORGANIC:SUPER_INORGANIC -quality 7 -dur 3600
 ]====]
 
-local utils = require 'utils'
+local utils = require "utils"
 validArgs = utils.invert({
- 'help',
- 'creator',
- 'material',
- 'item',
- 'matchingGloves',
- 'matchingShoes',
- 'dur',
- 'quality',
+    "help",
+    "creator",
+    "material",
+    "item",
+    "matchingGloves",
+    "matchingShoes",
+    "dur",
+    "quality",
 })
 local args = utils.processArgs({...}, validArgs)
+local error_str = "Error in item/create - "
 
 if args.help then
- print(usage)
- return
+    print(usage)
+    return
 end
 
-if not args.creator then
- args.creator = 0
-end
-local item1 = dfhack.script_environment('functions/item').create(args.item,args.material,args.creator,args.quality,args.dur)
+dur = tonumber(args.dur) or 0
+if dur < 0 then return end
+
+if not args.item then error(error_str .. "No item declared") end
+if not args.material then error(error_str .. "No material declared") end
+
+item1 = dfhack.script_environment("functions/item").create(args.item,args.material,args.creator,args.quality)
 if args.matchingGloves or args.matchingShoes then
- if args.matchingGloves then
-  item1 = df.item.find(item1)
-  item1:setGloveHandedness(1);
- end
- local item2 = dfhack.script_environment('functions/item').create(args.item,args.material,args.creator,args.quality,args.dur)
- if args.matchingGloves then
-  item2 = df.item.find(item2)
-  item2:setGloveHandedness(2);
- end
+    item2 = dfhack.script_environment("functions/item").create(args.item,args.material,args.creator,args.quality)
+    if args.matchingGloves then 
+        df.item.find(item1.id):setGloveHandedness(1) 
+        df.item.find(item2.id):setGloveHandedness(1) 
+    end
+end
+
+if dur > 0 then
+    cmd = "item/destroy"
+    dfhack.script_environment("persist-delay").commandDelay(dur,cmd .. " -item " .. tostring(item1.id))
+    if item2 then dfhack.script_environment("persist-delay").commandDelay(dur,cmd .. " -item " .. tostring(item2.id)) end
 end

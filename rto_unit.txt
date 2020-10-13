@@ -1,0 +1,63 @@
+UNIT Script Tests Starting
+unit/change_attribute checks starting
+unit/change-attribute -unit 409 -attribute [ STRENGTH +50 ]
+
+PASSED: change_attribute
+unit/change_attribute checks finished
+
+unit/attack checks starting
+unit/attack -defender 419 -attacker 409
+
+unit/attack -defender 419 -attacker 409 -attack PUNCH -target HEAD -number 10 -velocity 100 -delay 10
+
+FAILED: attack
+Failed to add 10 100 velocity punches to the head of defender - 0
+unit/attack checks finished
+
+unit/change_skill checks starting
+unit/change-skill -unit 409 -skill [ DODGING +5 ] -add
+
+unit/change-skill -unit 409 -skill [ MINING +500 ] -type Experience -add
+
+PASSED: change_skill
+unit/change_skill checks finished
+
+unit/change_action checks starting
+unit/change-action checks starting
+unit/change-action -unit 409 -data [ timer 500 ] -action All
+
+unit/change-action -unit 409 -action ALL -clear
+
+PASSED: change_action
+unit/change_action checks finished
+
+unit/butcher checks starting
+unit/butcher -unit 418
+...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:114: Error in unit/butcher - Unit is still alive and has not been ordered -kill
+stack traceback:
+	[C]: in function 'error'
+	...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:114: in local 'main'
+	...s\miles\Desktop\DF\DF_44_12/raw/scripts/unit/butcher.lua:150: in local 'script_code'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+
+unit/butcher -unit 418 -kill
+
+Pausing run_test.lua for 5 in-game ticks
+Resuming run_test.lua
+PASSED: butcher
+unit/butcher checks finished
+
+unit/propel checks starting
+unit/propel -unit 411 -velocity [ 0 0 100 ] -mode Fixed
+PASSED: propel
+unit/propel checks finished
+
+unit/change_body checks starting
+unit/change-body -unit 417 -bodyPart FLAG:SIGHT -status [ on_fire true ] -dur 50
+
+Pausing run_test.lua for 75 in-game ticks
+Resuming run_test.lua
+PASSED: change_body
+unit/change_body checks finished
+

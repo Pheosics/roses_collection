@@ -1,0 +1,57 @@
+ENTITY Script Tests Starting
+entity/change_resource checks starting
+entity/change-resource -entity 25 -remove -type CREATURE:PET -obj DRAGON:FEMALE
+...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:187: attempt to index a nil value (local 'resourceSubType')
+stack traceback:
+	...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:187: in method 'getResourceTables'
+	...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:251: in method 'removeCreature'
+	...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:238: in method 'removeResource'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:76: in global 'removeResource'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:106: in local 'main'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:113: in local 'script_code'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:62: in function <C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+entity/change-resource -entity 25 -add -type INORGANIC:METAL -obj ADAMANTINE
+
+entity/change-resource -entity 25 -remove -type ITEM:WEAPON -obj ITEM_WEAPON:ITEM_WEAPON_SWORD_SHORT
+...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:187: attempt to index a nil value (local 'resourceSubType')
+stack traceback:
+	...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:187: in method 'getResourceTables'
+	...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:278: in method 'removeItem'
+	...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:242: in method 'removeResource'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:76: in global 'removeResource'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:106: in local 'main'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:113: in local 'script_code'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:62: in function <C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+entity/change-resource -entity 25 -add -type ORGANIC:MEAT -obj DRAGON:MUSCLE
+
+entity/change-resource -entity 25 -add -type PRODUCT:ARMOR -obj ADAMANTINE
+...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:87: Cannot read field historical_entity.addProduct: not found.
+stack traceback:
+	[C]: in metamethod '__index'
+	...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:87: in metamethod '__index'
+	...les\Desktop\DF\DF_44_12/raw/scripts/functions/entity.lua:106: in method 'addResource'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:70: in global 'addResource'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:104: in local 'main'
+	...sktop\DF\DF_44_12/raw/scripts/entity/change-resource.lua:113: in local 'script_code'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\dfhack.lua:680: in function 'dfhack.run_script_with_env'
+	(...tail calls...)
+	[C]: in function 'dfhack.saferesume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:24: in upvalue 'do_resume'
+	C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:62: in function <C:\Users\miles\Desktop\DF\DF_44_12\hack\lua\gui\script.lua:51>
+	[C]: in ?
+
+PASSED: change_resource
+entity/change_resource checks finished
+
