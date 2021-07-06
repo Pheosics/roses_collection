@@ -16,7 +16,7 @@ function initTables(scripts,systems,test,verbose)
 	
 	-- Systems
 	Tables.Systems = {}
-	dfhack.color(COLOR_RED)
+	dfhack.color(COLOR_LIGHTRED)
 	if verbose > 3 then print("\nBeginning system load\n") end
 	for _,systemFile in pairs(systems) do
 		system = reqscript(systemFile)

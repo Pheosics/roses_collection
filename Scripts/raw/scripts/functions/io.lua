@@ -65,12 +65,18 @@ end
 
 -- Read raws and parse the information into a single table
 function readRaws(rawType,test,verbose)
+	local tokenCheck = ""
+	local fileName = ""
+	local baseSub = nil
+	local subTokens = nil
 	if rawType == "Building" then
 		tokenCheck = "[BUILDING"
 		filename = "building"
 	elseif rawType == "Creature" then
 		tokenCheck = "[CREATURE"
 		filename = "creature"
+		baseSub = "ALL"
+		subTokens = {"[CASTE", "[SELECT_CASTE"}
 	elseif rawType == "Item" then
 		tokenCheck = "[ITEM"
 		filename = "item"
@@ -129,8 +135,10 @@ function readRaws(rawType,test,verbose)
 		iofile:close()
 	
 		dataInfo[file] = {}
-		count = 1
-		endline = 1
+		local count = 1
+		local endline = 1
+		local token = ""
+		local subToken = baseSub or nil
 		for i,line in ipairs(data[file]) do
 			endline = i
 			sline = line:gsub("%s+","")
@@ -140,14 +148,68 @@ function readRaws(rawType,test,verbose)
 				ls = split(sline,":")[1]
 			end
 			if ls == tokenCheck then
-				dataInfo[file][count] = {split(split(sline,":")[2],"]")[1],i+1,0}
+				token = split(split(sline,":")[2],"]")[1]
+				if subToken then
+					dataInfo[file][count] = {token..":"..subToken,i+1,0}
+				else
+					dataInfo[file][count] = {token,i+1,0}
+				end
 				if count > 1 then
 					dataInfo[file][count-1][3] = i-1
 				end
 				count = count + 1
 			end
+			if subTokens then
+				for _, v in pairs(subTokens) do
+					if ls == v then
+						subToken = split(split(sline,":")[2],"]")[1]
+						dataInfo[file][count] = {token..":"..subToken,i+1,0}
+						if count > 1 then
+							dataInfo[file][count-1][3] = i-1
+						end
+						count = count + 1
+					end
+				end
+			end		
 		end
 		dataInfo[file][count-1][3] = endline
+		
+		if subTokens then
+			tempTable = {}
+			baseTable = {}
+			subTables = {}
+			nTables = {}
+			for _, v in pairs(dataInfo[file]) do
+				key = v[1]
+				k1 = split(key,":")[1]
+				k2 = split(key,":")[2]
+				nTables[k1] = nTables[k1] or 0
+				nTables[k1] = nTables[k1] + 1
+				if k2 == baseSub then
+					baseTable[k1] = baseTable[k1] or {}
+					baseTable[k1][#baseTable[k1]+1] = {nTables[k1], v[2], v[3]}
+				else
+					subTables[k1] = subTables[k1] or {}
+					subTables[k1][k2] = subTables[k1][k2] or {}
+					subTables[k1][k2][nTables[k1]] = {v[2], v[3]}
+				end
+			end
+			for k1, _ in pairs(baseTable) do
+				if subTables[k1] then
+					for k2, _ in pairs(subTables[k1]) do
+						for _, t in pairs(baseTable[k1]) do
+							subTables[k1][k2][t[1]] = {t[2], t[3]}
+						end
+						for _, t in pairs(subTables[k1][k2]) do
+							tempTable[#tempTable+1] = {k1..":"..k2, t[1], t[2]}
+						end
+					end
+				end
+			end
+			
+			dataInfo[file] = tempTable
+		end
+				
 	end
 	
 	return data, dataInfo, files
@@ -184,6 +246,15 @@ function decode_creatureToken(creatureToken)
 		end
 	end
 	return creatures
+end
+
+function find_creatureToken(unit_id)
+	local unit = df.unit.find(unit_id)
+	local race = unit.race
+	local caste = unit.caste
+	local creature_id = df.global.world.raws.creatures.all[race].creature_id
+	local caste_id = df.global.world.raws.creatures.all[race].caste[caste].caste_id
+	return creature_id..":"..caste_id
 end
 
 -- Return a table of inorganic material index's base on a token

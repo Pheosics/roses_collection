@@ -20,6 +20,7 @@ item_tests
 	{DESCRIPTION:test ON_EQUIP}
 	{ON_EQUIP}
 		{SCRIPT:devel/print-args ON_EQUIP ITEM_ID ITEM_TOKEN [ ITEM_LOCATION ] ITEM_HOLDER_ID:100}
+	{ATTRIBUTE:STRENGTH:5000}
 	[NAME:breastplate:breastplates]
 	[ARMORLEVEL:3]
 	[UBSTEP:0]

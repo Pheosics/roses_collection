@@ -53,6 +53,10 @@ Tokens = {
 
 }
 
+RawTokens = {
+	NAME = {Type="Main", Subtype="String", Name="Name", Purpose="Sets the name"},
+}
+
 ---- Eventful based functions
 EventfulFunctions = {
 	onJobInitiated = {

@@ -85,6 +85,7 @@ function UNIT:init(unit)
 	if tonumber(unit) then unit = df.unit.find(tonumber(unit)) end
 	self.id = unit.id
 	self._unit = unit
+	self.Token = reqscript("functions/io").find_creatureToken(unit.id)
 	self.Attributes = setmetatable({}, {__index = function (table, key) 
 													return UNIT_ATTRIBUTE({self._unit,key})
 												end})

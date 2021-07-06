@@ -50,13 +50,17 @@ Tokens = {
 						Names={Target=2, Syndrome=3, Change=4, Chance=5, Duration=6}},
 						
 	-- Script Tokens
-	SCRIPT           = {Type="Sub", Subtype="ScriptC", Name="Scripts",          Purpose="A dfhack script to run with a specific chance when triggered"},
+	SCRIPT           = {Type="Sub", Subtype="ScriptC", Name="ChanceScripts",    Purpose="A dfhack script to run with a specific chance when triggered"},
 	REPEATING_SCRIPT = {Type="Sub", Subtype="ScriptF", Name="RepeatingScripts", Purpose="A dfhack script to run with a specific frequency"},
 	
 	-- Special Tokens
 	---- Projectile Weapons
 	FIRE_RATE = {Type="OnShoot", Subtype="Named", Name="FireRate", Purpose="Adjust the fire rate for ranged weapons",
 				 Names={Base=2, Change=3, Max=4}},
+}
+
+RawTokens = {
+	NAME = {Type="Main", Subtype="String", Name="Name", Purpose="Sets the name"},
 }
 
 EventfulFunctions = {
@@ -74,7 +78,7 @@ EventfulFunctions = {
 		end
 	},
 	onUnitAttack = {
-		woundTrigger = function(attackerID,defenderID,wound)
+		woundTrigger_Item = function(attackerID,defenderID,wound)
 			local attacker = df.unit.find(attackerID)
 			local defender = df.unit.find(defenderID)
 			if not attacker or not defender then return end
@@ -184,9 +188,9 @@ function initialize()
 	-- How can I make this universal like the Eventful triggers so it doesn't have
 	-- to be different for each system? -ME
 	onItemAction = onItemAction or dfhack.event.new()
-	onItemProjectile = onItemProjectile or dfhack.event.new()
-
 	onItemAction.action = CustomFunctions.onItemAction.action
+	
+	onItemProjectile = onItemProjectile or dfhack.event.new()
 	onItemProjectile.shoot = CustomFunctions.onItemProjectile.shoot
 	onItemProjectile.fired = CustomFunctions.onItemProjectile.fired
 	
@@ -287,7 +291,7 @@ function itemTrigger(triggerTable, item, unitHolder, opponent, projectile)
 		unitHolder:setCounter("think_counter",math.max(rate,maxRate))
 	end
 	
-	if triggerTable.Scripts then
+	if triggerTable.ChanceScripts then
 		local scriptTable = {}
 		
 		-- Base Item Stuff (Always present)
@@ -313,7 +317,7 @@ function itemTrigger(triggerTable, item, unitHolder, opponent, projectile)
 			scriptTable.projectile_target_location = myIO.locationString(projectile.target_pos)
 		end
 		
-		for i,x in pairs(triggerTable.Scripts) do
+		for i,x in pairs(triggerTable.ChanceScripts) do
 			local script = x.Script
 			local chance = x.Chance or 100
 			if myMath.roll(chance) then
