@@ -86,6 +86,9 @@ function UNIT:init(unit)
 	self.id = unit.id
 	self._unit = unit
 	self.Token = reqscript("functions/io").find_creatureToken(unit.id)
+	self.Pronoun1, self.Pronoun2 = reqscript("functions/text").getPronoun(unit)
+	self._creatureRaws = df.global.world.raws.creatures.all[unit.race]
+	self._casteRaws = df.global.world.raws.creatures.all[unit.race].caste[unit.caste]
 	self.Attributes = setmetatable({}, {__index = function (table, key) 
 													return UNIT_ATTRIBUTE({self._unit,key})
 												end})
@@ -652,4 +655,502 @@ function UNIT_SKILL:getEffectiveValue(Type)
 		-- No custom skills yet
 	end
 	return value
+end
+
+--===============================================================================================--
+--== UNIT GUI FUNCTIONS =========================================================================--
+--===============================================================================================--
+function UNIT:getAttributesDescription(Type)
+	local strOut = ""
+	local pronoun = self.Pronoun
+	local attribute_string = reqscript("functions/text").attribute_string
+	
+	if Type == "Physical" then
+		plusStr  = ""
+		minusStr = ""
+		for attribute,_ in pairs(self._unit.body.physical_attrs) do
+			range = df.global.world.raws.creatures.all[self._unit.race].caste[self._unit.sex].attributes.phys_att_range[attribute]
+			value = self._unit.body.physical_attrs[attribute].value
+			tempstr, bin = attribute_string(attribute,value,range)
+			if     bin > 0 then
+				plusStr = plusStr..tempstr..", "
+			elseif bin < 0 then
+				minusStr = minusStr..tempstr..", "
+			end
+		end
+		plusStr = fixString(plusStr)
+		minusStr = fixString(minusStr)
+		if plusStr == "" and minusStr == "" then
+			strOut = pronoun.." is unremarkably average physically"
+		elseif plusStr == "" then
+			strOut = pronoun.." is "..minusStr
+		elseif minusStr == "" then
+			strOut = pronoun.." is "..plusStr
+		else
+			strOut = pronoun.." is "..plusStr..", but "..minusStr
+		end
+  
+	elseif Type == "Mental" then
+		plusStr  = ""
+		minusStr = ""
+		for attribute,_ in pairs(self._unit.status.current_soul.mental_attrs) do
+			range = df.global.world.raws.creatures.all[self._unit.race].caste[self._unit.sex].attributes.ment_att_range[attribute]
+			value = self._unit.status.current_soul.mental_attrs[attribute].value
+			tempstr, bin = attribute_string(attribute,value,range)
+			if     bin > 0 then
+				plusStr = plusStr..tempstr..", "
+			elseif bin < 0 then
+				minusStr = minusStr..tempstr..", "
+			end
+		end
+		plusStr = fixString(plusStr)
+		minusStr = fixString(minusStr)
+		if plusStr == "" and minusStr == "" then
+			strOut = pronoun.." has unremarkably average mental attributes"
+		elseif plusStr == "" then
+			strOut = pronoun.." has "..minusStr
+		elseif minusStr == "" then
+			strOut = pronoun.." has "..plusStr
+		else
+			strOut = pronoun.." has "..plusStr..", but "..minusStr
+		end 
+	end
+ 
+	return strOut
+end
+
+function UNIT:getAppearanceDescription()
+	local list = self:getAppearanceDetails()
+	local p1 = self.Pronoun1
+	local p2 = self.Pronoun2
+	local strings = {}
+	local strTemps = {}
+	local strOut = ""
+	local modifiers = reqscript("functions/text").modifiers
+	local styles = reqscript("functions/text").styles
+	local hair_string = reqscript("functions/text").hair_string
+	local color_string = reqscript("functions/text").color_string
+	
+	-- Need to actually generate the strings associated with the details
+	for bp, tbl in pairs(list) do
+		strings[bp] = {}
+		for x, y in pairs(tbl) do
+			if df.appearance_modifier_type[x] then
+				strings[bp][x] = modifiers[df.appearance_modifier_type[x]][y.Bin]
+			elseif x == "Color" then
+				strings[bp][x] = y.String
+			elseif x == "Style" then
+				strings[bp][x] = styles[df.tissue_style_type[y.Value]]
+			end
+		end
+	end
+
+	strTemps["Body"] = ""
+	if strings["Body"] then
+		s1 = ""
+		s2 = ""
+		a = strings["Body"].HEIGHT or ""
+		if a ~= "" then s1 = "is "..a end
+		b = strings["Body"].BROADNESS or ""
+		if b ~= "" then s2 = "a "..b.." frame" end
+		if s2 ~= "" and s1 == "" then
+			strTemps["Body"] = p1.." has "..s2..". "
+		elseif s1 ~= "" and s2 == "" then
+			strTemps["Body"] = p1.." "..s1..". "
+		elseif s1 ~= "" and s2 ~= "" then
+			strTemps["Body"] = p1.." "..s1.." with "..s2..". "
+		end
+	end
+	strTemps["Hair"] = ""
+	if strings["Hair"] then
+		if strings["Hair"].Style == "clean shaven" then
+			strTemps["Hair"] = p2.." hair is clean shaven. "
+		else
+			s1 = ""
+			a = strings["Hair"].LENGTH or ""
+			if a ~= "" then s1 = s1.." "..a.."," end
+			b = strings["Hair"].CURLY  or ""
+			if b ~= "" then s1 = s1.." "..b.."," end
+			c = strings["Hair"].DENSE  or ""
+			if c ~= "" then s1 = s1.." "..c.."," end
+			d = strings["Hair"].Style  or ""
+			if d ~= "" then s1 = s1.." "..d.."," end
+			s1 = fixString(s1)
+			e = strings["Hair"].Color  or ""
+			if e ~= "" and s1 ~= "" then s1 = e..", "..s1 end
+			if e ~= "" and s1 == "" then s1 = e end
+			if s1 ~= "" then strTemps["Hair"] = p2.." hair is "..s1..". " end
+		end
+	end
+	strTemps["Eyes"] = ""
+	if strings["Eyes"] then
+		s1 = ""
+		a = strings["Eyes"].LARGE_IRIS or ""
+		if a ~= "" then s1 = s1.." "..a.."," end
+		b = strings["Eyes"].DEEP_SET or ""
+		if b ~= "" then s1 = s1.." "..b.."," end
+		c = strings["Eyes"].CLOSE_SET or ""
+		if c ~= "" then s1 = s1.." "..c.."," end
+		d = strings["Eyes"].ROUND_VS_NARROW or ""
+		if d ~= "" then s1 = s1.." "..d.."," end
+		s1 = fixString(s1)
+		e = strings["Eyes"].Color or ""
+		if e ~= "" and s1 ~= "" then 
+			s1 = e..", "..s1 
+		elseif e ~= "" and s1 == "" then
+			s1 = e
+		end
+		if s1 ~= "" then strTemps["Eyes"] = p2.." eyes are "..s1..". " end
+	end
+	strTemps["Skin"] = ""
+	if strings["Skin"] then
+		s1 = ""
+		a = strings["Skin"].WRINKLY or ""
+		if a ~= "" then s1 = a..", " end
+		b = strings["Skin"].Color or ""
+		if b ~= "" then s1 = s1..b.." colored" end
+		if s1 ~= "" then strTemps["Skin"] = p1.." has "..s1.." skin. " end
+	end
+	strTemps["Skull"] = ""
+	if strings["skull"] then
+		s1 = ""
+		a = strings["skull"].BROAD_CHIN or ""
+		if a ~= "" then s1 = s1.." "..a.."," end
+		b = strings["skull"].SQUARE_CHIN or ""
+		if b ~= "" then s1 = s1.." "..b.."," end
+		c = strings["skull"].JUTTING_CHIN or ""
+		if c ~= "" then s1 = s1.." "..c.."," end
+		if s1 ~= "" then
+			s1 = fixString(s1)
+			strTemps["Skull"] = p2.." chin is "..s1..". "
+		end
+	end
+	strTemps["Head"] = ""
+	if strings["head"] then
+		s1 = ""
+		s2 = ""
+		a = strings["head"].HEIGHT or ""
+		b = strings["head"].BROADNESS or ""
+		if a ~= "" and b ~= "" then
+			s1 = a.." and "..b
+		else
+			s1 = a..b
+		end
+		c = strings["skull"].HIGH_CHEEKBONES or ""
+		if c ~= "" then s2 = c.." cheekbones" end
+		if s1 == "" and s2 ~= "" then
+			strTemps["Head"] = p2.." head has "..s2..". "
+		elseif s1 ~= "" and s2 == "" then
+			strTemps["Head"] = p2.." head is "..s1..". "
+		elseif s1 ~= "" and s2 ~= "" then
+			strTemps["Head"] = p2.." head is "..s1.." with "..s2..". "
+		end
+	end
+	strOut = strTemps["Body"]..strTemps["Skin"]..strTemps["Eyes"]..strTemps["Hair"]..strTemps["Head"]..strTemps["Skull"]
+
+	return strOut
+end
+
+function UNIT:getAppearanceDetails()
+	local raw = df.global.world.raws.creatures.all[unit.race].caste[unit.caste]
+	local patterns = df.global.world.raws.descriptors.patterns
+	local colors = df.global.world.raws.descriptors.colors
+	local appearance = unit.appearance
+
+	local body = {}
+	local skin = {}
+	local eyes = {}
+	local hair = {}
+	local ears = {}
+	local nose = {}
+	local otherColors = {}
+	local otherHairs = {}
+	local parts = {}
+ 
+	for i,style in pairs(raw.tissue_styles) do
+		for j,n in pairs(style.list_idx) do
+			otherHairs[style.noun] = {
+				PartName   = style.noun, 
+				StyleToken = df.tissue_style_type[appearance.tissue_style[n]]}
+			partN  = style.part_idx[j]
+			layerN = style.layer_idx[j]
+			bpart  = raw.body_info.body_parts[partN].layers[layerN]
+			for k,idx in pairs(bpart.bp_modifiers) do
+				x = raw.bp_appearance.modifier_idx[idx]
+				val = appearance.bp_modifiers[idx]
+				modifier = raw.bp_appearance.modifiers[x]
+				y = 6
+				for jdx,k in pairs(modifier.desc_range) do
+					if val < k then
+						y = jdx
+						break
+					end
+				end
+				y = y - 3
+		
+				Type = df.appearance_modifier_type[modifier.type]
+				otherHairs[style.noun][Type] = {}
+				otherHairs[style.noun][Type].n = val
+				otherHairs[style.noun][Type].y = y
+			end
+		end
+	end 
+	hair = otherHairs.hair
+	if not hair then hair = {} end
+		otherHairs.hair = nil
+
+	temp1 = {}
+	temp2 = {}
+	for i,n in pairs(appearance.colors) do
+		x = raw.color_modifiers[i].pattern_index[n]
+		part = raw.color_modifiers[i].part
+		if part == "skin" then 
+			skin.ColorToken = patterns[x].id
+			skin.ColorString = color_string(patterns[x])
+		elseif part == "eyes" then
+			eyes.ColorToken = patterns[x].id
+			eyes.ColorString = color_string(patterns[x])
+		elseif part == "hair" then
+			temp1[#temp1+1] = raw.color_modifiers[i]
+			temp2[#temp2+1] = n
+		else
+			colorstring = color_string(patterns[x])
+			partstring = raw.color_modifiers[i].part
+			otherColors[part] = {
+				PartName    = part, 
+				PartString  = partstring, 
+				ColorToken  = patterns[x].id, 
+				ColorString = colorstring}
+		end
+	end
+	if #temp1 == 1 then
+		x = temp1[1].pattern_index[temp2[1]]
+		hair.ColorToken = patterns[x].id
+		hair.ColorString = colors[patterns[x].colors[0]].name
+	else
+		unitAge = dfhack.units.getAge(unit)*336
+		mod1 = 1
+		mod2 = 1
+		found = false
+		for i,mod in pairs(temp1) do
+			if unitAge >= mod.start_date and unitAge <= mod.end_date then
+				mod1 = i-1
+				mod2 = i
+				found = true
+			elseif not found and unitAge > mod.end_date then
+				mod1 = i
+				mod2 = i
+			end
+		end
+		x = temp1[mod2].pattern_index[temp2[mod2]]
+		y = temp1[mod1].pattern_index[temp2[mod1]]
+		hair.ColorToken = patterns[x].id
+		if mod1 == mod2 then
+			hair.ColorString = colors[patterns[x].colors[0]].name
+		else
+			d = (temp1[mod2].end_date - temp1[mod2].start_date)/6
+			bin = 6
+			for i = 1,6 do
+				if unitAge < temp1[mod2].start_date + i*d then
+					bin = i
+					break
+				end
+			end
+			hair.ColorString = hair_string(bin,x,y)
+		end
+	end
+ 
+	for i,n in pairs(appearance.bp_modifiers) do
+		x = raw.bp_appearance.modifier_idx[i]
+		modifier = raw.bp_appearance.modifiers[x]
+		partname = modifier.noun
+		y = 6
+		for j,k in pairs(modifier.desc_range) do
+			if n < k then
+				y = j
+				break
+			end
+		end
+		y = y - 3
+		if partname == "" then
+			pn = modifier.body_parts[0]
+			bodypart = raw.body_info.body_parts[pn]
+			partname = bodypart.name_singular[0].value
+		end
+		if partname == "eyes" then
+			eyes[df.appearance_modifier_type[modifier.type]] = {}
+			eyes[df.appearance_modifier_type[modifier.type]].n = n
+			eyes[df.appearance_modifier_type[modifier.type]].y = y
+		elseif partname == "ears" then
+			ears[df.appearance_modifier_type[modifier.type]] = {}
+			ears[df.appearance_modifier_type[modifier.type]].n = n
+			ears[df.appearance_modifier_type[modifier.type]].y = y
+		elseif partname == "nose" then
+			nose[df.appearance_modifier_type[modifier.type]] = {}
+			nose[df.appearance_modifier_type[modifier.type]].n = n
+			nose[df.appearance_modifier_type[modifier.type]].y = y
+		elseif partname == "hair" then
+			-- Skip hair, already did it
+		elseif partname == "skin" then
+			if df.appearance_modifier_type[modifier.type] == "WRINKLY" then -- Why did I seperate this out?
+				skin.Wrinkles_n = n
+				skin.Wrinkles_y = y
+			end
+		else
+			parts[partname] = parts[partname] or {}
+			parts[partname][df.appearance_modifier_type[modifier.type]] = parts[partname][df.appearance_modifier_type[modifier.type]] or {}
+			parts[partname][df.appearance_modifier_type[modifier.type]].n = n
+			parts[partname][df.appearance_modifier_type[modifier.type]].y = y
+		end
+	end
+ 
+	for i,n in pairs(appearance.body_modifiers) do
+		modifier = raw.body_appearance_modifiers[i]
+		y = 6
+		for j,k in pairs(modifier.desc_range) do
+			if n < k then
+				y = j
+				break
+			end
+		end
+		y = y - 3
+		body[df.appearance_modifier_type[modifier.type]] = body[df.appearance_modifier_type[modifier.type]] or {}
+		body[df.appearance_modifier_type[modifier.type]].n = n
+		body[df.appearance_modifier_type[modifier.type]].y = y
+	end
+ 
+	local list = {}
+	-- Body appearance
+	list.Body = {}
+	for Type,_ in pairs(body) do
+		list.Body[Type] = {Part="Body", Type=Type, Value=body[Type].n, Bin=body[Type].y, _colorBin=body[Type].y}
+		list.Body[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Body[Type].Bin]  
+	end
+	-- Skin appearance
+		list.Skin = {}
+		list.Skin.Color   = {
+			Part = "Skin",
+			Type = "Color",
+			Value = skin.ColorToken, 
+			Bin = "--", 
+			String = skin.ColorString}
+		list.Skin.WRINKLY = {
+			Part = "Skin",
+			Type = "WRINKLY",
+			Value = skin.Wrinkles_n, 
+			Bin = skin.Wrinkles_y}
+		list.Skin.WRINKLY.String = modifiers[df.appearance_modifier_type.WRINKLY][skin.Wrinkles_y]
+	-- Eye appearance
+	list.Eyes = {}
+	list.Eyes.Color = {
+		Part = "Eyes",
+		Type = "Color", 
+		Value = eyes.ColorToken, 
+		Bin = "--", 
+		String = eyes.ColorString}
+	for Type,_ in pairs(eyes) do
+		if Type ~= "ColorToken" and Type ~= "ColorString" then
+			list.Eyes[Type] = {
+				Part = "Eyes", 
+				Type = Type, 
+				Value = eyes[Type].n, 
+				Bin = eyes[Type].y, 
+				_colorBin = eyes[Type].y}
+			list.Eyes[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Eyes[Type].Bin]
+		end
+	end
+	-- Hair appearance
+	list.Hair = {}
+	list.Hair.Color = {
+		Part="Hair", 
+		Type="Color", 
+		Value=hair.ColorToken, 
+		Bin="--", 
+		String=hair.ColorString}
+	list.Hair.Style = {
+		Part="Hair", 
+		Type="Style", 
+		Value=hair.StyleToken, 
+		Bin="--", 
+		String=styles[df.tissue_style_type[hair.StyleToken]]}
+	for Type,_ in pairs(hair) do
+		if Type ~= "ColorToken" and Type ~= "ColorString" and Type ~= "StyleToken" and Type ~= "PartName" then
+			list.Hair[Type] = {
+				Part="Hair", 
+				Type=Type, 
+				Value=hair[Type].n, 
+				Bin=hair[Type].y, 
+				_colorBin=hair[Type].y}
+			list.Hair[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Hair[Type].Bin]
+		end
+	end
+	-- Ear appearance
+	list.Ears = {}
+	for Type,_ in pairs(ears) do
+		list.Ears[Type] = {
+			Part="Ears", 
+			Type=Type, 
+			Value=ears[Type].n, 
+			Bin=ears[Type].y, 
+			_colorBin=ears[Type].y}
+		list.Ears[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Ears[Type].Bin]
+	end 
+	-- Nose appearance
+	list.Nose = {}
+	for Type,_ in pairs(nose) do
+		list.Nose[Type] = {
+			Part="Nose", 
+			Type=Type, 
+			Value=nose[Type].n, 
+			Bin=nose[Type].y, 
+			_colorBin=nose[Type].y}
+		list.Nose[Type].String = modifiers[df.appearance_modifier_type[Type]][list.Nose[Type].Bin]
+	end
+	-- Other colors
+	list.OtherColors = {}
+	for i,other in pairs(otherColors) do
+		--list.OtherColors[i] = {}
+		list.OtherColors[i] = {
+			Part=other.PartName, 
+			Type="Color", 
+			Value=other.ColorToken, 
+			Bin="--", 
+			String=other.ColorString}
+	end
+	-- Other hair styles (can they be colored differently???)
+	for i,other in pairs(otherHairs) do
+		list[i] = {}
+		list[i].Style = {
+			Part=other.PartName, 
+			Type="Style", 
+			Value=other.StyleToken, 
+			Bin="--", 
+			String=styles[df.tissue_style_type[other.StyleToken]]}
+		for Type,_ in pairs(other) do
+			if Type ~= "StyleToken" and Type ~= "PartName" then
+				list[i][Type] = {
+					Part=other.PartName, 
+					Type=Type, 
+					Value=other[Type].n, 
+					Bin=other[Type].y, 
+					_colorBin=other[Type].y}
+				list[i][Type].String = modifiers[df.appearance_modifier_type[Type]][list[i][Type].Bin]
+			end
+		end
+	end
+	-- Body part modifier(s)
+	for i,part in pairs(parts) do
+		list[i] = {}
+		for j,Type in pairs(part) do
+			list[i][j] = {
+				Part=i, 
+				Type=j, 
+				Value=Type.n, 
+				Bin=Type.y, 
+				_colorBin=Type.y}
+			list[i][j].String = modifiers[df.appearance_modifier_type[j]][list[i][j].Bin]
+		end
+	end
+ 
+	return list
 end

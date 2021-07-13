@@ -305,3 +305,110 @@ function BUILDING:isOutside()
 	end
 	return outside
 end
+
+--===============================================================================================--
+--== GUI BUILDING FUNCTIONS =====================================================================--
+--===============================================================================================--
+local function tchelper(first, rest)
+  return first:upper()..rest:lower()
+end
+
+function getTypeList(filter)
+	filter = filter or "ALL"
+	local list = {}
+	for k, _ in pairs(hardcoded_bldgs) do
+		if filter == "ALL" then
+			list[#list+1] = k
+		end
+	end
+	return list
+end
+
+function getBuildingList(buildingType)
+	local list = {}
+	for k, _ in pairs(hardcoded_bldgs[buildingType]) do
+		list[#list+1] = k
+	end
+	return list
+end
+
+function getBuildingInfo(building)
+	local info  = {}
+	local n = 0
+	local bldgRaw = df.building_def.find(building)
+
+	-- Vanilla building entries
+	info.Name = {}
+	info.Name._string = bldgRaw.name
+	info.Name._color = {
+		fg = bldgRaw.name_color[0],
+		bg = bldgRaw.name_color[1],
+		bold = bldgRaw.name_color[2]}
+
+
+	info.Dimensions = tostring(bldgRaw.dim_x).." by "..tostring(bldgRaw.dim_y)
+	info.Build_Labor = bldgRaw.labor_description
+	
+	info.BuildItems = {}
+	for i,item in pairs(bldgRaw.build_items) do
+		info.BuildItems[i] = {}
+		info.BuildItems[i]._listHead = "Quantity"
+		info.BuildItems[i]._title = tostring(item.quantity)
+		if item.mat_type == -1 then
+			info.BuildItems[i].Material = "Any"
+		else
+			info.BuildItems[i].Material = dfhack.matinfo.decode(item.mat_type,item.mat_index):toString()
+			info.BuildItems[i].Material = info.BuildItems[i].Material:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+		end
+		if item.item_type >= 0 and item.item_subtype >= 0 then
+			info.BuildItems[i].Item = dfhack.items.getSubtypeDef(item.item_type,item.item_subtype).name
+		else
+			info.BuildItems[i].Item = df.item_type[item.item_type]
+		end
+		info.BuildItems[i].Item  = info.BuildItems[i].Item:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+		info.BuildItems[i]._second = {}
+		info.BuildItems[i]._second[1] = {}
+		info.BuildItems[i]._second[1]._listHead = "Flags"
+		n = 0
+		for flag,bool in pairs(item.flags1) do
+			if bool then
+				n = n + 1
+				info.BuildItems[i]._second[1][n] = flag:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+			end
+		end
+		for flag,bool in pairs(item.flags2) do
+			if bool then
+				n = n + 1
+				info.BuildItems[i]._second[1][n] = flag:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+			end
+		end
+		for flag,bool in pairs(item.flags3) do
+			if bool then
+				n = n + 1
+				info.BuildItems[i]._second[1][n] = flag:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+			end
+		end
+	end
+
+ 
+	info.Reactions = {}
+	info.Reactions._header = "Reactions"
+	info.Reactions._second = {}
+	n = 0
+	for _,reaction in pairs(df.global.world.raws.reactions.reactions) do
+		for i,id in pairs(reaction.building.custom) do
+			if id ~= -1 then
+				ctype = id
+				mtype = reaction.building.type[i]
+				stype = reaction.building.subtype[i]
+				if ctype == bldgRaw.id and 
+				   mtype == bldgRaw.building_type and 
+				   stype == bldgRaw.building_subtype then
+					n = n + 1
+					info.Reactions._second[n] = reaction.name
+					break
+				end
+			end
+		end
+	end
+end
