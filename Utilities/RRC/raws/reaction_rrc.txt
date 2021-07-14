@@ -1,3 +1,0 @@
-reaction_rrc
-
-[OBJECT:REACTION]
