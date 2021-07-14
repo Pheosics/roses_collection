@@ -1,0 +1,3 @@
+item_weapon_rrc
+
+[OBJECT:ITEM]

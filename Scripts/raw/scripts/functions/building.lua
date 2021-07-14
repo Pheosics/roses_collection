@@ -316,9 +316,23 @@ end
 function getTypeList(filter)
 	filter = filter or "ALL"
 	local list = {}
-	for k, _ in pairs(hardcoded_bldgs) do
-		if filter == "ALL" then
-			list[#list+1] = k
+	--for k, _ in pairs(hardcoded_bldgs) do
+	--	if filter == "ALL" then
+	--		list[k] = {}
+	--		list[k]._title = k
+	--		list[k].ID = k
+	--	end
+	--end
+	Tables = {df.global.world.raws.buildings} -- all, workshops, and furnaces
+	badTables = {}
+	badTables['next_id'] = true
+	for _,Table in pairs(Tables) do
+		for bldgType,bldgTable in pairs(Table) do
+			if not badTables[bldgType] then
+				list[bldgType] = {}
+				list[bldgType]._title = bldgType
+				list[bldgType].ID = bldgType
+			end
 		end
 	end
 	return list
@@ -326,8 +340,22 @@ end
 
 function getBuildingList(buildingType)
 	local list = {}
-	for k, _ in pairs(hardcoded_bldgs[buildingType]) do
-		list[#list+1] = k
+	--for k, _ in pairs(hardcoded_bldgs[buildingType]) do
+	--	list[#list+1] = k
+	--end
+	Tables = {df.global.world.raws.buildings} -- all, workshops, and furnaces
+	badTables = {}
+	badTables['next_id'] = true
+	for _,Table in pairs(Tables) do
+		for bldgType,bldgTable in pairs(Table) do
+			if not badTables[bldgType] and bldgType == buildingType then
+				for j,bldg in pairs(bldgTable) do
+					list[bldg.id] = {}
+					list[bldg.id]._title = bldg.name
+					list[bldg.id].ID = bldg.code
+				end
+			end
+		end
 	end
 	return list
 end
@@ -411,4 +439,5 @@ function getBuildingInfo(building)
 			end
 		end
 	end
+	return info
 end

@@ -246,38 +246,21 @@ end
 --===============================================================================================--
 --== GUI CLASSES ================================================================================--
 --===============================================================================================--
-local GUI = defclass(GUI, gui.FramedScreen)
-local WIDGET = defclass(WIDGET)
-function makeGUI(mainViewDetails, subViewDetails) return GUI(mainViewDetails, subViewDetails) end
+GUI = defclass(GUI, gui.FramedScreen)
+WIDGET = defclass(WIDGET)
 
 --===============================================================================================--
 --== GUI FUNCTIONS ==============================================================================--
 --===============================================================================================--
-function GUI:__index(key)
-	if rawget(self,key) then return rawget(self,key) end
-	if rawget(GUI,key) then return rawget(GUI,key) end
-end
-function GUI:init(mainViewDetails, subViewDetails)
-	self.ColorScheme = "DEFAULT"
-	self.ColorsText  = "Default"
-	self.ViewDetails = {
-		main = mainViewDetails
-		helpView = {
-			name = "Help",
-			levels = 1
-			num_cols = 1, 
-			num_rows = 1,
-			widths = {
-				{120}},
-			heights = {
-				{60}},
-			fill = {nil}
-		}
-	}
-	for k, vd in pairs(subViewDetails or {}) do
-		self.ViewDetails[k] = vd
-	end
-
+--function GUI:__index(key)
+--	if rawget(self,key) then return rawget(self,key) end
+--	if rawget(GUI,key) then return rawget(GUI,key) end
+--	return self.super[key]
+--end
+function GUI:init(input)
+	self:setViewDetails(input[1], input[2])
+	self:setFillFunction(input[3])
+	
 	-- Top UI
 	self:addviews{
 		widgets.Panel{
@@ -320,19 +303,46 @@ function GUI:init(mainViewDetails, subViewDetails)
 	}
 	self.subviews.bottomView.visible = true -- Always true
 	
+	-- Create Frames
+	for v,vd in pairs(self.ViewDetails) do
+		self:addScreen(v)
+	end
+
+	-- Fill Frames
+	for v,_ in pairs(self.ViewDetails) do
+		self:fillView(v)
+	end
+ 
+	self:viewChange('main')
+end
+
+function GUI:setViewDetails(mainViewDetails, subViewDetails)
+	self.ColorScheme = "DEFAULT"
+	self.ColorsText  = "Default"
+	self.ViewDetails = {
+		main = mainViewDetails,
+		helpView = {
+			name = "Help",
+			levels = 1,
+			num_cols = 1, 
+			num_rows = 1,
+			widths = {
+				{120}},
+			heights = {
+				{60}},
+			fill = {nil}
+		}
+	}
+	for k, vd in pairs(subViewDetails or {}) do
+		self.ViewDetails[k] = vd
+	end
+	
 	self.ViewFilterValue = {}
 	self.ScreenName = {}
 	self.ExtraScripts = {}
 	self.baseChoices = {}
 	self.SelectedToken = ""
-end
-
-function GUI:setFillFunction(fnct)
-	self.FillFunction = fnct
-end
-
-function GUI:finalize()
-	-- Process the view details
+	
 	for view, vd in pairs(self.ViewDetails) do
 		self.ScreenName[view] = vd.name or view
   
@@ -371,8 +381,25 @@ function GUI:finalize()
 	end
 end
 
+function GUI:setFillFunction(fnct)
+	self.FillFunction = fnct
+end
+
 function GUI:addViewDetails(subViewName, subViewDetails)
 	self.ViewDetails[subViewName] = subViewDetails
+end
+
+function GUI:addScreen(view_id)
+ local grid = self:getPositioning(view_id)
+ self:addviews{
+   widgets.Panel{
+     view_id     = view_id,
+     frame       = { l = 0, r = 0 },
+     frame_inset = 1,
+     subviews    = grid
+   }
+ }
+ self.subviews[view_id].CurrentLevel = 1
 end
 
 function GUI:getPositioning(view_id)
@@ -489,7 +516,7 @@ function GUI:fillView(view_id, token)
 		if v.fill[cell] and not string.find(v.fill[cell],"on_submit")
 		                and not string.find(v.fill[cell],"on_select")
 		                and not string.find(v.fill[cell],"group") then
-			choices = self:initializeChoices(view_id, cell)
+			choices = self:initializeChoices(v, cell)
 			choices = self.FillFunction(choices, check, token)
 			local n = view_id .. "_" .. tostring(cell)
 			self.subviews[n]:setChoices(choices.Input)
@@ -514,7 +541,7 @@ function GUI:fillOnSubmit(_, selection)
 			end
 		end
 		if not cell then return end
-		choices = self:initializeChoices(view_id, cell)
+		choices = self:initializeChoices(v, cell)
 		choices = self.FillFunction(choices, selection)
 		local n = view_id.."_"..tostring(cell)
 		self.subviews[n]:setChoices(choices.Input)
@@ -547,7 +574,7 @@ function GUI:fillOnSelect(_, selection)
 			end
 		end
 		if not cell then return end
-		choices = self:initializeChoices(view_id, cell)
+		choices = self:initializeChoices(v, cell)
 		choices = self.FillFunction(choices, selection)
 		n = view_id.."_"..tostring(cell)
 		self.subviews[n]:setChoices(choices.Input)
@@ -560,7 +587,7 @@ function GUI:fillGroup(view_id, group, selection)
 	local v = self.ViewDetails[view_id]
 	for _,cellName in pairs(group) do
 		cell = self:getCell(view_id,cellName)
-		choices = self:initializeChoices(view_id, cell)
+		choices = self:initializeChoices(v, cell)
 		choices = self.FillFunction(choices, selection)
 		n = view_id.."_"..tostring(cell)
 		self.subviews[n]:setChoices(choices.Input)
@@ -733,6 +760,8 @@ function GUI:updateTop(screen)
 		table.insert(text, {text="Filter: ", pen=COLOR_LIGHTGREEN})
 		table.insert(text, {text=ft.." "})
 		table.insert(text, {key="HELP", text=": Help", on_activate = self:callback("fillHelp")})
+		print(screen)
+		printall(self)
 	self.subviews.top_ui:setText(text)
 end
 
@@ -846,7 +875,7 @@ end
 function GUI:initializeChoices(viewDetails, cell_id)
 	-- Get the view_id
 	local view_id = viewDetails.viewScreen
-	
+
 	-- Get the cell name
 	local what = viewDetails.fill[cell_id]
 	local twhat = split(what,':')[1]
@@ -863,10 +892,57 @@ function GUI:initializeChoices(viewDetails, cell_id)
 	-- Get the width of the cell
 	x, y = get_xy_cell(viewDetails.num_cols,viewDetails.num_rows,cell_id,-1)
 	local w = viewDetails.widths[x][y]
-	
-	return WIDGET(view_id, {cell_id, what, width}, keyed)
+	local cell = {cell_id, what, w}
+	return WIDGET({view_id, cell, keyed})
 end
 
+function GUI:onInput(keys)
+ if keys.LEAVESCREEN then
+  if self.ExternalCall and args.target1 and args.target2 then
+   self:dismiss()
+  end
+  view_id = self:getCurrentView()
+  if view_id == 'main' then
+   self:dismiss()
+  else
+   v = self.ViewDetails[view_id]
+   levels = v.levels or 1
+   if self.subviews[view_id].CurrentLevel == 1 then
+    if self.ExternalCall then
+     self:dismiss()
+    else
+     self:viewChange(self.PreviousView)
+    end
+   else
+    cn = view_id..'_'..tostring(self.subviews[view_id].CurrentLevel)
+    pn = view_id..'_'..tostring(self.subviews[view_id].CurrentLevel-1)
+    self.subviews[view_id].CurrentLevel = self.subviews[view_id].CurrentLevel - 1
+    self.subviews[cn].active = false
+    self.subviews[pn].active = true
+   end
+  end
+ elseif keys.CURSOR_LEFT then
+  view_id = self:getCurrentView()
+  if self.subviews[view_id].CurrentLevel == 1 then return end -- Do nothing if at the lowest level
+  cn = view_id..'_'..tostring(self.subviews[view_id].CurrentLevel)
+  pn = view_id..'_'..tostring(self.subviews[view_id].CurrentLevel-1)
+  self.subviews[view_id].CurrentLevel = self.subviews[view_id].CurrentLevel - 1
+  self.subviews[cn].active = false
+  self.subviews[pn].active = true
+ elseif keys.CURSOR_RIGHT then
+  view_id = self:getCurrentView()
+  v = self.ViewDetails[view_id]
+  levels = v.levels or 1
+  if self.subviews[view_id].CurrentLevel == levels then return end -- Do nothing if at the highest level
+  cn = view_id..'_'..tostring(self.subviews[view_id].CurrentLevel)
+  pn = view_id..'_'..tostring(self.subviews[view_id].CurrentLevel+1)
+  self.subviews[view_id].CurrentLevel = self.subviews[view_id].CurrentLevel + 1
+  self.subviews[cn].active = false
+  self.subviews[pn].active = true  
+ else
+  GUI.super.onInput(self, keys)
+ end
+end
 --===============================================================================================--
 --== WIDGET FUNCTIONS ===========================================================================--
 --===============================================================================================--
@@ -874,7 +950,10 @@ function WIDGET:__index(key)
 	if rawget(self,key) then return rawget(self,key) end
 	if rawget(WIDGET,key) then return rawget(WIDGET,key) end
 end
-function WIDGET:init(view_id, cell, keyed)
+function WIDGET:init(input)
+	local view_id = input[1]
+	local cell = input[2]
+	local keyed = input[3]
 	self.Input = {}
 	self.ViewID = view_id
 	self.CellNumber = cell[1]
@@ -898,7 +977,7 @@ function WIDGET:insert(Type, list, options)
 	else
 		widget_options = {}
 	end
-	for k, v in pairs(options) do
+	for k, v in pairs(options or {}) do
 		widget_options[k] = v
 	end
 	if self.Keyed then
@@ -1100,6 +1179,7 @@ function WIDGET:insertHeader(list, options)
 end
 
 function WIDGET:insertTable(list, options)
+	local colors  = self.Colors
  local nohead     = options.nohead or false
  local width      = options.width or 40
  local token      = options.token
@@ -1247,6 +1327,7 @@ function WIDGET:insertTable(list, options)
 end
 
 function WIDGET:insertList(list, options)
+	local colors  = self.Colors
  local width      = options.width or 40
  local viewScreen = options.view_id
  local viewCell   = options.cell
