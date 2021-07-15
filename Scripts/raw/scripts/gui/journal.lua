@@ -28,161 +28,161 @@ mainViewDetails = {
 		"Inorganics", "Items",     "Organics",  "Plants",    nil,
 		"Products",   "Reactions", "Religions", "Syndromes", nil},
 	functions = { --  {Function Name, Function Inputs, Function Key}
-		Buildings   = {"viewChange",  "buildingView",  "B"}
---		Creatures   = {function () self:viewChange("creatureView")  end, "C"},
---		Entities    = {function () self:viewChange("entityView")    end, "E"},
---		Inorganics  = {function () self:viewChange("inorganicView") end, "n"},
---		Items       = {function () self:viewChange("itemView")      end, "I"},
---		Organics    = {function () self:viewChange("organicView")   end, "O"},
---		Reactions   = {function () self:viewChange("reactionView")  end, "R"},
---		Plants      = {function () self:viewChange("plantView")     end, "P"},
---		Products    = {function () self:viewChange("productView")   end, "r"},
---		Religions   = {function () self:viewChange("religionView")  end, "g"},
---		Syndromes   = {function () self:viewChange("syndromeView")  end, "S"},
---		Arts        = {function () self:viewChange("artView")       end, "A"},
+		Buildings   = {"viewChange", "buildingView",  "B"},
+		Creatures   = {"viewChange", "creatureView",  "C"},
+		Entities    = {"viewChange", "entityView",    "E"},
+		Inorganics  = {"viewChange", "inorganicView", "n"},
+		Items       = {"viewChange", "itemView",      "I"},
+		Organics    = {"viewChange", "organicView",   "O"},
+		Reactions   = {"viewChange", "reactionView",  "R"},
+		Plants      = {"viewChange", "plantView",     "P"},
+		Products    = {"viewChange", "productView",   "r"},
+		Religions   = {"viewChange", "religionView",  "g"},
+		Syndromes   = {"viewChange", "syndromeView",  "S"},
+		Arts        = {"viewChange", "artView",       "A"}
 --		ClassSystem = {function () self:viewChange("classView")     end, "l"}
 	}
 }
 
 subViewDetails = {}
---subViewDetails["religionView"] = {
---	name = "Gods and Forces", -- world.belief_systems, world.history.figures
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{40,40,99, 0},
---		{40,40,50,50},
---		{40,40,50,50}},
---	heights = {
---		{40,40, 5, 5},
---		{ 0, 0,25,25},
---		{ 0, 0,25,25}},
---	fill = {
---		"ReligionTypeList", "on_select:1", "on_select:2", nil,
---		nil,                nil,           "groupA",      "groupC",
---		nil,                nil,           "groupB",      "groupD"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"ReligionList", "ReligionDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "groupA", "groupB", "groupC", "groupD"}},
---	startFilter = "ALL", 
---	filterFlags = {"ALL"}
---}
---subViewDetails["syndromeView"] = {
---	name = "Syndromes and Interactions", -- raws.syndromes, raws.interactions
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{40,40,99, 0},
---		{40,40,50,50},
---		{40,40,50,50}},
---	heights = {
---		{40,40, 5, 5},
---		{ 0, 0,25,25},
---		{ 0, 0,25,25}},
---	fill = {
---		"SyndromeTypeList", "on_select:1", "on_select:2", nil,
---		nil,                nil,           "groupA",      "groupC",
---		nil,                nil,           "groupB",      "groupD"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"SyndromeList", "SyndromeDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "groupA", "groupB", "groupC", "groupD"}},
---	startFilter = "ALL",
---	filterFlags = {"ALL"}
---}
---subViewDetails["artView"] = {
---	name = "Art Forms", -- world.poetic_forms, world.musical_forms, world.dance_forms, world.scales, world.rythms, world.written_contents?
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{15,40,99, 0},
---		{15,40,50,50},
---		{15,40,50,50}},
---	heights = {
---		{40,40, 5, 5},
---		{ 0, 0,25,25},
---		{ 0, 0,25,25}},
---	fill = {
---		"ArtTypeList", "on_select:1", "on_select:2", nil,
---		nil,           nil,           "groupA",      "groupC",
---		nil,           nil,           "groupB",      "groupD"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"ArtList", "ArtDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "groupA", "groupB", "groupC", "groupD"}},
---	startFilter = "ALL",
---	filterFlags = {"ALL"}
---}
---subViewDetails["productView"] = {
---	name = "Products",
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{15,40,99, 0},
---		{15,40,50,50},
---		{15,40,50,50}},
---	heights = {
---		{40,40, 5, 5},
---		{ 0, 0,25,25},
---		{ 0, 0,25,25}},
---	fill = {
---		"ProductTypeList", "on_select:1", "on_select:2",     nil,
---		nil,               nil,           "environmentInfo", "materialInfo1",
---		nil,               nil,           "useInfo",         "materialInfo2"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"ProductList", "ProductDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "environmentInfo", "useInfo", "materialInfo1", "materialInfo2"}},
---	startFilter = "ALL",
---	filterFlags = {"ALL"}
---}
---subViewDetails["creatureView"] = {
---	name = "Creatures",
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{40,40,80, 0},
---		{40,40,40,40},
---		{40,40,40,40}},
---	heights = {
---		{40,40,10,10},
---		{ 0, 0,20,20},
---		{ 0, 0,20,20}},
---	functions = {
---		materialInfo = {"viewSwitch", "organicView", "M"}},
---	fill = {
---		"CreatureList", "on_select:1", "on_select:2", nil,
---		nil,            nil,           "popInfo",     "baseInfo",
---		nil,            nil,           "flagInfo",    "materialInfo"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"CasteList", "CreatureDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "popInfo", "baseInfo", "flagInfo", "materialInfo"}},
---	startFilter = "ALL", 
---	filterFlags = {"ALL", "GOOD", "EVIL", "SAVAGE", "CASTE_MEGABEAST"}, -- Filters based on creature_raw.flags
---	filterKeys = {"CUSTOM_SHIFT_A", "CUSTOM_SHIFT_G", "CUSTOM_SHIFT_E", "CUSTOM_SHIFT_S", "CUSTOM_SHIFT_M"}
---}
+subViewDetails["religionView"] = {
+	name = "Gods and Forces", -- world.belief_systems, world.history.figures
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{40,40,99, 0},
+		{40,40,50,50},
+		{40,40,50,50}},
+	heights = {
+		{40,40, 5, 5},
+		{ 0, 0,25,25},
+		{ 0, 0,25,25}},
+	fill = {
+		"ReligionTypeList", "on_select:1", "on_select:2", nil,
+		nil,                nil,           "groupA",      "groupC",
+		nil,                nil,           "groupB",      "groupD"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"ReligionList", "ReligionDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "groupA", "groupB", "groupC", "groupD"}},
+	startFilter = "ALL", 
+	filterFlags = {"ALL"}
+}
+subViewDetails["syndromeView"] = {
+	name = "Syndromes and Interactions", -- raws.syndromes, raws.interactions
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{40,40,99, 0},
+		{40,40,50,50},
+		{40,40,50,50}},
+	heights = {
+		{40,40, 5, 5},
+		{ 0, 0,25,25},
+		{ 0, 0,25,25}},
+	fill = {
+		"SyndromeTypeList", "on_select:1", "on_select:2", nil,
+		nil,                nil,           "groupA",      "groupC",
+		nil,                nil,           "groupB",      "groupD"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"SyndromeList", "SyndromeDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "groupA", "groupB", "groupC", "groupD"}},
+	startFilter = "ALL",
+	filterFlags = {"ALL"}
+}
+subViewDetails["artView"] = {
+	name = "Art Forms", -- world.poetic_forms, world.musical_forms, world.dance_forms, world.scales, world.rythms, world.written_contents?
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{15,40,99, 0},
+		{15,40,50,50},
+		{15,40,50,50}},
+	heights = {
+		{40,40, 5, 5},
+		{ 0, 0,25,25},
+		{ 0, 0,25,25}},
+	fill = {
+		"ArtTypeList", "on_select:1", "on_select:2", nil,
+		nil,           nil,           "groupA",      "groupC",
+		nil,           nil,           "groupB",      "groupD"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"ArtList", "ArtDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "groupA", "groupB", "groupC", "groupD"}},
+	startFilter = "ALL",
+	filterFlags = {"ALL"}
+}
+subViewDetails["productView"] = {
+	name = "Products",
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{15,40,99, 0},
+		{15,40,50,50},
+		{15,40,50,50}},
+	heights = {
+		{40,40, 5, 5},
+		{ 0, 0,25,25},
+		{ 0, 0,25,25}},
+	fill = {
+		"ProductTypeList", "on_select:1", "on_select:2",     nil,
+		nil,               nil,           "environmentInfo", "materialInfo1",
+		nil,               nil,           "useInfo",         "materialInfo2"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"ProductList", "ProductDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "environmentInfo", "useInfo", "materialInfo1", "materialInfo2"}},
+	startFilter = "ALL",
+	filterFlags = {"ALL"}
+}
+subViewDetails["creatureView"] = {
+	name = "Creatures",
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{40,40,80, 0},
+		{40,40,40,40},
+		{40,40,40,40}},
+	heights = {
+		{40,40,10,10},
+		{ 0, 0,20,20},
+		{ 0, 0,20,20}},
+	functions = {
+		materialInfo = {"viewSwitch", "organicView", "M"}},
+	fill = {
+		"CreatureList", "on_select:1", "on_select:2", nil,
+		nil,            nil,           "popInfo",     "baseInfo",
+		nil,            nil,           "flagInfo",    "materialInfo"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"CasteList", "CreatureDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "popInfo", "baseInfo", "flagInfo", "materialInfo"}},
+	startFilter = "ALL", 
+	filterFlags = {"ALL", "GOOD", "EVIL", "SAVAGE", "CASTE_MEGABEAST"}, -- Filters based on creature_raw.flags
+	filterKeys = {"CUSTOM_SHIFT_A", "CUSTOM_SHIFT_G", "CUSTOM_SHIFT_E", "CUSTOM_SHIFT_S", "CUSTOM_SHIFT_M"}
+}
 subViewDetails["buildingView"] = {
 	name = "Buildings",
 	levels   = 2,
@@ -212,168 +212,168 @@ subViewDetails["buildingView"] = {
 	startFilter = "ALL",
 	filterFlags = {"ALL"}
 }
---subViewDetails["itemView"] = {
---	name = "Items",
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{15,40,99, 0},
---		{15,40,50,50},
---		{15,40,50,50}},
---	heights = {
---		{40,40, 5, 5},
---		{ 0, 0,25,25},
---		{ 0, 0,25,25}},
---	fill = {
---		"ItemTypeList", "on_select:1", "on_select:2", nil,
---		nil,            nil,           "baseInfo",    "typeInfo",
---		nil,            nil,           "flagInfo",    "enhancedInfo"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"ItemList", "ItemDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "baseInfo", "typeInfo", "flagInfo", "enhancedInfo"}},
---	startFilter = "ALL",
---	filterFlags = {"ALL"}
---}
---subViewDetails["reactionView"] = {
---	name = "Reactions",
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{20,30,80, 0},
---		{20,30,40,60},
---		{20,30,40,60}},
---	heights = {
---		{40,40,10,10},
---		{ 0, 0,20,20},
---		{ 0, 0,20,20}},
---	fill = {
---		"ReactionTypeList", "on_select:1", "on_select:2",   nil,
---		nil,                nil,           "baseInfo",      "reagentInfo",
---		nil,                nil,           "enhancedInfo",  "productInfo"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"ReactionList", "ReactionDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "baseInfo", "reagentInfo", "productInfo", "enhancedInfo"}},
---	startFilter = "ALL",
---	filterFlags = {"ALL", "FUEL", "AUTOMATIC", "ADVENTURE_MODE_ENABLED"}
---}
---subViewDetails["inorganicView"] = {
---	name = "Inorganic Materials",
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{15,40,99, 0},
---		{15,40,50,50},
---		{15,40,50,50}},
---	heights = {
---		{40,40, 5, 5},
---		{ 0, 0,25,25},
---		{ 0, 0,25,25}},
---	fill = {
---		"MaterialTypeList", "on_select:1", "on_select:2",     nil,
---		nil,                nil,           "environmentInfo", "materialInfo1",
---		nil,                nil,           "useInfo",         "materialInfo2"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"MaterialList", "MaterialDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "environmentInfo", "useInfo", "materialInfo1", "materialInfo2"}},
---	startFilter = "ALL", 
---	filterFlags = {"ALL", "SEDIMENTARY", "METAMORPHIC"}
---}
---subViewDetails["organicView"] = {
---	name = "Organic Materials",
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{15,40,99, 0},
---		{15,40,50,50},
---		{15,40,50,50}},
---	heights = {
---		{40,40, 5, 5},
---		{ 0, 0,25,25},
---		{ 0, 0,25,25}},
---	fill = {
---		"MaterialTypeList", "on_select:1", "on_select:2",     nil,
---		nil,                nil,           "environmentInfo", "materialInfo1",
---		nil,                nil,           "useInfo",         "materialInfo2"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"MaterialList", "MaterialDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "environmentInfo", "useInfo", "materialInfo1", "materialInfo2"}},
---	startFilter = "ALL",
---	filterFlags = {"ALL", "ITEMS_SOFT", "ITEMS_HARD"}
---}
---subViewDetails["entityView"] = {
---	name = "Entities",
---	levels   = 2,
---	num_cols = 6,
---	num_rows = 2,
---	widths = {
---		{15,40,149, 0, 0, 0},
---		{15,40, 50,50,50,50}},
---	heights = {
---		{40,40,  5,  5,  5,  5},
---		{ 0, 0,100,100,100,100}},
---	fill = {
---		"EntityTypeList", "on_select:1", "on_select:2",  nil,            nil,         nil,
---		nil,              nil,           "resourceInfo", "positionInfo", "moralInfo", "baseInfo"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none", "none", "none",
---		"none",        "none",        "none", "none", "none", "none"},
---	on_select = {"EntityList", "EntityDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "baseInfo", "resourceInfo", "positionInfo", "moralInfo"}},
---	startFilter = "ALL",
---	filterFlags = {"ALL"}
---}
---subViewDetails["plantView"] = {
---	name = "Plants",
---	levels   = 2,
---	num_cols = 4,
---	num_rows = 3,
---	widths = {
---		{15,40,99, 0},
---		{15,40,50,50},
---		{15,40,50,50}},
---	heights = {
---		{40,40, 5, 5},
---		{ 0, 0,25,25},
---		{ 0, 0,25,25}},
---	functions = {
---		materialInfo = {"viewSwitch", "organicView", "M"}},
---	fill = {
---		"PlantTypeList", "on_select:1", "on_select:2",   nil,
---		nil,             nil,           "baseInfo",      "materialInfo",
---		nil,             nil,           "typeInfo",      "growthInfo"},
---	on_fills = {
---		"on_select:1", "on_select:2", "none", "none",
---		"none",        "none",        "none", "none",
---		"none",        "none",        "none", "none"},
---	on_select = {"PlantList", "PlantDetails"},
---	on_groups = {
---		["on_select:2"] = {"on_select:2", "baseInfo", "materialInfo", "typeInfo", "growthInfo"}},
---	startFilter = "ALL",
---	filterFlags = {"ALL", "EVIL", "GOOD"},
---	filterKeys = {"CUSTOM_SHIFT_A", "CUSTOM_SHIFT_E", "CUSTOM_SHIFT_G"}
---}
---
+subViewDetails["itemView"] = {
+	name = "Items",
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{15,40,99, 0},
+		{15,40,50,50},
+		{15,40,50,50}},
+	heights = {
+		{40,40, 5, 5},
+		{ 0, 0,25,25},
+		{ 0, 0,25,25}},
+	fill = {
+		"ItemTypeList", "on_select:1", "on_select:2", nil,
+		nil,            nil,           "baseInfo",    "typeInfo",
+		nil,            nil,           "flagInfo",    "enhancedInfo"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"ItemList", "ItemDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "baseInfo", "typeInfo", "flagInfo", "enhancedInfo"}},
+	startFilter = "ALL",
+	filterFlags = {"ALL"}
+}
+subViewDetails["reactionView"] = {
+	name = "Reactions",
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{20,30,80, 0},
+		{20,30,40,60},
+		{20,30,40,60}},
+	heights = {
+		{40,40,10,10},
+		{ 0, 0,20,20},
+		{ 0, 0,20,20}},
+	fill = {
+		"ReactionTypeList", "on_select:1", "on_select:2",   nil,
+		nil,                nil,           "baseInfo",      "reagentInfo",
+		nil,                nil,           "enhancedInfo",  "productInfo"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"ReactionList", "ReactionDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "baseInfo", "reagentInfo", "productInfo", "enhancedInfo"}},
+	startFilter = "ALL",
+	filterFlags = {"ALL", "FUEL", "AUTOMATIC", "ADVENTURE_MODE_ENABLED"}
+}
+subViewDetails["inorganicView"] = {
+	name = "Inorganic Materials",
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{15,40,99, 0},
+		{15,40,50,50},
+		{15,40,50,50}},
+	heights = {
+		{40,40, 5, 5},
+		{ 0, 0,25,25},
+		{ 0, 0,25,25}},
+	fill = {
+		"MaterialTypeList", "on_select:1", "on_select:2",     nil,
+		nil,                nil,           "environmentInfo", "materialInfo1",
+		nil,                nil,           "useInfo",         "materialInfo2"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"MaterialList", "MaterialDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "environmentInfo", "useInfo", "materialInfo1", "materialInfo2"}},
+	startFilter = "ALL", 
+	filterFlags = {"ALL", "SEDIMENTARY", "METAMORPHIC"}
+}
+subViewDetails["organicView"] = {
+	name = "Organic Materials",
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{15,40,99, 0},
+		{15,40,50,50},
+		{15,40,50,50}},
+	heights = {
+		{40,40, 5, 5},
+		{ 0, 0,25,25},
+		{ 0, 0,25,25}},
+	fill = {
+		"MaterialTypeList", "on_select:1", "on_select:2",     nil,
+		nil,                nil,           "environmentInfo", "materialInfo1",
+		nil,                nil,           "useInfo",         "materialInfo2"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"MaterialList", "MaterialDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "environmentInfo", "useInfo", "materialInfo1", "materialInfo2"}},
+	startFilter = "ALL",
+	filterFlags = {"ALL", "ITEMS_SOFT", "ITEMS_HARD"}
+}
+subViewDetails["entityView"] = {
+	name = "Entities",
+	levels   = 2,
+	num_cols = 6,
+	num_rows = 2,
+	widths = {
+		{15,40,149, 0, 0, 0},
+		{15,40, 50,50,50,50}},
+	heights = {
+		{40,40,  5,  5,  5,  5},
+		{ 0, 0,100,100,100,100}},
+	fill = {
+		"EntityTypeList", "on_select:1", "on_select:2",  nil,            nil,         nil,
+		nil,              nil,           "resourceInfo", "positionInfo", "moralInfo", "baseInfo"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none", "none", "none",
+		"none",        "none",        "none", "none", "none", "none"},
+	on_select = {"EntityList", "EntityDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "baseInfo", "resourceInfo", "positionInfo", "moralInfo"}},
+	startFilter = "ALL",
+	filterFlags = {"ALL"}
+}
+subViewDetails["plantView"] = {
+	name = "Plants",
+	levels   = 2,
+	num_cols = 4,
+	num_rows = 3,
+	widths = {
+		{15,40,99, 0},
+		{15,40,50,50},
+		{15,40,50,50}},
+	heights = {
+		{40,40, 5, 5},
+		{ 0, 0,25,25},
+		{ 0, 0,25,25}},
+	functions = {
+		materialInfo = {"viewSwitch", "organicView", "M"}},
+	fill = {
+		"PlantTypeList", "on_select:1", "on_select:2",   nil,
+		nil,             nil,           "baseInfo",      "materialInfo",
+		nil,             nil,           "typeInfo",      "growthInfo"},
+	on_fills = {
+		"on_select:1", "on_select:2", "none", "none",
+		"none",        "none",        "none", "none",
+		"none",        "none",        "none", "none"},
+	on_select = {"PlantList", "PlantDetails"},
+	on_groups = {
+		["on_select:2"] = {"on_select:2", "baseInfo", "materialInfo", "typeInfo", "growthInfo"}},
+	startFilter = "ALL",
+	filterFlags = {"ALL", "EVIL", "GOOD"},
+	filterKeys = {"CUSTOM_SHIFT_A", "CUSTOM_SHIFT_E", "CUSTOM_SHIFT_G"}
+}
+
 function journalFill(widget, selection, token)
 	if widget.ViewID == "main" then
 		widget:insert("Center", widget.CellName)
@@ -384,28 +384,28 @@ function journalFill(widget, selection, token)
   --insert = insertWidgetInput(insert, 'header', Info._stats,       {width=w, rowOrder=get_order(Info._stats)})
 	elseif widget.ViewID == "buildingView" then
 		Building(widget, selection, token)
-	--elseif widget.ViewID == "religionView" then
-	--	Religion(widget)
-	--elseif widget.ViewID == "syndromeView" then
-	--	Syndrome(widget)
-	--elseif widget.ViewID == "artView" then
-	--	Art(widget)
-	--elseif widget.ViewID == "productView" then
-	--	Product(widget)
-	--elseif widget.ViewID == "creatureView" then
-	--	Creature(widget)
-	--elseif widget.ViewID == "itemView" then
-	--	Item(widget)
-	--elseif widget.ViewID == "reactionView" then
-	--	Reaction(widget)
-	--elseif widget.ViewID == "inorganicView" then
-	--	Inorganic(widget)
-	--elseif widget.ViewID == "organicView" then
-	--	Organic(widget)
-	--elseif widget.ViewID == "entityView" then
-	--	Entity(widget)
-	--elseif widget.ViewID == "plantView" then
-	--	Plant(widget)
+	elseif widget.ViewID == "religionView" then
+		Religion(widget)
+	elseif widget.ViewID == "syndromeView" then
+		Syndrome(widget)
+	elseif widget.ViewID == "artView" then
+		Art(widget)
+	elseif widget.ViewID == "productView" then
+		Product(widget)
+	elseif widget.ViewID == "creatureView" then
+		Creature(widget)
+	elseif widget.ViewID == "itemView" then
+		Item(widget)
+	elseif widget.ViewID == "reactionView" then
+		Reaction(widget)
+	elseif widget.ViewID == "inorganicView" then
+		Inorganic(widget)
+	elseif widget.ViewID == "organicView" then
+		Organic(widget)
+	elseif widget.ViewID == "entityView" then
+		Entity(widget)
+	elseif widget.ViewID == "plantView" then
+		Plant(widget)
 	end
 	return widget
 end
@@ -454,6 +454,127 @@ function Building(widget, selection, token)
 		widget:insert("Header", Info.Reactions)
 	elseif widget.CellName == "bldgDiagram" then
 		widget:insert("Center", "Building Diagram")
+	end
+end
+
+function Religion(widget, selection, token)
+	if widget.CellName == "ReligionTypeList" then
+	elseif widget.CellName == "ReligionList" then
+	elseif widget.CellName == "ReligionDetails" then
+	elseif widget.CellName == "groupA" then
+	elseif widget.CellName == "groupB" then
+	elseif widget.CellName == "groupC" then
+	elseif widget.CellName == "groupD" then
+	end
+end
+
+function Syndrome(widget, selection, token)
+	if widget.CellName == "SyndromeTypeList" then
+	elseif widget.CellName == "SyndromeList" then
+	elseif widget.CellName == "SyndromeDetails" then
+	elseif widget.CellName == "groupA" then
+	elseif widget.CellName == "groupB" then
+	elseif widget.CellName == "groupC" then
+	elseif widget.CellName == "groupD" then
+	end
+end
+
+function Art(widget, selection, token)
+	if widget.CellName == "ArtTypeList" then
+	elseif widget.CellName == "ArtList" then
+	elseif widget.CellName == "ArtDetails" then
+	elseif widget.CellName == "groupA" then
+	elseif widget.CellName == "groupB" then
+	elseif widget.CellName == "groupC" then
+	elseif widget.CellName == "groupD" then
+	end
+end
+
+function Product(widget, selection, token)
+	if widget.CellName == "ProductTypeList" then
+	elseif widget.CellName == "ProductList" then
+	elseif widget.CellName == "ProductDetails" then
+	elseif widget.CellName == "environmentInfo" then
+	elseif widget.CellName == "useInfo" then
+	elseif widget.CellName == "materialInfo1" then
+	elseif widget.CellName == "materialInfo2" then
+	end
+end
+
+function Creature(widget, selection, token)
+	if widget.CellName == "CreatureList" then
+	elseif widget.CellName == "CasteList" then
+	elseif widget.CellName == "CreatureDetails" then
+	elseif widget.CellName == "popInfo" then
+	elseif widget.CellName == "baseInfo" then
+	elseif widget.CellName == "flagInfo" then
+	elseif widget.CellName == "materialInfo" then
+	end
+end
+
+function Item(widget, selection, token)
+	if widget.CellName == "ItemTypeList" then
+	elseif widget.CellName == "ItemList" then
+	elseif widget.CellName == "ItemDetails" then
+	elseif widget.CellName == "baseInfo" then
+	elseif widget.CellName == "typeInfo" then
+	elseif widget.CellName == "flagInfo" then
+	elseif widget.CellName == "enhancedInfo" then
+	end
+end
+
+function Reaction(widget, selection, token)
+	if widget.CellName == "ReactionTypeList" then
+	elseif widget.CellName == "ReactionList" then
+	elseif widget.CellName == "ReactionDetails" then
+	elseif widget.CellName == "baseInfo" then
+	elseif widget.CellName == "reagentInfo" then
+	elseif widget.CellName == "productInfo" then
+	elseif widget.CellName == "enhancedInfo" then
+	end
+end
+
+function Inorganic(widget, selection, token)
+	if widget.CellName == "MaterialTypeList" then
+	elseif widget.CellName == "MaterialList" then
+	elseif widget.CellName == "MaterialDetails" then
+	elseif widget.CellName == "environmentInfo" then
+	elseif widget.CellName == "useInfo" then
+	elseif widget.CellName == "materialInfo1" then
+	elseif widget.CellName == "materialInfo2" then
+	end
+end
+
+function Organic(widget, selection, token)
+	if widget.CellName == "MaterialTypeList" then
+	elseif widget.CellName == "MaterialList" then
+	elseif widget.CellName == "MaterialDetails" then
+	elseif widget.CellName == "environmentInfo" then
+	elseif widget.CellName == "useInfo" then
+	elseif widget.CellName == "materialInfo1" then
+	elseif widget.CellName == "materialInfo2" then
+	end
+end
+
+function Entity(widget, selection, token)
+	if widget.CellName == "EntityTypeList" then
+	elseif widget.CellName == "EntityList" then
+	elseif widget.CellName == "EntityDetails" then
+	elseif widget.CellName == "baseInfo" then
+	elseif widget.CellName == "resourceInfo" then
+	elseif widget.CellName == "positionInfo" then
+	elseif widget.CellName == "moralInfo" then
+	end
+end
+
+function Plant(widget, selection, token)
+	if widget.CellName == "PlantTypeList" then
+	elseif widget.CellName == "PlantList" then
+	elseif widget.CellName == "PlantDetails" then
+	elseif widget.CellName == "baseInfo" then
+	elseif widget.CellName == "materialInfo" then
+	elseif widget.CellName == "typeInfo" then
+	elseif widget.CellName == "growthInfo" then
 	end
 end
 

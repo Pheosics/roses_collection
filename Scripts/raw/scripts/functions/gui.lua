@@ -142,10 +142,11 @@ function get_order(tbl,ordering,Type)
 	end
 	return orderOut
 end
-local function parse_for_numbers(h,s,width,pens,flag,inText)
+
+local function parse_for_numbers(h, s, width, pens, flag, inText)
 	local outText = inText or {}
 	local pens = pens or {}
-	local flagStr = flag or ''
+	local flagStr = flag or ""
 	h = tostring(h)
 	s = tostring(s)
 	table.insert(outText, {text=h,  width=#h, pen=pens.penHead})
@@ -162,6 +163,7 @@ local function parse_for_numbers(h,s,width,pens,flag,inText)
 	table.insert(outText, {text=flagStr, width=#flagStr, pen=pens.penFlag})
 	return outText
 end
+
 local function checkValid(name,struct,token)
 	local check = true
 	for _,str in pairs(ignoreStrings) do
@@ -252,11 +254,6 @@ WIDGET = defclass(WIDGET)
 --===============================================================================================--
 --== GUI FUNCTIONS ==============================================================================--
 --===============================================================================================--
---function GUI:__index(key)
---	if rawget(self,key) then return rawget(self,key) end
---	if rawget(GUI,key) then return rawget(GUI,key) end
---	return self.super[key]
---end
 function GUI:init(input)
 	self:setViewDetails(input[1], input[2])
 	self:setFillFunction(input[3])
@@ -943,6 +940,7 @@ function GUI:onInput(keys)
   GUI.super.onInput(self, keys)
  end
 end
+
 --===============================================================================================--
 --== WIDGET FUNCTIONS ===========================================================================--
 --===============================================================================================--
@@ -959,14 +957,15 @@ function WIDGET:init(input)
 	self.CellNumber = cell[1]
 	self.CellName   = cell[2]
 	self.CellWidth  = cell[3]
-	self.Colors = colorTables["DEFAULT"]
+	self.Colors = colorTables["DEFAULT"] -- We should be able to pick this -ME
 	self.Keyed = keyed
 	self.listOptions  = {width=self.CellWidth, colOrder={}, view_id=view_id, cell=self.CellNumber}
 	self.tokenOptions = {width=self.CellWidth, colOrder={}, view_id=view_id, cell=self.CellNumber, token=""}
 	self.outToken = nil
 end
 
-function WIDGET:insert(Type, list, options)
+function WIDGET:insert(Type, input, options)
+	-- Get the base widget options
 	local widget_options
 	if not options or not options.baseType then
 		widget_options = self.listOptions
@@ -977,353 +976,280 @@ function WIDGET:insert(Type, list, options)
 	else
 		widget_options = {}
 	end
+	
+	-- Add any custom widget options that were passed in
 	for k, v in pairs(options or {}) do
 		widget_options[k] = v
 	end
-	if self.Keyed then
-		widget_options.keyed = self.Keyed
-	end
-	if Type == "Center" then
-		self:insertCenter(list, widget_options)
-	elseif Type == "Header" then
-		self:insertHeader(list, widget_options)
-	elseif Type == "Table" then
-		self:insertTable(list, widget_options)
-	elseif Type == "Text" then
-		self:insertText(list, widget_options)
-	elseif Type == "List" then
-		self:insertList(list, widget_options)
+	
+	-- Insert data based on insert type
+	local uT = Type:upper()
+	if uT == "CENTER" then
+		self:insertCenter(input, widget_options)
+	elseif uT == "HEADER" then
+		self:insertHeader(input, widget_options)
+	elseif uT == "TABLE" then
+		self:insertTable(input, widget_options)
+	elseif uT == "TEXT" then
+		self:insertText(input, widget_options)
+	elseif uT == "LIST" then
+		self:insertList(input, widget_options)
 	end
 end
 
-function WIDGET:insertCenter(list, options)
-	local colors  = self.Colors
-	local keyed   = options.keyed
-	local pen     = colors.titleColor -- default color for the Center insert type is titleColor
-	local width   = options.width or 40
- 
-	if type(list) == type(table) then -- color from the data overrides color profiles
-		pen = list._color or colors.titleColor
-		list = list._string or list._text or ""
-	end
-	list = list:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+function WIDGET:insertCenter(text, options)
+	-- Insert a string with appropriate white space padding and functions.
+	local text = text or ""
+	local penC  = options.pen or self.Colors.titleColor
+	local keyC  = options.keyColor or self.Colors.keyColor
+	local width = options.width or 40
  
 	local temp_text = {}
-	if keyed then
-		fnct  = keyed[1]
-		key   = keyed[2]
-		if key:upper() == key then
-			key_str = "CUSTOM_SHIFT_"..key
+	if self.Keyed then
+		fnct  = self.Keyed[1]
+		key   = self.Keyed[2]
+		local key_str = (key:upper() == key) and "CUSTOM_SHIFT_"..key or "CUSTOM_"..key:upper()
+		s1, s2, s3 = center(text,width,true)
+		local x = s1:find(key)
+		if x then
+			table.insert(temp_text, {text=s2, width=#s2, pen=penC})
+			table.insert(temp_text, {text=s1:sub(1,x-1), width=x-1, pen=penC})
+			table.insert(temp_text, {key=key_str, on_activate=fnct, key_pen=keyC})
+			table.insert(temp_text, {text=s1:sub(x+1,#s1), width=#s1-x, pen=penC})
+			table.insert(temp_text, {text=s3, width=#s3, pen=penC})
 		else
-			key_str = "CUSTOM_"..key:upper()
+			table.insert(temp_text, {text=s2..s1..s3, width=width, pen=penC})
 		end
-		s1, s2, s3 = center(list,width,true)
-		temp_text = {}
-		table.insert(temp_text, {text=s2, width=#s2, pen=pen})
-		found = false
-		for i = 1, #s1 do
-			if s1:sub(i,i) == key and not found then
-				table.insert(temp_text, {key=key_str, on_activate=fnct, key_pen=colors.keyColor})
-				found = true
-			else
-				table.insert(temp_text, {text=s1:sub(i,i), width=1, pen=pen})
-			end
-		end
-		table.insert(temp_text, {text=s3, width=#s3, pen=pen})
 	else
-		table.insert(temp_text, {text=center(list,width), width=width, pen=pen})
+		table.insert(temp_text, {text=center(text,width), width=width, pen=penC})
 	end
 
 	table.insert(self.Input, {text = temp_text})
 end
 
-function WIDGET:insertText(list, options)
-	local colors  = self.Colors
+function WIDGET:insertText(text, options)
+	-- Insert a block of text. If the text is larger than the width of
+	-- the widget, the text will be wrapped
+	local text = text or ""
 	local rjustify = options.rjustify or false
-	local pen = colors.textColor -- default color for the Text insert type is textColor
-	local width   = options.width or 40
+	local pen      = options.pen or self.Colors.textColor
+	local width    = options.width or 40
  
-	if type(list) == "table" then -- color from the data overrides color profiles
-		if list._color then
-			pen = list._color
-		elseif list._colorBin then
-			pen = colors.binColors[list._colorBin]
-		end
-		pen = pen or colors.textColor
-		list = list._text or list._string or ''
-	end
- 
-	local n = math.floor(#list/width) + 1
-	if n == 1 then
-		table.insert(self.Input, {text = {{
-			text=list:sub(1,1):upper()..list:sub(2), 
-			pen=pen, 
-			width=width, 
-			rjustify=rjustify}}})
+	if #text/width <= 1 then
+		table.insert(self.Input, {text = {
+			{text=text, pen=pen, width=width, rjustify=rjustify}}})
 	else
-		local temp_text = {}
-		local alist = split(list,' ')
-		local l = 0
-		local i = 1
-		temp_text[i] = ''
-		for _,t in pairs(alist) do
-			l = l + #t + 1
-			if l > width then
-				i = i + 1
-				l = #t+1
-				temp_text[i] = ' '
+		local wordList = split(text," ")
+		local lineLength = 0
+		local line = ""
+		for _,word in pairs(wordList) do
+			local wordLength = #word + 1
+			lineLength = lineLength + wordLength
+			if lineLength > width then
+				table.insert(self.Input, {text = {
+					{text=line, pen=pen, width=width, rjustify=rjustify}}})
+				lineLength = wordLength
+				line = ""
 			end
-			temp_text[i] = temp_text[i]..t..' '
-		end
-		temp_text[1] = temp_text[1]:sub(1,1):upper()..temp_text[1]:sub(2)
-		for i,second in pairs(temp_text) do
-			table.insert(self.Input, {text = {{
-				text=second, 
-				pen=pen, 
-				width=width, 
-				rjustify=rjustify}}})
+			line = line..word.." "
 		end
 	end
 end
 
-function WIDGET:insertHeader(list, options)
-	local colors  = self.Colors
-	local order   = options.rowOrder
-	local filling = options.filling    or "second"
-	local width   = options.width      or 40
-	local replacement = options.replacement
-	local replaceHeader = options.replaceHeader or ""
- 
-	local function insert(outStr,k,tbl)
-		local temp_text = {}
-		local penHead = colors.headColor
-		local penNums = colors.numColor
-		local penText = colors.textColor
-		local penFlag = colors.flagColor
+function WIDGET:insertHeader(text, options)
+	local text = text or ""
+	local filling = options.filling or "second"
+	local width   = options.width   or 40
+	local pens = {
+		penHead = self.Colors.headColor,
+		penNums = self.Colors.numColor,
+		penText = self.Colors.textColor,
+		penFlag = self.Colors.flagColor,
+		penFalse= self.Colors.falseColor}
+			
+	if options.replacement then
+		text = reqscript("functions/text").listReplacement(text, options.replacement, options.replaceHeader)
+	end
+	
+	local function insert(outStr, k, tbl)
+		local check = true
 		if type(tbl) == type(table) then
-			local penHead = tbl._colorHeaders or penHead
-			local penNums = tbl._colorNumbers or penNums
-			local penText = tbl._colorText    or penText
 			if type(tbl._second) == type(table) then
-				local check = true
-				if tbl._length and tbl._length == 0 then return outStr end
-				for first,second in pairs(tbl._second) do
-					local header = ""
-					local flagStr = " ["..first.."]"
-					local fillStr = second:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-					if filling == "first" or filling == "flag" then
-						fillStr = ""
-					elseif filling == "second" or filling == "string" then
-						flagStr = ""
-					end
-					if check then
-						header = tbl._header:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-						check = false
-					end
-					local pens = {penHead=penHead,penNums=penNums,penText=penText,penFlag=penFlag,penFalse=colors.falseColor}
-					temp_text = parse_for_numbers(header,fillStr,width,pens,flagStr)
+				for first, second in pairs(tbl._second) do
+					local header = (check) and tbl._header or ""
+					local flagStr = (filling == "first"  or filling == "flag")   and "" or " ["..first.."]"
+					local fillStr = (filling == "second" or filling == "string") and "" or second
+					local temp_text = parse_for_numbers(header, fillStr, width, pens, flagStr)
 					table.insert(outStr, {text = temp_text})
+					check = false
 				end
 			else
-				if not tbl._second or tbl._second == '' or tbl._second == '--' then return outStr end
-				local h = tbl._header:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-				local s = tostring(tbl._second):gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-				temp_text = parse_for_numbers(h,s,width,{penHead=penHead,penNums=penNums,penText=penText,penFlag=penFlag})
+				if not tbl._second or tbl._second == "" or tbl._second == "--" then return outStr end
+				local temp_text = parse_for_numbers(tbl._header, tbl._second, width, pens)
 				table.insert(outStr, {text = temp_text})
 			end
 		elseif k and tbl then
-			local h = tostring(k):gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-			local s = tostring(tbl):gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-			temp_text = parse_for_numbers(h,s,width,{penHead=penHead,penNums=penNums,penText=penText,penFlag=penFlag})
+			local temp_text = parse_for_numbers(k, tbl, width, pens)
 			table.insert(outStr, {text = temp_text})
 		end
 		return outStr
 	end
  
-	if replacement then
-		local temp_list = {}
-		local temp_list_length = 0
-		for first,second in pairs(list) do
-			local temp_first = replacement[first] or #temp_list + 1
-			local temp_second = replacement[second] or #temp_list + 1
-			if tonumber(temp_second) and not tonumber(temp_first) then
-				temp_second = temp_first
-				temp_first = first
-			elseif tonumber(temp_first) and not tonumber(temp_second) then
-				temp_first = second
-			end
-			if not tonumber(temp_second) and not tonumber(temp_first) then
-				temp_list[temp_first] = temp_second
-				temp_list_length = temp_list_length + 1
-			end
+	if options.rowOrder then
+		for i = 1, #options.rowOrder do
+			local k = options.rowOrder[i]
+			local tbl = text[k]
+			self.Input = insert(self.Input, k, tbl)
 		end
-		list = {}
-		list._header = replaceHeader
-		list._second = temp_list
-		list._length = temp_list_length
-	end
- 
-	if order then
-		for i = 1, #order do
-			local k = order[i]
-			local tbl = list[k]
-			self.Input = insert(self.Input,k,tbl)
-		end
-	elseif list._second then
-		self.Input = insert(self.Input,nil,list)
+	elseif text._second then
+		self.Input = insert(self.Input, nil, text)
 	else
-		for k,tbl in pairs(list) do
-			self.Input = insert(self.Input,k,tbl)
+		for k, tbl in pairs(text) do
+			self.Input = insert(self.Input, k, tbl)
 		end
 	end
 end
 
 function WIDGET:insertTable(list, options)
 	local colors  = self.Colors
- local nohead     = options.nohead or false
- local width      = options.width or 40
- local token      = options.token
- local colOrder   = options.colOrder or {'_string'}
- local headOrder  = options.headOrder
-
- local abbrvs = {Syndrome='Syn', Strength='Str', Severity='Sev', Throat='Voice',
-                 Penetration='Pen', Nausea='Nas', Velocity='Vel', Prepare='Prep', Recover='Rcvr',
-                 Contact='Con', Duration='Dur', Probability='Prob'}
+	local nohead     = options.nohead or false
+	local width      = options.width or 40
+	local token      = options.token
+	local colOrder   = options.colOrder or {"_string"}
+	local headOrder  = options.headOrder
+	local abbrvs = reqscript("functions/text").textAbbreviations
  
- local hW = width
- local hWh = width
- local colwidth = getOptimalWidth(width,list,colOrder)
- local headwidth = {}
- for i,_ in pairs(colOrder) do
-  hW = hW - colwidth[i]
- end
- if headOrder then
-  headwidth = getOptimalWidth(width,list,headOrder)
-  for i,_ in pairs(headOrder) do
-   hWh = hWh - headwidth[i]
-  end
- end
-
+	local hW = width
+	local hWh = width
+	local colwidth = getOptimalWidth(width, list, colOrder)
+	local headwidth = {}
+	for i,_ in pairs(colOrder) do
+		hW = hW - colwidth[i]
+	end
+	if headOrder then
+		headwidth = getOptimalWidth(width, list, headOrder)
+		for i,_ in pairs(headOrder) do
+			hWh = hWh - headwidth[i]
+		end
+	end
  
- if not nohead and not headOrder then -- Puts column headers
-  local temp_text = {}
-  table.insert(temp_text, {text=options.list_head or '', width=hW, pen=colors.headColor})
-  for i = 1, #colOrder do
-   local header = abbrvs[colOrder[i]] or colOrder[i]
-   table.insert(temp_text, {text=header, rjustify=true, width=colwidth[i], pen=colors.colColor})
-  end
-  table.insert(input, {text=temp_text})
- end
+	if not nohead and not headOrder then -- Puts column headers
+		local temp_text = {}
+		table.insert(temp_text, {text=options.list_head or '', width=hW, pen=colors.headColor})
+		for i = 1, #colOrder do
+			local header = abbrvs[colOrder[i]] or colOrder[i]
+			table.insert(temp_text, {text=header, rjustify=true, width=colwidth[i], pen=colors.colColor})
+		end
+		table.insert(input, {text=temp_text})
+	end
  
- local function insert(outStr,k,tbl)
-  local temp_str = {}
+	local function insert(outStr,k,tbl)
+		local temp_str = {}
   
-  if not nohead and headOrder then
-   local temp_text = {}
-   local listHead = tbl._listHead or tbl._title or ''
-   table.insert(temp_text, {text=listHead, width=hWh, pen=colors.headColor})
-   for i = 1, #headOrder do
-    local header = abbrvs[headOrder[i]] or headOrder[i]
-    table.insert(temp_text, {text=center(header,headwidth[i]), width=headwidth[i], pen=colors.colColor})
-   end
-   table.insert(outStr, {text=temp_text})
-   hW = hWh
-  end  
+		if not nohead and headOrder then
+			local temp_text = {}
+			local listHead = tbl._listHead or tbl._title or ''
+			table.insert(temp_text, {text=listHead, width=hWh, pen=colors.headColor})
+			for i = 1, #headOrder do
+				local header = abbrvs[headOrder[i]] or headOrder[i]
+				table.insert(temp_text, {text=center(header,headwidth[i]), width=headwidth[i], pen=colors.colColor})
+			end
+			table.insert(outStr, {text=temp_text})
+			hW = hWh
+		end  
   
-  local key = tbl._key or tostring(k)
-  local title = tbl._title or key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-  if tbl._mark then title = tbl._mark..' '..title end
-  if token     then key   = token..':'..key end
-  local penHead = tbl._colorHeaders or colors.headColor
-  local penNums = tbl._colorNumbers or colors.numColor
-  local penText = tbl._colorText    or colors.textColor  
-  if tbl._colorBin then 
-   penNums = colors.binColors[tbl._colorBin]
-   penText = colors.binColors[tbl._colorBin] 
-  end
-  table.insert(temp_str, {text=title, width=hW, token=key, pen=penText})
+		local key = tbl._key or tostring(k)
+		local title = tbl._title or key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+		if tbl._mark then title = tbl._mark..' '..title end
+		if token     then key   = token..':'..key end
+		local penHead = tbl._colorHeaders or colors.headColor
+		local penNums = tbl._colorNumbers or colors.numColor
+		local penText = tbl._colorText    or colors.textColor  
+		if tbl._colorBin then 
+			penNums = colors.binColors[tbl._colorBin]
+			penText = colors.binColors[tbl._colorBin] 
+		end
+		table.insert(temp_str, {text=title, width=hW, token=key, pen=penText})
   
-  local order = colOrder
-  local listwidth = colwidth
-  if headOrder then
-   order = headOrder
-   listwidth = headwidth
-  end
-  for i = 1, #order do
-   local text = tbl[order[i]]
-   local pen = penText
-   if tonumber(text) then pen = penNums end
-   temp_str = parse_for_numbers('',text,listwidth[i],{penHead=penHead,penNums=penNums,penText=penText},'',temp_str)
-  end
-  table.insert(outStr, {text=temp_str})
+		local order = colOrder
+		local listwidth = colwidth
+		if headOrder then
+			order = headOrder
+			listwidth = headwidth
+		end
+		for i = 1, #order do
+			local text = tbl[order[i]]
+			local pen = penText
+			if tonumber(text) then pen = penNums end
+			temp_str = parse_for_numbers('',text,listwidth[i],{penHead=penHead,penNums=penNums,penText=penText},'',temp_str)
+		end
+		table.insert(outStr, {text=temp_str})
   
-  if tbl._second and type(tbl._second) == 'table' then
-   local lengthS = tbl._second._length or #tbl._second
-   for iS = 0, lengthS do
-    if tbl._second[iS] then
-     local second = tbl._second[iS]
-     if colOrder then
-      local temp_text = {}
-      local listHead = second._listHead or second._title or ''
-      table.insert(temp_text, {text=' '..listHead, width=hW, pen=colors.subColor})
-      for i = 1, #colOrder do
-       local header = abbrvs[colOrder[i]] or colOrder[i]
-       table.insert(temp_text, {text=center(header,colwidth[i]), width=colwidth[i], pen=colors.colColor})
-      end
-      table.insert(outStr, {text=temp_text})
-     end     
+		if tbl._second and type(tbl._second) == 'table' then
+			local lengthS = tbl._second._length or #tbl._second
+			for iS = 0, lengthS do
+				if tbl._second[iS] then
+					local second = tbl._second[iS]
+					if colOrder then
+						local temp_text = {}
+						local listHead = second._listHead or second._title or ''
+						table.insert(temp_text, {text=' '..listHead, width=hW, pen=colors.subColor})
+						for i = 1, #colOrder do
+							local header = abbrvs[colOrder[i]] or colOrder[i]
+							table.insert(temp_text, {text=center(header,colwidth[i]), width=colwidth[i], pen=colors.colColor})
+						end
+						table.insert(outStr, {text=temp_text})
+					end     
    
-     local lengthT = second._length or #second
-     for iT = 0, lengthT do
-      if second[iT] then
-       local third = second[iT]
-       temp_str = {}
-       local key = third._key or tostring(iT)
-       local title = third._title or key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-       if second._mark then title = third._mark..' '..title end
-       if token     then key   = token..':'..key end
-       local penHead = third._colorHeaders or colors.textColor
-       local penNums = third._colorNumbers or colors.numColor
-       local penText = third._colorText    or colors.textColor  
-       if third._colorBin then 
-        penNums = colors.binColors[third._colorBin]
-        penText = colors.binColors[third._colorBin] 
-       end
-       title = '  '..title
-       if type(third) == 'table' then
-        table.insert(temp_str, {text=title, width=hW, token=key, pen=penHead})   
-        for i = 1, #colOrder do
-         local text = third[colOrder[i]]
-         local pen = penText
-         if tonumber(text) then pen = penNums end
-         table.insert(temp_str, {text=center(tostring(text),colwidth[i]), width=colwidth[i], pen=pen})
-        end
-       else
-        table.insert(temp_str, {text=title, width=#title, token=key, pen=penHead})   
-        table.insert(temp_str, {text=third, rjustify=true, width=width-#title, pen=penText})
-       end
-       table.insert(outStr, {text=temp_str})
-      end
-     end
-    end
-   end
-  end
-  
-  --table.insert(outStr, {text=temp_str})
-  return outStr
- end
+					local lengthT = second._length or #second
+					for iT = 0, lengthT do
+						if second[iT] then
+							local third = second[iT]
+							temp_str = {}
+							local key = third._key or tostring(iT)
+							local title = third._title or key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+							if second._mark then title = third._mark..' '..title end
+							if token     then key   = token..':'..key end
+							local penHead = third._colorHeaders or colors.textColor
+							local penNums = third._colorNumbers or colors.numColor
+							local penText = third._colorText    or colors.textColor  
+							if third._colorBin then 
+								penNums = colors.binColors[third._colorBin]
+								penText = colors.binColors[third._colorBin] 
+							end
+							title = '  '..title
+							if type(third) == 'table' then
+								table.insert(temp_str, {text=title, width=hW, token=key, pen=penHead})   
+								for i = 1, #colOrder do
+									local text = third[colOrder[i]]
+									local pen = penText
+									if tonumber(text) then pen = penNums end
+									table.insert(temp_str, {text=center(tostring(text),colwidth[i]), width=colwidth[i], pen=pen})
+								end
+							else
+								table.insert(temp_str, {text=title, width=#title, token=key, pen=penHead})   
+								table.insert(temp_str, {text=third, rjustify=true, width=width-#title, pen=penText})
+							end
+							table.insert(outStr, {text=temp_str})
+						end
+					end
+				end
+			end
+		end
+		return outStr
+	end
  
- if options.rowOrder then
-  for j = 1, #options.rowOrder do
-   local k = options.rowOrder[j]
-   local tbl = list[k]
-   self.Input = insert(self.Input,k,tbl)
-  end
- else
-  for k,tbl in pairs(list) do
-   self.Input = insert(self.Input,k,tbl)
-  end
- end
+	if options.rowOrder then
+		for j = 1, #options.rowOrder do
+			local k = options.rowOrder[j]
+			local tbl = list[k]
+			self.Input = insert(self.Input,k,tbl)
+		end
+	else
+		for k,tbl in pairs(list) do
+			self.Input = insert(self.Input,k,tbl)
+		end
+	end
 end
 
 function WIDGET:insertList(list, options)

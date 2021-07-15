@@ -51,6 +51,45 @@ function get_hf_name(id,translate) -- Returns the units name
 	end
 end
 
+function listReplacement(list, replacement, replaceHeader)
+	local temp_list = {}
+	local temp_list_length = 0
+	for first, second in pairs(list) do
+		local temp_first = replacement[first] or #temp_list + 1
+		local temp_second = replacement[second] or #temp_list + 1
+		if tonumber(temp_second) and not tonumber(temp_first) then
+			temp_second = temp_first
+			temp_first = first
+		elseif tonumber(temp_first) and not tonumber(temp_second) then
+			temp_first = second
+		end
+		if not tonumber(temp_second) and not tonumber(temp_first) then
+			temp_list[temp_first] = temp_second
+			temp_list_length = temp_list_length + 1
+		end
+	end
+	list = {}
+	list._header = replaceHeader or ""
+	list._second = temp_list
+	list._length = temp_list_length
+	return list
+end
+
+textAbbreviations = {
+	Syndrome    = "Syn",
+	Strength    = "Str",
+	Severity    = "Sev",
+	Throat      = "Voice",
+	Penetration = "Pen",
+	Nausea      = "Nas",
+	Velocity    = "Vel",
+	Prepare     = "Prep", 
+	Recover     = "Rcvr",
+	Contact     = "Con",
+	Duration    = "Dur",
+	Probability = "Prob"
+}
+	
 -- Flags
 -- These are english translations for various flags
 -- e.g. NOPAIN = "Does not feel pain"
