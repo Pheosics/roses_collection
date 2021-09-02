@@ -757,8 +757,6 @@ function GUI:updateTop(screen)
 		table.insert(text, {text="Filter: ", pen=COLOR_LIGHTGREEN})
 		table.insert(text, {text=ft.." "})
 		table.insert(text, {key="HELP", text=": Help", on_activate = self:callback("fillHelp")})
-		print(screen)
-		printall(self)
 	self.subviews.top_ui:setText(text)
 end
 
@@ -999,7 +997,10 @@ end
 
 function WIDGET:insertCenter(text, options)
 	-- Insert a string with appropriate white space padding and functions.
-	local text = text or ""
+	if type(text) == 'table' then -- color from the data overrides color profiles
+		options.pen = text._color or colors.titleColor
+		text = text._string or text._text or ''
+	end
 	local penC  = options.pen or self.Colors.titleColor
 	local keyC  = options.keyColor or self.Colors.keyColor
 	local width = options.width or 40
@@ -1254,52 +1255,51 @@ end
 
 function WIDGET:insertList(list, options)
 	local colors  = self.Colors
- local width      = options.width or 40
- local viewScreen = options.view_id
- local viewCell   = options.cell
- local token      = options.token
- local colOrder   = options.colOrder or {'_string'}
- local rowOrder   = options.rowOrder
+	local width      = options.width or 40
+	local viewScreen = options.view_id
+	local viewCell   = options.cell
+	local token      = options.token
+	local colOrder   = options.colOrder or {'_string'}
+	local rowOrder   = options.rowOrder
  
- if not viewScreen or not viewCell then return input end
+	if not viewScreen or not viewCell then return input end
  
- local hW = width
- local colwidth = getOptimalWidth(width,list,colOrder)
- for i,_ in pairs(colOrder) do
-  hW = hW - colwidth[i]
- end  
+	local hW = width
+	local colwidth = getOptimalWidth(width,list,colOrder)
+	for i,_ in pairs(colOrder) do
+		hW = hW - colwidth[i]
+	end  
  
- local function insert(outStr,k,tbl)
-  local temp_str = {}
-  if type(tbl) ~= 'table' then return outStr end
-  local key = tbl._key or tostring(k)
-  local title = tbl._title or key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
-  if tbl._mark then title = tbl._mark..' '..title end
-  if token     then key   = token..':'..key end
-  local penHead = tbl._colorHeaders or colors.headColor
-  local penNums = tbl._colorNumbers or colors.numColor
-  local penText = tbl._colorText    or colors.textColor  
-  table.insert(temp_str, {text=title, width=hW, token=key, viewScreen=viewScreen, viewScreenCell=viewCell})
-  for i = 1, #colOrder do
-   local text = tbl[colOrder[i]]
-   local pen = penText
-   if tonumber(text) then pen = penNums end
-   table.insert(temp_str, {text=center(tostring(text),colwidth[i]), width=colwidth[i], pen=pen})
-  end
-  table.insert(outStr, {text=temp_str, search_key=title})
-  return outStr
- end
+	local function insert(outStr,k,tbl)
+		local temp_str = {}
+		if type(tbl) ~= 'table' then return outStr end
+		local key = tbl._key or tostring(k)
+		local title = tbl._title or key:gsub("%_"," "):gsub("(%a)([%w_']*)", tchelper)
+		if tbl._mark then title = tbl._mark..' '..title end
+		if token     then key   = token..':'..key end
+		local penHead = tbl._colorHeaders or colors.headColor
+		local penNums = tbl._colorNumbers or colors.numColor
+		local penText = tbl._colorText    or colors.textColor  
+		table.insert(temp_str, {text=title, width=hW, token=key, viewScreen=viewScreen, viewScreenCell=viewCell})
+		for i = 1, #colOrder do
+			local text = tbl[colOrder[i]]
+			local pen = penText
+			if tonumber(text) then pen = penNums end
+			table.insert(temp_str, {text=center(tostring(text),colwidth[i]), width=colwidth[i], pen=pen})
+		end
+		table.insert(outStr, {text=temp_str, search_key=title})
+		return outStr
+	end
  
- if rowOrder then
-  for j = 1, #rowOrder do
-   local k = rowOrder[j]
-   local tbl = list[k]
-   self.Input = insert(self.Input,k,tbl)
-  end
- else
-  for k,tbl in pairs(list) do
-   self.Input = insert(self.Input,k,tbl)
-  end
- end
+	if rowOrder then
+		for j = 1, #rowOrder do
+			local k = rowOrder[j]
+			local tbl = list[k]
+			self.Input = insert(self.Input,k,tbl)
+		end
+	else
+		for k,tbl in pairs(list) do
+			self.Input = insert(self.Input,k,tbl)
+		end
+	end
 end
-

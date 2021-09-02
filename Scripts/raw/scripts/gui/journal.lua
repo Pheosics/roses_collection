@@ -599,8 +599,7 @@ local function main(...)
 	--	frame_style = gui.BOUNDARY_FRAME,
 	--	frame_title = "Journal and Compendium"}
 	--journal:setFillFunction(journalFill)
-	print("JOURNAL")
-	printall(journal)
+
 	--local screen = journal{}
 	--print("SCREEN")
 	--printall(screen)

@@ -2086,7 +2086,7 @@ end
 needs = { -- Taken from Patrik Lundell"s thoughts.lua script and translated into a table
 	[df.need_type.Socialize]       = "being away from people for too long",
 	[df.need_type.DrinkAlcohol]    = "being kept from alcohol for too long",
-	[df.need_type.PrayOrMedidate]  = "being unable to pray for too long",
+	[df.need_type.PrayOrMeditate]  = "being unable to pray for too long",
 	[df.need_type.StayOccupied]    = "being unoccupied for too long",
 	[df.need_type.BeCreative]      = "doing nothing creative for so long",
 	[df.need_type.Excitement]      = "leading an unexciting life for so long",
@@ -2267,8 +2267,8 @@ thoughts = { -- Taken directly from Patrik Lundell"s thoughts.lua script
                                return hf_name (subthought)
                              end)}},
   [df.unit_thought_type.Death]                     = {
-    ["caption"]          = "{at }somebody"s death",  
-    ["extended_caption"] = "{at }[subthought]"s death",
+    ["caption"]          = "{at }somebody's death",  
+    ["extended_caption"] = "{at }[subthought]'s death",
     ["subthought"]       = {"hf id",
                             (function (subthought)
                                return hf_name (subthought)
@@ -3117,7 +3117,7 @@ thoughts = { -- Taken directly from Patrik Lundell"s thoughts.lua script
     end
     end)}},
   [df.unit_thought_type.SawDeadBody]               = {
-    ["caption"] = "{after }seeing [subthought]"s dead body",  
+    ["caption"] = "{after }seeing [subthought]'s dead body",  
     ["subthought"] = {"df.global.world.incidents.all id",
     (function (subthought) 
     return incident_victim (subthought)
@@ -3157,7 +3157,7 @@ focus = { -- Needs affect focus levels
   [df.need_type.DrinkAlcohol]    = {
     [-1] = "after being kept from alcohol",
     [1]  = "after drinking"},
-  [df.need_type.PrayOrMedidate]  = {
+  [df.need_type.PrayOrMeditate]  = {
     [-1] = "after being unable to pray", 
     [1]  = "after communing with their god"},
   [df.need_type.StayOccupied]    = {
