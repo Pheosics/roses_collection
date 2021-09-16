@@ -69,11 +69,31 @@ EventfulFunctions = {
 			local unit = df.unit.find(unitID)
 			local item = df.item.find(itemID)
 			if not unit or not item then return end
-			if item_new and item_old then return end
-			if item_new and not item_old then
-				checkEquipTrigger(item,"OnEquip",unit) -- System specific check
-			else
-				checkEquipTrigger(item,"OnUnequip",unit) -- System specific check
+			local mode_new = -1
+			local mode_old = -1
+			if item_new then mode_new = item_new.mode end
+			if item_old then mode_old = item_old.mode end
+			-- Various Possibilities
+			if item_new and item_old then
+				-- item_new and item_old (item switched mode)
+				if ((mode_new == 1 or mode_new == 2) and
+				    (mode_old ~= 1 and mode_old ~= 2)) then
+					checkEquipTrigger(item,"OnEquip", unit)
+				end
+				if ((mode_new ~= 1 or mode_new ~= 2) and
+				    (mode_old == 1 and mode_old == 2)) then
+					checkEquipTrigger(item,"OnUnequip", unit)
+				end				
+			elseif item_new and not item_old then
+				-- item_new and not item_old (item picked up)
+				if mode_new == 1 or mode_new == 2 then
+					checkEquipTrigger(item,"OnEquip", unit)
+				end
+			elseif item_old and not item_new then
+				-- item_old and not item_new (item dropped)
+				if mode_old == 1 or mode_old == 2 then
+					checkEquipTrigger(item,"OnUnequip",unit)
+				end
 			end
 		end
 	},
